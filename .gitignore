@@ -1,0 +1,8 @@
+*.env
+/.idea/
+node_modules
+/node_modules/.bin/
+*.zst
+*.zst.download
+.DS_Store
+*.pem

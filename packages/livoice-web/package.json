@@ -1,0 +1,43 @@
+{
+  "name": "livoice-web",
+  "version": "0.0.1",
+  "private": true,
+  "scripts": {
+    "dev": "npm run codegen && vite",
+    "build": "npm run codegen && vite build",
+    "preview": "vite preview",
+    "codegen": "orval"
+  },
+  "dependencies": {
+    "@tailwindcss/vite": "^4.1.17",
+    "@tanstack/react-query": "^5.4.0",
+    "axios": "^1.7.2",
+    "envalid": "^8.1.1",
+    "i18next": "^23.0.1",
+    "i18next-http-backend": "^3.0.2",
+    "lucide-react": "^0.489.0",
+    "react": "^19.1.0",
+    "react-dom": "^19.1.0",
+    "react-i18next": "^13.0.1",
+    "react-router-dom": "^7.6.2"
+  },
+  "devDependencies": {
+    "@types/react": "^19.0.0",
+    "@types/react-dom": "^19.0.0",
+    "@types/react-router-dom": "^5.3.3",
+    "@vitejs/plugin-react": "^4.4.1",
+    "dotenv": "^17.2.3",
+    "eslint": "^9.29.0",
+    "eslint-plugin-react": "^7.33.0",
+    "i18next-hmr": "^3.1.5",
+    "orval": "^7.17.0",
+    "tailwindcss": "^4.1.17",
+    "typescript": "~5.8.3",
+    "vite": "^6.3.5",
+    "vite-plugin-svgr": "^4.5.0"
+  },
+  "engines": {
+    "node": ">=22.18.0",
+    "npm": ">=10.x"
+  }
+}

@@ -1,0 +1,25 @@
+{
+  // Enable automatic imports for TypeScript
+  "typescript.suggest.autoImports": true,
+  "typescript.preferences.includePackageJsonAutoImports": "auto",
+  "typescript.updateImportsOnFileMove.enabled": "always",
+
+  // Enable automatic imports for JavaScript
+  "javascript.suggest.autoImports": true,
+  "javascript.preferences.includePackageJsonAutoImports": "auto",
+  "javascript.updateImportsOnFileMove.enabled": "always",
+
+  // Organize imports on save
+  "editor.codeActionsOnSave": {
+    "source.organizeImports": "explicit",
+    "source.fixAll": "explicit"
+  },
+
+  // Show quick suggestions for imports
+  "editor.quickSuggestions": {
+    "strings": true
+  },
+
+  // Snippet suggestions should appear below other suggestions
+  "editor.snippetSuggestions": "inline"
+}

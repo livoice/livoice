@@ -1,0 +1,15 @@
+---
+alwaysApply: true
+---
+
+Do not change coding styles and patterns in existing code
+
+## Code Style Rules
+
+- For simple if statements with single return, remove curly braces and make it one line: `if (condition) return value;` instead of `if (condition) { return value; }`
+- Remove unnecessary `await` when returning async function calls directly in simple return statements: `return filterFunction()` instead of `return await filterFunction()` (unless the await is needed for error handling or the function performs actual async operations like database writes)
+- Name handler-like functions with an `on` prefix (for example, `onDelete` or `onConfirm`) and avoid referencing the triggering UI element or event in the name (no suffixes like `Click`, `Button`, etc.)
+- For create/update operations that share the same variables structure, use a single handler pattern: `const handler = isEditMode ? updateMutation : createMutation;` then call `handler({ variables: { id: entityId, data, ... } })`. It's acceptable to provide `id` in variables even when creating, as the backend will ignore it for create operations.
+- When using `useParams` for route parameters, use default values instead of optional types to avoid type assertions: `const { paramId = '' } = useParams<{ paramId: string }>();` instead of `const { paramId } = useParams<{ paramId?: string }>();` followed by `paramId as string`. This eliminates the need for `as string` casts throughout the code.
+- When iterating over collections of users or similar entities, use the full word `user` instead of abbreviated forms like `u`. For example: `users.find(user => user.id === userId)` instead of `users.find(u => u.id === userId)`
+- When using array methods like `find`, `filter`, `map`, etc., prefer destructuring the callback parameter when it makes sense and improves readability. For example: `const selectedUser = users.find(({ id }) => id === userId)` instead of `const selectedUser = users.find(user => user.id === userId)` when only accessing a single property in the comparison.

@@ -1,0 +1,28 @@
+{
+  "sidebar": {
+    "transcripts": "Transcripts",
+    "settings": "Settings",
+    "profile": "Profile",
+    "logout": "Sign out",
+    "header": "Navigation"
+  },
+  "buttons": {
+    "uploadText": "Ingest text",
+    "sendQuestion": "Send question",
+    "back": "Back"
+  },
+  "pageTitles": {
+    "transcripts": "Transcripts",
+    "transcriptDetail": "Transcript detail"
+  },
+  "status": {
+    "loading": "Loading…",
+    "error": "Something went wrong."
+  },
+  "fields": {
+    "interviewee": "Interviewee",
+    "date": "Date",
+    "chunks": "Chunks"
+  }
+}
+
