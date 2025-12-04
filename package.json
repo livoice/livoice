@@ -6,24 +6,13 @@
     "packages/*"
   ],
   "scripts": {
-    "dev": "npm run dev --workspace=livoice-api & npm run dev --workspace=livoice-web",
-    "dev:api": "npm run dev --workspace=livoice-api",
+    "dev": "npm run dev --workspace=livoice-web & npm run dev --workspace=livoice-api",
     "dev:web": "npm run dev --workspace=livoice-web",
-    "clean": "rm -rf node_modules packages/*/node_modules packages/*/package-lock.json package-lock.json",
-    "lint": "eslint . --ext .ts,.tsx --max-warnings=0",
-    "format": "prettier --write ."
+    "dev:api": "npm run dev --workspace=livoice-api",
+    "clean": "rm -rf node_modules packages/*/node_modules packages/*/package-lock.json packages/*/yarn.lock package-lock.json yarn.lock"
   },
   "devDependencies": {
-    "@eslint/js": "^9.29.0",
-    "@typescript-eslint/eslint-plugin": "^8.35.0",
-    "@typescript-eslint/parser": "^8.35.0",
-    "eslint": "^9.29.0",
-    "eslint-plugin-import": "^2.32.0",
-    "eslint-import-resolver-typescript": "^4.4.4",
-    "eslint-plugin-react-hooks": "^5.2.0",
-    "eslint-plugin-react-refresh": "^0.4.20",
-    "eslint-plugin-spellcheck": "^0.0.20",
-    "globals": "^16.2.0",
+    "next": "14.2.33",
     "prettier": "3.5.3"
   },
   "engines": {

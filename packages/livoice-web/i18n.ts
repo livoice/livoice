@@ -1,10 +1,10 @@
-import type { InitOptions } from 'i18next';
 import i18n from 'i18next';
-import Backend from 'i18next-http-backend';
 import { initReactI18next } from 'react-i18next';
-import { datetime } from './src/lib/formatters';
+import Backend from 'i18next-http-backend';
+import type { InitOptions } from 'i18next';
+import { datetime } from './src/i18n/formatters';
 
-const FALLBACK_LANGUAGE = 'en';
+export const FALLBACK_LANGUAGE = 'en';
 
 i18n
   .use(initReactI18next)

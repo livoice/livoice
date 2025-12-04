@@ -1,9 +1,13 @@
 import react from '@vitejs/plugin-react';
-import { defineConfig, type PluginOption } from 'vite';
+import { defineConfig, loadEnv, type PluginOption } from 'vite';
+// import { visualizer } from 'rollup-plugin-visualizer';
+import tailwindcss from '@tailwindcss/vite';
 import svgr from 'vite-plugin-svgr';
 
+// https://vite.dev/config/
 export default defineConfig(async ({ mode }) => {
-  const tailwindcss = (await import('@tailwindcss/vite')).default;
+  const env = loadEnv(mode, process.cwd());
+
   const devPlugins: PluginOption[] = [];
 
   if (mode !== 'production') {
@@ -25,6 +29,11 @@ export default defineConfig(async ({ mode }) => {
         }
       }),
       ...devPlugins
+      // visualizer({
+      //   open: true,
+      //   gzipSize: true,
+      //   brotliSize: true
+      // })
     ],
     resolve: {
       alias: {
@@ -34,8 +43,19 @@ export default defineConfig(async ({ mode }) => {
     define: {
       process: process
     },
-    esbuild: {
-      target: 'esnext'
+    server: {
+      proxy: {
+        [`${env.VITE_BASE_API_PATH}/auth`]: {
+          target: env.VITE_BASE_API,
+          changeOrigin: true,
+          secure: env.NODE_ENV === 'production'
+        },
+        [`${env.VITE_BASE_API_PATH}/files/upload`]: {
+          target: env.VITE_BASE_API,
+          changeOrigin: true,
+          secure: env.NODE_ENV === 'production'
+        }
+      }
     }
   };
 });

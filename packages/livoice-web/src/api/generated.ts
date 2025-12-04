@@ -4,7 +4,7 @@
  * Livoice AI Transcript Chat API
  * OpenAPI spec version: 0.1.0
  */
-import { useMutation, useQuery } from '@tanstack/react-query';
+import { useMutation, useQuery } from "@tanstack/react-query";
 import type {
   DataTag,
   DefinedInitialDataOptions,
@@ -17,10 +17,10 @@ import type {
   UseMutationOptions,
   UseMutationResult,
   UseQueryOptions,
-  UseQueryResult
-} from '@tanstack/react-query';
+  UseQueryResult,
+} from "@tanstack/react-query";
 
-import { axiosClient } from './axiosClient';
+import { axiosClient } from "./axiosClient";
 export interface CreateTranscriptRequest {
   /** @minLength 1 */
   title: string;
@@ -210,9 +210,13 @@ export type PostTranscriptsIdChatBody = {
 
 export type PostTranscriptsIdChat200UsedChunksItemSpeaker = string | null;
 
-export type PostTranscriptsIdChat200UsedChunksItemAbsoluteTimestamp = number | null;
+export type PostTranscriptsIdChat200UsedChunksItemAbsoluteTimestamp =
+  | number
+  | null;
 
-export type PostTranscriptsIdChat200UsedChunksItemDurationSeconds = number | null;
+export type PostTranscriptsIdChat200UsedChunksItemDurationSeconds =
+  | number
+  | null;
 
 export type PostTranscriptsIdChat200UsedChunksItem = {
   id: string;
@@ -233,8 +237,14 @@ type SecondParameter<T extends (...args: never) => unknown> = Parameters<T>[1];
 /**
  * @summary List transcripts
  */
-export const getTranscripts = (options?: SecondParameter<typeof axiosClient>, signal?: AbortSignal) => {
-  return axiosClient<GetTranscripts200Item[]>({ url: `/transcripts`, method: 'GET', signal }, options);
+export const getTranscripts = (
+  options?: SecondParameter<typeof axiosClient>,
+  signal?: AbortSignal,
+) => {
+  return axiosClient<GetTranscripts200Item[]>(
+    { url: `/transcripts`, method: "GET", signal },
+    options,
+  );
 };
 
 export const getGetTranscriptsQueryKey = () => {
@@ -243,17 +253,20 @@ export const getGetTranscriptsQueryKey = () => {
 
 export const getGetTranscriptsQueryOptions = <
   TData = Awaited<ReturnType<typeof getTranscripts>>,
-  TError = unknown
+  TError = unknown,
 >(options?: {
-  query?: Partial<UseQueryOptions<Awaited<ReturnType<typeof getTranscripts>>, TError, TData>>;
+  query?: Partial<
+    UseQueryOptions<Awaited<ReturnType<typeof getTranscripts>>, TError, TData>
+  >;
   request?: SecondParameter<typeof axiosClient>;
 }) => {
   const { query: queryOptions, request: requestOptions } = options ?? {};
 
   const queryKey = queryOptions?.queryKey ?? getGetTranscriptsQueryKey();
 
-  const queryFn: QueryFunction<Awaited<ReturnType<typeof getTranscripts>>> = ({ signal }) =>
-    getTranscripts(requestOptions, signal);
+  const queryFn: QueryFunction<Awaited<ReturnType<typeof getTranscripts>>> = ({
+    signal,
+  }) => getTranscripts(requestOptions, signal);
 
   return { queryKey, queryFn, ...queryOptions } as UseQueryOptions<
     Awaited<ReturnType<typeof getTranscripts>>,
@@ -262,62 +275,87 @@ export const getGetTranscriptsQueryOptions = <
   > & { queryKey: DataTag<QueryKey, TData> };
 };
 
-export type GetTranscriptsQueryResult = NonNullable<Awaited<ReturnType<typeof getTranscripts>>>;
+export type GetTranscriptsQueryResult = NonNullable<
+  Awaited<ReturnType<typeof getTranscripts>>
+>;
 export type GetTranscriptsQueryError = unknown;
 
-export function useGetTranscripts<TData = Awaited<ReturnType<typeof getTranscripts>>, TError = unknown>(
+export function useGetTranscripts<
+  TData = Awaited<ReturnType<typeof getTranscripts>>,
+  TError = unknown,
+>(
   options: {
-    query: Partial<UseQueryOptions<Awaited<ReturnType<typeof getTranscripts>>, TError, TData>> &
+    query: Partial<
+      UseQueryOptions<Awaited<ReturnType<typeof getTranscripts>>, TError, TData>
+    > &
       Pick<
         DefinedInitialDataOptions<
           Awaited<ReturnType<typeof getTranscripts>>,
           TError,
           Awaited<ReturnType<typeof getTranscripts>>
         >,
-        'initialData'
+        "initialData"
       >;
     request?: SecondParameter<typeof axiosClient>;
   },
-  queryClient?: QueryClient
-): DefinedUseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData> };
-export function useGetTranscripts<TData = Awaited<ReturnType<typeof getTranscripts>>, TError = unknown>(
+  queryClient?: QueryClient,
+): DefinedUseQueryResult<TData, TError> & {
+  queryKey: DataTag<QueryKey, TData>;
+};
+export function useGetTranscripts<
+  TData = Awaited<ReturnType<typeof getTranscripts>>,
+  TError = unknown,
+>(
   options?: {
-    query?: Partial<UseQueryOptions<Awaited<ReturnType<typeof getTranscripts>>, TError, TData>> &
+    query?: Partial<
+      UseQueryOptions<Awaited<ReturnType<typeof getTranscripts>>, TError, TData>
+    > &
       Pick<
         UndefinedInitialDataOptions<
           Awaited<ReturnType<typeof getTranscripts>>,
           TError,
           Awaited<ReturnType<typeof getTranscripts>>
         >,
-        'initialData'
+        "initialData"
       >;
     request?: SecondParameter<typeof axiosClient>;
   },
-  queryClient?: QueryClient
+  queryClient?: QueryClient,
 ): UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData> };
-export function useGetTranscripts<TData = Awaited<ReturnType<typeof getTranscripts>>, TError = unknown>(
+export function useGetTranscripts<
+  TData = Awaited<ReturnType<typeof getTranscripts>>,
+  TError = unknown,
+>(
   options?: {
-    query?: Partial<UseQueryOptions<Awaited<ReturnType<typeof getTranscripts>>, TError, TData>>;
+    query?: Partial<
+      UseQueryOptions<Awaited<ReturnType<typeof getTranscripts>>, TError, TData>
+    >;
     request?: SecondParameter<typeof axiosClient>;
   },
-  queryClient?: QueryClient
+  queryClient?: QueryClient,
 ): UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData> };
 /**
  * @summary List transcripts
  */
 
-export function useGetTranscripts<TData = Awaited<ReturnType<typeof getTranscripts>>, TError = unknown>(
+export function useGetTranscripts<
+  TData = Awaited<ReturnType<typeof getTranscripts>>,
+  TError = unknown,
+>(
   options?: {
-    query?: Partial<UseQueryOptions<Awaited<ReturnType<typeof getTranscripts>>, TError, TData>>;
+    query?: Partial<
+      UseQueryOptions<Awaited<ReturnType<typeof getTranscripts>>, TError, TData>
+    >;
     request?: SecondParameter<typeof axiosClient>;
   },
-  queryClient?: QueryClient
+  queryClient?: QueryClient,
 ): UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData> } {
   const queryOptions = getGetTranscriptsQueryOptions(options);
 
-  const query = useQuery(queryOptions, queryClient) as UseQueryResult<TData, TError> & {
-    queryKey: DataTag<QueryKey, TData>;
-  };
+  const query = useQuery(queryOptions, queryClient) as UseQueryResult<
+    TData,
+    TError
+  > & { queryKey: DataTag<QueryKey, TData> };
 
   query.queryKey = queryOptions.queryKey;
 
@@ -330,21 +368,24 @@ export function useGetTranscripts<TData = Awaited<ReturnType<typeof getTranscrip
 export const postTranscripts = (
   postTranscriptsBody: PostTranscriptsBody,
   options?: SecondParameter<typeof axiosClient>,
-  signal?: AbortSignal
+  signal?: AbortSignal,
 ) => {
   return axiosClient<PostTranscripts201>(
     {
       url: `/transcripts`,
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
       data: postTranscriptsBody,
-      signal
+      signal,
     },
-    options
+    options,
   );
 };
 
-export const getPostTranscriptsMutationOptions = <TError = unknown, TContext = unknown>(options?: {
+export const getPostTranscriptsMutationOptions = <
+  TError = unknown,
+  TContext = unknown,
+>(options?: {
   mutation?: UseMutationOptions<
     Awaited<ReturnType<typeof postTranscripts>>,
     TError,
@@ -358,9 +399,11 @@ export const getPostTranscriptsMutationOptions = <TError = unknown, TContext = u
   { data: PostTranscriptsBody },
   TContext
 > => {
-  const mutationKey = ['postTranscripts'];
+  const mutationKey = ["postTranscripts"];
   const { mutation: mutationOptions, request: requestOptions } = options
-    ? options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey
+    ? options.mutation &&
+      "mutationKey" in options.mutation &&
+      options.mutation.mutationKey
       ? options
       : { ...options, mutation: { ...options.mutation, mutationKey } }
     : { mutation: { mutationKey }, request: undefined };
@@ -368,7 +411,7 @@ export const getPostTranscriptsMutationOptions = <TError = unknown, TContext = u
   const mutationFn: MutationFunction<
     Awaited<ReturnType<typeof postTranscripts>>,
     { data: PostTranscriptsBody }
-  > = props => {
+  > = (props) => {
     const { data } = props ?? {};
 
     return postTranscripts(data, requestOptions);
@@ -377,7 +420,9 @@ export const getPostTranscriptsMutationOptions = <TError = unknown, TContext = u
   return { mutationFn, ...mutationOptions };
 };
 
-export type PostTranscriptsMutationResult = NonNullable<Awaited<ReturnType<typeof postTranscripts>>>;
+export type PostTranscriptsMutationResult = NonNullable<
+  Awaited<ReturnType<typeof postTranscripts>>
+>;
 export type PostTranscriptsMutationBody = PostTranscriptsBody;
 export type PostTranscriptsMutationError = unknown;
 
@@ -394,8 +439,13 @@ export const usePostTranscripts = <TError = unknown, TContext = unknown>(
     >;
     request?: SecondParameter<typeof axiosClient>;
   },
-  queryClient?: QueryClient
-): UseMutationResult<Awaited<ReturnType<typeof postTranscripts>>, TError, { data: PostTranscriptsBody }, TContext> => {
+  queryClient?: QueryClient,
+): UseMutationResult<
+  Awaited<ReturnType<typeof postTranscripts>>,
+  TError,
+  { data: PostTranscriptsBody },
+  TContext
+> => {
   const mutationOptions = getPostTranscriptsMutationOptions(options);
 
   return useMutation(mutationOptions, queryClient);
@@ -404,95 +454,158 @@ export const usePostTranscripts = <TError = unknown, TContext = unknown>(
 /**
  * @summary Fetch transcript
  */
-export const getTranscriptsId = (id: string, options?: SecondParameter<typeof axiosClient>, signal?: AbortSignal) => {
-  return axiosClient<GetTranscriptsId200>({ url: `/transcripts/${id}`, method: 'GET', signal }, options);
+export const getTranscriptsId = (
+  id: string,
+  options?: SecondParameter<typeof axiosClient>,
+  signal?: AbortSignal,
+) => {
+  return axiosClient<GetTranscriptsId200>(
+    { url: `/transcripts/${id}`, method: "GET", signal },
+    options,
+  );
 };
 
 export const getGetTranscriptsIdQueryKey = (id?: string) => {
   return [`/transcripts/${id}`] as const;
 };
 
-export const getGetTranscriptsIdQueryOptions = <TData = Awaited<ReturnType<typeof getTranscriptsId>>, TError = void>(
+export const getGetTranscriptsIdQueryOptions = <
+  TData = Awaited<ReturnType<typeof getTranscriptsId>>,
+  TError = void,
+>(
   id: string,
   options?: {
-    query?: Partial<UseQueryOptions<Awaited<ReturnType<typeof getTranscriptsId>>, TError, TData>>;
+    query?: Partial<
+      UseQueryOptions<
+        Awaited<ReturnType<typeof getTranscriptsId>>,
+        TError,
+        TData
+      >
+    >;
     request?: SecondParameter<typeof axiosClient>;
-  }
+  },
 ) => {
   const { query: queryOptions, request: requestOptions } = options ?? {};
 
   const queryKey = queryOptions?.queryKey ?? getGetTranscriptsIdQueryKey(id);
 
-  const queryFn: QueryFunction<Awaited<ReturnType<typeof getTranscriptsId>>> = ({ signal }) =>
-    getTranscriptsId(id, requestOptions, signal);
+  const queryFn: QueryFunction<
+    Awaited<ReturnType<typeof getTranscriptsId>>
+  > = ({ signal }) => getTranscriptsId(id, requestOptions, signal);
 
-  return { queryKey, queryFn, enabled: !!id, ...queryOptions } as UseQueryOptions<
+  return {
+    queryKey,
+    queryFn,
+    enabled: !!id,
+    ...queryOptions,
+  } as UseQueryOptions<
     Awaited<ReturnType<typeof getTranscriptsId>>,
     TError,
     TData
   > & { queryKey: DataTag<QueryKey, TData> };
 };
 
-export type GetTranscriptsIdQueryResult = NonNullable<Awaited<ReturnType<typeof getTranscriptsId>>>;
+export type GetTranscriptsIdQueryResult = NonNullable<
+  Awaited<ReturnType<typeof getTranscriptsId>>
+>;
 export type GetTranscriptsIdQueryError = void;
 
-export function useGetTranscriptsId<TData = Awaited<ReturnType<typeof getTranscriptsId>>, TError = void>(
+export function useGetTranscriptsId<
+  TData = Awaited<ReturnType<typeof getTranscriptsId>>,
+  TError = void,
+>(
   id: string,
   options: {
-    query: Partial<UseQueryOptions<Awaited<ReturnType<typeof getTranscriptsId>>, TError, TData>> &
+    query: Partial<
+      UseQueryOptions<
+        Awaited<ReturnType<typeof getTranscriptsId>>,
+        TError,
+        TData
+      >
+    > &
       Pick<
         DefinedInitialDataOptions<
           Awaited<ReturnType<typeof getTranscriptsId>>,
           TError,
           Awaited<ReturnType<typeof getTranscriptsId>>
         >,
-        'initialData'
+        "initialData"
       >;
     request?: SecondParameter<typeof axiosClient>;
   },
-  queryClient?: QueryClient
-): DefinedUseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData> };
-export function useGetTranscriptsId<TData = Awaited<ReturnType<typeof getTranscriptsId>>, TError = void>(
+  queryClient?: QueryClient,
+): DefinedUseQueryResult<TData, TError> & {
+  queryKey: DataTag<QueryKey, TData>;
+};
+export function useGetTranscriptsId<
+  TData = Awaited<ReturnType<typeof getTranscriptsId>>,
+  TError = void,
+>(
   id: string,
   options?: {
-    query?: Partial<UseQueryOptions<Awaited<ReturnType<typeof getTranscriptsId>>, TError, TData>> &
+    query?: Partial<
+      UseQueryOptions<
+        Awaited<ReturnType<typeof getTranscriptsId>>,
+        TError,
+        TData
+      >
+    > &
       Pick<
         UndefinedInitialDataOptions<
           Awaited<ReturnType<typeof getTranscriptsId>>,
           TError,
           Awaited<ReturnType<typeof getTranscriptsId>>
         >,
-        'initialData'
+        "initialData"
       >;
     request?: SecondParameter<typeof axiosClient>;
   },
-  queryClient?: QueryClient
+  queryClient?: QueryClient,
 ): UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData> };
-export function useGetTranscriptsId<TData = Awaited<ReturnType<typeof getTranscriptsId>>, TError = void>(
+export function useGetTranscriptsId<
+  TData = Awaited<ReturnType<typeof getTranscriptsId>>,
+  TError = void,
+>(
   id: string,
   options?: {
-    query?: Partial<UseQueryOptions<Awaited<ReturnType<typeof getTranscriptsId>>, TError, TData>>;
+    query?: Partial<
+      UseQueryOptions<
+        Awaited<ReturnType<typeof getTranscriptsId>>,
+        TError,
+        TData
+      >
+    >;
     request?: SecondParameter<typeof axiosClient>;
   },
-  queryClient?: QueryClient
+  queryClient?: QueryClient,
 ): UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData> };
 /**
  * @summary Fetch transcript
  */
 
-export function useGetTranscriptsId<TData = Awaited<ReturnType<typeof getTranscriptsId>>, TError = void>(
+export function useGetTranscriptsId<
+  TData = Awaited<ReturnType<typeof getTranscriptsId>>,
+  TError = void,
+>(
   id: string,
   options?: {
-    query?: Partial<UseQueryOptions<Awaited<ReturnType<typeof getTranscriptsId>>, TError, TData>>;
+    query?: Partial<
+      UseQueryOptions<
+        Awaited<ReturnType<typeof getTranscriptsId>>,
+        TError,
+        TData
+      >
+    >;
     request?: SecondParameter<typeof axiosClient>;
   },
-  queryClient?: QueryClient
+  queryClient?: QueryClient,
 ): UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData> } {
   const queryOptions = getGetTranscriptsIdQueryOptions(id, options);
 
-  const query = useQuery(queryOptions, queryClient) as UseQueryResult<TData, TError> & {
-    queryKey: DataTag<QueryKey, TData>;
-  };
+  const query = useQuery(queryOptions, queryClient) as UseQueryResult<
+    TData,
+    TError
+  > & { queryKey: DataTag<QueryKey, TData> };
 
   query.queryKey = queryOptions.queryKey;
 
@@ -506,21 +619,24 @@ export const postTranscriptsIdUploadText = (
   id: string,
   postTranscriptsIdUploadTextBody: PostTranscriptsIdUploadTextBody,
   options?: SecondParameter<typeof axiosClient>,
-  signal?: AbortSignal
+  signal?: AbortSignal,
 ) => {
   return axiosClient<PostTranscriptsIdUploadText200>(
     {
       url: `/transcripts/${id}/upload-text`,
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
       data: postTranscriptsIdUploadTextBody,
-      signal
+      signal,
     },
-    options
+    options,
   );
 };
 
-export const getPostTranscriptsIdUploadTextMutationOptions = <TError = unknown, TContext = unknown>(options?: {
+export const getPostTranscriptsIdUploadTextMutationOptions = <
+  TError = unknown,
+  TContext = unknown,
+>(options?: {
   mutation?: UseMutationOptions<
     Awaited<ReturnType<typeof postTranscriptsIdUploadText>>,
     TError,
@@ -534,9 +650,11 @@ export const getPostTranscriptsIdUploadTextMutationOptions = <TError = unknown, 
   { id: string; data: PostTranscriptsIdUploadTextBody },
   TContext
 > => {
-  const mutationKey = ['postTranscriptsIdUploadText'];
+  const mutationKey = ["postTranscriptsIdUploadText"];
   const { mutation: mutationOptions, request: requestOptions } = options
-    ? options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey
+    ? options.mutation &&
+      "mutationKey" in options.mutation &&
+      options.mutation.mutationKey
       ? options
       : { ...options, mutation: { ...options.mutation, mutationKey } }
     : { mutation: { mutationKey }, request: undefined };
@@ -544,7 +662,7 @@ export const getPostTranscriptsIdUploadTextMutationOptions = <TError = unknown, 
   const mutationFn: MutationFunction<
     Awaited<ReturnType<typeof postTranscriptsIdUploadText>>,
     { id: string; data: PostTranscriptsIdUploadTextBody }
-  > = props => {
+  > = (props) => {
     const { id, data } = props ?? {};
 
     return postTranscriptsIdUploadText(id, data, requestOptions);
@@ -556,13 +674,17 @@ export const getPostTranscriptsIdUploadTextMutationOptions = <TError = unknown, 
 export type PostTranscriptsIdUploadTextMutationResult = NonNullable<
   Awaited<ReturnType<typeof postTranscriptsIdUploadText>>
 >;
-export type PostTranscriptsIdUploadTextMutationBody = PostTranscriptsIdUploadTextBody;
+export type PostTranscriptsIdUploadTextMutationBody =
+  PostTranscriptsIdUploadTextBody;
 export type PostTranscriptsIdUploadTextMutationError = unknown;
 
 /**
  * @summary Add transcript text
  */
-export const usePostTranscriptsIdUploadText = <TError = unknown, TContext = unknown>(
+export const usePostTranscriptsIdUploadText = <
+  TError = unknown,
+  TContext = unknown,
+>(
   options?: {
     mutation?: UseMutationOptions<
       Awaited<ReturnType<typeof postTranscriptsIdUploadText>>,
@@ -572,14 +694,15 @@ export const usePostTranscriptsIdUploadText = <TError = unknown, TContext = unkn
     >;
     request?: SecondParameter<typeof axiosClient>;
   },
-  queryClient?: QueryClient
+  queryClient?: QueryClient,
 ): UseMutationResult<
   Awaited<ReturnType<typeof postTranscriptsIdUploadText>>,
   TError,
   { id: string; data: PostTranscriptsIdUploadTextBody },
   TContext
 > => {
-  const mutationOptions = getPostTranscriptsIdUploadTextMutationOptions(options);
+  const mutationOptions =
+    getPostTranscriptsIdUploadTextMutationOptions(options);
 
   return useMutation(mutationOptions, queryClient);
 };
@@ -590,11 +713,11 @@ export const usePostTranscriptsIdUploadText = <TError = unknown, TContext = unkn
 export const getTranscriptsIdChunks = (
   id: string,
   options?: SecondParameter<typeof axiosClient>,
-  signal?: AbortSignal
+  signal?: AbortSignal,
 ) => {
   return axiosClient<GetTranscriptsIdChunks200Item[]>(
-    { url: `/transcripts/${id}/chunks`, method: 'GET', signal },
-    options
+    { url: `/transcripts/${id}/chunks`, method: "GET", signal },
+    options,
   );
 };
 
@@ -604,88 +727,142 @@ export const getGetTranscriptsIdChunksQueryKey = (id?: string) => {
 
 export const getGetTranscriptsIdChunksQueryOptions = <
   TData = Awaited<ReturnType<typeof getTranscriptsIdChunks>>,
-  TError = unknown
+  TError = unknown,
 >(
   id: string,
   options?: {
-    query?: Partial<UseQueryOptions<Awaited<ReturnType<typeof getTranscriptsIdChunks>>, TError, TData>>;
+    query?: Partial<
+      UseQueryOptions<
+        Awaited<ReturnType<typeof getTranscriptsIdChunks>>,
+        TError,
+        TData
+      >
+    >;
     request?: SecondParameter<typeof axiosClient>;
-  }
+  },
 ) => {
   const { query: queryOptions, request: requestOptions } = options ?? {};
 
-  const queryKey = queryOptions?.queryKey ?? getGetTranscriptsIdChunksQueryKey(id);
+  const queryKey =
+    queryOptions?.queryKey ?? getGetTranscriptsIdChunksQueryKey(id);
 
-  const queryFn: QueryFunction<Awaited<ReturnType<typeof getTranscriptsIdChunks>>> = ({ signal }) =>
-    getTranscriptsIdChunks(id, requestOptions, signal);
+  const queryFn: QueryFunction<
+    Awaited<ReturnType<typeof getTranscriptsIdChunks>>
+  > = ({ signal }) => getTranscriptsIdChunks(id, requestOptions, signal);
 
-  return { queryKey, queryFn, enabled: !!id, ...queryOptions } as UseQueryOptions<
+  return {
+    queryKey,
+    queryFn,
+    enabled: !!id,
+    ...queryOptions,
+  } as UseQueryOptions<
     Awaited<ReturnType<typeof getTranscriptsIdChunks>>,
     TError,
     TData
   > & { queryKey: DataTag<QueryKey, TData> };
 };
 
-export type GetTranscriptsIdChunksQueryResult = NonNullable<Awaited<ReturnType<typeof getTranscriptsIdChunks>>>;
+export type GetTranscriptsIdChunksQueryResult = NonNullable<
+  Awaited<ReturnType<typeof getTranscriptsIdChunks>>
+>;
 export type GetTranscriptsIdChunksQueryError = unknown;
 
-export function useGetTranscriptsIdChunks<TData = Awaited<ReturnType<typeof getTranscriptsIdChunks>>, TError = unknown>(
+export function useGetTranscriptsIdChunks<
+  TData = Awaited<ReturnType<typeof getTranscriptsIdChunks>>,
+  TError = unknown,
+>(
   id: string,
   options: {
-    query: Partial<UseQueryOptions<Awaited<ReturnType<typeof getTranscriptsIdChunks>>, TError, TData>> &
+    query: Partial<
+      UseQueryOptions<
+        Awaited<ReturnType<typeof getTranscriptsIdChunks>>,
+        TError,
+        TData
+      >
+    > &
       Pick<
         DefinedInitialDataOptions<
           Awaited<ReturnType<typeof getTranscriptsIdChunks>>,
           TError,
           Awaited<ReturnType<typeof getTranscriptsIdChunks>>
         >,
-        'initialData'
+        "initialData"
       >;
     request?: SecondParameter<typeof axiosClient>;
   },
-  queryClient?: QueryClient
-): DefinedUseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData> };
-export function useGetTranscriptsIdChunks<TData = Awaited<ReturnType<typeof getTranscriptsIdChunks>>, TError = unknown>(
+  queryClient?: QueryClient,
+): DefinedUseQueryResult<TData, TError> & {
+  queryKey: DataTag<QueryKey, TData>;
+};
+export function useGetTranscriptsIdChunks<
+  TData = Awaited<ReturnType<typeof getTranscriptsIdChunks>>,
+  TError = unknown,
+>(
   id: string,
   options?: {
-    query?: Partial<UseQueryOptions<Awaited<ReturnType<typeof getTranscriptsIdChunks>>, TError, TData>> &
+    query?: Partial<
+      UseQueryOptions<
+        Awaited<ReturnType<typeof getTranscriptsIdChunks>>,
+        TError,
+        TData
+      >
+    > &
       Pick<
         UndefinedInitialDataOptions<
           Awaited<ReturnType<typeof getTranscriptsIdChunks>>,
           TError,
           Awaited<ReturnType<typeof getTranscriptsIdChunks>>
         >,
-        'initialData'
+        "initialData"
       >;
     request?: SecondParameter<typeof axiosClient>;
   },
-  queryClient?: QueryClient
+  queryClient?: QueryClient,
 ): UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData> };
-export function useGetTranscriptsIdChunks<TData = Awaited<ReturnType<typeof getTranscriptsIdChunks>>, TError = unknown>(
+export function useGetTranscriptsIdChunks<
+  TData = Awaited<ReturnType<typeof getTranscriptsIdChunks>>,
+  TError = unknown,
+>(
   id: string,
   options?: {
-    query?: Partial<UseQueryOptions<Awaited<ReturnType<typeof getTranscriptsIdChunks>>, TError, TData>>;
+    query?: Partial<
+      UseQueryOptions<
+        Awaited<ReturnType<typeof getTranscriptsIdChunks>>,
+        TError,
+        TData
+      >
+    >;
     request?: SecondParameter<typeof axiosClient>;
   },
-  queryClient?: QueryClient
+  queryClient?: QueryClient,
 ): UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData> };
 /**
  * @summary List transcript chunks
  */
 
-export function useGetTranscriptsIdChunks<TData = Awaited<ReturnType<typeof getTranscriptsIdChunks>>, TError = unknown>(
+export function useGetTranscriptsIdChunks<
+  TData = Awaited<ReturnType<typeof getTranscriptsIdChunks>>,
+  TError = unknown,
+>(
   id: string,
   options?: {
-    query?: Partial<UseQueryOptions<Awaited<ReturnType<typeof getTranscriptsIdChunks>>, TError, TData>>;
+    query?: Partial<
+      UseQueryOptions<
+        Awaited<ReturnType<typeof getTranscriptsIdChunks>>,
+        TError,
+        TData
+      >
+    >;
     request?: SecondParameter<typeof axiosClient>;
   },
-  queryClient?: QueryClient
+  queryClient?: QueryClient,
 ): UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData> } {
   const queryOptions = getGetTranscriptsIdChunksQueryOptions(id, options);
 
-  const query = useQuery(queryOptions, queryClient) as UseQueryResult<TData, TError> & {
-    queryKey: DataTag<QueryKey, TData>;
-  };
+  const query = useQuery(queryOptions, queryClient) as UseQueryResult<
+    TData,
+    TError
+  > & { queryKey: DataTag<QueryKey, TData> };
 
   query.queryKey = queryOptions.queryKey;
 
@@ -699,21 +876,24 @@ export const postTranscriptsIdChat = (
   id: string,
   postTranscriptsIdChatBody: PostTranscriptsIdChatBody,
   options?: SecondParameter<typeof axiosClient>,
-  signal?: AbortSignal
+  signal?: AbortSignal,
 ) => {
   return axiosClient<PostTranscriptsIdChat200>(
     {
       url: `/transcripts/${id}/chat`,
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
       data: postTranscriptsIdChatBody,
-      signal
+      signal,
     },
-    options
+    options,
   );
 };
 
-export const getPostTranscriptsIdChatMutationOptions = <TError = unknown, TContext = unknown>(options?: {
+export const getPostTranscriptsIdChatMutationOptions = <
+  TError = unknown,
+  TContext = unknown,
+>(options?: {
   mutation?: UseMutationOptions<
     Awaited<ReturnType<typeof postTranscriptsIdChat>>,
     TError,
@@ -727,9 +907,11 @@ export const getPostTranscriptsIdChatMutationOptions = <TError = unknown, TConte
   { id: string; data: PostTranscriptsIdChatBody },
   TContext
 > => {
-  const mutationKey = ['postTranscriptsIdChat'];
+  const mutationKey = ["postTranscriptsIdChat"];
   const { mutation: mutationOptions, request: requestOptions } = options
-    ? options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey
+    ? options.mutation &&
+      "mutationKey" in options.mutation &&
+      options.mutation.mutationKey
       ? options
       : { ...options, mutation: { ...options.mutation, mutationKey } }
     : { mutation: { mutationKey }, request: undefined };
@@ -737,7 +919,7 @@ export const getPostTranscriptsIdChatMutationOptions = <TError = unknown, TConte
   const mutationFn: MutationFunction<
     Awaited<ReturnType<typeof postTranscriptsIdChat>>,
     { id: string; data: PostTranscriptsIdChatBody }
-  > = props => {
+  > = (props) => {
     const { id, data } = props ?? {};
 
     return postTranscriptsIdChat(id, data, requestOptions);
@@ -746,7 +928,9 @@ export const getPostTranscriptsIdChatMutationOptions = <TError = unknown, TConte
   return { mutationFn, ...mutationOptions };
 };
 
-export type PostTranscriptsIdChatMutationResult = NonNullable<Awaited<ReturnType<typeof postTranscriptsIdChat>>>;
+export type PostTranscriptsIdChatMutationResult = NonNullable<
+  Awaited<ReturnType<typeof postTranscriptsIdChat>>
+>;
 export type PostTranscriptsIdChatMutationBody = PostTranscriptsIdChatBody;
 export type PostTranscriptsIdChatMutationError = unknown;
 
@@ -763,7 +947,7 @@ export const usePostTranscriptsIdChat = <TError = unknown, TContext = unknown>(
     >;
     request?: SecondParameter<typeof axiosClient>;
   },
-  queryClient?: QueryClient
+  queryClient?: QueryClient,
 ): UseMutationResult<
   Awaited<ReturnType<typeof postTranscriptsIdChat>>,
   TError,
