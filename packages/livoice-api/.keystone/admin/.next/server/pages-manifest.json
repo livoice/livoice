@@ -3,11 +3,7 @@
   "/_error": "pages/_error.js",
   "/_document": "pages/_document.js",
   "/api/auth/[...nextauth]": "pages/api/auth/[...nextauth].js",
-  "/": "pages/index.js",
-  "/transcripts": "pages/transcripts.js",
   "/transcripts/create": "pages/transcripts/create.js",
-  "/transcripts/[id]": "pages/transcripts/[id].js",
-  "/transcript-segments": "pages/transcript-segments.js",
   "/transcript-segments/create": "pages/transcript-segments/create.js",
   "/transcript-segments/[id]": "pages/transcript-segments/[id].js"
 }
