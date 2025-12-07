@@ -5,6 +5,7 @@ node_modules
 *.zst
 *.zst.download
 /packages/livoice-api/.keystone/
+/packages/livoice-api/.next/
 .DS_Store
 *.pem
 /packages/livoice-api/stats.html

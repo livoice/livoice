@@ -1,9 +1,0 @@
-{
-  "/_app": "pages/_app.js",
-  "/_error": "pages/_error.js",
-  "/_document": "pages/_document.js",
-  "/api/auth/[...nextauth]": "pages/api/auth/[...nextauth].js",
-  "/transcripts/create": "pages/transcripts/create.js",
-  "/transcript-segments/create": "pages/transcript-segments/create.js",
-  "/transcript-segments/[id]": "pages/transcript-segments/[id].js"
-}
