@@ -39,7 +39,8 @@ import {
   TableCell,
   TableHead,
   TableHeader,
-  TableRow
+  TableRow,
+  TextField
 } from '@/ui';
 import { normalizeForForm } from '@/utils/normalizeForForm';
 
@@ -759,11 +760,14 @@ function AllocationHistoryModal({ open, onClose, userId, policy }: AllocationHis
               <label className="text-sm font-medium text-muted-foreground" htmlFor={manualNotesFieldId}>
                 {t('users.allowanceModal.fields.notes')}
               </label>
-              <textarea
+              <TextField
                 id={manualNotesFieldId}
+                multiline
+                rows={4}
                 value={manualForm.notes}
                 onChange={event => handleManualFormChange('notes', event.target.value)}
-                className="min-h-[90px] w-full rounded-2xl border border-border bg-white/80 p-3 text-sm outline-none transition focus:border-primary focus:ring-2 focus:ring-primary/30"
+                className="bg-white/80"
+                fullWidth
               />
             </div>
             <Button type="submit" disabled={!canSubmitManual}>

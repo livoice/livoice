@@ -56,7 +56,7 @@ const TextField = forwardRef<HTMLInputElement | HTMLSelectElement, TextFieldProp
 
     const selectClasses = cn(selectStyles, error && 'border-destructive focus-visible:ring-destructive/60', className);
 
-    const textareaClasses = cn(sharedClasses, 'min-h-[6rem] resize-none py-3');
+    const textareaClasses = cn(sharedClasses, 'min-h-[6rem] resize-none py-3 rounded-[var(--radius-2xl)]');
 
     const content = select ? (
       <select

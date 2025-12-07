@@ -18,7 +18,7 @@ import {
 import { useAuth } from '@/hooks/auth/useAuth';
 import { useToast } from '@/hooks/useToast';
 import { toProjects } from '@/services/linker';
-import { Button, Input, Textarea } from '@/ui';
+import { Button, Input, TextField } from '@/ui';
 
 type ProjectFormValues = {
   name: string;
@@ -185,7 +185,7 @@ export default function ProjectUpsert() {
             control={control}
             render={({ field, fieldState }) => (
               <FormField label={t('fields.description')} error={fieldState.error?.message}>
-                <Textarea {...field} rows={4} placeholder={t('placeholders.description')} />
+                <TextField {...field} multiline rows={4} placeholder={t('placeholders.description')} />
               </FormField>
             )}
           />

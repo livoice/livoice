@@ -1,11 +1,11 @@
 import { config } from '@keystone-6/core';
-import lists, { extendGraphqlSchema } from './schemas';
 import { DatabaseProvider } from '@keystone-6/core/types';
-import env from './config/env';
 import { nextAuthSessionStrategy } from './auth';
+import env from './config/env';
 import providers from './lib/auth/providers';
 import cors from './lib/cors';
 import extendExpressApp from './routes';
+import lists, { extendGraphqlSchema } from './schemas';
 
 export default config({
   db: {
@@ -36,11 +36,15 @@ export default config({
   },
   server: {
     cors,
-    extendExpressApp
+    extendExpressApp,
+    maxFileSize: 50 * 1024 * 1024
   },
   graphql: {
     path: '/api/graphql',
     debug: false,
+    bodyParser: {
+      limit: '50mb'
+    },
     // use the builder-style GraphQL extensions
     extendGraphqlSchema
   }

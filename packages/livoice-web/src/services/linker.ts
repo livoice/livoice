@@ -18,7 +18,10 @@ export enum ROUTER_PATHS {
   SETTINGS_ORG = '/settings/org',
   PROJECTS = '/projects',
   PROJECTS_CREATE = '/projects/create',
-  PROJECTS_EDIT = '/projects/:projectId',
+  PROJECTS_EDIT = '/projects/:projectId/edit',
+  PROJECT = '/projects/:projectId',
+  TRANSCRIPTS_CREATE = '/transcripts/create',
+  PROJECT_TRANSCRIPTS_CREATE = '/projects/:projectId/transcripts/create',
   NOT_FOUND = '*'
 }
 
@@ -45,5 +48,9 @@ export const toUserEdit = ({ userId }: { userId: string }) => asPath(ROUTER_PATH
 export const toSettingsOrg = () => asPath(ROUTER_PATHS.SETTINGS_ORG);
 export const toProjects = () => asPath(ROUTER_PATHS.PROJECTS);
 export const toProjectCreate = () => asPath(ROUTER_PATHS.PROJECTS_CREATE);
+export const toProject = ({ projectId }: { projectId: string }) => asPath(ROUTER_PATHS.PROJECT, { projectId });
 export const toProjectEdit = ({ projectId }: { projectId: string }) =>
   asPath(ROUTER_PATHS.PROJECTS_EDIT, { projectId });
+export const toTranscriptCreate = () => asPath(ROUTER_PATHS.TRANSCRIPTS_CREATE);
+export const toProjectTranscriptCreate = ({ projectId }: { projectId: string }) =>
+  asPath(ROUTER_PATHS.PROJECT_TRANSCRIPTS_CREATE, { projectId });

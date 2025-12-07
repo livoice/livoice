@@ -124,10 +124,10 @@ export const TranscriptIngestion = (base: BaseSchemaMeta) => {
           const transcript = await sudoContext.db.Transcript.createOne({
             data: {
               title: input.title.trim(),
-              intervieweeName: input.intervieweeName?.trim() || null,
-              sourceUrl: input.sourceUrl?.trim() || null,
-              language: input.language?.trim() || null,
-              notes: input.notes?.trim() || null,
+              intervieweeName: input.intervieweeName?.trim() || undefined,
+              sourceUrl: input.sourceUrl?.trim() || undefined,
+              language: input.language?.trim() || undefined,
+              notes: input.notes?.trim() || undefined,
               project: { connect: { id: project.id } },
               org: { connect: { id: project.org.id } }
             }

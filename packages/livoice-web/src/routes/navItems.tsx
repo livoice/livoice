@@ -13,6 +13,14 @@ export interface NavItemConfig {
 
 export const NAV_ITEMS: NavItemConfig[] = [
   {
+    key: 'projects',
+    labelKey: 'sidebar.projects',
+    icon: 'folder',
+    path: toProjects(),
+    routePath: ROUTER_PATHS.PROJECTS,
+    section: 'primary'
+  },
+  {
     key: 'transcripts',
     labelKey: 'sidebar.transcripts',
     icon: 'mic',
@@ -34,14 +42,6 @@ export const NAV_ITEMS: NavItemConfig[] = [
     icon: 'group',
     path: toUsers(),
     routePath: ROUTER_PATHS.USERS,
-    section: 'settings'
-  },
-  {
-    key: 'projects',
-    labelKey: 'sidebar.projects',
-    icon: 'location_on',
-    path: toProjects(),
-    routePath: ROUTER_PATHS.PROJECTS,
     section: 'settings'
   },
   {

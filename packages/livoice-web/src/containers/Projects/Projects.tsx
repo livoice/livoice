@@ -1,14 +1,13 @@
-import { useEffect, useMemo, useState } from 'react';
+import { parseAsString, useQueryState } from 'nuqs';
+import { useMemo } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Outlet, useNavigate } from 'react-router';
+import { Link } from 'react-router-dom';
 
 import { useProjectsQuery, type ProjectsQuery } from '@/gql/generated';
 import { useAuth } from '@/hooks/auth/useAuth';
-import { cn } from '@/lib/cn';
-import { toProjectCreate, toProjectEdit } from '@/services/linker';
-import { Button, Input, PageHeader } from '@/ui';
-import ProjectCard from './components/ProjectCard/ProjectCard';
-import ProjectTranscripts from './components/ProjectTranscripts';
+import { toProject, toProjectCreate, toProjectEdit } from '@/services/linker';
+import { Button, Input, PageHeader, buttonVariants } from '@/ui';
 
 type ProjectListItem = NonNullable<NonNullable<ProjectsQuery['projects']>[number]>;
 
@@ -28,8 +27,7 @@ export default function Projects() {
     Boolean(candidate)
   );
 
-  const [search, setSearch] = useState('');
-  const [selectedProjectId, setSelectedProjectId] = useState('');
+  const [search, setSearch] = useQueryState('search', parseAsString.withDefault(''));
 
   const filteredProjects = useMemo(() => {
     const term = search.trim().toLowerCase();
@@ -41,18 +39,6 @@ export default function Projects() {
       return true;
     });
   }, [projects, search]);
-
-  useEffect(() => {
-    if (selectedProjectId) return;
-    if (projects.length) {
-      setSelectedProjectId(projects[0].id);
-    }
-  }, [projects, selectedProjectId]);
-
-  const selectedProject = useMemo(
-    () => projects.find(project => project?.id === selectedProjectId),
-    [projects, selectedProjectId]
-  );
 
   const canCreateProject = canEditOrg;
   const canEditProjectById = (projectId: string) => {
@@ -78,10 +64,10 @@ export default function Projects() {
   );
 
   const actions = canCreateProject ? (
-    <Button onClick={() => navigate(toProjectCreate())} className="shadow-lg shadow-primary/25">
+    <Link to={toProjectCreate()} className={buttonVariants({ className: 'shadow-lg shadow-primary/25' })}>
       <span className="material-symbols-outlined mr-2 text-lg">add</span>
       {t('buttons.create')}
-    </Button>
+    </Link>
   ) : null;
 
   return (
@@ -91,44 +77,47 @@ export default function Projects() {
         {loading ? (
           <Spinner />
         ) : filteredProjects.length ? (
-          <div className="grid gap-5 sm:grid-cols-2 lg:grid-cols-3 2xl:grid-cols-4">
-            {filteredProjects.map(project => {
-              const isSelected = selectedProjectId === project.id;
-              return (
-                <div
-                  key={project.id}
-                  className={cn(
-                    'space-y-3 rounded-[28px] border bg-white/70 p-3 transition',
-                    isSelected ? 'border-primary shadow-lg' : 'border-slate-200'
-                  )}
+          <div className="space-y-3">
+            {filteredProjects.map(project => (
+              <div
+                key={project.id}
+                className="rounded-2xl border border-slate-100 bg-white/90 shadow-sm transition hover:shadow-md"
+              >
+                <Link
+                  to={toProject({ projectId: project.id })}
+                  className="flex flex-col gap-3 p-4 no-underline sm:flex-row sm:items-center sm:justify-between"
                 >
-                  <ProjectCard
-                    name={project.name ?? ''}
-                    description={project.description ?? ''}
-                    orgName={project.org?.name ?? ''}
-                  />
-                  <div className="flex flex-col gap-2">
+                  <div className="flex items-center gap-3">
+                    <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-primary/10 text-lg font-semibold uppercase text-primary">
+                      {project.name?.[0] ?? '?'}
+                    </div>
+                    <div className="flex flex-col">
+                      <span className="font-semibold text-slate-900">
+                        {project.name || t('projects.detail.untitled')}
+                      </span>
+                    </div>
+                  </div>
+                  <div className="flex items-center justify-between gap-4 sm:justify-end">
+                    <span className="text-sm font-semibold text-slate-900">
+                      {t('projects.list.columns.transcripts')}: {project.transcriptsCount ?? 0}
+                    </span>
                     {canEditProjectById(project.id) ? (
                       <Button
                         variant="outline"
-                        className="w-full"
-                        onClick={() => navigate(toProjectEdit({ projectId: project.id }))}
+                        size="sm"
+                        onClick={event => {
+                          event.preventDefault();
+                          event.stopPropagation();
+                          navigate(toProjectEdit({ projectId: project.id }));
+                        }}
                       >
                         {t('buttons.edit')}
                       </Button>
                     ) : null}
-                    <Button
-                      type="button"
-                      variant={isSelected ? 'default' : 'ghost'}
-                      className="w-full"
-                      onClick={() => setSelectedProjectId(project.id)}
-                    >
-                      {t('projects.transcripts.actions.viewTranscripts')}
-                    </Button>
                   </div>
-                </div>
-              );
-            })}
+                </Link>
+              </div>
+            ))}
           </div>
         ) : (
           <div className="rounded-2xl border border-dashed border-border bg-white/70 p-8 text-center text-sm text-muted-foreground">
@@ -136,11 +125,6 @@ export default function Projects() {
           </div>
         )}
       </div>
-      {selectedProjectId ? (
-        <div className="px-6 pb-10">
-          <ProjectTranscripts projectId={selectedProjectId} projectName={selectedProject?.name ?? ''} />
-        </div>
-      ) : null}
       <Outlet />
     </div>
   );

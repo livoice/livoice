@@ -8,8 +8,9 @@ import type { AuthContextType } from '@/hooks/auth/authContext';
 import { ROUTER_PATHS, toDashboard, toLogin, toProjects, toUsers } from '@/services/linker';
 import { route } from './route';
 
-const TranscriptsList = lazy(() => import('@/containers/Transcripts/TranscriptsList'));
-const TranscriptPage = lazy(() => import('@/containers/Transcripts/TranscriptPage'));
+const TranscriptsList = lazy(() => import('@/containers/Transcripts/Transcripts'));
+const TranscriptUpsert = lazy(() => import('@/containers/Transcripts/containers/TranscriptUpsert'));
+const TranscriptPage = lazy(() => import('@/containers/Transcript/Transcript'));
 
 export interface RouteConfig {
   path?: string;
@@ -28,6 +29,7 @@ const Dashboard = lazy(() => import('@/containers/Dashboard/Dashboard'));
 const Users = lazy(() => import('@/containers/Users/Users'));
 const Projects = lazy(() => import('@/containers/Projects/Projects'));
 const ProjectUpsert = lazy(() => import('@/containers/Projects/containers/ProjectUpsert'));
+const Project = lazy(() => import('@/containers/Projects/Project'));
 const UserUpsert = lazy(() => import('@/containers/Users/containers/UserUpsert'));
 const Deactivated = lazy(() => import('@/containers/Deactivated/Deactivated'));
 
@@ -49,6 +51,10 @@ export const routes: RouteConfig[] = [
       {
         path: ROUTER_PATHS.TRANSCRIPTS,
         element: <TranscriptsList />
+      },
+      {
+        path: ROUTER_PATHS.TRANSCRIPTS_CREATE,
+        element: <TranscriptUpsert />
       },
       {
         path: ROUTER_PATHS.TRANSCRIPT_DETAIL,
@@ -101,6 +107,14 @@ export const routes: RouteConfig[] = [
             element: <ProjectUpsert />
           }
         ]
+      },
+      {
+        path: ROUTER_PATHS.PROJECT,
+        element: <Project />
+      },
+      {
+        path: ROUTER_PATHS.PROJECT_TRANSCRIPTS_CREATE,
+        element: <TranscriptUpsert />
       }
     ]
   },

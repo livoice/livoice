@@ -1,0 +1,18 @@
+query ProjectDetail($projectId: ID!) {
+  project(where: { id: $projectId }) {
+    id
+    name
+    description
+    org {
+      id
+      name
+    }
+    transcripts {
+      id
+      title
+      intervieweeName
+      createdAt
+      segmentsCount
+    }
+  }
+}

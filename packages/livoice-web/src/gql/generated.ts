@@ -1740,6 +1740,13 @@ export type ProjectQueryVariables = Exact<{
 
 export type ProjectQuery = { __typename?: 'Query', project?: { __typename?: 'Project', id: string, name?: string | null, description?: string | null, org?: { __typename?: 'Organization', id: string, name?: string | null } | null } | null };
 
+export type ProjectDetailQueryVariables = Exact<{
+  projectId: Scalars['ID']['input'];
+}>;
+
+
+export type ProjectDetailQuery = { __typename?: 'Query', project?: { __typename?: 'Project', id: string, name?: string | null, description?: string | null, org?: { __typename?: 'Organization', id: string, name?: string | null } | null, transcripts?: Array<{ __typename?: 'Transcript', id: string, title?: string | null, intervieweeName?: string | null, createdAt?: any | null, segmentsCount?: number | null }> | null } | null };
+
 export type ProjectTranscriptsQueryVariables = Exact<{
   projectId: Scalars['ID']['input'];
 }>;
@@ -1750,7 +1757,7 @@ export type ProjectTranscriptsQuery = { __typename?: 'Query', project?: { __type
 export type ProjectsQueryVariables = Exact<{ [key: string]: never; }>;
 
 
-export type ProjectsQuery = { __typename?: 'Query', projects?: Array<{ __typename?: 'Project', id: string, name?: string | null, description?: string | null, org?: { __typename?: 'Organization', id: string, name?: string | null } | null }> | null };
+export type ProjectsQuery = { __typename?: 'Query', projects?: Array<{ __typename?: 'Project', id: string, name?: string | null, description?: string | null, transcriptsCount?: number | null, org?: { __typename?: 'Organization', id: string, name?: string | null } | null }> | null };
 
 export type TranscriptQueryVariables = Exact<{
   id: Scalars['ID']['input'];
@@ -1759,10 +1766,12 @@ export type TranscriptQueryVariables = Exact<{
 
 export type TranscriptQuery = { __typename?: 'Query', transcript?: { __typename?: 'Transcript', id: string, title?: string | null, intervieweeName?: string | null, notes?: string | null, createdAt?: any | null, segments?: Array<{ __typename?: 'TranscriptSegment', id: string, text?: string | null, speaker?: string | null, startMs?: number | null, endMs?: number | null, durationMs?: number | null }> | null } | null };
 
-export type TranscriptsQueryVariables = Exact<{ [key: string]: never; }>;
+export type TranscriptsQueryVariables = Exact<{
+  projectId?: InputMaybe<Scalars['ID']['input']>;
+}>;
 
 
-export type TranscriptsQuery = { __typename?: 'Query', transcripts?: Array<{ __typename?: 'Transcript', id: string, title?: string | null, notes?: string | null, intervieweeName?: string | null, createdAt?: any | null, segmentsCount?: number | null }> | null };
+export type TranscriptsQuery = { __typename?: 'Query', transcripts?: Array<{ __typename?: 'Transcript', id: string, title?: string | null, intervieweeName?: string | null, notes?: string | null, createdAt?: any | null, segmentsCount?: number | null, project?: { __typename?: 'Project', id: string, name?: string | null } | null }> | null };
 
 export type UpdateProjectMutationVariables = Exact<{
   id: Scalars['ID']['input'];
@@ -2255,6 +2264,59 @@ export type ProjectQueryHookResult = ReturnType<typeof useProjectQuery>;
 export type ProjectLazyQueryHookResult = ReturnType<typeof useProjectLazyQuery>;
 export type ProjectSuspenseQueryHookResult = ReturnType<typeof useProjectSuspenseQuery>;
 export type ProjectQueryResult = Apollo.QueryResult<ProjectQuery, ProjectQueryVariables>;
+export const ProjectDetailDocument = gql`
+    query ProjectDetail($projectId: ID!) {
+  project(where: {id: $projectId}) {
+    id
+    name
+    description
+    org {
+      id
+      name
+    }
+    transcripts {
+      id
+      title
+      intervieweeName
+      createdAt
+      segmentsCount
+    }
+  }
+}
+    `;
+
+/**
+ * __useProjectDetailQuery__
+ *
+ * To run a query within a React component, call `useProjectDetailQuery` and pass it any options that fit your needs.
+ * When your component renders, `useProjectDetailQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * you can use to render your UI.
+ *
+ * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ *
+ * @example
+ * const { data, loading, error } = useProjectDetailQuery({
+ *   variables: {
+ *      projectId: // value for 'projectId'
+ *   },
+ * });
+ */
+export function useProjectDetailQuery(baseOptions: Apollo.QueryHookOptions<ProjectDetailQuery, ProjectDetailQueryVariables> & ({ variables: ProjectDetailQueryVariables; skip?: boolean; } | { skip: boolean; }) ) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useQuery<ProjectDetailQuery, ProjectDetailQueryVariables>(ProjectDetailDocument, options);
+      }
+export function useProjectDetailLazyQuery(baseOptions?: Apollo.LazyQueryHookOptions<ProjectDetailQuery, ProjectDetailQueryVariables>) {
+          const options = {...defaultOptions, ...baseOptions}
+          return Apollo.useLazyQuery<ProjectDetailQuery, ProjectDetailQueryVariables>(ProjectDetailDocument, options);
+        }
+export function useProjectDetailSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<ProjectDetailQuery, ProjectDetailQueryVariables>) {
+          const options = baseOptions === Apollo.skipToken ? baseOptions : {...defaultOptions, ...baseOptions}
+          return Apollo.useSuspenseQuery<ProjectDetailQuery, ProjectDetailQueryVariables>(ProjectDetailDocument, options);
+        }
+export type ProjectDetailQueryHookResult = ReturnType<typeof useProjectDetailQuery>;
+export type ProjectDetailLazyQueryHookResult = ReturnType<typeof useProjectDetailLazyQuery>;
+export type ProjectDetailSuspenseQueryHookResult = ReturnType<typeof useProjectDetailSuspenseQuery>;
+export type ProjectDetailQueryResult = Apollo.QueryResult<ProjectDetailQuery, ProjectDetailQueryVariables>;
 export const ProjectTranscriptsDocument = gql`
     query ProjectTranscripts($projectId: ID!) {
   project(where: {id: $projectId}) {
@@ -2308,6 +2370,7 @@ export const ProjectsDocument = gql`
     id
     name
     description
+    transcriptsCount
     org {
       id
       name
@@ -2400,14 +2463,18 @@ export type TranscriptLazyQueryHookResult = ReturnType<typeof useTranscriptLazyQ
 export type TranscriptSuspenseQueryHookResult = ReturnType<typeof useTranscriptSuspenseQuery>;
 export type TranscriptQueryResult = Apollo.QueryResult<TranscriptQuery, TranscriptQueryVariables>;
 export const TranscriptsDocument = gql`
-    query Transcripts {
-  transcripts {
+    query Transcripts($projectId: ID) {
+  transcripts(where: {project: {id: {equals: $projectId}}}) {
     id
     title
-    notes
     intervieweeName
+    notes
     createdAt
     segmentsCount
+    project {
+      id
+      name
+    }
   }
 }
     `;
@@ -2424,6 +2491,7 @@ export const TranscriptsDocument = gql`
  * @example
  * const { data, loading, error } = useTranscriptsQuery({
  *   variables: {
+ *      projectId: // value for 'projectId'
  *   },
  * });
  */

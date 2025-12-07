@@ -1,10 +1,15 @@
-query Transcripts {
-  transcripts {
+query Transcripts($projectId: ID) {
+  transcripts(where: { project: { id: { equals: $projectId } } }) {
     id
     title
-    notes
     intervieweeName
+    notes
     createdAt
     segmentsCount
+    project {
+      id
+      name
+    }
   }
 }
+
