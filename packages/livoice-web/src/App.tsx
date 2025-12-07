@@ -1,7 +1,37 @@
-import { useRoutes } from 'react-router-dom';
+import { AuthProvider } from '@/hooks/auth/authProvider.tsx';
+import { DetectionsProvider } from '@/hooks/useDetections';
+import { ToastProvider } from '@/hooks/useToast';
+import { apolloClient } from '@/services/apolloClient';
+import { combineProviders } from '@/utils/combineComponents.ts';
+import { ApolloProvider } from '@apollo/client';
+import { SessionProvider } from 'next-auth/react';
+import { NuqsAdapter } from 'nuqs/adapters/react-router/v7';
+import { RouterProvider, createBrowserRouter } from 'react-router';
+import { ErrorBoundary } from './components/ErrorBoundary/ErrorBoundary';
+import Routes from './routes/routes';
 
-import routes from '@/routes/routes';
+const router = createBrowserRouter(Routes);
 
-const App = () => useRoutes(routes);
+const Providers = combineProviders([
+  [ApolloProvider, { client: apolloClient }],
+  AuthProvider,
+  SessionProvider,
+  DetectionsProvider,
+  ToastProvider
+]);
+
+function App() {
+  return (
+    <ErrorBoundary>
+      <Providers>
+        <NuqsAdapter
+          processUrlSearchParams={search => new URLSearchParams(search.toString().split('&').sort().join('&'))}
+        >
+          <RouterProvider router={router} />
+        </NuqsAdapter>
+      </Providers>
+    </ErrorBoundary>
+  );
+}
 
 export default App;

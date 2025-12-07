@@ -1,0 +1,15 @@
+query GetUser($id: ID!) {
+  user(where: { id: $id }) {
+    id
+    avatarUrl
+    email
+    firstName
+    lastName
+    displayName
+    role
+    location {
+      id
+      name
+    }
+  }
+}

@@ -1,14 +1,27 @@
-import { Link } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
+import { useNavigate } from 'react-router';
 
-const NotFound = () => (
-  <div className="flex min-h-screen flex-col items-center justify-center space-y-4 bg-slate-100 px-4 text-center">
-    <p className="text-sm font-semibold text-slate-500">404</p>
-    <h1 className="text-3xl font-bold text-slate-900">Page not found</h1>
-    <p className="text-sm text-slate-500">The page you are looking for does not exist.</p>
-    <Link to="/" className="text-sm font-semibold text-sky-600 hover:underline">
-      Back to dashboard
-    </Link>
-  </div>
-);
+import { Button } from '@/ui';
 
-export default NotFound;
+export default function NotFound() {
+  const { t } = useTranslation('common');
+  const navigate = useNavigate();
+
+  return (
+    <div className="flex min-h-screen items-center justify-center bg-background px-4 py-8">
+      <div className="relative overflow-hidden rounded-3xl border border-white/60 bg-white/90 p-8 text-center shadow-elevated">
+        <p className="text-6xl font-black text-primary">404</p>
+        <p className="mt-4 text-2xl font-semibold text-foreground">{t('notFound')}</p>
+        <p className="mt-2 text-sm text-muted-foreground">{t('notFoundDescription')}</p>
+        <div className="mt-6 flex flex-wrap justify-center gap-3">
+          <Button className="px-6 py-2" onClick={() => navigate('/')}>
+              {t('buttons.goToDashboard')}
+            </Button>
+          <Button variant="outline" className="px-6 py-2" onClick={() => navigate(-1)}>
+              {t('buttons.back')}
+            </Button>
+        </div>
+      </div>
+    </div>
+  );
+}

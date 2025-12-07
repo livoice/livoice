@@ -4,5 +4,8 @@ node_modules
 /node_modules/.bin/
 *.zst
 *.zst.download
+/packages/pto-api/.keystone/
 .DS_Store
 *.pem
+/packages/pto-api/stats.html
+/packages/pto-web/stats.html

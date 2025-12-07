@@ -1,27 +1,385 @@
 {
+  "appName": "PTO",
+  "loginTo": "Login to",
+  "title": "Welcome to PTO",
+  "welcome": "Welcome {{name}}",
+  "notFound": "Oops! Page Not Found",
+  "Saving...": "Saving...",
+  "policies": {
+    "upsert": {
+      "title": {
+        "create": "Create Policy",
+        "edit": "Edit Policy"
+      },
+      "fields": {
+        "name": "Name",
+        "timeType": "Time type",
+        "locations": "Locations",
+        "allowanceManaged": "Manage allocation",
+        "allowance": "Allocation (per year)",
+        "carryoverLimit": "Carry over limit",
+        "overdraftLimit": "Negative balance limit",
+        "notes": "Notes"
+      },
+      "errors": {
+        "nameRequired": "Name is required",
+        "timeTypeRequired": "Select a time type",
+        "locationsRequired": "Select at least one location",
+        "paidDaysRequired": "Enter the paid days off per year",
+        "carryOverRequired": "Enter the carry over max days",
+        "maxNegativeRequired": "Enter the max negative balance",
+        "wholeNumber": "Enter a whole number",
+        "nonNegative": "Enter a non-negative value"
+      },
+      "warnings": {
+        "noTimeTypes": "Create a time type before assigning a policy.",
+        "noLocations": "Create a location before assigning a policy."
+      },
+      "daysSuffix": "days",
+      "history": {
+        "title": "Allocation history",
+        "openButton": "View allocation history",
+        "noHistory": "No allocation versions yet.",
+        "untitled": "Untitled policy",
+        "headers": {
+          "effectiveAt": "Effective from",
+          "allowance": "Allocation",
+          "carryoverLimit": "Carry over limit",
+          "overdraftLimit": "Negative limit",
+          "notes": "Notes",
+          "createdBy": "Added by"
+        }
+      }
+    }
+  },
+  "timeTypes": {
+    "upsert": {
+      "title": {
+        "create": "Create Time Type",
+        "edit": "Edit Time Type"
+      },
+      "fields": {
+        "name": "Name",
+        "isAway": "Counts as away",
+        "color": "Color",
+        "icon": "Icon"
+      },
+      "errors": {
+        "nameRequired": "Name is required"
+      }
+    }
+  },
+  "locations": {
+    "upsert": {
+      "title": {
+        "create": "Create Location",
+        "edit": "Edit Location"
+      },
+      "fields": {
+        "name": "Name",
+        "timezone": "Timezone",
+        "workingDays": "Working days",
+        "weekStartDay": "Week starts on",
+        "holidayCountry": "Holiday country"
+      },
+      "errors": {
+        "nameRequired": "Name is required",
+        "timezoneRequired": "Select a timezone",
+        "workingDaysRequired": "Select at least one working day",
+        "holidayCountryRequired": "Select Holiday Country"
+      }
+    },
+    "deleteTooltip": {
+      "hasUsers": "Cannot delete a location that has users assigned to it",
+      "lastLocation": "Cannot delete the last location in the organization"
+    }
+  },
   "sidebar": {
-    "transcripts": "Transcripts",
+    "title": "PTO",
+    "home": "Home",
+    "clients": "Clients",
+    "activity": "Activity",
+    "influencers": "Influencers",
+    "monitoring": "Monitoring",
     "settings": "Settings",
-    "profile": "Profile",
-    "logout": "Sign out",
-    "header": "Navigation"
+    "dashboard": "Dashboard",
+    "calendar": "Calendar",
+    "requests": "Requests",
+    "users": "Users",
+    "timeTypes": "Time Types",
+    "locations": "Locations",
+    "policies": "Time Policies",
+    "profile": "Profile"
+  },
+  "calendar": {
+    "views": {
+      "day": "Day",
+      "week": "Week",
+      "month": "Month"
+    },
+    "preview": {
+      "datesRange": "{{start, datetime}} – {{end, datetime}}"
+    }
+  },
+  "input": {
+    "searchPlaceholder": "Search {{label}} by name..."
+  },
+  "activities": {
+    "createMonthly": "Create Monthly",
+    "selectMonthsToCreate": "Select months to create"
   },
   "buttons": {
-    "uploadText": "Ingest text",
-    "sendQuestion": "Send question",
-    "back": "Back"
+    "add": "Add {{label}}",
+    "back": "Back",
+    "signOut": "Logout",
+    "signIn": "Sign in",
+    "clearSearch": "Clear Search",
+    "reset": "Reset",
+    "cancel": "Cancel",
+    "save": "Save",
+    "create": "Create",
+    "creating": "Creating",
+    "edit": "Edit",
+    "update": "Update",
+    "updating": "Updating",
+    "activating": "Activating",
+    "addEntity": "Add {{label}}",
+    "commit": "COMMIT",
+    "committing": "Committing",
+    "addDraftTracking": "Add draft tracking",
+    "delete": "Delete",
+    "deleting": "Deleting",
+    "deleteSelected": "Delete Selected {{label}}",
+    "retry": "Retry",
+    "selectAll": "Select All",
+    "deselectAll": "Deselect All",
+    "selected": "Selected",
+    "duplicate": "Duplicate",
+    "goToDashboard": "Go to Dashboard",
+    "signInWithGoogle": "Sign in with Google",
+    "close": "Close"
   },
-  "pageTitles": {
-    "transcripts": "Transcripts",
-    "transcriptDetail": "Transcript detail"
+  "errors": {
+    "noResultsFound": "No {{label}} available yet",
+    "required": "This field is required",
+    "invalidEmail": "Invalid email address",
+    "minLength": "{{field}} must be at least {{min}} characters long",
+    "maxLength": "{{field}} must be at most {{max}} characters long",
+    "invalidUsername": "Invalid username",
+    "fileTooLarge": "File is too large",
+    "invalidFileType": "Invalid file type",
+    "errorCreatingContent": "Error creating {{label}}: {{error}}",
+    "errorUpdatingContent": "Error updating {{label}}: {{error}}",
+    "errorLoadingContent": "Error loading {{label}}: {{error}}",
+    "somethingWentWrong": "Something went wrong",
+    "youHaveMissingMonthlies": "You have missing monthly activities"
   },
+  "noResultsFound": {
+    "title": "No {{label}} found",
+    "description": "We couldn't find any {{label}} matching your search criteria. Try adjusting your search terms.",
+    "clearSearch": "Clear Search",
+    "yet": "No data available yet"
+  },
+  "weekdays": {
+    "MON": "Monday",
+    "TUE": "Tuesday",
+    "WED": "Wednesday",
+    "THU": "Thursday",
+    "FRI": "Friday",
+    "SAT": "Saturday",
+    "SUN": "Sunday"
+  },
+  "configurations": "Configurations",
   "status": {
-    "loading": "Loading…",
-    "error": "Something went wrong."
+    "active": "Active",
+    "inactive": "Inactive"
   },
-  "fields": {
-    "interviewee": "Interviewee",
+  "confirmations": {
+    "deletePolicy": "Are you sure you want to delete this policy?",
+    "deleteTimeType": "Are you sure you want to delete this time type?",
+    "deleteLocation": "Are you sure you want to delete this location?",
+    "lastTimeTypeError": "Each organization must have at least one time type.",
+    "lastPolicyError": "Each organization must have at least one policy."
+  },
+  "settings": {
+    "org": {
+      "title": "Organization Settings",
+      "noDataAvailable": "No organization data available",
+      "orgName": "Organization Name",
+      "autojoinDomains": "Auto-join domains (CSV)",
+      "autojoinDomainsHelper": "Example: example.com,company.org",
+      "noPermission": "You don't have permission to edit organization settings. Only Organization Owners and System Admins can edit these settings."
+    }
+  },
+  "users": {
+    "searchPlaceholder": "Search by name",
+    "assignPolicy": "Assign policy",
+    "none": "None",
+    "assigning": "Assigning…",
+    "assign": "Assign",
+    "unknown": "Unknown",
+    "noUsersFound": "No users found",
+    "never": "Never",
+    "role": "Role",
+    "location": "Location",
+    "memberSince": "Member since",
+    "lastSeen": "Last seen",
+    "deactivated": "Deactivated",
+    "roles": {
+      "user": "User",
+      "locationAdmin": "Location Admin",
+      "orgAdmin": "Organization Admin",
+      "orgOwner": "Organization Owner",
+      "god": "System Admin"
+    },
+    "filters": {
+      "role": "Role",
+      "location": "Location",
+      "status": "Status",
+      "all": "All",
+      "active": "Active",
+      "deactivated": "Deactivated"
+    },
+    "edit": {
+      "title": {
+        "activate": "Activate User",
+        "edit": "Edit User"
+      },
+      "activate": "Activate User",
+      "deactivate": "Deactivate User",
+      "userInfo": {
+        "name": "Name",
+        "email": "Email",
+        "status": "Status"
+      },
+      "fields": {
+        "role": "Role",
+        "location": "Location",
+        "startDate": "Start date"
+      },
+      "errors": {
+        "locationRequired": "Location is required",
+        "startDateRequired": "Start date is required"
+      }
+    },
+    "create": {
+      "title": {
+        "create": "Create User"
+      },
+      "fields": {
+        "email": "Email",
+        "role": "Role",
+        "location": "Location",
+        "startDate": "Start date"
+      },
+      "errors": {
+        "emailRequired": "Email is required",
+        "emailInvalid": "Invalid email address",
+        "locationRequired": "Location is required",
+        "startDateRequired": "Start date is required",
+        "roleHigherThanOwn": "You cannot assign a role higher than your own"
+      }
+    },
+    "preview": {
+      "title": "Prorated leave until year end",
+      "subtitle": "Applies through December 31, {{year}}.",
+      "missingInputs": "Select a location and start date to preview allocations.",
+      "noPolicies": "No policies found for the selected location.",
+      "noData": "No allocations available for the selected inputs.",
+      "unlimitedAllowance": "Unlimited",
+      "viewAllowance": "View allocation",
+      "columns": {
+        "policy": "Policy",
+        "timeType": "Time type",
+        "annual": "Annual days",
+        "prorated": "Prorated days"
+      }
+    },
+    "allowanceModal": {
+      "title": "Allocation details – {{policy}}",
+      "year": "Year",
+      "noData": "No allocation data for this year.",
+      "noEvents": "No allocation events for this year.",
+      "headers": {
+        "type": "Type",
+        "amount": "Amount",
+        "effectiveAt": "Effective date",
+        "notes": "Notes"
+      },
+      "metrics": {
+        "base": "Base",
+        "carryover": "Carryover",
+        "manual": "Manual",
+        "retro": "Retro",
+        "used": "Used",
+        "available": "Available"
+      },
+      "manualAdjustmentTitle": "Add manual adjustment",
+      "manualAdjustmentDescription": "Grant or remove allocation days for this policy. Positive numbers grant days; negative numbers subtract.",
+      "addManualAdjustment": "Add adjustment",
+      "savingAdjustment": "Saving…",
+      "adjustmentSuccess": "Manual adjustment saved.",
+      "fields": {
+        "amount": "Amount (days)",
+        "effectiveAt": "Effective from",
+        "notes": "Notes"
+      },
+      "errors": {
+        "amountRequired": "Amount is required",
+        "effectiveAtRequired": "Effective date is required"
+      }
+    }
+  },
+  "permissions": {
+    "noPermission": "You don't have permission to access this page."
+  },
+  "optionLabels": {
+    "untitledTimeType": "Untitled time type",
+    "untitledLocation": "Untitled location",
+    "untitledPolicy": "Untitled policy"
+  },
+  "modals": {
+    "selectTrackingType": "Select Tracking Type",
     "date": "Date",
-    "chunks": "Chunks"
+    "platform": "Platform",
+    "element": "Element",
+    "type": "Type",
+    "views": "Views",
+    "comments": "Comments",
+    "linkClicks": "Link Clicks",
+    "stickerTaps": "Sticker Taps",
+    "shares": "Shares",
+    "likes": "Likes",
+    "saves": "Saves",
+    "active": "Active"
+  },
+  "dialogs": {
+    "delete": {
+      "title": "Delete {{entity}}",
+      "message": "Are you sure you want to remove {{entity}} {{name}} from {{activity}} of {{client}}? This action cannot be undone.",
+      "trackingWarning": "This will also delete all tracking data associated with this {{entity}}. This action is irreversible.",
+      "trackingItem": "Are you sure you want to delete tracking item{{plural}}?"
+    }
+  },
+  "onboarding": {
+    "title": "Welcome to PTO",
+    "description": "Let's create your organization and get you started.",
+    "fields": {
+      "orgName": "Organization name"
+    },
+    "errors": {
+      "orgNameRequired": "Organization name is required"
+    },
+    "allowAutojoin": "Allow coworkers using {{domain}} to join automatically",
+    "creating": "Creating…",
+    "redirecting": "Redirecting…",
+    "createOrganization": "Create organization",
+    "redirectingAlert": "Redirecting to your dashboard…",
+    "failedToComplete": "Failed to complete onboarding."
+  },
+  "deactivated": {
+    "title": "Account Deactivated",
+    "message": "Your account has been deactivated.",
+    "contactAdmin": "Please contact your organization administrator to reactivate your account."
   }
 }

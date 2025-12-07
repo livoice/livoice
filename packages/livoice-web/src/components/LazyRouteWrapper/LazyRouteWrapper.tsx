@@ -1,13 +1,13 @@
-import type { ReactNode } from 'react';
-import { Suspense } from 'react';
+import { ErrorBoundaryWrapper } from '@/components/ErrorBoundary/ErrorBoundaryWrapper';
+import Loading from '@/components/Loading/Loading';
+import { Suspense, type ReactNode } from 'react';
 
 interface LazyRouteWrapperProps {
   children: ReactNode;
 }
 
 export const LazyRouteWrapper = ({ children }: LazyRouteWrapperProps) => (
-  <Suspense fallback={<div className="flex flex-1 items-center justify-center p-4 text-sm text-muted-foreground">Loading…</div>}>
-    {children}
+  <Suspense fallback={<Loading />}>
+    <ErrorBoundaryWrapper>{children}</ErrorBoundaryWrapper>
   </Suspense>
 );
-

@@ -1,8 +1,17 @@
-import { cleanEnv, url } from 'envalid';
+import { cleanEnv, url, str } from 'envalid';
+
+export const BASE_API: string = import.meta.env.VITE_BASE_API;
+export const BASE_API_PATH: string = import.meta.env.VITE_BASE_API_PATH;
+export const BASE_APP: string = import.meta.env.VITE_BASE_APP;
+export const TRACE_API: string = import.meta.env.VITE_TRACE_API;
+
+const DEFAULT_PORT = 5173;
 
 const env = cleanEnv(import.meta.env, {
-  VITE_API_URL: url({ default: 'http://localhost:3000/api' }),
-  VITE_APP_URL: url({ default: 'http://localhost:5173' })
+  BASE_API: url({ default: 'http://localhost:3000' }),
+  BASE_API_PATH: str({ default: '' }),
+  BASE_APP: url({ default: `http://localhost:${DEFAULT_PORT}` }),
+  TRACE_API: url({ default: 'https://cloudflare.com/cdn-cgi/trace' })
 });
 
 export default env;

@@ -1,0 +1,18 @@
+query GetAllUsers {
+  users {
+    id
+    firstName
+    lastName
+    email
+    displayName
+    role
+    avatarUrl
+    location {
+      id
+      name
+    }
+    provisionedAt
+    seenAt
+    isActive
+  }
+}
