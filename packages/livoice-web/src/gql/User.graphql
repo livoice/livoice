@@ -7,7 +7,7 @@ query GetUser($id: ID!) {
     lastName
     displayName
     role
-    location {
+    project {
       id
       name
     }

@@ -21,7 +21,7 @@ type ProviderType = 'google';
 
 type UserItem = TypeInfo['lists']['User']['item'];
 type OrganizationItem = TypeInfo['lists']['Organization']['item'];
-type LocationItem = TypeInfo['lists']['Location']['item'];
+type ProjectItem = TypeInfo['lists']['Project']['item'];
 
 export type Session = {
   id: string;
@@ -32,7 +32,7 @@ export type Session = {
   displayName?: string | null;
   role: UserRole;
   orgId: string | null;
-  locationId: string | null;
+  projectId: string | null;
   providerAccountId: string | null;
   emailDomain: string | null;
   isAutojoinDomainAllowed: boolean;
@@ -90,10 +90,10 @@ export const nextAuthOptions: NextAuthOptions = {
 
       const existingUsers = (await sudoContext.query.User.findMany({
         where: { email: { equals: email } },
-        query: 'id org { id } location { id }'
+        query: 'id org { id } project { id }'
       })) as (Pick<UserItem, 'id'> & {
         org: Pick<OrganizationItem, 'id'> | null;
-        location: Pick<LocationItem, 'id'> | null;
+        project: Pick<ProjectItem, 'id'> | null;
       })[];
 
       const baseUserData = {
@@ -123,24 +123,24 @@ export const nextAuthOptions: NextAuthOptions = {
         matchedOrgId = matchedOrg?.id ?? null;
       }
 
-      let locationToConnect: { id: string } | null = null;
+      let projectToConnect: { id: string } | null = null;
       if (matchedOrgId) {
-        const candidateLocations = (await sudoContext.query.Location.findMany({
+        const candidateProjects = (await sudoContext.query.Project.findMany({
           where: { org: { id: { equals: matchedOrgId } } },
           take: 1,
           query: 'id'
-        })) as Pick<LocationItem, 'id'>[];
-        const primaryLocation = candidateLocations?.[0];
-        if (!primaryLocation?.id) {
-          throw new Error('Auto-join target organization does not have a location configured.');
+        })) as Pick<ProjectItem, 'id'>[];
+        const primaryProject = candidateProjects?.[0];
+        if (!primaryProject?.id) {
+          throw new Error('Auto-join target organization does not have a project configured.');
         }
-        locationToConnect = { id: primaryLocation.id };
+        projectToConnect = { id: primaryProject.id };
       }
 
       if (existingUsers.length > 0) {
         const existingUser = existingUsers[0] as Pick<UserItem, 'id'> & {
           org: Pick<OrganizationItem, 'id'> | null;
-          location: Pick<LocationItem, 'id'> | null;
+          project: Pick<ProjectItem, 'id'> | null;
         };
         const { role: _, ...userDataWithoutRole } = baseUserData;
         await sudoContext.db.User.updateOne({
@@ -149,7 +149,7 @@ export const nextAuthOptions: NextAuthOptions = {
             ...userDataWithoutRole,
             provisionedAt: nowIso,
             ...(matchedOrgId && !existingUser.org?.id ? { org: { connect: { id: matchedOrgId } } } : {}),
-            ...(locationToConnect && !existingUser.location?.id ? { location: { connect: locationToConnect } } : {})
+            ...(projectToConnect && !existingUser.project?.id ? { project: { connect: projectToConnect } } : {})
           },
           query: 'id'
         } as Parameters<typeof sudoContext.db.User.updateOne>[0] & { query: string });
@@ -162,7 +162,7 @@ export const nextAuthOptions: NextAuthOptions = {
           ...baseUserData,
           provisionedAt: nowIso,
           ...(matchedOrgId ? { org: { connect: { id: matchedOrgId } } } : {}),
-          ...(locationToConnect ? { location: { connect: locationToConnect } } : {})
+          ...(projectToConnect ? { project: { connect: projectToConnect } } : {})
         },
         query: 'id'
       } as Parameters<typeof sudoContext.db.User.createOne>[0] & { query: string });
@@ -202,10 +202,10 @@ export const nextAuthOptions: NextAuthOptions = {
 
       const dbUser = (await sudoContext.query.User.findMany({
         where: { email: { equals: normalizedEmail } },
-        query: 'id email org { id } location { id } role providerAccountId isActive seenAt avatarUrl displayName'
+        query: 'id email org { id } project { id } role providerAccountId isActive seenAt avatarUrl displayName'
       })) as (Pick<UserItem, 'id' | 'email' | 'role' | 'providerAccountId' | 'isActive' | 'seenAt'> & {
         org: Pick<OrganizationItem, 'id'> | null;
-        location: Pick<LocationItem, 'id'> | null;
+        project: Pick<ProjectItem, 'id'> | null;
         avatarUrl?: string | null;
         displayName?: string | null;
       })[];
@@ -241,7 +241,7 @@ export const nextAuthOptions: NextAuthOptions = {
         displayName: user?.displayName || null,
         providerAccountId: user?.providerAccountId || null,
         orgId: user?.org?.id || null,
-        locationId: user?.location?.id || null,
+        projectId: user?.project?.id || null,
         role: userRole,
         emailDomain,
         isAutojoinDomainAllowed,

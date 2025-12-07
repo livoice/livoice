@@ -1,8 +1,9 @@
 import js from '@eslint/js';
-import globals from 'globals';
 import reactHooks from 'eslint-plugin-react-hooks';
 import reactRefresh from 'eslint-plugin-react-refresh';
 import spellcheck from 'eslint-plugin-spellcheck';
+import globals from 'globals';
+import { fileURLToPath } from 'node:url';
 import tseslint from 'typescript-eslint';
 
 export default tseslint.config(
@@ -12,7 +13,11 @@ export default tseslint.config(
     files: ['**/*.{ts,tsx}'],
     languageOptions: {
       ecmaVersion: 2020,
-      globals: globals.browser
+      globals: globals.browser,
+      parserOptions: {
+        tsconfigRootDir: fileURLToPath(new URL('.', import.meta.url)),
+        project: ['./tsconfig.app.json', './tsconfig.node.json']
+      }
     },
     plugins: {
       'react-hooks': reactHooks,

@@ -1,0 +1,8 @@
+mutation IngestTranscript($input: IngestTranscriptInput!) {
+  ingestTranscript(input: $input) {
+    transcriptId
+    segmentsCount
+    projectId
+  }
+}
+

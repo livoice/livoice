@@ -1,15 +1,4 @@
-import {
-  ROUTER_PATHS,
-  toCalendar,
-  toDashboard,
-  toLocations,
-  toPolicies,
-  toProfile,
-  toRequests,
-  toSettingsOrg,
-  toTimeTypes,
-  toUsers
-} from '@/services/linker';
+import { ROUTER_PATHS, toDashboard, toProjects, toSettingsOrg, toTranscripts, toUsers } from '@/services/linker';
 
 export type NavSection = 'primary' | 'settings' | 'secondary';
 
@@ -24,27 +13,19 @@ export interface NavItemConfig {
 
 export const NAV_ITEMS: NavItemConfig[] = [
   {
+    key: 'transcripts',
+    labelKey: 'sidebar.transcripts',
+    icon: 'mic',
+    path: toTranscripts(),
+    routePath: ROUTER_PATHS.TRANSCRIPTS,
+    section: 'primary'
+  },
+  {
     key: 'dashboard',
     labelKey: 'sidebar.dashboard',
     icon: 'grid_view',
     path: toDashboard(),
     routePath: ROUTER_PATHS.ROOT,
-    section: 'primary'
-  },
-  {
-    key: 'calendar',
-    labelKey: 'sidebar.calendar',
-    icon: 'calendar_month',
-    path: toCalendar(),
-    routePath: ROUTER_PATHS.CALENDAR,
-    section: 'primary'
-  },
-  {
-    key: 'requests',
-    labelKey: 'sidebar.requests',
-    icon: 'list_alt',
-    path: toRequests(),
-    routePath: ROUTER_PATHS.REQUESTS,
     section: 'primary'
   },
   {
@@ -56,27 +37,11 @@ export const NAV_ITEMS: NavItemConfig[] = [
     section: 'settings'
   },
   {
-    key: 'timeTypes',
-    labelKey: 'sidebar.timeTypes',
-    icon: 'event_note',
-    path: toTimeTypes(),
-    routePath: ROUTER_PATHS.TIME_TYPES,
-    section: 'settings'
-  },
-  {
-    key: 'locations',
-    labelKey: 'sidebar.locations',
+    key: 'projects',
+    labelKey: 'sidebar.projects',
     icon: 'location_on',
-    path: toLocations(),
-    routePath: ROUTER_PATHS.LOCATIONS,
-    section: 'settings'
-  },
-  {
-    key: 'policies',
-    labelKey: 'sidebar.policies',
-    icon: 'policy',
-    path: toPolicies(),
-    routePath: ROUTER_PATHS.POLICIES,
+    path: toProjects(),
+    routePath: ROUTER_PATHS.PROJECTS,
     section: 'settings'
   },
   {
@@ -86,13 +51,5 @@ export const NAV_ITEMS: NavItemConfig[] = [
     path: toSettingsOrg(),
     routePath: ROUTER_PATHS.SETTINGS_ORG,
     section: 'settings'
-  },
-  {
-    key: 'profile',
-    labelKey: 'sidebar.profile',
-    icon: 'person',
-    path: toProfile(),
-    routePath: ROUTER_PATHS.PROFILE,
-    section: 'secondary'
   }
 ];

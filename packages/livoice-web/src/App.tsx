@@ -1,5 +1,4 @@
-import { AuthProvider } from '@/hooks/auth/authProvider.tsx';
-import { DetectionsProvider } from '@/hooks/useDetections';
+import { AuthProvider } from '@/hooks/auth/useAuth';
 import { ToastProvider } from '@/hooks/useToast';
 import { apolloClient } from '@/services/apolloClient';
 import { combineProviders } from '@/utils/combineComponents.ts';
@@ -16,7 +15,6 @@ const Providers = combineProviders([
   [ApolloProvider, { client: apolloClient }],
   AuthProvider,
   SessionProvider,
-  DetectionsProvider,
   ToastProvider
 ]);
 

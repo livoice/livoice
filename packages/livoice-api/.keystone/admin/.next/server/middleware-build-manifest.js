@@ -9,6 +9,11 @@ self.__BUILD_MANIFEST = {
   "lowPriorityFiles": [],
   "rootMainFiles": [],
   "pages": {
+    "/": [
+      "static/chunks/webpack.js",
+      "static/chunks/main.js",
+      "static/chunks/pages/index.js"
+    ],
     "/_app": [
       "static/chunks/webpack.js",
       "static/chunks/main.js",
@@ -19,15 +24,35 @@ self.__BUILD_MANIFEST = {
       "static/chunks/main.js",
       "static/chunks/pages/_error.js"
     ],
-    "/time-policies/[id]": [
+    "/transcript-segments": [
       "static/chunks/webpack.js",
       "static/chunks/main.js",
-      "static/chunks/pages/time-policies/[id].js"
+      "static/chunks/pages/transcript-segments.js"
     ],
-    "/time-types/[id]": [
+    "/transcript-segments/[id]": [
       "static/chunks/webpack.js",
       "static/chunks/main.js",
-      "static/chunks/pages/time-types/[id].js"
+      "static/chunks/pages/transcript-segments/[id].js"
+    ],
+    "/transcript-segments/create": [
+      "static/chunks/webpack.js",
+      "static/chunks/main.js",
+      "static/chunks/pages/transcript-segments/create.js"
+    ],
+    "/transcripts": [
+      "static/chunks/webpack.js",
+      "static/chunks/main.js",
+      "static/chunks/pages/transcripts.js"
+    ],
+    "/transcripts/[id]": [
+      "static/chunks/webpack.js",
+      "static/chunks/main.js",
+      "static/chunks/pages/transcripts/[id].js"
+    ],
+    "/transcripts/create": [
+      "static/chunks/webpack.js",
+      "static/chunks/main.js",
+      "static/chunks/pages/transcripts/create.js"
     ]
   },
   "ampFirstPages": []

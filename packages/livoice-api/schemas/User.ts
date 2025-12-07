@@ -8,21 +8,21 @@ import type { Session } from '../auth';
 import env from '../config/env';
 import {
   canEditUserByRole,
-  filterByUserLocation,
   filterByUserOrg,
+  filterByUserProject,
   isAnyAdmin,
   isAuthenticated,
   isGod,
-  isLocationAdmin,
   isOrgAdmin,
   isOrgAdminOrAbove,
+  isProjectAdmin,
   isSelf,
   UserRole
 } from '../domains/auth/userRole';
 
 type UserItem = TypeInfo['lists']['User']['item'];
 type OrganizationItem = TypeInfo['lists']['Organization']['item'];
-type LocationItem = TypeInfo['lists']['Location']['item'];
+type ProjectItem = TypeInfo['lists']['Project']['item'];
 type RelationshipInput =
   | { disconnect?: boolean | Array<{ id: string }> }
   | { connect?: { id: string } | Array<{ id: string }> }
@@ -35,7 +35,7 @@ const socialLoginOpts = [{ label: 'Google', value: 'google' }];
 
 const userRoleOptions = [
   { label: 'User', value: UserRole.USER },
-  { label: 'Location Admin', value: UserRole.LOCATION_ADMIN },
+  { label: 'Project Admin', value: UserRole.PROJECT_ADMIN },
   { label: 'Organization Admin', value: UserRole.ORG_ADMIN },
   { label: 'Organization Owner', value: UserRole.ORG_OWNER },
   { label: 'System Admin', value: UserRole.GOD }
@@ -131,8 +131,8 @@ export default list({
         update: isOrgAdminOrAbove
       }
     }),
-    location: relationship({
-      ref: 'Location.users',
+    project: relationship({
+      ref: 'Project.users',
       many: false,
       access: {
         ...allOperations(denyAll),
@@ -141,9 +141,6 @@ export default list({
         update: isAnyAdmin
       }
     }),
-    startDate: timestamp(),
-    allocations: relationship({ ref: 'UserAllocation.user', many: true }),
-
     isActive: checkbox({
       defaultValue: true,
       access: {
@@ -223,11 +220,11 @@ export default list({
         const sudoContext = context.sudo();
         const userWithRelations = (await sudoContext.query.User.findOne({
           where: { id: targetUserId },
-          query: 'id org { id } location { id } role'
+          query: 'id org { id } project { id } role'
         })) as
           | (Pick<UserItem, 'id' | 'role'> & {
               org: Pick<OrganizationItem, 'id'> | null;
-              location: Pick<LocationItem, 'id'> | null;
+              project: Pick<ProjectItem, 'id'> | null;
             })
           | null;
 
@@ -246,14 +243,14 @@ export default list({
           return String(userWithRelations.org.id) === String(session.orgId);
         }
 
-        // Location admins can update users in their location
-        if (isLocationAdmin({ session })) {
-          if (!session?.locationId || !session?.orgId) return false;
-          if (!userWithRelations.location?.id || !userWithRelations.org?.id) return false;
+        // Project admins can update users in their project
+        if (isProjectAdmin({ session })) {
+          if (!session?.projectId || !session?.orgId) return false;
+          if (!userWithRelations.project?.id || !userWithRelations.org?.id) return false;
 
-          // Must be in same location and same org
+          // Must be in same project and same org
           return (
-            String(userWithRelations.location.id) === String(session.locationId) &&
+            String(userWithRelations.project.id) === String(session.projectId) &&
             String(userWithRelations.org.id) === String(session.orgId)
           );
         }
@@ -266,7 +263,7 @@ export default list({
         if (!isAuthenticated({ session })) return false;
         if (isGod({ session })) return true;
         if (isOrgAdmin({ session })) return filterByUserOrg({ session });
-        if (isLocationAdmin({ session })) return filterByUserLocation({ session });
+        if (isProjectAdmin({ session })) return filterByUserProject({ session });
         return isSelf({ session });
       }
     }
@@ -288,11 +285,11 @@ export default list({
       const existingUser = item?.id
         ? ((await context.query.User.findOne({
             where: { id: item.id as string },
-            query: 'id org { id } location { id } role'
+            query: 'id org { id } project { id } role'
           })) as
             | (Pick<UserItem, 'id' | 'role'> & {
                 org: Pick<OrganizationItem, 'id'> | null;
-                location: Pick<LocationItem, 'id'> | null;
+                project: Pick<ProjectItem, 'id'> | null;
               })
             | null)
         : null;
@@ -310,12 +307,12 @@ export default list({
         resolvedData.isActive !== undefined &&
         addValidationError('You cannot edit your own active status.');
 
-      // Prevent self-editing of location unless ORG_OWNER/ORG_ADMIN
+      // Prevent self-editing of project unless ORG_OWNER/ORG_ADMIN
       isEditingSelf &&
-        resolvedData.location &&
+        resolvedData.project &&
         session?.role !== UserRole.ORG_ADMIN &&
         session?.role !== UserRole.ORG_OWNER &&
-        addValidationError('You cannot edit your own location.');
+        addValidationError('You cannot edit your own project.');
 
       const resolveRelationshipId = (input: RelationshipInput | unknown, existingId: string | null): string | null => {
         const typedInput = input as RelationshipInput;
@@ -348,10 +345,10 @@ export default list({
         const baseRoles: UserRole[] = [UserRole.USER];
         const roleMap: Record<UserRole, UserRole[]> = {
           [UserRole.USER]: baseRoles,
-          [UserRole.LOCATION_ADMIN]: [...baseRoles, UserRole.LOCATION_ADMIN],
-          [UserRole.ORG_ADMIN]: [...baseRoles, UserRole.LOCATION_ADMIN, UserRole.ORG_ADMIN],
-          [UserRole.ORG_OWNER]: [...baseRoles, UserRole.LOCATION_ADMIN, UserRole.ORG_ADMIN, UserRole.ORG_OWNER],
-          [UserRole.GOD]: [...baseRoles, UserRole.LOCATION_ADMIN, UserRole.ORG_ADMIN, UserRole.ORG_OWNER]
+          [UserRole.PROJECT_ADMIN]: [...baseRoles, UserRole.PROJECT_ADMIN],
+          [UserRole.ORG_ADMIN]: [...baseRoles, UserRole.PROJECT_ADMIN, UserRole.ORG_ADMIN],
+          [UserRole.ORG_OWNER]: [...baseRoles, UserRole.PROJECT_ADMIN, UserRole.ORG_ADMIN, UserRole.ORG_OWNER],
+          [UserRole.GOD]: [...baseRoles, UserRole.PROJECT_ADMIN, UserRole.ORG_ADMIN, UserRole.ORG_OWNER]
         };
         return roleMap[adminRole] ?? baseRoles;
       };
@@ -370,70 +367,69 @@ export default list({
         }
       };
 
-      const validateLocationRestriction = (
+      const validateProjectRestriction = (
         operation: string,
-        nextLocationId: string | null,
+        nextProjectId: string | null,
         adminRole: UserRole | null | undefined,
-        adminLocationId: string | null | undefined
+        adminProjectId: string | null | undefined
       ): void => {
-        const isLocationAdminCreating =
-          operation === 'create' && adminRole === UserRole.LOCATION_ADMIN && adminLocationId;
-        if (isLocationAdminCreating && nextLocationId && String(nextLocationId) !== String(adminLocationId)) {
-          addValidationError('Location Admins can only create users in their own location.');
+        const isProjectAdminCreating = operation === 'create' && adminRole === UserRole.PROJECT_ADMIN && adminProjectId;
+        if (isProjectAdminCreating && nextProjectId && String(nextProjectId) !== String(adminProjectId)) {
+          addValidationError('Project Admins can only create users in their own project.');
         }
       };
 
       const validateProvisioning = (
         operation: string,
         nextOrgId: string | null,
-        nextLocationId: string | null,
+        nextProjectId: string | null,
         existingOrgId: string | null,
-        existingLocationId: string | null
+        existingProjectId: string | null
       ): void => {
-        const isUnprovisioned = !nextOrgId && !nextLocationId;
+        const isUnprovisioned = !nextOrgId && !nextProjectId;
         const isInitialProvision = operation === 'create' && isUnprovisioned;
         const isExistingUnprovisioned =
-          operation === 'update' && isUnprovisioned && !existingOrgId && !existingLocationId;
+          operation === 'update' && isUnprovisioned && !existingOrgId && !existingProjectId;
 
-        if (!isInitialProvision && !isExistingUnprovisioned && (!nextOrgId || !nextLocationId)) {
-          addValidationError('Users must belong to both an organization and a location once provisioned.');
+        if (!isInitialProvision && !isExistingUnprovisioned && (!nextOrgId || !nextProjectId)) {
+          addValidationError('Users must belong to both an organization and a project once provisioned.');
         }
       };
 
-      const validateLocationOrgMatch = async (
+      const validateProjectOrgMatch = async (
         nextOrgId: string | null,
-        nextLocationId: string | null,
+        nextProjectId: string | null,
         context: Context
       ): Promise<void> => {
-        if (!nextOrgId || !nextLocationId) return;
+        if (!nextOrgId || !nextProjectId) return;
 
-        const location = (await context.query.Location.findOne({
-          where: { id: nextLocationId },
+        const project = (await context.query.Project.findOne({
+          where: { id: nextProjectId },
           query: 'id org { id }'
-        })) as (Pick<LocationItem, 'id'> & { org: Pick<OrganizationItem, 'id'> | null }) | null;
+        })) as (Pick<ProjectItem, 'id'> & { org: Pick<OrganizationItem, 'id'> | null }) | null;
 
-        const locationOrgId = location?.org?.id ?? null;
-        if (locationOrgId && locationOrgId !== nextOrgId) {
-          addValidationError("Selected location does not belong to the user's organization.");
+        const projectOrgId = project?.org?.id ?? null;
+        if (projectOrgId && projectOrgId !== nextOrgId) {
+          addValidationError("Selected project does not belong to the user's organization.");
         }
       };
 
       const nextOrgId = resolveRelationshipId(resolvedData.org, existingUser?.org?.id ?? null);
-      const nextLocationId = resolveRelationshipId(resolvedData.location, existingUser?.location?.id ?? null);
+      const nextProjectId = resolveRelationshipId(resolvedData.project, existingUser?.project?.id ?? null);
 
       resolvedData.role && validateRoleAssignment(resolvedData.role as UserRole, session?.role);
 
-      validateLocationRestriction(operation, nextLocationId, session?.role, session?.locationId);
+      validateProjectRestriction(operation, nextProjectId, session?.role, session?.projectId);
 
       validateProvisioning(
         operation,
         nextOrgId,
-        nextLocationId,
+        nextProjectId,
         existingUser?.org?.id ?? null,
-        existingUser?.location?.id ?? null
+        existingUser?.project?.id ?? null
       );
 
-      await validateLocationOrgMatch(nextOrgId, nextLocationId, context);
+      await validateProjectOrgMatch(nextOrgId, nextProjectId, context);
     }
   }
 }) satisfies Lists['User'];

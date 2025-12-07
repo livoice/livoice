@@ -21,9 +21,9 @@ import {
   useUserAllocationEventLogQuery,
   type TimePoliciesQuery
 } from '@/gql/generated';
+import { useAuth } from '@/hooks/auth/useAuth';
 import { useToast } from '@/hooks/useToast';
 import { cn } from '@/lib/cn';
-import useAuth from '@/providers/auth/useAuth';
 import { canEditUserByRole } from '@/providers/auth/userRole';
 import { toUsers } from '@/services/linker';
 import {

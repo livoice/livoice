@@ -1,4 +1,4 @@
-import useAuth from '@/providers/auth/useAuth';
+import { useAuth } from '@/hooks/auth/useAuth';
 import { toDashboard } from '@/services/linker';
 import { useTranslation } from 'react-i18next';
 import { Navigate } from 'react-router';

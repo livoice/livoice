@@ -1,0 +1,11 @@
+query Project($id: ID!) {
+  project(where: { id: $id }) {
+    id
+    name
+    description
+    org {
+      id
+      name
+    }
+  }
+}

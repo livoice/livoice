@@ -25,6 +25,10 @@ const env = cleanEnv(process.env, {
 
   DATABASE_PROVIDER: str({ choices: ['sqlite', 'postgresql', 'mysql'], default: 'sqlite' }),
 
+  OPENAI_API_KEY: str(),
+  OPENAI_MODEL: str({ default: 'gpt-4o-mini' }),
+  OPENAI_EMBEDDING_MODEL: str({ default: 'text-embedding-3-small' }),
+
   GOOGLE_CLIENT_ID: str(),
   GOOGLE_CLIENT_SECRET: str(),
 

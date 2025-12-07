@@ -7,7 +7,7 @@ query GetAllUsers {
     displayName
     role
     avatarUrl
-    location {
+    project {
       id
       name
     }

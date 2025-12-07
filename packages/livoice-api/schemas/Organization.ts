@@ -32,9 +32,9 @@ export default list({
       }
     }),
     users: relationship({ ref: 'User.org', many: true }),
-    timePolicies: relationship({ ref: 'TimePolicy.org', many: true }),
-    timeTypes: relationship({ ref: 'TimeType.org', many: true }),
-    locations: relationship({ ref: 'Location.org', many: true })
+    projects: relationship({ ref: 'Project.org', many: true }),
+    transcripts: relationship({ ref: 'Transcript.org', many: true }),
+    chats: relationship({ ref: 'Chat.org', many: true })
   },
   ui: {
     labelField: 'name'
@@ -74,12 +74,12 @@ export default list({
           const sudo = context.sudo();
           const user = await sudo.query.User.findOne({
             where: { id: session.id },
-            query: 'id location { id }'
+            query: 'id project { id }'
           });
 
-          // Only auto-connect if user already has a location (not in onboarding flow)
-          // During onboarding, the completeOnboarding mutation will handle connecting both org and location
-          if (user?.location?.id) {
+          // Only auto-connect if user already has a project (not in onboarding flow)
+          // During onboarding, the completeOnboarding mutation will handle connecting both org and project
+          if (user?.project?.id) {
             await sudo.db.User.updateOne({
               where: { id: session.id },
               data: {

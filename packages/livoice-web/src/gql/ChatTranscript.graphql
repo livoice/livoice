@@ -1,0 +1,29 @@
+mutation ChatTranscript($input: ChatTranscriptInput!) {
+  chatTranscript(input: $input) {
+    chatId
+    answer
+    messages {
+      id
+      role
+      content
+      createdAt
+      segments {
+        id
+        text
+        startMs
+        endMs
+        speaker
+        transcriptTitle
+      }
+    }
+    references {
+      id
+      text
+      startMs
+      endMs
+      speaker
+      transcriptTitle
+    }
+  }
+}
+

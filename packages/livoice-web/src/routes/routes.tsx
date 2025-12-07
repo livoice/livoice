@@ -3,12 +3,13 @@ import type { TFunction } from 'i18next';
 import type { ReactNode } from 'react';
 import { lazy } from 'react';
 
-import { ROUTER_PATHS, toLogin, toTimeTypes } from '@/services/linker';
-
 import NotFound from '@/containers/NotFound/NotFound';
-import type { AuthContextType } from '@/providers/auth/authContext';
-import { toDashboard, toLocations, toPolicies, toUsers } from '@/services/linker';
+import type { AuthContextType } from '@/hooks/auth/authContext';
+import { ROUTER_PATHS, toDashboard, toLogin, toProjects, toUsers } from '@/services/linker';
 import { route } from './route';
+
+const TranscriptsList = lazy(() => import('@/containers/Transcripts/TranscriptsList'));
+const TranscriptPage = lazy(() => import('@/containers/Transcripts/TranscriptPage'));
 
 export interface RouteConfig {
   path?: string;
@@ -23,19 +24,10 @@ export interface RouteConfig {
 }
 
 const Login = lazy(() => import('@/containers/Login/Login'));
-const Onboarding = lazy(() => import('@/containers/Onboarding/Onboarding'));
 const Dashboard = lazy(() => import('@/containers/Dashboard/Dashboard'));
-const Calendar = lazy(() => import('@/containers/Calendar/Calendar'));
-const Requests = lazy(() => import('@/containers/Requests/Requests'));
 const Users = lazy(() => import('@/containers/Users/Users'));
-const Locations = lazy(() => import('@/containers/Locations/Locations'));
-const LocationUpsert = lazy(() => import('@/containers/Locations/containers/LocationUpsert'));
-const TimeTypes = lazy(() => import('@/containers/TimeTypes/TimeTypes'));
-const TimeTypeUpsert = lazy(() => import('@/containers/TimeTypes/containers/TimeTypeUpsert'));
-const Policies = lazy(() => import('@/containers/Policies/Policies'));
-const PolicyUpsert = lazy(() => import('@/containers/Policies/containers/PolicyUpsert'));
-const SettingsOrg = lazy(() => import('@/containers/Settings/Org'));
-const Profile = lazy(() => import('@/containers/Profile/Profile'));
+const Projects = lazy(() => import('@/containers/Projects/Projects'));
+const ProjectUpsert = lazy(() => import('@/containers/Projects/containers/ProjectUpsert'));
 const UserUpsert = lazy(() => import('@/containers/Users/containers/UserUpsert'));
 const Deactivated = lazy(() => import('@/containers/Deactivated/Deactivated'));
 
@@ -55,16 +47,12 @@ export const routes: RouteConfig[] = [
         element: <Dashboard />
       },
       {
-        path: ROUTER_PATHS.CALENDAR,
-        element: <Calendar />
+        path: ROUTER_PATHS.TRANSCRIPTS,
+        element: <TranscriptsList />
       },
       {
-        path: ROUTER_PATHS.REQUESTS,
-        protectedRoute: {
-          permissions: auth => auth.isAnyAdmin(),
-          onForbiddenRedirectTo: toDashboard()
-        },
-        element: <Requests />
+        path: ROUTER_PATHS.TRANSCRIPT_DETAIL,
+        element: <TranscriptPage />
       },
       {
         path: ROUTER_PATHS.USERS,
@@ -93,92 +81,32 @@ export const routes: RouteConfig[] = [
         ]
       },
       {
-        path: ROUTER_PATHS.TIME_TYPES,
-        protectedRoute: {
-          permissions: auth => auth.isAnyAdmin(),
-          onForbiddenRedirectTo: toDashboard()
-        },
-        element: <TimeTypes />,
+        path: ROUTER_PATHS.PROJECTS,
+        element: <Projects />,
         children: [
           {
-            path: ROUTER_PATHS.TIME_TYPES_CREATE,
+            path: ROUTER_PATHS.PROJECTS_CREATE,
             protectedRoute: {
               permissions: auth => auth.canEditOrg,
-              onForbiddenRedirectTo: toTimeTypes()
+              onForbiddenRedirectTo: toProjects()
             },
-            element: <TimeTypeUpsert />
+            element: <ProjectUpsert />
           },
           {
-            path: ROUTER_PATHS.TIME_TYPES_EDIT,
+            path: ROUTER_PATHS.PROJECTS_EDIT,
             protectedRoute: {
-              permissions: auth => auth.canEditOrg,
-              onForbiddenRedirectTo: toTimeTypes()
+              permissions: auth => auth.canEditProject,
+              onForbiddenRedirectTo: toProjects()
             },
-            element: <TimeTypeUpsert />
+            element: <ProjectUpsert />
           }
         ]
-      },
-      {
-        path: ROUTER_PATHS.LOCATIONS,
-        element: <Locations />,
-        children: [
-          {
-            path: ROUTER_PATHS.LOCATIONS_CREATE,
-            protectedRoute: {
-              permissions: auth => auth.canEditOrg,
-              onForbiddenRedirectTo: toLocations()
-            },
-            element: <LocationUpsert />
-          },
-          {
-            path: ROUTER_PATHS.LOCATIONS_EDIT,
-            protectedRoute: {
-              permissions: auth => auth.canEditLocation,
-              onForbiddenRedirectTo: toLocations()
-            },
-            element: <LocationUpsert />
-          }
-        ]
-      },
-      {
-        path: ROUTER_PATHS.POLICIES,
-        element: <Policies />,
-        children: [
-          {
-            path: ROUTER_PATHS.POLICIES_CREATE,
-            protectedRoute: {
-              permissions: auth => auth.canEditOrg,
-              onForbiddenRedirectTo: toPolicies()
-            },
-            element: <PolicyUpsert />
-          },
-          {
-            path: ROUTER_PATHS.POLICIES_EDIT,
-            protectedRoute: {
-              permissions: auth => auth.canEditOrg,
-              onForbiddenRedirectTo: toPolicies()
-            },
-            element: <PolicyUpsert />
-          }
-        ]
-      },
-      {
-        path: ROUTER_PATHS.SETTINGS_ORG,
-        element: <SettingsOrg />
-      },
-      {
-        path: ROUTER_PATHS.PROFILE,
-        element: <Profile />
       }
     ]
   },
   {
     protectedRoute: protectedRouteEnsuringUserAuthenticated,
     children: [
-      {
-        path: ROUTER_PATHS.ONBOARDING,
-        element: <Onboarding />
-      },
       {
         path: ROUTER_PATHS.DEACTIVATED,
         element: <Deactivated />

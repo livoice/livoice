@@ -1,20 +1,18 @@
-import UserAllocation from './UserAllocation';
-import TimePlan from './TimePlan';
-import TimeType from './TimeType';
-import Location from './Location';
+import Chat from './Chat';
+import ChatMessage from './ChatMessage';
 import Organization from './Organization';
-import TimePolicy from './TimePolicy';
-import TimePolicyAllocation from './TimePolicyAllocation';
+import Project from './Project';
+import Transcript from './Transcript';
+import TranscriptSegment from './TranscriptSegment';
 import User from './User';
 
 const lists = {
+  Chat,
+  ChatMessage,
   Organization,
-  TimePolicy,
-  TimePolicyAllocation,
-  UserAllocation,
-  TimeType,
-  Location,
-  TimePlan,
+  Project,
+  Transcript,
+  TranscriptSegment,
   User
 };
 

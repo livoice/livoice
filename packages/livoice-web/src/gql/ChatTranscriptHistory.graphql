@@ -1,0 +1,20 @@
+query ChatTranscriptHistory($transcriptId: ID!) {
+  chatTranscriptHistory(transcriptId: $transcriptId) {
+    chatId
+    messages {
+      id
+      role
+      content
+      createdAt
+      segments {
+        id
+        text
+        startMs
+        endMs
+        speaker
+        transcriptTitle
+      }
+    }
+  }
+}
+

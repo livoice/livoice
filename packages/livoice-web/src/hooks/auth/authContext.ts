@@ -8,7 +8,7 @@ export interface ExtendedSession extends Session {
   firstName?: string;
   lastName?: string;
   orgId?: string | null;
-  locationId?: string | null;
+  projectId?: string | null;
   providerAccountId?: string | null;
   avatarUrl?: string | null;
   displayName?: string | null;
@@ -24,11 +24,11 @@ export interface AuthContextType {
   // Computed boolean flags
   canAdmin: boolean;
   canEditOrg: boolean;
-  canEditLocation: boolean;
+  canEditProject: boolean;
   // Utility functions
   isAnyAdmin: (userOrSession?: ExtendedSession | null) => boolean;
   canEditOrgData: (userOrSession?: ExtendedSession | null) => boolean;
-  canEditLocationData: (userOrSession?: ExtendedSession | null) => boolean;
+  canEditProjectData: (userOrSession?: ExtendedSession | null) => boolean;
   isOrgAdminOrAbove: (userOrSession?: ExtendedSession | null) => boolean;
   isGod: (userOrSession?: ExtendedSession | null) => boolean;
   isOrgAdmin: (userOrSession?: ExtendedSession | null) => boolean;
@@ -40,10 +40,10 @@ export const AuthContext = createContext<AuthContextType>({
   isLoadingAuth: true,
   canAdmin: false,
   canEditOrg: false,
-  canEditLocation: false,
+  canEditProject: false,
   isAnyAdmin: () => false,
   canEditOrgData: () => false,
-  canEditLocationData: () => false,
+  canEditProjectData: () => false,
   isOrgAdminOrAbove: () => false,
   isGod: () => false,
   isOrgAdmin: () => false,

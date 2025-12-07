@@ -1,0 +1,6 @@
+mutation UpdateProject($id: ID!, $data: ProjectUpdateInput!) {
+  updateProject(where: { id: $id }, data: $data) {
+    id
+  }
+}
+

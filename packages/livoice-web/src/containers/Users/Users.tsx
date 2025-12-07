@@ -5,7 +5,7 @@ import { useTranslation } from 'react-i18next';
 import { Outlet, useNavigate } from 'react-router';
 
 import { useGetAllUsersQuery, useLocationsQuery, UserRoleType, type GetAllUsersQuery } from '@/gql/generated';
-import useAuth from '@/providers/auth/useAuth';
+import { useAuth } from '@/hooks/auth/useAuth';
 import { canEditUserByRole } from '@/providers/auth/userRole';
 import { toUserCreate, toUserEdit } from '@/services/linker';
 import {

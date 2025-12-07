@@ -3,10 +3,10 @@ import { useMemo } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Outlet, useNavigate } from 'react-router';
 
-import useAuth from '@/providers/auth/useAuth';
+import { useAuth } from '@/hooks/auth/useAuth';
 import { NAV_ITEMS, type NavItemConfig } from '@/routes/navItems';
 import { rootRoute } from '@/routes/routes';
-import { toProfile } from '@/services/linker';
+import { toDashboard } from '@/services/linker';
 import { AppShell, Sidebar, type SidebarNavItem, type SidebarUserAction } from '@/ui';
 
 type NavItemWithLabel = NavItemConfig & { label: string };
@@ -64,7 +64,7 @@ export default function Root() {
       key: 'profile',
       label: t('sidebar.profile'),
       icon: materialIcon('person'),
-      onSelect: () => navigate(toProfile())
+      onSelect: () => navigate(toDashboard())
     },
     {
       key: 'logout',

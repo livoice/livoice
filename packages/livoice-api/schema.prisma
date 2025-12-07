@@ -11,240 +11,127 @@ generator client {
   provider = "prisma-client-js"
 }
 
+model Chat {
+  id           String        @id @default(cuid())
+  title        String        @default("AI chat")
+  contextType  String
+  org          Organization? @relation("Chat_org", fields: [orgId], references: [id])
+  orgId        String?       @map("org")
+  project      Project?      @relation("Chat_project", fields: [projectId], references: [id])
+  projectId    String?       @map("project")
+  transcript   Transcript?   @relation("Chat_transcript", fields: [transcriptId], references: [id])
+  transcriptId String?       @map("transcript")
+  messages     ChatMessage[] @relation("ChatMessage_chat")
+  createdAt    DateTime?     @default(now())
+  updatedAt    DateTime?     @updatedAt
+
+  @@index([orgId])
+  @@index([projectId])
+  @@index([transcriptId])
+}
+
+model ChatMessage {
+  id        String              @id @default(cuid())
+  chat      Chat?               @relation("ChatMessage_chat", fields: [chatId], references: [id])
+  chatId    String?             @map("chat")
+  role      String              @default("user")
+  content   String              @default("")
+  segments  TranscriptSegment[] @relation("ChatMessage_segments")
+  createdAt DateTime?           @default(now())
+
+  @@index([chatId])
+}
+
 model Organization {
-  id                String       @id @default(cuid())
-  name              String       @default("")
-  autojoinDomains   Json?        @default("[]")
-  users             User[]       @relation("User_org")
-  timePolicies      TimePolicy[] @relation("TimePolicy_org")
-  timeTypes         TimeType[]   @relation("TimeType_org")
-  locations         Location[]   @relation("Location_org")
-  from_TimePlan_org TimePlan[]   @relation("TimePlan_org")
+  id              String       @id @default(cuid())
+  name            String       @default("")
+  autojoinDomains Json?        @default("[]")
+  users           User[]       @relation("User_org")
+  projects        Project[]    @relation("Project_org")
+  transcripts     Transcript[] @relation("Transcript_org")
+  chats           Chat[]       @relation("Chat_org")
 }
 
-model TimePolicy {
-  id                    String                 @id @default(cuid())
-  name                  String                 @default("")
-  org                   Organization?          @relation("TimePolicy_org", fields: [orgId], references: [id])
-  orgId                 String?                @map("org")
-  timeType              TimeType?              @relation("TimePolicy_timeType", fields: [timeTypeId], references: [id])
-  timeTypeId            String?                @map("timeType")
-  locations             Location[]             @relation("Location_timePolicies")
-  isAllocationManaged   Boolean                @default(true)
-  isApprovable          Boolean                @default(true)
-  timePolicyAllocations TimePolicyAllocation[] @relation("TimePolicyAllocation_timePolicy")
-  allocations           UserAllocation[]       @relation("UserAllocation_timePolicy")
-  timePlans             TimePlan[]             @relation("TimePlan_timePolicy")
-
-  @@index([orgId])
-  @@index([timeTypeId])
-}
-
-model TimePolicyAllocation {
-  id             String           @id @default(cuid())
-  timePolicy     TimePolicy?      @relation("TimePolicyAllocation_timePolicy", fields: [timePolicyId], references: [id])
-  timePolicyId   String?          @map("timePolicy")
-  effectiveAt    DateTime         @default(now())
-  allocation     Int              @default(0)
-  carryoverLimit Int              @default(0)
-  overdraftLimit Int              @default(0)
-  notes          String           @default("")
-  createdAt      DateTime         @default(now())
-  events         UserAllocation[] @relation("UserAllocation_timePolicyAllocation")
-  createdBy      User?            @relation("TimePolicyAllocation_createdBy", fields: [createdById], references: [id])
-  createdById    String?          @map("createdBy")
-
-  @@index([timePolicyId])
-  @@index([effectiveAt])
-  @@index([createdById])
-}
-
-model UserAllocation {
-  id                     String                 @id @default(cuid())
-  user                   User?                  @relation("UserAllocation_user", fields: [userId], references: [id])
-  userId                 String?                @map("user")
-  timePolicy             TimePolicy?            @relation("UserAllocation_timePolicy", fields: [timePolicyId], references: [id])
-  timePolicyId           String?                @map("timePolicy")
-  timePolicyAllocation   TimePolicyAllocation?  @relation("UserAllocation_timePolicyAllocation", fields: [timePolicyAllocationId], references: [id])
-  timePolicyAllocationId String?                @map("timePolicyAllocation")
-  type                   UserAllocationTypeType
-  effectiveAt            DateTime               @default(now())
-  amount                 Int
-  notes                  String                 @default("")
-  createdAt              DateTime               @default(now())
-  createdBy              User?                  @relation("UserAllocation_createdBy", fields: [createdById], references: [id])
-  createdById            String?                @map("createdBy")
-
-  @@index([userId])
-  @@index([timePolicyId])
-  @@index([timePolicyAllocationId])
-  @@index([createdById])
-}
-
-model TimeType {
-  id           String            @id @default(cuid())
-  name         String            @default("")
-  isAway       Boolean           @default(true)
-  color        TimeTypeColorType @default(BLUE)
-  icon         TimeTypeIconType  @default(CALENDAR)
-  org          Organization?     @relation("TimeType_org", fields: [orgId], references: [id])
-  orgId        String?           @map("org")
-  timePolicies TimePolicy[]      @relation("TimePolicy_timeType")
-  timePlans    TimePlan[]        @relation("TimePlan_timeType")
+model Project {
+  id          String        @id @default(cuid())
+  name        String        @default("")
+  description String        @default("")
+  org         Organization? @relation("Project_org", fields: [orgId], references: [id])
+  orgId       String?       @map("org")
+  users       User[]        @relation("User_project")
+  transcripts Transcript[]  @relation("Transcript_project")
+  chats       Chat[]        @relation("Chat_project")
 
   @@index([orgId])
 }
 
-model Location {
-  id             String                   @id @default(cuid())
-  name           String                   @default("")
-  org            Organization?            @relation("Location_org", fields: [orgId], references: [id])
-  orgId          String?                  @map("org")
-  timePolicies   TimePolicy[]             @relation("Location_timePolicies")
-  users          User[]                   @relation("User_location")
-  timezone       String?
-  workingDays    Json                     @default("[\"MON\",\"TUE\",\"WED\",\"THU\",\"FRI\"]")
-  weekStartDay   LocationWeekStartDayType @default(MON)
-  holidayCountry String                   @default("US")
+model Transcript {
+  id              String              @id @default(cuid())
+  title           String              @default("")
+  intervieweeName String              @default("")
+  sourceUrl       String              @default("")
+  language        String              @default("")
+  notes           String              @default("")
+  project         Project?            @relation("Transcript_project", fields: [projectId], references: [id])
+  projectId       String?             @map("project")
+  org             Organization?       @relation("Transcript_org", fields: [orgId], references: [id])
+  orgId           String?             @map("org")
+  segments        TranscriptSegment[] @relation("TranscriptSegment_transcript")
+  chats           Chat[]              @relation("Chat_transcript")
+  createdAt       DateTime?           @default(now())
+  updatedAt       DateTime?           @updatedAt
 
+  @@index([projectId])
   @@index([orgId])
 }
 
-model TimePlan {
-  id               String                   @id @default(cuid())
-  org              Organization?            @relation("TimePlan_org", fields: [orgId], references: [id])
-  orgId            String?                  @map("org")
-  user             User?                    @relation("TimePlan_user", fields: [userId], references: [id])
-  userId           String?                  @map("user")
-  timeType         TimeType?                @relation("TimePlan_timeType", fields: [timeTypeId], references: [id])
-  timeTypeId       String?                  @map("timeType")
-  timePolicy       TimePolicy?              @relation("TimePlan_timePolicy", fields: [timePolicyId], references: [id])
-  timePolicyId     String?                  @map("timePolicy")
-  repeatOrigin     TimePlan?                @relation("TimePlan_repeatOrigin", fields: [repeatOriginId], references: [id])
-  repeatOriginId   String?                  @map("repeatOrigin")
-  repeatExceptions TimePlan[]               @relation("TimePlan_repeatOrigin")
-  status           TimePlanStatusType?      @default(PENDING)
-  origin           TimePlanOriginType?      @default(DIRECT)
-  startAt          DateTime
-  endAt            DateTime?
-  durationUnit     TimePlanDurationUnitType @default(DAY)
-  duration         Float?                   @default(0)
-  isAllDay         Boolean                  @default(true)
-  repeatMode       TimePlanRepeatModeType   @default(SINGLE)
-  repeatInterval   Int?                     @default(1)
-  repeatDay        Int?
-  reason           String                   @default("")
-  decidedBy        User?                    @relation("TimePlan_decidedBy", fields: [decidedById], references: [id])
-  decidedById      String?                  @map("decidedBy")
-  decidedAt        DateTime?
+model TranscriptSegment {
+  id           String                       @id @default(cuid())
+  transcript   Transcript?                  @relation("TranscriptSegment_transcript", fields: [transcriptId], references: [id])
+  transcriptId String?                      @map("transcript")
+  index        Int?
+  startMs      Int?
+  endMs        Int?
+  durationMs   Int?
+  text         String                       @default("")
+  speaker      String                       @default("")
+  isMetadata   Boolean                      @default(false)
+  chatMessages ChatMessage[]                @relation("ChatMessage_segments")
+  embedding    Unsupported("vector(1536)")?
 
-  @@index([orgId])
-  @@index([userId])
-  @@index([timeTypeId])
-  @@index([timePolicyId])
-  @@index([repeatOriginId])
-  @@index([decidedById])
+  @@index([transcriptId])
+  @@index([embedding], map: "TranscriptSegment_embedding_idx")
 }
 
 model User {
-  id                                  String                 @id @default(cuid())
-  avatarSocialUrl                     String                 @default("")
-  avatarUploaded                      Json?
-  email                               String                 @default("")
-  firstName                           String                 @default("")
-  lastName                            String                 @default("")
-  role                                UserRoleType?          @default(USER)
-  providerAccountId                   String                 @unique @default("")
-  provider                            UserProviderType       @default(google)
-  rawAuth                             Json?
-  org                                 Organization?          @relation("User_org", fields: [orgId], references: [id])
-  orgId                               String?                @map("org")
-  location                            Location?              @relation("User_location", fields: [locationId], references: [id])
-  locationId                          String?                @map("location")
-  startDate                           DateTime?
-  allocations                         UserAllocation[]       @relation("UserAllocation_user")
-  isActive                            Boolean                @default(true)
-  createdAt                           DateTime?              @default(now())
-  provisionedAt                       DateTime?
-  updatedAt                           DateTime?              @updatedAt
-  seenAt                              DateTime?
-  from_TimePolicyAllocation_createdBy TimePolicyAllocation[] @relation("TimePolicyAllocation_createdBy")
-  from_UserAllocation_createdBy       UserAllocation[]       @relation("UserAllocation_createdBy")
-  from_TimePlan_user                  TimePlan[]             @relation("TimePlan_user")
-  from_TimePlan_decidedBy             TimePlan[]             @relation("TimePlan_decidedBy")
+  id                String           @id @default(cuid())
+  avatarSocialUrl   String           @default("")
+  avatarUploaded    Json?
+  email             String           @default("")
+  firstName         String           @default("")
+  lastName          String           @default("")
+  role              UserRoleType?    @default(USER)
+  providerAccountId String           @unique @default("")
+  provider          UserProviderType @default(google)
+  rawAuth           Json?
+  org               Organization?    @relation("User_org", fields: [orgId], references: [id])
+  orgId             String?          @map("org")
+  project           Project?         @relation("User_project", fields: [projectId], references: [id])
+  projectId         String?          @map("project")
+  isActive          Boolean          @default(true)
+  createdAt         DateTime?        @default(now())
+  provisionedAt     DateTime?
+  updatedAt         DateTime?        @updatedAt
+  seenAt            DateTime?
 
   @@index([email])
   @@index([orgId])
-  @@index([locationId])
-}
-
-enum UserAllocationTypeType {
-  MANUAL
-  POLICY_CHANGE_RETRO
-  CARRYOVER_OUT
-  CARRYOVER_IN
-}
-
-enum TimeTypeColorType {
-  BLUE
-  GREEN
-  RED
-  ORANGE
-  PURPLE
-  TEAL
-  YELLOW
-  PINK
-  GRAY
-}
-
-enum TimeTypeIconType {
-  CALENDAR
-  PLANE
-  MEDICAL_CROSS
-  HOME
-  BEACH
-  BABY
-  BRIEFCASE
-  STAR
-  DOT
-}
-
-enum LocationWeekStartDayType {
-  MON
-  TUE
-  WED
-  THU
-  FRI
-  SAT
-  SUN
-}
-
-enum TimePlanStatusType {
-  PENDING
-  APPROVED
-  DECLINED
-}
-
-enum TimePlanOriginType {
-  DIRECT
-  REPEATER_EXCEPTION
-}
-
-enum TimePlanDurationUnitType {
-  DAY
-  HOUR
-}
-
-enum TimePlanRepeatModeType {
-  SINGLE
-  WEEKLY
-  MONTHLY_CALENDAR
-  MONTHLY_BUSINESS
+  @@index([projectId])
 }
 
 enum UserRoleType {
   USER
-  LOCATION_ADMIN
+  PROJECT_ADMIN
   ORG_ADMIN
   ORG_OWNER
   GOD

@@ -94,6 +94,20 @@
       "lastLocation": "Cannot delete the last location in the organization"
     }
   },
+  "projects": {
+    "chat": {
+      "title": "Project chat",
+      "subtitle": "Ask about {{project}}",
+      "placeholder": "Ask a question about this project"
+    }
+  },
+  "transcripts": {
+    "chat": {
+      "title": "Transcript chat",
+      "subtitle": "Ask about {{transcript}}",
+      "placeholder": "Ask anything about this transcript"
+    }
+  },
   "sidebar": {
     "title": "PTO",
     "home": "Home",

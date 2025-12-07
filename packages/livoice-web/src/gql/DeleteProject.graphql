@@ -1,0 +1,6 @@
+mutation DeleteProject($id: ID!) {
+  deleteProject(where: { id: $id }) {
+    id
+  }
+}
+

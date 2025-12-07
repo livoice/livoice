@@ -3,7 +3,7 @@ import { User } from '../../types/User';
 
 export enum UserRole {
   USER = 'USER',
-  LOCATION_ADMIN = 'LOCATION_ADMIN',
+  PROJECT_ADMIN = 'PROJECT_ADMIN',
   ORG_ADMIN = 'ORG_ADMIN',
   ORG_OWNER = 'ORG_OWNER',
   GOD = 'GOD'
@@ -11,7 +11,7 @@ export enum UserRole {
 
 export const roleHierarchy: Record<UserRole, number> = {
   [UserRole.USER]: 0,
-  [UserRole.LOCATION_ADMIN]: 1,
+  [UserRole.PROJECT_ADMIN]: 1,
   [UserRole.ORG_ADMIN]: 2,
   [UserRole.ORG_OWNER]: 3,
   [UserRole.GOD]: 4
@@ -32,9 +32,9 @@ export const hasRole =
 // Semantic helper functions for common role checks
 export const isGod = hasRole([UserRole.GOD]);
 export const isOrgAdmin = hasRole([UserRole.ORG_ADMIN, UserRole.ORG_OWNER]);
-export const isLocationAdmin = hasRole([UserRole.LOCATION_ADMIN]);
+export const isProjectAdmin = hasRole([UserRole.PROJECT_ADMIN]);
 export const isOrgAdminOrAbove = hasRole([UserRole.GOD, UserRole.ORG_ADMIN, UserRole.ORG_OWNER]);
-export const isAnyAdmin = hasRole([UserRole.GOD, UserRole.ORG_ADMIN, UserRole.ORG_OWNER, UserRole.LOCATION_ADMIN]);
+export const isAnyAdmin = hasRole([UserRole.GOD, UserRole.ORG_ADMIN, UserRole.ORG_OWNER, UserRole.PROJECT_ADMIN]);
 
 export const isOrgScoped = async ({ session }: SessionContext) => {
   if (isGod({ session })) return true;
@@ -49,12 +49,12 @@ export const isSelf = async ({ session }: SessionOrUserContext) => {
 
 export const canEditOrgData = ({ session }: SessionOrUserContext) => isGod({ session }) || isOrgAdmin({ session });
 
-export const canEditLocationData = ({ session }: SessionOrUserContext) =>
-  isGod({ session }) || isOrgAdmin({ session }) || isLocationAdmin({ session });
+export const canEditProjectData = ({ session }: SessionOrUserContext) =>
+  isGod({ session }) || isOrgAdmin({ session }) || isProjectAdmin({ session });
 
-export const filterByUserLocation = async ({ session }: SessionContext) => {
-  if (!session?.locationId) return false;
-  return { location: { id: { equals: session.locationId } } };
+export const filterByUserProject = async ({ session }: SessionContext) => {
+  if (!session?.projectId) return false;
+  return { project: { id: { equals: session.projectId } } };
 };
 
 export const filterByUserOrg = async ({ session }: SessionContext) => {
@@ -62,15 +62,15 @@ export const filterByUserOrg = async ({ session }: SessionContext) => {
   return { org: { id: { equals: session.orgId } } };
 };
 
-export const filterTimeTypesByUserLocation = async ({ session }: SessionContext) => {
-  if (!session?.orgId || !session?.locationId) return false;
+export const filterTimeTypesByUserProject = async ({ session }: SessionContext) => {
+  if (!session?.orgId || !session?.projectId) return false;
   return {
     org: { id: { equals: session.orgId } },
     timePolicies: {
       some: {
-        locations: {
+        projects: {
           some: {
-            id: { equals: session.locationId }
+            id: { equals: session.projectId }
           }
         }
       }
@@ -78,13 +78,13 @@ export const filterTimeTypesByUserLocation = async ({ session }: SessionContext)
   };
 };
 
-export const filterPoliciesByUserLocation = async ({ session }: SessionContext) => {
-  if (!session?.orgId || !session?.locationId) return false;
+export const filterPoliciesByUserProject = async ({ session }: SessionContext) => {
+  if (!session?.orgId || !session?.projectId) return false;
   return {
     org: { id: { equals: session.orgId } },
-    locations: {
+    projects: {
       some: {
-        id: { equals: session.locationId }
+        id: { equals: session.projectId }
       }
     }
   };
@@ -92,9 +92,9 @@ export const filterPoliciesByUserLocation = async ({ session }: SessionContext) 
 
 /**
  * Check if a user can edit another user based on role hierarchy
- * - LOCATION_ADMIN can only edit USER or LOCATION_ADMIN
- * - ORG_ADMIN can only edit USER, LOCATION_ADMIN, ORG_ADMIN
- * - ORG_OWNER can only edit USER, LOCATION_ADMIN, ORG_ADMIN, ORG_OWNER
+ * - PROJECT_ADMIN can only edit USER or PROJECT_ADMIN
+ * - ORG_ADMIN can only edit USER, PROJECT_ADMIN, ORG_ADMIN
+ * - ORG_OWNER can only edit USER, PROJECT_ADMIN, ORG_ADMIN, ORG_OWNER
  * - GOD can edit anyone
  */
 export const canEditUserByRole = (

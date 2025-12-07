@@ -1,0 +1,20 @@
+query ChatProjectHistory($projectId: ID!) {
+  chatProjectHistory(projectId: $projectId) {
+    chatId
+    messages {
+      id
+      role
+      content
+      createdAt
+      segments {
+        id
+        text
+        startMs
+        endMs
+        speaker
+        transcriptTitle
+      }
+    }
+  }
+}
+

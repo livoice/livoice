@@ -1,7 +1,7 @@
 import Loading from '@/components/Loading/Loading';
+import { useAuth } from '@/hooks/auth/useAuth';
 import { useToast } from '@/hooks/useToast';
 import type { AuthContextType } from '@/providers/auth/authContext';
-import useAuth from '@/providers/auth/useAuth';
 import { ROUTER_PATHS, toDeactivated } from '@/services/linker';
 import type { TFunction } from 'i18next';
 import { useEffect } from 'react';
@@ -25,7 +25,7 @@ export default function ProtectedRoute({
   const location = useLocation();
   const { showToast } = useToast();
   const { t } = useTranslation('common');
-  const isOnboardingRoute = location.pathname.startsWith(ROUTER_PATHS.ONBOARDING);
+  const isOnboardingRoute = false; //location.pathname.startsWith(ROUTER_PATHS.ONBOARDING);
 
   const permissionsDefined = typeof permissions === 'function';
   const hasPermission = permissionsDefined ? permissions(auth) : true;
@@ -48,7 +48,6 @@ export default function ProtectedRoute({
 
   if (!auth.user.isActive && !location.pathname.startsWith(ROUTER_PATHS.DEACTIVATED))
     return <Navigate to={toDeactivated()} replace />;
-  if (!auth.user.orgId && !isOnboardingRoute) return <Navigate to={ROUTER_PATHS.ONBOARDING} replace />;
   if (auth.user.orgId && isOnboardingRoute) return <Navigate to={ROUTER_PATHS.ROOT} replace />;
   if (permissionsDefined && onForbiddenRedirectTo && !hasPermission)
     return <Navigate to={onForbiddenRedirectTo} replace />;

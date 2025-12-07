@@ -1,6 +1,6 @@
 import GoogleIcon from '@/assets/Google.svg?react';
+import { useAuth } from '@/hooks/auth/useAuth';
 import StandalonePageLayout from '@/layouts/StandalonePageLayout/StandalonePageLayout';
-import useAuth from '@/providers/auth/useAuth';
 import { toDashboard } from '@/services/linker';
 import { Button, Card } from '@/ui';
 import { signIn } from 'next-auth/react';
