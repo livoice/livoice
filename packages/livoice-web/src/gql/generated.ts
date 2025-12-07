@@ -1752,6 +1752,18 @@ export type ProjectsQueryVariables = Exact<{ [key: string]: never; }>;
 
 export type ProjectsQuery = { __typename?: 'Query', projects?: Array<{ __typename?: 'Project', id: string, name?: string | null, description?: string | null, org?: { __typename?: 'Organization', id: string, name?: string | null } | null }> | null };
 
+export type TranscriptQueryVariables = Exact<{
+  id: Scalars['ID']['input'];
+}>;
+
+
+export type TranscriptQuery = { __typename?: 'Query', transcript?: { __typename?: 'Transcript', id: string, title?: string | null, intervieweeName?: string | null, notes?: string | null, createdAt?: any | null, segments?: Array<{ __typename?: 'TranscriptSegment', id: string, text?: string | null, speaker?: string | null, startMs?: number | null, endMs?: number | null, durationMs?: number | null }> | null } | null };
+
+export type TranscriptsQueryVariables = Exact<{ [key: string]: never; }>;
+
+
+export type TranscriptsQuery = { __typename?: 'Query', transcripts?: Array<{ __typename?: 'Transcript', id: string, title?: string | null, notes?: string | null, intervieweeName?: string | null, createdAt?: any | null, segmentsCount?: number | null }> | null };
+
 export type UpdateProjectMutationVariables = Exact<{
   id: Scalars['ID']['input'];
   data: ProjectUpdateInput;
@@ -2335,6 +2347,102 @@ export type ProjectsQueryHookResult = ReturnType<typeof useProjectsQuery>;
 export type ProjectsLazyQueryHookResult = ReturnType<typeof useProjectsLazyQuery>;
 export type ProjectsSuspenseQueryHookResult = ReturnType<typeof useProjectsSuspenseQuery>;
 export type ProjectsQueryResult = Apollo.QueryResult<ProjectsQuery, ProjectsQueryVariables>;
+export const TranscriptDocument = gql`
+    query Transcript($id: ID!) {
+  transcript(where: {id: $id}) {
+    id
+    title
+    intervieweeName
+    notes
+    createdAt
+    segments {
+      id
+      text
+      speaker
+      startMs
+      endMs
+      durationMs
+    }
+  }
+}
+    `;
+
+/**
+ * __useTranscriptQuery__
+ *
+ * To run a query within a React component, call `useTranscriptQuery` and pass it any options that fit your needs.
+ * When your component renders, `useTranscriptQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * you can use to render your UI.
+ *
+ * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ *
+ * @example
+ * const { data, loading, error } = useTranscriptQuery({
+ *   variables: {
+ *      id: // value for 'id'
+ *   },
+ * });
+ */
+export function useTranscriptQuery(baseOptions: Apollo.QueryHookOptions<TranscriptQuery, TranscriptQueryVariables> & ({ variables: TranscriptQueryVariables; skip?: boolean; } | { skip: boolean; }) ) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useQuery<TranscriptQuery, TranscriptQueryVariables>(TranscriptDocument, options);
+      }
+export function useTranscriptLazyQuery(baseOptions?: Apollo.LazyQueryHookOptions<TranscriptQuery, TranscriptQueryVariables>) {
+          const options = {...defaultOptions, ...baseOptions}
+          return Apollo.useLazyQuery<TranscriptQuery, TranscriptQueryVariables>(TranscriptDocument, options);
+        }
+export function useTranscriptSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<TranscriptQuery, TranscriptQueryVariables>) {
+          const options = baseOptions === Apollo.skipToken ? baseOptions : {...defaultOptions, ...baseOptions}
+          return Apollo.useSuspenseQuery<TranscriptQuery, TranscriptQueryVariables>(TranscriptDocument, options);
+        }
+export type TranscriptQueryHookResult = ReturnType<typeof useTranscriptQuery>;
+export type TranscriptLazyQueryHookResult = ReturnType<typeof useTranscriptLazyQuery>;
+export type TranscriptSuspenseQueryHookResult = ReturnType<typeof useTranscriptSuspenseQuery>;
+export type TranscriptQueryResult = Apollo.QueryResult<TranscriptQuery, TranscriptQueryVariables>;
+export const TranscriptsDocument = gql`
+    query Transcripts {
+  transcripts {
+    id
+    title
+    notes
+    intervieweeName
+    createdAt
+    segmentsCount
+  }
+}
+    `;
+
+/**
+ * __useTranscriptsQuery__
+ *
+ * To run a query within a React component, call `useTranscriptsQuery` and pass it any options that fit your needs.
+ * When your component renders, `useTranscriptsQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * you can use to render your UI.
+ *
+ * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ *
+ * @example
+ * const { data, loading, error } = useTranscriptsQuery({
+ *   variables: {
+ *   },
+ * });
+ */
+export function useTranscriptsQuery(baseOptions?: Apollo.QueryHookOptions<TranscriptsQuery, TranscriptsQueryVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useQuery<TranscriptsQuery, TranscriptsQueryVariables>(TranscriptsDocument, options);
+      }
+export function useTranscriptsLazyQuery(baseOptions?: Apollo.LazyQueryHookOptions<TranscriptsQuery, TranscriptsQueryVariables>) {
+          const options = {...defaultOptions, ...baseOptions}
+          return Apollo.useLazyQuery<TranscriptsQuery, TranscriptsQueryVariables>(TranscriptsDocument, options);
+        }
+export function useTranscriptsSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<TranscriptsQuery, TranscriptsQueryVariables>) {
+          const options = baseOptions === Apollo.skipToken ? baseOptions : {...defaultOptions, ...baseOptions}
+          return Apollo.useSuspenseQuery<TranscriptsQuery, TranscriptsQueryVariables>(TranscriptsDocument, options);
+        }
+export type TranscriptsQueryHookResult = ReturnType<typeof useTranscriptsQuery>;
+export type TranscriptsLazyQueryHookResult = ReturnType<typeof useTranscriptsLazyQuery>;
+export type TranscriptsSuspenseQueryHookResult = ReturnType<typeof useTranscriptsSuspenseQuery>;
+export type TranscriptsQueryResult = Apollo.QueryResult<TranscriptsQuery, TranscriptsQueryVariables>;
 export const UpdateProjectDocument = gql`
     mutation UpdateProject($id: ID!, $data: ProjectUpdateInput!) {
   updateProject(where: {id: $id}, data: $data) {

@@ -1,43 +1,29 @@
-import { ArrowLeft, Upload as UploadIcon } from 'lucide-react';
-import { FormEvent, useMemo, useState } from 'react';
+import { ArrowLeft } from 'lucide-react';
+import { useMemo } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Link, useParams } from 'react-router-dom';
 
-import { useGetTranscriptQuery, useListTranscriptChunksQuery, useUploadTranscriptTextMutation } from '@/api/api';
 import TranscriptChatPanel from '@/containers/Chat/TranscriptChatPanel';
+import { useTranscriptQuery } from '@/gql/generated';
 import { toTranscripts } from '@/services/linker';
-import { Button } from '@/ui/button';
 import { Card } from '@/ui/card';
 import { TranscriptTimeline } from './components/TranscriptTimeline';
 
 const TranscriptPage = () => {
   const { t } = useTranslation('common');
   const { transcriptId = '' } = useParams<{ transcriptId: string }>();
-  const transcriptQuery = useGetTranscriptQuery(transcriptId, { enabled: !!transcriptId });
-  const chunkQuery = useListTranscriptChunksQuery(transcriptId, { enabled: !!transcriptId });
-  const uploadMutation = useUploadTranscriptTextMutation();
-
-  const [transcriptText, setTranscriptText] = useState('');
-
-  const timelineChunks = chunkQuery.data ?? [];
-  const isLoading = transcriptQuery.isLoading || chunkQuery.isLoading;
+  const { data, loading, error } = useTranscriptQuery({ variables: { id: transcriptId }, skip: !transcriptId });
+  const transcript = data?.transcript ?? null;
+  const timelineChunks = transcript?.segments ?? [];
+  const chunkCount = timelineChunks.length ?? 0;
 
   const formattedDate = useMemo(() => {
-    if (!transcriptQuery.data) return '';
-    return new Date(transcriptQuery.data.transcriptDate).toLocaleDateString();
-  }, [transcriptQuery.data]);
+    if (!transcript?.createdAt) return '';
+    return new Date(transcript.createdAt).toLocaleDateString();
+  }, [transcript?.createdAt]);
 
-  const normalizedTranscript = transcriptQuery.data;
-
-  const handleUpload = async (event: FormEvent<HTMLFormElement>) => {
-    event.preventDefault();
-    if (!transcriptId || !transcriptText.trim()) return;
-    await uploadMutation.mutateAsync({ id: transcriptId, body: { text: transcriptText } });
-    setTranscriptText('');
-  };
-
-  if (isLoading) return <Card>{t('transcriptStatus.loading')}</Card>;
-  if (transcriptQuery.isError || !normalizedTranscript) return <Card>{t('transcriptStatus.error')}</Card>;
+  if (loading) return <Card>{t('transcriptStatus.loading')}</Card>;
+  if (error || !transcript) return <Card>{t('transcriptStatus.error')}</Card>;
 
   return (
     <div className="space-y-6">
@@ -55,14 +41,14 @@ const TranscriptPage = () => {
               <p className="text-xs font-semibold uppercase tracking-[0.4em] text-white/60">
                 {t('pageTitles.transcriptDetail')}
               </p>
-              <h1 className="text-3xl font-semibold">{normalizedTranscript.title}</h1>
-              <p className="max-w-3xl text-white/80">{normalizedTranscript.description}</p>
+              <h1 className="text-3xl font-semibold">{transcript.title || 'Untitled transcript'}</h1>
+              <p className="max-w-3xl text-white/80">{transcript.notes || 'No notes yet'}</p>
             </div>
             <div className="grid gap-4 sm:grid-cols-3">
               {[
                 { label: t('fields.date'), value: formattedDate || '—' },
-                { label: t('fields.interviewee'), value: normalizedTranscript.intervieweeName ?? '—' },
-                { label: t('fields.chunks'), value: (normalizedTranscript.chunkCount ?? 0).toString() }
+                { label: t('fields.interviewee'), value: transcript.intervieweeName ?? '—' },
+                { label: t('fields.chunks'), value: chunkCount.toString() }
               ].map(stat => (
                 <div key={stat.label} className="rounded-2xl bg-white/10 px-4 py-3 text-sm shadow-inner">
                   <p className="text-xs font-semibold uppercase tracking-[0.4em] text-white/70">{stat.label}</p>
@@ -76,31 +62,10 @@ const TranscriptPage = () => {
 
       <div className="grid gap-6 lg:grid-cols-[1.4fr,1fr]">
         <Card className="space-y-6">
-          <form onSubmit={handleUpload} className="space-y-4">
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="text-xs font-semibold uppercase tracking-[0.4em] text-slate-400">Upload transcript</p>
-                <p className="text-sm text-slate-500">Paste the interview text to keep the knowledge base fresh.</p>
-              </div>
-              <UploadIcon className="h-5 w-5 text-violet-500" />
-            </div>
-            <textarea
-              name="transcriptText"
-              className="min-h-[140px] w-full rounded-2xl border border-slate-200 bg-white/80 px-4 py-3 text-sm text-slate-700 outline-none transition focus:border-violet-300 focus:ring-2 focus:ring-violet-100"
-              rows={5}
-              placeholder="Paste transcript text here"
-              value={transcriptText}
-              onChange={event => setTranscriptText(event.target.value)}
-            />
-            <Button type="submit" className="w-full">
-              <UploadIcon className="h-4 w-4" />
-              {t('buttons.uploadText')}
-            </Button>
-          </form>
           <TranscriptTimeline chunks={timelineChunks} />
         </Card>
 
-        <TranscriptChatPanel transcriptId={transcriptId} transcriptTitle={normalizedTranscript.title} />
+        <TranscriptChatPanel transcriptId={transcriptId} transcriptTitle={transcript.title ?? 'Transcript'} />
       </div>
     </div>
   );

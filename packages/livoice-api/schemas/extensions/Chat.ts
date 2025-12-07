@@ -92,88 +92,85 @@ const findLatestChat = async ({
   return { chatId: record.id, messages: history };
 };
 
-export const ChatExtension = (base: BaseSchemaMeta) => {
-  return {
-    query: {
-      chatTranscriptHistory: g.field({
-        type: g.nonNull(ChatHistoryResult),
-        args: {
-          transcriptId: g.arg({ type: g.nonNull(g.ID) })
-        },
-        resolve: async (_root, { transcriptId }, context) => {
-          const session = getSession(context);
-          const history = await findLatestChat({
-            context,
-            where: {
-              contextType: 'TRANSCRIPT',
-              transcript: { id: { equals: transcriptId } },
-              org: { id: { equals: session.orgId } }
-            }
-          });
-          if (!history) return { chatId: null, messages: [] };
-          return history;
-        }
-      }),
-      chatProjectHistory: g.field({
-        type: g.nonNull(ChatHistoryResult),
-        args: {
-          projectId: g.arg({ type: g.nonNull(g.ID) })
-        },
-        resolve: async (_root, { projectId }, context) => {
-          const session = getSession(context);
-          const history = await findLatestChat({
-            context,
-            where: {
-              contextType: 'PROJECT',
-              project: { id: { equals: projectId } },
-              org: { id: { equals: session.orgId } }
-            }
-          });
-          if (!history) return { chatId: null, messages: [] };
-          return history;
-        }
-      })
-    },
-    mutation: {
-      chatTranscript: g.field({
-        type: g.nonNull(ChatMutationResult),
-        args: {
-          input: g.arg({ type: g.nonNull(TranscriptChatInput) })
-        },
-        resolve: async (_root, { input }, context) => {
-          const session = getSession(context);
-          return runChatConversation({
-            context,
-            session,
-            contextType: 'TRANSCRIPT',
-            input: {
-              chatId: input.chatId ?? null,
-              transcriptId: input.transcriptId,
-              message: input.message
-            }
-          });
-        }
-      }),
-      chatProject: g.field({
-        type: g.nonNull(ChatMutationResult),
-        args: {
-          input: g.arg({ type: g.nonNull(ProjectChatInput) })
-        },
-        resolve: async (_root, { input }, context) => {
-          const session = getSession(context);
-          return runChatConversation({
-            context,
-            session,
-            contextType: 'PROJECT',
-            input: {
-              chatId: input.chatId ?? null,
-              projectId: input.projectId,
-              message: input.message
-            }
-          });
-        }
-      })
-    }
-  };
-};
-
+export const ChatExtension = (base: BaseSchemaMeta) => ({
+  query: {
+    chatTranscriptHistory: g.field({
+      type: g.nonNull(ChatHistoryResult),
+      args: {
+        transcriptId: g.arg({ type: g.nonNull(g.ID) })
+      },
+      resolve: async (_root, { transcriptId }, context) => {
+        const session = getSession(context);
+        const history = await findLatestChat({
+          context,
+          where: {
+            contextType: { equals: 'TRANSCRIPT' },
+            transcript: { id: { equals: transcriptId } },
+            org: { id: { equals: session.orgId } }
+          }
+        });
+        if (!history) return { chatId: null, messages: [] };
+        return history;
+      }
+    }),
+    chatProjectHistory: g.field({
+      type: g.nonNull(ChatHistoryResult),
+      args: {
+        projectId: g.arg({ type: g.nonNull(g.ID) })
+      },
+      resolve: async (_root, { projectId }, context) => {
+        const session = getSession(context);
+        const history = await findLatestChat({
+          context,
+          where: {
+            contextType: { equals: 'PROJECT' },
+            project: { id: { equals: projectId } },
+            org: { id: { equals: session.orgId } }
+          }
+        });
+        if (!history) return { chatId: null, messages: [] };
+        return history;
+      }
+    })
+  },
+  mutation: {
+    chatTranscript: g.field({
+      type: g.nonNull(ChatMutationResult),
+      args: {
+        input: g.arg({ type: g.nonNull(TranscriptChatInput) })
+      },
+      resolve: async (_root, { input }, context) => {
+        const session = getSession(context);
+        return runChatConversation({
+          context,
+          session,
+          contextType: 'TRANSCRIPT',
+          input: {
+            chatId: input.chatId ?? null,
+            transcriptId: input.transcriptId,
+            message: input.message
+          }
+        });
+      }
+    }),
+    chatProject: g.field({
+      type: g.nonNull(ChatMutationResult),
+      args: {
+        input: g.arg({ type: g.nonNull(ProjectChatInput) })
+      },
+      resolve: async (_root, { input }, context) => {
+        const session = getSession(context);
+        return runChatConversation({
+          context,
+          session,
+          contextType: 'PROJECT',
+          input: {
+            chatId: input.chatId ?? null,
+            projectId: input.projectId,
+            message: input.message
+          }
+        });
+      }
+    })
+  }
+});

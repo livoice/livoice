@@ -1,10 +1,12 @@
 import { Link } from 'react-router-dom';
 
-import type { TranscriptSummary } from '@/api/api';
+import type { TranscriptsQuery } from '@/gql/generated';
 import { toTranscript } from '@/services/linker';
 
+type TranscriptRow = NonNullable<TranscriptsQuery['transcripts']>[number];
+
 interface TranscriptTableProps {
-  transcripts?: TranscriptSummary[];
+  transcripts?: TranscriptRow[];
 }
 
 const dateFormatter = new Intl.DateTimeFormat(undefined, { dateStyle: 'medium' });
@@ -37,16 +39,16 @@ export const TranscriptTable = ({ transcripts = [] }: TranscriptTableProps) => {
                   to={toTranscript({ transcriptId: transcript.id })}
                   className="text-base font-semibold text-slate-900 transition hover:text-violet-600"
                 >
-                  {transcript.title}
+                  {transcript.title || 'Untitled transcript'}
                 </Link>
-                <p className="text-xs text-slate-500">{transcript.description}</p>
+                <p className="text-xs text-slate-500">{transcript.notes || 'No notes yet'}</p>
               </td>
               <td className="px-6 py-4 text-slate-600">{transcript.intervieweeName ?? '—'}</td>
               <td className="px-6 py-4 text-slate-600">
-                {transcript.transcriptDate ? dateFormatter.format(new Date(transcript.transcriptDate)) : '—'}
+                {transcript.createdAt ? dateFormatter.format(new Date(transcript.createdAt)) : '—'}
               </td>
               <td className="px-6 py-4 text-right text-base font-semibold text-slate-900">
-                {transcript.chunkCount ?? 0}
+                {transcript.segmentsCount ?? 0}
               </td>
             </tr>
           ))}
@@ -55,4 +57,3 @@ export const TranscriptTable = ({ transcripts = [] }: TranscriptTableProps) => {
     </div>
   );
 };
-

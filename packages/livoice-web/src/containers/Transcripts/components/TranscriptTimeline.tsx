@@ -1,12 +1,14 @@
-import type { TranscriptChunk } from '@/api/api';
+import type { TranscriptQuery } from '@/gql/generated';
+
+type Segment = NonNullable<NonNullable<TranscriptQuery['transcript']>['segments']>[number];
 
 interface TranscriptTimelineProps {
-  chunks: TranscriptChunk[];
+  chunks: Segment[];
 }
 
-const formatTimestamp = (seconds?: number | null) => {
-  if (!seconds) return '';
-  const date = new Date(seconds * 1000);
+const formatTimestamp = (ms?: number | null) => {
+  if (!ms && ms !== 0) return '';
+  const date = new Date(ms);
   return date.toISOString().substring(11, 19);
 };
 
@@ -30,8 +32,8 @@ export const TranscriptTimeline = ({ chunks }: TranscriptTimelineProps) => {
             <div className="flex flex-wrap items-center justify-between gap-2 text-xs font-semibold uppercase tracking-[0.2em] text-slate-400">
               <span>{chunk.speaker ?? 'Speaker'}</span>
               <div className="flex items-center gap-3 text-slate-500">
-                <span>{chunk.durationSeconds ? `${chunk.durationSeconds.toFixed(1)}s` : '—'}</span>
-                <span>{formatTimestamp(chunk.absoluteTimestamp ?? undefined)}</span>
+                <span>{chunk.durationMs ? `${(chunk.durationMs / 1000).toFixed(1)}s` : '—'}</span>
+                <span>{formatTimestamp(chunk.startMs ?? undefined)}</span>
               </div>
             </div>
             <p className="mt-2 text-sm text-slate-700">{chunk.text}</p>
@@ -41,4 +43,3 @@ export const TranscriptTimeline = ({ chunks }: TranscriptTimelineProps) => {
     </div>
   );
 };
-

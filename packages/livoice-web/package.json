@@ -8,7 +8,7 @@
     "npm": ">=10.x"
   },
   "scripts": {
-    "dev": "vite",
+    "dev": "npm run codegen && vite",
     "build": "vite build",
     "prebuild": "npm install @rollup/rollup-linux-x64-gnu --no-save",
     "heroku-postbuild": "npm install @rollup/rollup-linux-x64-gnu --no-save && npm run build",

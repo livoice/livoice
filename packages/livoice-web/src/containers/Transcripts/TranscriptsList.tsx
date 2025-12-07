@@ -3,17 +3,20 @@ import type { FormEvent } from 'react';
 import { useMemo, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 
-import { useListTranscriptsQuery } from '@/api/api';
+import { useTranscriptsQuery, type TranscriptsQuery } from '@/gql/generated';
 import { Button } from '@/ui/button';
 import { Card } from '@/ui/card';
 import { TranscriptTable } from './components/TranscriptTable';
 
 const TranscriptsList = () => {
   const { t } = useTranslation('common');
-  const { data, isLoading, isError } = useListTranscriptsQuery();
+  const { data, loading, error } = useTranscriptsQuery();
   const [searchValue, setSearchValue] = useState('');
 
-  const transcripts = useMemo(() => data ?? [], [data]);
+  const transcripts: NonNullable<TranscriptsQuery['transcripts']> = useMemo(
+    () => data?.transcripts ?? [],
+    [data?.transcripts]
+  );
 
   const filteredTranscripts = useMemo(() => {
     if (!searchValue.trim()) return transcripts;
@@ -39,8 +42,8 @@ const TranscriptsList = () => {
     event.preventDefault();
   };
 
-  if (isLoading) return <Card>{t('transcriptStatus.loading')}</Card>;
-  if (isError) return <Card>{t('transcriptStatus.error')}</Card>;
+  if (loading) return <Card>{t('transcriptStatus.loading')}</Card>;
+  if (error) return <Card>{t('transcriptStatus.error')}</Card>;
 
   return (
     <div className="space-y-6">
@@ -91,4 +94,3 @@ const SummaryStat = ({ label, value }: { label: string; value: string }) => (
 );
 
 export default TranscriptsList;
-

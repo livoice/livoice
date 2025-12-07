@@ -325,7 +325,7 @@ export const runChatConversation = async ({
   if (!chatId) {
     const existingChats = await sudoContext.query.Chat.findMany({
       where: {
-        contextType,
+        contextType: { equals: contextType },
         ...(contextType === 'TRANSCRIPT'
           ? { transcript: { id: { equals: transcriptId } } }
           : { project: { id: { equals: projectId } } })
@@ -404,4 +404,3 @@ export const runChatConversation = async ({
 };
 
 export const loadChatHistory = fetchChatHistory;
-

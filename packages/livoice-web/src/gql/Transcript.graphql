@@ -1,0 +1,17 @@
+query Transcript($id: ID!) {
+  transcript(where: { id: $id }) {
+    id
+    title
+    intervieweeName
+    notes
+    createdAt
+    segments {
+      id
+      text
+      speaker
+      startMs
+      endMs
+      durationMs
+    }
+  }
+}

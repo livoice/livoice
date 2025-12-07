@@ -1,0 +1,10 @@
+query Transcripts {
+  transcripts {
+    id
+    title
+    notes
+    intervieweeName
+    createdAt
+    segmentsCount
+  }
+}
