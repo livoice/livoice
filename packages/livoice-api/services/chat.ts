@@ -1,4 +1,5 @@
 import type { KeystoneContext } from '@keystone-6/core/types';
+import { intervalToDuration } from 'date-fns';
 import type { Session } from '../auth';
 import { createEmbeddings, getOpenAIClient, openAiModel } from '../lib/openai';
 import { formatVectorLiteral } from '../lib/pgvector';
@@ -35,10 +36,7 @@ export type ChatHistoryItem = {
 
 const formatMs = (value?: number | null) => {
   if (typeof value !== 'number') return '00:00:00';
-  const totalSeconds = Math.max(0, Math.floor(value / 1000));
-  const hours = Math.floor(totalSeconds / 3600);
-  const minutes = Math.floor((totalSeconds % 3600) / 60);
-  const seconds = totalSeconds % 60;
+  const { hours = 0, minutes = 0, seconds = 0 } = intervalToDuration({ start: 0, end: value });
   return [hours, minutes, seconds].map(unit => unit.toString().padStart(2, '0')).join(':');
 };
 
