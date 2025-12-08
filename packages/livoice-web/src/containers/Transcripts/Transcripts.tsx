@@ -6,11 +6,11 @@ import { useTranslation } from 'react-i18next';
 import { Link } from 'react-router-dom';
 
 import { useTranscriptsQuery, type TranscriptsQuery } from '@/gql/generated';
-import { toProjectTranscriptCreate, toTranscript, toTranscriptCreate } from '@/services/linker';
+import { toTranscript, toTranscriptCreate } from '@/services/linker';
 import { Card, buttonVariants } from '@/ui';
 
 type TranscriptsProps = {
-  projectId?: string;
+  projectId: string;
   title?: string;
   showSummary?: boolean;
 };
@@ -19,7 +19,7 @@ const Transcripts = ({ projectId, title, showSummary = true }: TranscriptsProps)
   const { t } = useTranslation('common');
   const { data, loading, error } = useTranscriptsQuery({
     variables: { projectId },
-    skip: !projectId && projectId !== undefined
+    skip: !projectId
   });
   const [searchValue, setSearchValue] = useQueryState('search', parseAsString.withDefault(''));
 
@@ -65,11 +65,8 @@ const Transcripts = ({ projectId, title, showSummary = true }: TranscriptsProps)
               <h1 className="text-3xl font-semibold text-slate-900">{title || t('pageTitles.transcripts')}</h1>
               <p className="text-sm text-slate-500">Monitor interviews, uploads, and AI conversations in one place.</p>
             </div>
-            <Link
-              to={projectId ? toProjectTranscriptCreate({ projectId }) : toTranscriptCreate()}
-              className={buttonVariants({ className: 'w-full md:w-auto' })}
-            >
-              {t('buttons.uploadText')}
+            <Link to={toTranscriptCreate({ projectId })} className={buttonVariants({ className: 'w-full md:w-auto' })}>
+              {t('buttons.createTranscript')}
             </Link>
           </div>
           <form onSubmit={handleSearchSubmit} className="relative max-w-md">
@@ -94,7 +91,7 @@ const Transcripts = ({ projectId, title, showSummary = true }: TranscriptsProps)
               <SummaryStat label="Last updated" value={formattedLastUpdated} />
             </div>
           ) : null}
-          <TranscriptItem transcripts={filteredTranscripts} />
+          <TranscriptItem projectId={projectId} transcripts={filteredTranscripts} />
         </div>
       </Card>
     </div>
@@ -110,7 +107,13 @@ const SummaryStat = ({ label, value }: { label: string; value: string }) => (
 
 const dateFormatter = new Intl.DateTimeFormat(undefined, { dateStyle: 'medium' });
 
-const TranscriptItem = ({ transcripts }: { transcripts: NonNullable<TranscriptsQuery['transcripts']> }) => {
+const TranscriptItem = ({
+  projectId,
+  transcripts
+}: {
+  projectId: string;
+  transcripts: NonNullable<TranscriptsQuery['transcripts']>;
+}) => {
   if (!transcripts.length)
     return (
       <div className="flex flex-col items-center gap-3 rounded-2xl border-2 border-dashed border-slate-200 bg-white/60 px-8 py-12 text-center text-slate-500">
@@ -124,7 +127,7 @@ const TranscriptItem = ({ transcripts }: { transcripts: NonNullable<TranscriptsQ
       {transcripts.map(transcript => (
         <Link
           key={transcript.id}
-          to={toTranscript({ transcriptId: transcript.id })}
+          to={toTranscript({ projectId, transcriptId: transcript.id })}
           className="flex flex-col gap-3 rounded-2xl border border-slate-100 bg-white/90 p-4 text-left shadow-sm transition hover:shadow-md"
         >
           <div className="flex items-center justify-between gap-3">

@@ -1,4 +1,4 @@
-import { ROUTER_PATHS, toDashboard, toProjects, toSettingsOrg, toTranscripts, toUsers } from '@/services/linker';
+import { ROUTER_PATHS, toDashboard, toProjects, toSettingsOrg, toUsers } from '@/services/linker';
 
 export type NavSection = 'primary' | 'settings' | 'secondary';
 
@@ -13,22 +13,6 @@ export interface NavItemConfig {
 
 export const NAV_ITEMS: NavItemConfig[] = [
   {
-    key: 'projects',
-    labelKey: 'sidebar.projects',
-    icon: 'folder',
-    path: toProjects(),
-    routePath: ROUTER_PATHS.PROJECTS,
-    section: 'primary'
-  },
-  {
-    key: 'transcripts',
-    labelKey: 'sidebar.transcripts',
-    icon: 'mic',
-    path: toTranscripts(),
-    routePath: ROUTER_PATHS.TRANSCRIPTS,
-    section: 'primary'
-  },
-  {
     key: 'dashboard',
     labelKey: 'sidebar.dashboard',
     icon: 'grid_view',
@@ -36,6 +20,22 @@ export const NAV_ITEMS: NavItemConfig[] = [
     routePath: ROUTER_PATHS.ROOT,
     section: 'primary'
   },
+  {
+    key: 'projects',
+    labelKey: 'sidebar.projects',
+    icon: 'folder',
+    path: toProjects(),
+    routePath: ROUTER_PATHS.PROJECTS,
+    section: 'primary'
+  },
+  // {
+  //   key: 'transcripts',
+  //   labelKey: 'sidebar.transcripts',
+  //   icon: 'mic',
+  //   path: toTranscripts(),
+  //   routePath: ROUTER_PATHS.TRANSCRIPTS,
+  //   section: 'primary'
+  // },
   {
     key: 'users',
     labelKey: 'sidebar.users',

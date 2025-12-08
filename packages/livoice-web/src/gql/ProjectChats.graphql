@@ -1,0 +1,7 @@
+query ProjectChats($projectId: ID!) {
+  chats(where: { project: { id: { equals: $projectId } }, transcript: null }, orderBy: { createdAt: desc }) {
+    id
+    title
+    createdAt
+  }
+}

@@ -29,7 +29,6 @@ export type BooleanFilter = {
 
 export type Chat = {
   __typename?: 'Chat';
-  contextType?: Maybe<Scalars['String']['output']>;
   createdAt?: Maybe<Scalars['DateTime']['output']>;
   id: Scalars['ID']['output'];
   messages?: Maybe<Array<ChatMessage>>;
@@ -56,7 +55,6 @@ export type ChatMessagesCountArgs = {
 };
 
 export type ChatCreateInput = {
-  contextType?: InputMaybe<Scalars['String']['input']>;
   createdAt?: InputMaybe<Scalars['DateTime']['input']>;
   messages?: InputMaybe<ChatMessageRelateToManyForCreateInput>;
   org?: InputMaybe<OrganizationRelateToOneForCreateInput>;
@@ -183,7 +181,6 @@ export type ChatMutationResult = {
 };
 
 export type ChatOrderByInput = {
-  contextType?: InputMaybe<OrderDirection>;
   createdAt?: InputMaybe<OrderDirection>;
   id?: InputMaybe<OrderDirection>;
   title?: InputMaybe<OrderDirection>;
@@ -241,7 +238,6 @@ export type ChatUpdateArgs = {
 };
 
 export type ChatUpdateInput = {
-  contextType?: InputMaybe<Scalars['String']['input']>;
   createdAt?: InputMaybe<Scalars['DateTime']['input']>;
   messages?: InputMaybe<ChatMessageRelateToManyForUpdateInput>;
   org?: InputMaybe<OrganizationRelateToOneForUpdateInput>;
@@ -255,7 +251,6 @@ export type ChatWhereInput = {
   AND?: InputMaybe<Array<ChatWhereInput>>;
   NOT?: InputMaybe<Array<ChatWhereInput>>;
   OR?: InputMaybe<Array<ChatWhereInput>>;
-  contextType?: InputMaybe<StringFilter>;
   createdAt?: InputMaybe<DateTimeNullableFilter>;
   id?: InputMaybe<IdFilter>;
   messages?: InputMaybe<ChatMessageManyRelationFilter>;
@@ -1137,11 +1132,13 @@ export type QueryChatMessagesCountArgs = {
 
 
 export type QueryChatProjectHistoryArgs = {
+  chatId?: InputMaybe<Scalars['ID']['input']>;
   projectId: Scalars['ID']['input'];
 };
 
 
 export type QueryChatTranscriptHistoryArgs = {
+  chatId?: InputMaybe<Scalars['ID']['input']>;
   transcriptId: Scalars['ID']['input'];
 };
 
@@ -1740,6 +1737,13 @@ export type ProjectQueryVariables = Exact<{
 
 export type ProjectQuery = { __typename?: 'Query', project?: { __typename?: 'Project', id: string, name?: string | null, description?: string | null, org?: { __typename?: 'Organization', id: string, name?: string | null } | null } | null };
 
+export type ProjectChatsQueryVariables = Exact<{
+  projectId: Scalars['ID']['input'];
+}>;
+
+
+export type ProjectChatsQuery = { __typename?: 'Query', chats?: Array<{ __typename?: 'Chat', id: string, title?: string | null, createdAt?: any | null }> | null };
+
 export type ProjectDetailQueryVariables = Exact<{
   projectId: Scalars['ID']['input'];
 }>;
@@ -1765,6 +1769,13 @@ export type TranscriptQueryVariables = Exact<{
 
 
 export type TranscriptQuery = { __typename?: 'Query', transcript?: { __typename?: 'Transcript', id: string, title?: string | null, intervieweeName?: string | null, notes?: string | null, createdAt?: any | null, segments?: Array<{ __typename?: 'TranscriptSegment', id: string, text?: string | null, speaker?: string | null, startMs?: number | null, endMs?: number | null, durationMs?: number | null }> | null } | null };
+
+export type TranscriptChatsQueryVariables = Exact<{
+  transcriptId: Scalars['ID']['input'];
+}>;
+
+
+export type TranscriptChatsQuery = { __typename?: 'Query', chats?: Array<{ __typename?: 'Chat', id: string, title?: string | null, createdAt?: any | null }> | null };
 
 export type TranscriptsQueryVariables = Exact<{
   projectId?: InputMaybe<Scalars['ID']['input']>;
@@ -2264,6 +2275,51 @@ export type ProjectQueryHookResult = ReturnType<typeof useProjectQuery>;
 export type ProjectLazyQueryHookResult = ReturnType<typeof useProjectLazyQuery>;
 export type ProjectSuspenseQueryHookResult = ReturnType<typeof useProjectSuspenseQuery>;
 export type ProjectQueryResult = Apollo.QueryResult<ProjectQuery, ProjectQueryVariables>;
+export const ProjectChatsDocument = gql`
+    query ProjectChats($projectId: ID!) {
+  chats(
+    where: {project: {id: {equals: $projectId}}, transcript: null}
+    orderBy: {createdAt: desc}
+  ) {
+    id
+    title
+    createdAt
+  }
+}
+    `;
+
+/**
+ * __useProjectChatsQuery__
+ *
+ * To run a query within a React component, call `useProjectChatsQuery` and pass it any options that fit your needs.
+ * When your component renders, `useProjectChatsQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * you can use to render your UI.
+ *
+ * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ *
+ * @example
+ * const { data, loading, error } = useProjectChatsQuery({
+ *   variables: {
+ *      projectId: // value for 'projectId'
+ *   },
+ * });
+ */
+export function useProjectChatsQuery(baseOptions: Apollo.QueryHookOptions<ProjectChatsQuery, ProjectChatsQueryVariables> & ({ variables: ProjectChatsQueryVariables; skip?: boolean; } | { skip: boolean; }) ) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useQuery<ProjectChatsQuery, ProjectChatsQueryVariables>(ProjectChatsDocument, options);
+      }
+export function useProjectChatsLazyQuery(baseOptions?: Apollo.LazyQueryHookOptions<ProjectChatsQuery, ProjectChatsQueryVariables>) {
+          const options = {...defaultOptions, ...baseOptions}
+          return Apollo.useLazyQuery<ProjectChatsQuery, ProjectChatsQueryVariables>(ProjectChatsDocument, options);
+        }
+export function useProjectChatsSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<ProjectChatsQuery, ProjectChatsQueryVariables>) {
+          const options = baseOptions === Apollo.skipToken ? baseOptions : {...defaultOptions, ...baseOptions}
+          return Apollo.useSuspenseQuery<ProjectChatsQuery, ProjectChatsQueryVariables>(ProjectChatsDocument, options);
+        }
+export type ProjectChatsQueryHookResult = ReturnType<typeof useProjectChatsQuery>;
+export type ProjectChatsLazyQueryHookResult = ReturnType<typeof useProjectChatsLazyQuery>;
+export type ProjectChatsSuspenseQueryHookResult = ReturnType<typeof useProjectChatsSuspenseQuery>;
+export type ProjectChatsQueryResult = Apollo.QueryResult<ProjectChatsQuery, ProjectChatsQueryVariables>;
 export const ProjectDetailDocument = gql`
     query ProjectDetail($projectId: ID!) {
   project(where: {id: $projectId}) {
@@ -2462,6 +2518,51 @@ export type TranscriptQueryHookResult = ReturnType<typeof useTranscriptQuery>;
 export type TranscriptLazyQueryHookResult = ReturnType<typeof useTranscriptLazyQuery>;
 export type TranscriptSuspenseQueryHookResult = ReturnType<typeof useTranscriptSuspenseQuery>;
 export type TranscriptQueryResult = Apollo.QueryResult<TranscriptQuery, TranscriptQueryVariables>;
+export const TranscriptChatsDocument = gql`
+    query TranscriptChats($transcriptId: ID!) {
+  chats(
+    where: {transcript: {id: {equals: $transcriptId}}}
+    orderBy: {createdAt: desc}
+  ) {
+    id
+    title
+    createdAt
+  }
+}
+    `;
+
+/**
+ * __useTranscriptChatsQuery__
+ *
+ * To run a query within a React component, call `useTranscriptChatsQuery` and pass it any options that fit your needs.
+ * When your component renders, `useTranscriptChatsQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * you can use to render your UI.
+ *
+ * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ *
+ * @example
+ * const { data, loading, error } = useTranscriptChatsQuery({
+ *   variables: {
+ *      transcriptId: // value for 'transcriptId'
+ *   },
+ * });
+ */
+export function useTranscriptChatsQuery(baseOptions: Apollo.QueryHookOptions<TranscriptChatsQuery, TranscriptChatsQueryVariables> & ({ variables: TranscriptChatsQueryVariables; skip?: boolean; } | { skip: boolean; }) ) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useQuery<TranscriptChatsQuery, TranscriptChatsQueryVariables>(TranscriptChatsDocument, options);
+      }
+export function useTranscriptChatsLazyQuery(baseOptions?: Apollo.LazyQueryHookOptions<TranscriptChatsQuery, TranscriptChatsQueryVariables>) {
+          const options = {...defaultOptions, ...baseOptions}
+          return Apollo.useLazyQuery<TranscriptChatsQuery, TranscriptChatsQueryVariables>(TranscriptChatsDocument, options);
+        }
+export function useTranscriptChatsSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<TranscriptChatsQuery, TranscriptChatsQueryVariables>) {
+          const options = baseOptions === Apollo.skipToken ? baseOptions : {...defaultOptions, ...baseOptions}
+          return Apollo.useSuspenseQuery<TranscriptChatsQuery, TranscriptChatsQueryVariables>(TranscriptChatsDocument, options);
+        }
+export type TranscriptChatsQueryHookResult = ReturnType<typeof useTranscriptChatsQuery>;
+export type TranscriptChatsLazyQueryHookResult = ReturnType<typeof useTranscriptChatsLazyQuery>;
+export type TranscriptChatsSuspenseQueryHookResult = ReturnType<typeof useTranscriptChatsSuspenseQuery>;
+export type TranscriptChatsQueryResult = Apollo.QueryResult<TranscriptChatsQuery, TranscriptChatsQueryVariables>;
 export const TranscriptsDocument = gql`
     query Transcripts($projectId: ID) {
   transcripts(where: {project: {id: {equals: $projectId}}}) {

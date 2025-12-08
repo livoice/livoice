@@ -1,18 +1,11 @@
 import { type Lists } from '.keystone/types';
 import { list } from '@keystone-6/core';
-import { relationship, select, text, timestamp } from '@keystone-6/core/fields';
+import { relationship, text, timestamp } from '@keystone-6/core/fields';
 import { filterByUserOrg, isAuthenticated, isGod, isOrgAdmin } from '../domains/auth/userRole';
 
 export default list({
   fields: {
     title: text({ validation: { isRequired: true }, defaultValue: 'AI chat' }),
-    contextType: select({
-      options: [
-        { label: 'Transcript', value: 'TRANSCRIPT' },
-        { label: 'Project', value: 'PROJECT' }
-      ],
-      validation: { isRequired: true }
-    }),
     org: relationship({ ref: 'Organization.chats', many: false }),
     project: relationship({ ref: 'Project.chats', many: false }),
     transcript: relationship({ ref: 'Transcript.chats', many: false }),
@@ -36,4 +29,3 @@ export default list({
     }
   }
 }) satisfies Lists['Chat'];
-

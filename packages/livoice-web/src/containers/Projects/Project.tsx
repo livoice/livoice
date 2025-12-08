@@ -1,7 +1,8 @@
 import { ArrowLeft } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
-import { Link, useParams } from 'react-router-dom';
+import { Link, Outlet, useParams } from 'react-router-dom';
 
+import ChatList from '@/containers/Chat/ChatList';
 import TranscriptsList from '@/containers/Transcripts/Transcripts';
 import { useProjectQuery } from '@/gql/generated';
 import { toProjectEdit, toProjects } from '@/services/linker';
@@ -10,6 +11,7 @@ import { Card } from '@/ui';
 export default function Project() {
   const { t } = useTranslation('common');
   const { projectId = '' } = useParams<{ projectId: string }>();
+  // const location = useLocation();
 
   const { data, loading, error } = useProjectQuery({
     variables: { id: projectId },
@@ -43,11 +45,20 @@ export default function Project() {
           {t('buttons.edit')}
         </Link>
       </div>
-      <TranscriptsList
-        projectId={projectId}
-        title={project.name || t('projects.detail.untitled')}
-        showSummary={false}
-      />
+
+      <div className={`grid gap-6 lg:grid-cols-1`}>
+        <div className="space-y-6">
+          <ChatList projectId={projectId} />
+
+          <TranscriptsList
+            projectId={projectId}
+            title={project.name || t('projects.detail.untitled')}
+            showSummary={false}
+          />
+        </div>
+
+        <Outlet />
+      </div>
     </div>
   );
 }

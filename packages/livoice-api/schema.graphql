@@ -4,7 +4,6 @@
 type Chat {
   id: ID!
   title: String
-  contextType: String
   org: Organization
   project: Project
   transcript: Transcript
@@ -26,7 +25,6 @@ input ChatWhereInput {
   NOT: [ChatWhereInput!]
   id: IDFilter
   title: StringFilter
-  contextType: StringFilter
   org: OrganizationWhereInput
   project: ProjectWhereInput
   transcript: TranscriptWhereInput
@@ -100,7 +98,6 @@ input DateTimeNullableFilter {
 input ChatOrderByInput {
   id: OrderDirection
   title: OrderDirection
-  contextType: OrderDirection
   createdAt: OrderDirection
   updatedAt: OrderDirection
 }
@@ -112,7 +109,6 @@ enum OrderDirection {
 
 input ChatUpdateInput {
   title: String
-  contextType: String
   org: OrganizationRelateToOneForUpdateInput
   project: ProjectRelateToOneForUpdateInput
   transcript: TranscriptRelateToOneForUpdateInput
@@ -153,7 +149,6 @@ input ChatUpdateArgs {
 
 input ChatCreateInput {
   title: String
-  contextType: String
   org: OrganizationRelateToOneForCreateInput
   project: ProjectRelateToOneForCreateInput
   transcript: TranscriptRelateToOneForCreateInput
@@ -940,8 +935,8 @@ type Query {
   users(where: UserWhereInput! = {}, orderBy: [UserOrderByInput!]! = [], take: Int, skip: Int! = 0, cursor: UserWhereUniqueInput): [User!]
   usersCount(where: UserWhereInput! = {}): Int
   keystone: KeystoneMeta!
-  chatTranscriptHistory(transcriptId: ID!): ChatHistoryResult!
-  chatProjectHistory(projectId: ID!): ChatHistoryResult!
+  chatTranscriptHistory(transcriptId: ID!, chatId: ID): ChatHistoryResult!
+  chatProjectHistory(projectId: ID!, chatId: ID): ChatHistoryResult!
 }
 
 type ChatHistoryResult {

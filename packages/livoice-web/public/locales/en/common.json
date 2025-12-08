@@ -215,7 +215,7 @@
     "selectMonthsToCreate": "Select months to create"
   },
   "buttons": {
-    "add": "Add {{label}}",
+    "newChat": "New Chat",
     "back": "Back",
     "signOut": "Logout",
     "signIn": "Sign in",
@@ -225,7 +225,7 @@
     "save": "Save",
     "create": "Create",
     "creating": "Creating",
-    "uploadText": "Upload transcript",
+    "createTranscript": "Create Transcript",
     "edit": "Edit",
     "update": "Update",
     "updating": "Updating",

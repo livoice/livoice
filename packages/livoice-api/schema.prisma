@@ -14,7 +14,6 @@ generator client {
 model Chat {
   id           String        @id @default(cuid())
   title        String        @default("AI chat")
-  contextType  String
   org          Organization? @relation("Chat_org", fields: [orgId], references: [id])
   orgId        String?       @map("org")
   project      Project?      @relation("Chat_project", fields: [projectId], references: [id])

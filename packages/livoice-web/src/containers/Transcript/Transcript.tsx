@@ -1,17 +1,17 @@
 import { ArrowLeft } from 'lucide-react';
 import { useMemo } from 'react';
 import { useTranslation } from 'react-i18next';
-import { Link, useParams } from 'react-router-dom';
+import { Link, Outlet, useParams } from 'react-router-dom';
 
-import TranscriptChatPanel from '@/containers/Chat/TranscriptChatPanel';
-import { useTranscriptQuery } from '@/gql/generated';
-import { toTranscripts } from '@/services/linker';
+import ChatList from '@/containers/Chat/ChatList';
+import { toProject } from '@/services/linker';
 import { Card } from '@/ui/card';
+import { useTranscriptQuery } from '../../gql/generated';
 import { TranscriptTimeline } from './components/TranscriptTimeline';
 
 const Transcript = () => {
   const { t } = useTranslation('common');
-  const { transcriptId = '' } = useParams<{ transcriptId: string }>();
+  const { projectId = '', transcriptId = '' } = useParams<{ projectId: string; transcriptId: string }>();
   const { data, loading, error } = useTranscriptQuery({ variables: { id: transcriptId }, skip: !transcriptId });
   const transcript = data?.transcript ?? null;
   const timelineChunks = transcript?.segments ?? [];
@@ -30,7 +30,7 @@ const Transcript = () => {
       <Card className="border-0 bg-gradient-to-r from-slate-900 via-indigo-900 to-violet-700 text-white shadow-[0_40px_90px_rgba(15,23,42,0.45)]">
         <div className="space-y-6 px-8 py-8">
           <Link
-            to={toTranscripts()}
+            to={toProject({ projectId })}
             className="inline-flex items-center gap-2 text-sm font-semibold text-white/80 transition hover:text-white"
           >
             <ArrowLeft className="h-4 w-4" />
@@ -60,13 +60,15 @@ const Transcript = () => {
         </div>
       </Card>
 
-      <div className="grid gap-6 lg:grid-cols-[1.4fr,1fr]">
+      <div className="space-y-6">
+        <ChatList projectId={projectId} transcriptId={transcriptId} />
+
         <Card className="space-y-6">
           <TranscriptTimeline chunks={timelineChunks} />
         </Card>
-
-        <TranscriptChatPanel transcriptId={transcriptId} transcriptTitle={transcript.title ?? 'Transcript'} />
       </div>
+
+      <Outlet />
     </div>
   );
 };

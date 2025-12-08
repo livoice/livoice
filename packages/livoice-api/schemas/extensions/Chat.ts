@@ -97,16 +97,17 @@ export const ChatExtension = (base: BaseSchemaMeta) => ({
     chatTranscriptHistory: g.field({
       type: g.nonNull(ChatHistoryResult),
       args: {
-        transcriptId: g.arg({ type: g.nonNull(g.ID) })
+        transcriptId: g.arg({ type: g.nonNull(g.ID) }),
+        chatId: g.arg({ type: g.ID })
       },
-      resolve: async (_root, { transcriptId }, context) => {
+      resolve: async (_root, { transcriptId, chatId }, context) => {
         const session = getSession(context);
         const history = await findLatestChat({
           context,
           where: {
-            contextType: { equals: 'TRANSCRIPT' },
             transcript: { id: { equals: transcriptId } },
-            org: { id: { equals: session.orgId } }
+            org: { id: { equals: session.orgId } },
+            ...(chatId ? { id: { equals: chatId } } : {})
           }
         });
         if (!history) return { chatId: null, messages: [] };
@@ -116,16 +117,17 @@ export const ChatExtension = (base: BaseSchemaMeta) => ({
     chatProjectHistory: g.field({
       type: g.nonNull(ChatHistoryResult),
       args: {
-        projectId: g.arg({ type: g.nonNull(g.ID) })
+        projectId: g.arg({ type: g.nonNull(g.ID) }),
+        chatId: g.arg({ type: g.ID })
       },
-      resolve: async (_root, { projectId }, context) => {
+      resolve: async (_root, { projectId, chatId }, context) => {
         const session = getSession(context);
         const history = await findLatestChat({
           context,
           where: {
-            contextType: { equals: 'PROJECT' },
             project: { id: { equals: projectId } },
-            org: { id: { equals: session.orgId } }
+            org: { id: { equals: session.orgId } },
+            ...(chatId ? { id: { equals: chatId } } : {})
           }
         });
         if (!history) return { chatId: null, messages: [] };
@@ -144,7 +146,6 @@ export const ChatExtension = (base: BaseSchemaMeta) => ({
         return runChatConversation({
           context,
           session,
-          contextType: 'TRANSCRIPT',
           input: {
             chatId: input.chatId ?? null,
             transcriptId: input.transcriptId,
@@ -163,7 +164,6 @@ export const ChatExtension = (base: BaseSchemaMeta) => ({
         return runChatConversation({
           context,
           session,
-          contextType: 'PROJECT',
           input: {
             chatId: input.chatId ?? null,
             projectId: input.projectId,

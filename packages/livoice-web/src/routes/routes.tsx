@@ -8,9 +8,9 @@ import type { AuthContextType } from '@/hooks/auth/authContext';
 import { ROUTER_PATHS, toDashboard, toLogin, toProjects, toUsers } from '@/services/linker';
 import { route } from './route';
 
-const TranscriptsList = lazy(() => import('@/containers/Transcripts/Transcripts'));
+const Transcript = lazy(() => import('@/containers/Transcript/Transcript'));
 const TranscriptUpsert = lazy(() => import('@/containers/Transcripts/containers/TranscriptUpsert'));
-const TranscriptPage = lazy(() => import('@/containers/Transcript/Transcript'));
+const Chat = lazy(() => import('@/containers/Chat/Chat'));
 
 export interface RouteConfig {
   path?: string;
@@ -47,18 +47,6 @@ export const routes: RouteConfig[] = [
       {
         index: true,
         element: <Dashboard />
-      },
-      {
-        path: ROUTER_PATHS.TRANSCRIPTS,
-        element: <TranscriptsList />
-      },
-      {
-        path: ROUTER_PATHS.TRANSCRIPTS_CREATE,
-        element: <TranscriptUpsert />
-      },
-      {
-        path: ROUTER_PATHS.TRANSCRIPT_DETAIL,
-        element: <TranscriptPage />
       },
       {
         path: ROUTER_PATHS.USERS,
@@ -110,11 +98,35 @@ export const routes: RouteConfig[] = [
       },
       {
         path: ROUTER_PATHS.PROJECT,
-        element: <Project />
+        element: <Project />,
+        children: [
+          {
+            path: ROUTER_PATHS.PROJECT_CHAT_NEW,
+            element: <Chat />
+          },
+          {
+            path: ROUTER_PATHS.PROJECT_CHAT,
+            element: <Chat />
+          },
+          {
+            path: ROUTER_PATHS.TRANSCRIPTS_CREATE,
+            element: <TranscriptUpsert />
+          }
+        ]
       },
       {
-        path: ROUTER_PATHS.PROJECT_TRANSCRIPTS_CREATE,
-        element: <TranscriptUpsert />
+        path: ROUTER_PATHS.TRANSCRIPT,
+        element: <Transcript />,
+        children: [
+          {
+            path: ROUTER_PATHS.TRANSCRIPT_CHAT_NEW,
+            element: <Chat />
+          },
+          {
+            path: ROUTER_PATHS.TRANSCRIPT_CHAT,
+            element: <Chat />
+          }
+        ]
       }
     ]
   },

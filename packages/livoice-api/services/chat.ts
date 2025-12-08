@@ -3,8 +3,6 @@ import type { Session } from '../auth';
 import { createEmbeddings, getOpenAIClient, openAiModel } from '../lib/openai';
 import { formatVectorLiteral } from '../lib/pgvector';
 
-type ChatContextType = 'TRANSCRIPT' | 'PROJECT';
-
 type SegmentRecord = {
   id: string;
   text: string;
@@ -58,7 +56,6 @@ const mapSegmentReference = (segment: SegmentRecord): SegmentReference => ({
 
 type FetchSegmentsParams = {
   context: KeystoneContext;
-  contextType: ChatContextType;
   projectId?: string;
   transcriptId?: string;
   queryText?: string;
@@ -92,24 +89,24 @@ const mapRawToSegment = (row: RawSegment): SegmentRecord => ({
     : null
 });
 
-const fetchSegments = async ({ context, contextType, projectId, transcriptId, queryText }: FetchSegmentsParams) => {
+const fetchSegments = async ({ context, projectId, transcriptId, queryText }: FetchSegmentsParams) => {
   const sudoContext = context.sudo();
+  const isTranscriptContext = Boolean(transcriptId);
 
   const fallback = async () => {
-    const baseArgs =
-      contextType === 'TRANSCRIPT'
-        ? {
-            where: { transcript: { id: { equals: transcriptId } } }
-          }
-        : {
-            where: {
-              transcript: {
-                project: {
-                  id: { equals: projectId }
-                }
+    const baseArgs = isTranscriptContext
+      ? {
+          where: { transcript: { id: { equals: transcriptId } } }
+        }
+      : {
+          where: {
+            transcript: {
+              project: {
+                id: { equals: projectId }
               }
             }
-          };
+          }
+        };
 
     const segments = await sudoContext.query.TranscriptSegment.findMany({
       ...baseArgs,
@@ -138,8 +135,8 @@ const fetchSegments = async ({ context, contextType, projectId, transcriptId, qu
 
   const runVectorSearch = async (text: string) => {
     if (!text.trim()) return [];
-    if (contextType === 'TRANSCRIPT' && !transcriptId) return [];
-    if (contextType === 'PROJECT' && !projectId) return [];
+    if (isTranscriptContext && !transcriptId) return [];
+    if (!isTranscriptContext && !projectId) return [];
 
     try {
       const embeddings = await createEmbeddings([text]);
@@ -147,14 +144,12 @@ const fetchSegments = async ({ context, contextType, projectId, transcriptId, qu
       if (!embedding?.length) return [];
 
       const literal = formatVectorLiteral(embedding);
-      const joinClause =
-        contextType === 'PROJECT'
-          ? 'INNER JOIN "Transcript" t ON t.id = "TranscriptSegment"."transcriptId"'
-          : 'LEFT JOIN "Transcript" t ON t.id = "TranscriptSegment"."transcriptId"';
-      const whereClause =
-        contextType === 'TRANSCRIPT'
-          ? `"TranscriptSegment"."transcriptId" = '${transcriptId}'`
-          : `"Transcript"."projectId" = '${projectId}'`;
+      const joinClause = isTranscriptContext
+        ? 'LEFT JOIN "Transcript" t ON t.id = "TranscriptSegment"."transcriptId"'
+        : 'INNER JOIN "Transcript" t ON t.id = "TranscriptSegment"."transcriptId"';
+      const whereClause = isTranscriptContext
+        ? `"TranscriptSegment"."transcriptId" = '${transcriptId}'`
+        : `"Transcript"."projectId" = '${projectId}'`;
 
       const rows =
         (await sudoContext.prisma.$queryRawUnsafe<RawSegment>(`
@@ -232,15 +227,15 @@ const getOpenAiMessages = ({
 };
 
 const getSystemPrompt = ({
-  contextType,
+  isTranscriptContext,
   projectName,
   transcriptName
 }: {
-  contextType: ChatContextType;
+  isTranscriptContext: boolean;
   projectName?: string | null;
   transcriptName?: string | null;
 }) => {
-  if (contextType === 'TRANSCRIPT') {
+  if (isTranscriptContext) {
     return `You are an interview intelligence assistant. Use timestamps and transcript snippets when you answer questions about "${transcriptName ?? 'this transcript'}".`;
   }
 
@@ -250,12 +245,10 @@ const getSystemPrompt = ({
 export const runChatConversation = async ({
   context,
   session,
-  input,
-  contextType
+  input
 }: {
   context: KeystoneContext;
   session: Session;
-  contextType: ChatContextType;
   input: {
     chatId?: string | null;
     transcriptId?: string;
@@ -268,6 +261,7 @@ export const runChatConversation = async ({
   const sudoContext = context.sudo();
   const messageText = input.message.trim();
   if (!messageText) throw new Error('Message cannot be empty');
+  const isTranscriptContext = Boolean(input.transcriptId);
 
   let targetProject: { id: string; name?: string | null; org?: { id: string } | null } | null = null;
   let targetTranscript: {
@@ -276,7 +270,7 @@ export const runChatConversation = async ({
     project?: { id: string; name?: string | null; org?: { id: string } | null } | null;
   } | null = null;
 
-  if (contextType === 'TRANSCRIPT') {
+  if (isTranscriptContext) {
     if (!input.transcriptId) throw new Error('Transcript ID is required');
     targetTranscript = await sudoContext.query.Transcript.findOne({
       where: { id: input.transcriptId },
@@ -302,7 +296,6 @@ export const runChatConversation = async ({
   const transcriptId = targetTranscript?.id ?? null;
   const segments = await fetchSegments({
     context,
-    contextType,
     projectId: projectId ?? undefined,
     transcriptId: transcriptId ?? undefined,
     queryText: messageText
@@ -316,35 +309,18 @@ export const runChatConversation = async ({
   const segmentsText = segmentsForPrompt.map(buildSegmentDescription).join('\n');
 
   const systemPrompt = getSystemPrompt({
-    contextType,
+    isTranscriptContext,
     projectName: targetProject?.name,
     transcriptName: targetTranscript?.title
   });
 
   let chatId = input.chatId ?? null;
   if (!chatId) {
-    const existingChats = await sudoContext.query.Chat.findMany({
-      where: {
-        contextType: { equals: contextType },
-        ...(contextType === 'TRANSCRIPT'
-          ? { transcript: { id: { equals: transcriptId } } }
-          : { project: { id: { equals: projectId } } })
-      },
-      orderBy: [{ createdAt: 'desc' }],
-      take: 1,
-      query: 'id'
-    });
-    chatId = existingChats?.[0]?.id ?? null;
-  }
-
-  if (!chatId) {
     const created = await sudoContext.db.Chat.createOne({
       data: {
-        title:
-          contextType === 'TRANSCRIPT'
-            ? `Transcript chat • ${targetTranscript?.title ?? 'untitled'}`
-            : `Project chat • ${targetProject?.name ?? 'untitled'}`,
-        contextType,
+        title: isTranscriptContext
+          ? `Transcript chat • ${targetTranscript?.title ?? 'untitled'}`
+          : `Project chat • ${targetProject?.name ?? 'untitled'}`,
         org: { connect: { id: session.orgId } },
         ...(projectId ? { project: { connect: { id: projectId } } } : {}),
         ...(transcriptId ? { transcript: { connect: { id: transcriptId } } } : {})
