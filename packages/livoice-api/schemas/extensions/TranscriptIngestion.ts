@@ -1,5 +1,6 @@
 import { graphql as g } from '@keystone-6/core';
 import type { BaseSchemaMeta } from '@keystone-6/core/dist/declarations/src/types/schema/graphql-ts-schema';
+import PQueue from 'p-queue';
 import { Session } from '../../auth';
 
 const TIMESTAMP_RE = /(?<hours>\d{2}):(?<minutes>\d{2}):(?<seconds>\d{2}),(?<ms>\d{3})/;
@@ -26,14 +27,6 @@ const parseLines = (block: string) =>
     .split('\n')
     .map(line => line.trim())
     .filter(Boolean);
-
-const chunkArray = <T>(items: T[], size: number) => {
-  const result: T[][] = [];
-  for (let i = 0; i < items.length; i += size) {
-    result.push(items.slice(i, i + size));
-  }
-  return result;
-};
 
 const parseSrt = (srt: string): ParsedSegment[] => {
   const normalized = srt.replace(/\r\n/g, '\n').trim();
@@ -133,20 +126,24 @@ export const TranscriptIngestion = (base: BaseSchemaMeta) => {
             }
           });
 
-          await Promise.all(
-            segments.map(segment =>
-              sudoContext.db.TranscriptSegment.createOne({
-                data: {
-                  transcript: { connect: { id: transcript.id } },
-                  index: segment.index,
-                  startMs: segment.startMs,
-                  endMs: segment.endMs,
-                  durationMs: segment.durationMs,
-                  text: segment.text,
-                  speaker: segment.speaker,
-                  isMetadata: segment.isMetadata
-                }
-              })
+          const SEGMENT_CONCURRENCY = 25;
+          const queue = new PQueue({ concurrency: SEGMENT_CONCURRENCY });
+
+          await queue.addAll(
+            segments.map(
+              segment => () =>
+                sudoContext.db.TranscriptSegment.createOne({
+                  data: {
+                    transcript: { connect: { id: transcript.id } },
+                    index: segment.index,
+                    startMs: segment.startMs,
+                    endMs: segment.endMs,
+                    durationMs: segment.durationMs,
+                    text: segment.text,
+                    speaker: segment.speaker,
+                    isMetadata: segment.isMetadata
+                  }
+                })
             )
           );
 
