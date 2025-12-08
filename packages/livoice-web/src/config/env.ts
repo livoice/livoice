@@ -8,6 +8,4 @@ const env = cleanEnv(import.meta.env, {
   VITE_BASE_APP: url({ default: `http://localhost:${DEFAULT_PORT}` })
 });
 
-console.log('env', env.VITE_BASE_API_PATH);
-
 export default env;
