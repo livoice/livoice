@@ -263,30 +263,30 @@ export const runChatConversation = async ({
   if (!messageText) throw new Error('Message cannot be empty');
   const isTranscriptContext = Boolean(input.transcriptId);
 
-  let targetProject: { id: string; name?: string | null; org?: { id: string } | null } | null = null;
-  let targetTranscript: {
-    id: string;
-    title?: string | null;
-    project?: { id: string; name?: string | null; org?: { id: string } | null } | null;
-  } | null = null;
-
-  if (isTranscriptContext) {
+  const fetchTranscriptContext = async () => {
     if (!input.transcriptId) throw new Error('Transcript ID is required');
-    targetTranscript = await sudoContext.query.Transcript.findOne({
+    const transcript = await sudoContext.query.Transcript.findOne({
       where: { id: input.transcriptId },
       query: 'id title project { id name org { id } } org { id }'
     });
-    if (!targetTranscript) throw new Error('Transcript not found');
-    if (!targetTranscript.project?.id) throw new Error('Transcript is missing project reference');
-    targetProject = targetTranscript.project;
-  } else {
+    if (!transcript) throw new Error('Transcript not found');
+    if (!transcript.project?.id) throw new Error('Transcript is missing project reference');
+    return { targetTranscript: transcript, targetProject: transcript.project };
+  };
+
+  const fetchProjectContext = async () => {
     if (!input.projectId) throw new Error('Project ID is required');
-    targetProject = await sudoContext.query.Project.findOne({
+    const project = await sudoContext.query.Project.findOne({
       where: { id: input.projectId },
       query: 'id name org { id }'
     });
-    if (!targetProject) throw new Error('Project not found');
-  }
+    if (!project) throw new Error('Project not found');
+    return { targetProject: project, targetTranscript: null };
+  };
+
+  const { targetProject, targetTranscript } = isTranscriptContext
+    ? await fetchTranscriptContext()
+    : await fetchProjectContext();
 
   if (!targetProject?.org?.id && !targetTranscript?.org?.id) {
     throw new Error('Missing organization context for chat target');
@@ -314,21 +314,22 @@ export const runChatConversation = async ({
     transcriptName: targetTranscript?.title
   });
 
-  let chatId = input.chatId ?? null;
-  if (!chatId) {
-    const created = await sudoContext.db.Chat.createOne({
-      data: {
-        title: isTranscriptContext
-          ? `Transcript chat • ${targetTranscript?.title ?? 'untitled'}`
-          : `Project chat • ${targetProject?.name ?? 'untitled'}`,
-        org: { connect: { id: session.orgId } },
-        ...(projectId ? { project: { connect: { id: projectId } } } : {}),
-        ...(transcriptId ? { transcript: { connect: { id: transcriptId } } } : {})
-      }
-    });
-    if (!created?.id) throw new Error('Failed to create chat session');
-    chatId = created.id;
-  }
+  const chatId =
+    input.chatId ??
+    (
+      await sudoContext.db.Chat.createOne({
+        data: {
+          title: isTranscriptContext
+            ? `Transcript chat • ${targetTranscript?.title ?? 'untitled'}`
+            : `Project chat • ${targetProject?.name ?? 'untitled'}`,
+          org: { connect: { id: session.orgId } },
+          ...(projectId ? { project: { connect: { id: projectId } } } : {}),
+          ...(transcriptId ? { transcript: { connect: { id: transcriptId } } } : {})
+        }
+      })
+    )?.id;
+
+  if (!chatId) throw new Error('Failed to create chat session');
 
   const history = await fetchChatHistory(context, chatId);
   const systemMessages = getOpenAiMessages({

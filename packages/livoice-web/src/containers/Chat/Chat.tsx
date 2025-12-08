@@ -185,6 +185,9 @@ const Chat = () => {
     ? t('transcripts.chat.subtitle', { transcript: transcriptId })
     : t('projects.chat.subtitle', { project: projectId });
   const placeholder = isTranscriptContext ? t('transcripts.chat.placeholder') : t('projects.chat.placeholder');
+  const emptyPlaceholder = placeholder || t('chat.emptyPlaceholder');
+  const inputPlaceholder = placeholder || t('chat.inputPlaceholder');
+  const buttonLabel = isBusy ? t('buttons.sending') : t('buttons.sendQuestion');
 
   const open = true;
   const onClose = () => navigate(-1);
@@ -217,7 +220,7 @@ const Chat = () => {
                   )}
                 >
                   <div className="flex items-center justify-between text-xs uppercase tracking-[0.3em] text-slate-500">
-                    <span>{message.role === 'user' ? 'You' : 'Assistant'}</span>
+                    <span>{message.role === 'user' ? t('chat.roles.you') : t('chat.roles.assistant')}</span>
                     {message.createdAt ? <span>{new Date(message.createdAt).toLocaleTimeString()}</span> : null}
                   </div>
                   <p className="mt-2 whitespace-pre-line font-normal leading-relaxed">{message.content}</p>
@@ -239,7 +242,7 @@ const Chat = () => {
               <div ref={messagesEndRef} />
             </div>
           ) : (
-            <p className="text-sm text-slate-500">{placeholder ?? 'Start a conversation...'}</p>
+            <p className="text-sm text-slate-500">{emptyPlaceholder}</p>
           )}
         </div>
 
@@ -247,7 +250,7 @@ const Chat = () => {
           <TextField
             multiline
             rows={3}
-            placeholder={placeholder ?? 'Ask anything...'}
+            placeholder={inputPlaceholder}
             value={draft}
             onChange={event => setDraft(event.target.value)}
             onKeyDown={event => {
@@ -258,7 +261,7 @@ const Chat = () => {
             }}
           />
           <Button type="button" className="w-full" disabled={!canSend || isBusy} onClick={handleSubmit}>
-            {isBusy ? t('transcripts.chat.title') : t('buttons.send', { defaultValue: 'Send question' })}
+            {buttonLabel}
           </Button>
         </div>
       </Card>
