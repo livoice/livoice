@@ -1,0 +1,12 @@
+mutation CreateUser($data: UserCreateInput!) {
+  createUser(data: $data) {
+    id
+    email
+    role
+    project {
+      id
+      name
+    }
+    isActive
+  }
+}

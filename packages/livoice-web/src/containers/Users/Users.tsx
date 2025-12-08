@@ -4,9 +4,9 @@ import { useMemo, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Outlet, useNavigate } from 'react-router';
 
-import { useGetAllUsersQuery, useLocationsQuery, UserRoleType, type GetAllUsersQuery } from '@/gql/generated';
+import { useGetAllUsersQuery, useProjectsQuery, UserRoleType, type GetAllUsersQuery } from '@/gql/generated';
 import { useAuth } from '@/hooks/auth/useAuth';
-import { canEditUserByRole } from '@/providers/auth/userRole';
+import { canEditUserByRole } from '@/hooks/auth/userRole';
 import { toUserCreate, toUserEdit } from '@/services/linker';
 import {
   Badge,
@@ -43,12 +43,12 @@ export default function Users() {
   const { isAnyAdmin, isSelf, user: authUser } = useAuth();
   const navigate = useNavigate();
   const { data, loading } = useGetAllUsersQuery();
-  const { data: locationsData } = useLocationsQuery();
+  const { data: projectsData } = useProjectsQuery();
 
   const [viewMode, setViewMode] = useState<ViewMode>('grid');
   const [search, setSearch] = useQueryState('search', parseAsString.withDefault(''));
   const [roleFilter, setRoleFilter] = useQueryState('role', parseAsString.withDefault('ALL'));
-  const [locationFilter, setLocationFilter] = useQueryState('location', parseAsString.withDefault('ALL'));
+  const [projectFilter, setProjectFilter] = useQueryState('project', parseAsString.withDefault('ALL'));
   const [isActiveFilter, setIsActiveFilter] = useQueryState('status', parseAsString.withDefault('ALL'));
 
   const users: UserListItem[] = useMemo(() => {
@@ -63,13 +63,13 @@ export default function Users() {
       }
 
       if (roleFilter && roleFilter !== 'ALL' && user?.role !== roleFilter) return false;
-      if (locationFilter && locationFilter !== 'ALL' && user?.location?.id !== locationFilter) return false;
+      if (projectFilter && projectFilter !== 'ALL' && user?.project?.id !== projectFilter) return false;
       if (isActiveFilter === 'ACTIVE' && user?.isActive !== true) return false;
       if (isActiveFilter === 'DEACTIVATED' && user?.isActive !== false) return false;
 
       return true;
     });
-  }, [data?.users, search, roleFilter, locationFilter, isActiveFilter]);
+  }, [data?.users, search, roleFilter, projectFilter, isActiveFilter]);
 
   const formatRole = (role: UserRoleType | null | undefined) => {
     if (!role) return t('users.unknown');
@@ -157,10 +157,10 @@ export default function Users() {
                   <span>{t('users.role')}</span>
                   <span className="font-medium text-foreground">{formatRole(user?.role)}</span>
                 </div>
-                {user?.location?.name ? (
+                {user?.project?.name ? (
                   <div className="flex justify-between text-muted-foreground">
-                    <span>{t('users.location')}</span>
-                    <span className="font-medium text-foreground">{user.location.name}</span>
+                    <span>{t('users.project')}</span>
+                    <span className="font-medium text-foreground">{user.project.name}</span>
                   </div>
                 ) : null}
                 {user?.provisionedAt ? (
@@ -193,7 +193,7 @@ export default function Users() {
           <TableRow>
             <TableHead className="pl-6">{t('users.columns.user')}</TableHead>
             <TableHead>{t('users.role')}</TableHead>
-            <TableHead>{t('users.location')}</TableHead>
+            <TableHead>{t('users.project')}</TableHead>
             <TableHead>{t('users.status')}</TableHead>
             <TableHead>{t('users.lastSeen')}</TableHead>
             <TableHead className="text-right pr-6">{t('users.columns.actions')}</TableHead>
@@ -224,7 +224,7 @@ export default function Users() {
                   </div>
                 </TableCell>
                 <TableCell>{formatRole(user?.role)}</TableCell>
-                <TableCell>{user?.location?.name || '—'}</TableCell>
+                <TableCell>{user?.project?.name || '—'}</TableCell>
                 <TableCell>
                   <Badge variant={isDeactivated ? 'neutral' : 'success'}>
                     {isDeactivated ? t('users.deactivated') : t('users.active')}
@@ -284,16 +284,16 @@ export default function Users() {
         </select>
         <select
           className="rounded-full border border-border bg-white/80 px-4 py-2 text-sm text-foreground outline-none transition focus:border-primary focus:ring-2 focus:ring-primary/30"
-          value={locationFilter}
+          value={projectFilter}
           onChange={event => {
             const value = event.target.value;
-            setLocationFilter(value === 'ALL' ? null : value);
+            setProjectFilter(value === 'ALL' ? null : value);
           }}
         >
           <option value="ALL">{t('users.filters.all')}</option>
-          {(locationsData?.locations ?? []).map(location => (
-            <option key={location?.id} value={location?.id ?? ''}>
-              {location?.name}
+          {(projectsData?.projects ?? []).map(project => (
+            <option key={project?.id} value={project?.id ?? ''}>
+              {project?.name}
             </option>
           ))}
         </select>
