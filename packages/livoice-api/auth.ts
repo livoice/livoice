@@ -197,12 +197,12 @@ export const nextAuthOptions: NextAuthOptions = {
 
       const isDeactivated = !user.isActive;
 
-      const seenAt = new Date().toISOString();
-      await sudoContext.db.User.updateOne({
-        where: { id: user.id },
-        data: { seenAt },
-        query: 'id'
-      } as Parameters<typeof sudoContext.db.User.updateOne>[0] & { query: string });
+      // const seenAt = new Date().toISOString();
+      // await sudoContext.db.User.updateOne({
+      //   where: { id: user.id },
+      //   data: { seenAt },
+      //   query: 'id'
+      // } as Parameters<typeof sudoContext.db.User.updateOne>[0] & { query: string });
 
       const emailDomain = extractDomain(user?.email ?? normalizedEmail);
       const isAutojoinDomainAllowed = !!(emailDomain && !freeEmailDomainSet.has(emailDomain));

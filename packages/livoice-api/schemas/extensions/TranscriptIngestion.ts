@@ -60,7 +60,7 @@ export const TranscriptIngestion = (base: BaseSchemaMeta) => {
             }
           });
 
-          const SEGMENT_CONCURRENCY = 25;
+          const SEGMENT_CONCURRENCY = 30;
           const queue = new PQueue({ concurrency: SEGMENT_CONCURRENCY });
 
           await queue.addAll(
