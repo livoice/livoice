@@ -7,7 +7,8 @@
     "start": "keystone start",
     "build": "NODE_ENV=production keystone build",
     "prisma:hardreset": "keystone prisma db push --force-reset",
-    "prisma:migrate:dev": "keystone prisma migrate dev"
+    "prisma:migrate:dev": "keystone prisma migrate dev",
+    "prisma:migrate:deploy": "keystone prisma migrate deploy"
   },
   "dependencies": {
     "@keystone-6/auth": "^8.0.0",
