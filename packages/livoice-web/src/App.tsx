@@ -1,3 +1,5 @@
+import { NavigationLoadingListener } from '@/components/TopLoadingBar/NavigationLoadingListener';
+import { TopLoadingBar } from '@/components/TopLoadingBar/TopLoadingBar';
 import { AuthProvider } from '@/hooks/auth/useAuth';
 import { ToastProvider } from '@/hooks/useToast';
 import { apolloClient } from '@/services/apolloClient';
@@ -22,6 +24,8 @@ function App() {
   return (
     <ErrorBoundary>
       <Providers>
+        <TopLoadingBar />
+        <NavigationLoadingListener router={router} />
         <NuqsAdapter
           processUrlSearchParams={search => new URLSearchParams(search.toString().split('&').sort().join('&'))}
         >

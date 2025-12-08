@@ -1,8 +1,34 @@
-import { ApolloClient, InMemoryCache, from } from '@apollo/client';
+import { ApolloClient, ApolloLink, from, InMemoryCache, Observable } from '@apollo/client';
 import { onError } from '@apollo/client/link/error';
 
-import { createUploadLink } from 'apollo-upload-client';
 import { BASE_API, BASE_API_PATH } from '@/config/env';
+import { loadingIndicator } from '@/utils/loadingIndicator';
+import { createUploadLink } from 'apollo-upload-client';
+
+const loadingLink = new ApolloLink((operation, forward) => {
+  if (!forward) return null;
+
+  return new Observable(observer => {
+    loadingIndicator.start();
+
+    const subscription = forward(operation).subscribe({
+      next: value => observer.next(value),
+      error: error => {
+        loadingIndicator.stop();
+        observer.error(error);
+      },
+      complete: () => {
+        loadingIndicator.stop();
+        observer.complete();
+      }
+    });
+
+    return () => {
+      loadingIndicator.stop();
+      subscription.unsubscribe();
+    };
+  });
+});
 
 const httpLink = createUploadLink({
   uri: `${BASE_API}${BASE_API_PATH}/graphql`,
@@ -27,7 +53,7 @@ const errorLink = onError(({ graphQLErrors: graphQlErrors = [], networkError }) 
 });
 
 const apolloClient = new ApolloClient({
-  link: from([errorLink, httpLink]),
+  link: from([loadingLink, errorLink, httpLink]),
   cache: new InMemoryCache({
     typePolicies: {
       CloudinaryImage_File: {
