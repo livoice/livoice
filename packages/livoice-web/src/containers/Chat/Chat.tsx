@@ -1,5 +1,5 @@
 import { useApolloClient } from '@apollo/client';
-import { useMemo, useState } from 'react';
+import { useEffect, useMemo, useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useNavigate, useParams } from 'react-router-dom';
 
@@ -66,6 +66,7 @@ const Chat = () => {
 
   const [draft, setDraft] = useState('');
   const canSend = Boolean(draft.trim());
+  const messagesEndRef = useRef<HTMLDivElement | null>(null);
 
   const {
     data: transcriptHistory,
@@ -188,17 +189,21 @@ const Chat = () => {
   const open = true;
   const onClose = () => navigate(-1);
 
+  useEffect(() => {
+    if (messagesEndRef.current) messagesEndRef.current.scrollIntoView({ behavior: 'smooth', block: 'end' });
+  }, [messages.length]);
+
   return (
     <FormDrawer open={open} title={title} onClose={onClose} onSubmit={() => {}}>
-      <Card className="space-y-4 border-0 shadow-none">
-        <div>
+      <Card className="flex h-full flex-col space-y-4 border-0 shadow-none">
+        <div className="sticky top-0 z-10 space-y-1 bg-white/90 px-1 pb-2 pt-1 backdrop-blur">
           <div className="flex items-center justify-between gap-2">
             <h2 className="text-lg font-semibold text-slate-900">{title}</h2>
           </div>
           {subtitle ? <p className="text-sm text-slate-500">{subtitle}</p> : null}
         </div>
 
-        <div className="space-y-3 max-h-[50vh] overflow-y-auto pr-1">
+        <div className="flex-1 space-y-3 overflow-y-auto pr-1">
           {messages.length ? (
             <div className="space-y-3">
               {messages.map(message => (
@@ -231,19 +236,26 @@ const Chat = () => {
                   ) : null}
                 </div>
               ))}
+              <div ref={messagesEndRef} />
             </div>
           ) : (
             <p className="text-sm text-slate-500">{placeholder ?? 'Start a conversation...'}</p>
           )}
         </div>
 
-        <div className="space-y-3">
+        <div className="sticky bottom-0 z-10 space-y-3 border-t border-slate-100 bg-white/90 px-1 pb-1 pt-3 backdrop-blur">
           <TextField
             multiline
             rows={3}
             placeholder={placeholder ?? 'Ask anything...'}
             value={draft}
             onChange={event => setDraft(event.target.value)}
+            onKeyDown={event => {
+              if (event.key === 'Enter' && !event.shiftKey) {
+                event.preventDefault();
+                void handleSubmit();
+              }
+            }}
           />
           <Button type="button" className="w-full" disabled={!canSend || isBusy} onClick={handleSubmit}>
             {isBusy ? t('transcripts.chat.title') : t('buttons.send', { defaultValue: 'Send question' })}
