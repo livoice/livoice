@@ -1,3 +1,4 @@
+import { useApolloClient } from '@apollo/client';
 import { useMemo, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useNavigate, useParams } from 'react-router-dom';
@@ -61,6 +62,7 @@ const Chat = () => {
   const isTranscriptContext = Boolean(transcriptId);
   const isNewChat = !chatId;
   const navigate = useNavigate();
+  const client = useApolloClient();
 
   const [draft, setDraft] = useState('');
   const canSend = Boolean(draft.trim());
@@ -86,6 +88,7 @@ const Chat = () => {
   const [chatTranscript, { loading: sendingTranscript }] = useChatTranscriptMutation({
     onCompleted: result => {
       void refetchTranscriptHistory();
+      void client.refetchQueries({ include: ['ProjectChats', 'TranscriptChats'] });
       const createdId = result?.chatTranscript?.chatId;
       if (createdId && isNewChat) {
         navigate(toTranscriptChat({ projectId, transcriptId, chatId: createdId }), { replace: true });
@@ -96,6 +99,7 @@ const Chat = () => {
   const [chatProject, { loading: sendingProject }] = useChatProjectMutation({
     onCompleted: result => {
       void refetchProjectHistory();
+      void client.refetchQueries({ include: ['ProjectChats', 'TranscriptChats'] });
       const createdId = result?.chatProject?.chatId;
       if (createdId && isNewChat) {
         navigate(toProjectChat({ projectId, chatId: createdId }), { replace: true });

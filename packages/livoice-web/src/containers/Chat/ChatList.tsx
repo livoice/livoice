@@ -1,7 +1,7 @@
-import { gql, useQuery } from '@apollo/client';
 import { useTranslation } from 'react-i18next';
 import { Link } from 'react-router-dom';
 
+import { useProjectChatsQuery, useTranscriptChatsQuery } from '@/gql/generated';
 import { toProjectChat, toProjectChatNew, toTranscriptChat, toTranscriptChatNew } from '@/services/linker';
 import { buttonVariants } from '@/ui';
 import { Card } from '@/ui/card';
@@ -10,26 +10,6 @@ type ChatListProps = {
   projectId?: string;
   transcriptId?: string;
 };
-
-const PROJECT_CHATS_QUERY = gql`
-  query ChatListProjectChats($projectId: ID!) {
-    chats(where: { project: { id: { equals: $projectId } } }, orderBy: { createdAt: desc }) {
-      id
-      title
-      createdAt
-    }
-  }
-`;
-
-const TRANSCRIPT_CHATS_QUERY = gql`
-  query ChatListTranscriptChats($transcriptId: ID!) {
-    chats(where: { transcript: { id: { equals: $transcriptId } } }, orderBy: { createdAt: desc }) {
-      id
-      title
-      createdAt
-    }
-  }
-`;
 
 const formatDate = (value?: string | null) => {
   if (!value) return '—';
@@ -48,19 +28,18 @@ const ChatList = ({ projectId, transcriptId }: ChatListProps) => {
   const emptyLabel = t('errors.noResultsFound', { label: heading });
   const buttonLabel = t('buttons.newChat');
 
-  const queryConfig = isTranscriptContext
-    ? { query: TRANSCRIPT_CHATS_QUERY, variables: { transcriptId }, skip: !transcriptId }
-    : { query: PROJECT_CHATS_QUERY, variables: { projectId }, skip: !projectId };
-
-  const { data, loading } = useQuery<
-    { chats?: { id: string; title?: string | null; createdAt?: string | null }[] | null },
-    { projectId?: string; transcriptId?: string }
-  >(queryConfig.query, {
-    variables: queryConfig.variables,
-    skip: queryConfig.skip
+  const { data: transcriptData, loading: transcriptLoading } = useTranscriptChatsQuery({
+    variables: { transcriptId: transcriptId ?? '' },
+    skip: !isTranscriptContext || !transcriptId
   });
 
-  const chats = data?.chats ?? [];
+  const { data: projectData, loading: projectLoading } = useProjectChatsQuery({
+    variables: { projectId: projectId ?? '' },
+    skip: isTranscriptContext || !projectId
+  });
+
+  const chats = isTranscriptContext ? (transcriptData?.chats ?? []) : (projectData?.chats ?? []);
+  const loading = isTranscriptContext ? transcriptLoading : projectLoading;
 
   const buttonHref = isTranscriptContext
     ? toTranscriptChatNew({ projectId: projectId || '', transcriptId: transcriptId || '' })
