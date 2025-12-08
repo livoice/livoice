@@ -1,7 +1,7 @@
 import { ApolloClient, ApolloLink, from, InMemoryCache, Observable } from '@apollo/client';
 import { onError } from '@apollo/client/link/error';
 
-import { BASE_API, BASE_API_PATH } from '@/config/env';
+import env from '@/config/env';
 import { loadingIndicator } from '@/utils/loadingIndicator';
 import { createUploadLink } from 'apollo-upload-client';
 
@@ -31,7 +31,7 @@ const loadingLink = new ApolloLink((operation, forward) => {
 });
 
 const httpLink = createUploadLink({
-  uri: `${BASE_API}${BASE_API_PATH}/graphql`,
+  uri: `${env.BASE_API}${env.BASE_API_PATH}/graphql`,
   credentials: 'include',
   headers: {
     'Apollo-Require-Preflight': 'true'
@@ -54,38 +54,7 @@ const errorLink = onError(({ graphQLErrors: graphQlErrors = [], networkError }) 
 
 const apolloClient = new ApolloClient({
   link: from([loadingLink, errorLink, httpLink]),
-  cache: new InMemoryCache({
-    typePolicies: {
-      CloudinaryImage_File: {
-        keyFields: ['id'],
-        fields: {
-          id: {
-            read(id) {
-              return id || null;
-            }
-          }
-        }
-      },
-      Influencer: {
-        fields: {
-          avatar: {
-            merge(_existing, incoming) {
-              return incoming;
-            }
-          }
-        }
-      },
-      Client: {
-        fields: {
-          avatar: {
-            merge(_existing, incoming) {
-              return incoming;
-            }
-          }
-        }
-      }
-    }
-  })
+  cache: new InMemoryCache({})
 });
 
 export { apolloClient };

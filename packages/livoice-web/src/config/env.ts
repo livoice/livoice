@@ -1,9 +1,9 @@
-import { cleanEnv, url, str } from 'envalid';
+import { cleanEnv, str, url } from 'envalid';
 
-export const BASE_API: string = import.meta.env.VITE_BASE_API;
-export const BASE_API_PATH: string = import.meta.env.VITE_BASE_API_PATH;
-export const BASE_APP: string = import.meta.env.VITE_BASE_APP;
-export const TRACE_API: string = import.meta.env.VITE_TRACE_API;
+const BASE_API: string = import.meta.env.VITE_BASE_API;
+const BASE_API_PATH: string = import.meta.env.VITE_BASE_API_PATH;
+const BASE_APP: string = import.meta.env.VITE_BASE_APP;
+const TRACE_API: string = import.meta.env.VITE_TRACE_API;
 
 const DEFAULT_PORT = 5173;
 
