@@ -31,7 +31,7 @@ const loadingLink = new ApolloLink((operation, forward) => {
 });
 
 const httpLink = createUploadLink({
-  uri: `${env.BASE_API}${env.BASE_API_PATH}/graphql`,
+  uri: `${env.VITE_BASE_API}${env.VITE_BASE_API_PATH}/graphql`,
   credentials: 'include',
   headers: {
     'Apollo-Require-Preflight': 'true'

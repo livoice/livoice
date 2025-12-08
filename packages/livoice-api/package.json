@@ -6,6 +6,7 @@
     "dev": "keystone dev",
     "start": "keystone start",
     "build": "NODE_ENV=production keystone build",
+    "test": "tsx tests/**/*.test.ts",
     "prisma:hardreset": "keystone prisma db push --force-reset",
     "prisma:migrate:dev": "keystone prisma migrate dev",
     "prisma:migrate:deploy": "keystone prisma migrate deploy"
@@ -25,6 +26,7 @@
     "lodash": "^4.17.21",
     "next-auth": "^4.24.11",
     "openai": "^4.9.0",
+    "srt-parser-2": "^1.2.3",
     "p-queue": "^8.1.1",
     "react": "^18.3.1",
     "react-dom": "^18.3.1"

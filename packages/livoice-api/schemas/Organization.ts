@@ -72,22 +72,12 @@ export default list({
         const session = context.session as Session | null;
         if (session?.id && item?.id) {
           const sudo = context.sudo();
-          const user = await sudo.query.User.findOne({
+          await sudo.db.User.updateOne({
             where: { id: session.id },
-            query: 'id project { id }'
+            data: {
+              org: { connect: { id: item.id as string } }
+            }
           });
-
-          // Only auto-connect if user already has a project (not in onboarding flow)
-          // During onboarding, the completeOnboarding mutation will handle connecting both org and project
-          if (user?.project?.id) {
-            await sudo.db.User.updateOne({
-              where: { id: session.id },
-              data: {
-                role: UserRole.ORG_OWNER,
-                org: { connect: { id: item.id as string } }
-              }
-            });
-          }
         }
       }
     },

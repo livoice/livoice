@@ -1,3 +1,4 @@
+import { useApolloClient } from '@apollo/client';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useMemo } from 'react';
 import { Controller, useForm } from 'react-hook-form';
@@ -6,7 +7,7 @@ import { useNavigate, useParams } from 'react-router-dom';
 import { z } from 'zod';
 
 import FormDrawer from '@/components/FormDrawer/FormDrawer';
-import { useIngestTranscriptMutation, useProjectsQuery } from '@/gql/generated';
+import { TranscriptsDocument, useIngestTranscriptMutation, useProjectsQuery } from '@/gql/generated';
 import { useToast } from '@/hooks/useToast';
 import { toProject, toProjects, toTranscript } from '@/services/linker';
 import { Button, Input, TextField } from '@/ui';
@@ -34,6 +35,7 @@ const TranscriptUpsert = () => {
   const { t } = useTranslation('common');
   const navigate = useNavigate();
   const toast = useToast();
+  const apolloClient = useApolloClient();
 
   const { data: projectsData } = useProjectsQuery();
 
@@ -63,6 +65,7 @@ const TranscriptUpsert = () => {
 
   const [ingestTranscript, { loading: isSaving }] = useIngestTranscriptMutation({
     onCompleted: result => {
+      void apolloClient.refetchQueries({ include: [TranscriptsDocument] });
       const newTranscriptId = result?.ingestTranscript?.transcriptId;
       toast.showToast(t('projects.transcripts.ingest.success'), 'success');
       if (routeProjectId) {
