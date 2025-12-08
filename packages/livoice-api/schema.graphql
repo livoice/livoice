@@ -395,8 +395,6 @@ type Project {
   name: String
   description: String
   org: Organization
-  users(where: UserWhereInput! = {}, orderBy: [UserOrderByInput!]! = [], take: Int, skip: Int! = 0, cursor: UserWhereUniqueInput): [User!]
-  usersCount(where: UserWhereInput! = {}): Int
   transcripts(where: TranscriptWhereInput! = {}, orderBy: [TranscriptOrderByInput!]! = [], take: Int, skip: Int! = 0, cursor: TranscriptWhereUniqueInput): [Transcript!]
   transcriptsCount(where: TranscriptWhereInput! = {}): Int
   chats(where: ChatWhereInput! = {}, orderBy: [ChatOrderByInput!]! = [], take: Int, skip: Int! = 0, cursor: ChatWhereUniqueInput): [Chat!]
@@ -415,7 +413,6 @@ input ProjectWhereInput {
   name: StringFilter
   description: StringFilter
   org: OrganizationWhereInput
-  users: UserManyRelationFilter
   transcripts: TranscriptManyRelationFilter
   chats: ChatManyRelationFilter
 }
@@ -430,7 +427,6 @@ input ProjectUpdateInput {
   name: String
   description: String
   org: OrganizationRelateToOneForUpdateInput
-  users: UserRelateToManyForUpdateInput
   transcripts: TranscriptRelateToManyForUpdateInput
   chats: ChatRelateToManyForUpdateInput
 }
@@ -444,7 +440,6 @@ input ProjectCreateInput {
   name: String
   description: String
   org: OrganizationRelateToOneForCreateInput
-  users: UserRelateToManyForCreateInput
   transcripts: TranscriptRelateToManyForCreateInput
   chats: ChatRelateToManyForCreateInput
 }
@@ -636,7 +631,6 @@ type User {
   provider: UserProviderType
   rawAuth: JSON
   org: Organization
-  project: Project
   isActive: Boolean
   createdAt: DateTime
   provisionedAt: DateTime
@@ -694,7 +688,6 @@ input CloudinaryImageFormat {
 
 enum UserRoleType {
   USER
-  PROJECT_ADMIN
   ORG_ADMIN
   ORG_OWNER
   GOD
@@ -722,7 +715,6 @@ input UserWhereInput {
   providerAccountId: StringFilter
   provider: UserProviderTypeNullableFilter
   org: OrganizationWhereInput
-  project: ProjectWhereInput
   isActive: BooleanFilter
   createdAt: DateTimeNullableFilter
   provisionedAt: DateTimeNullableFilter
@@ -771,7 +763,6 @@ input UserUpdateInput {
   provider: UserProviderType
   rawAuth: JSON
   org: OrganizationRelateToOneForUpdateInput
-  project: ProjectRelateToOneForUpdateInput
   isActive: Boolean
   createdAt: DateTime
   provisionedAt: DateTime
@@ -798,7 +789,6 @@ input UserCreateInput {
   provider: UserProviderType
   rawAuth: JSON
   org: OrganizationRelateToOneForCreateInput
-  project: ProjectRelateToOneForCreateInput
   isActive: Boolean
   createdAt: DateTime
   provisionedAt: DateTime

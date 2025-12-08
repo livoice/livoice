@@ -29,8 +29,11 @@ export default tseslint.config(
       'react-refresh/only-export-components': ['warn', { allowConstantExport: true }],
       'arrow-body-style': ['error', 'as-needed'],
       'no-return-assign': 'warn',
-      'no-unused-expressions': ['off', { allowShortCircuit: true }],
-      '@typescript-eslint/no-unused-expressions': ['off', { allowShortCircuit: true }]
+      'no-unused-expressions': 'off',
+      '@typescript-eslint/no-unused-expressions': [
+        'error',
+        { allowShortCircuit: true, allowTernary: true, allowTaggedTemplates: true }
+      ]
     }
   }
 );

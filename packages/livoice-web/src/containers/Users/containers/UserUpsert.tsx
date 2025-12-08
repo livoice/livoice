@@ -9,8 +9,7 @@ import FormDrawer from '@/components/FormDrawer/FormDrawer';
 import {
   GetAllUsersDocument,
   useCreateUserMutation,
-  useGetUserByIdQuery,
-  useProjectsQuery,
+  useGetUserQuery,
   UserRoleType,
   useUpdateUserMutation
 } from '@/gql/generated';
@@ -22,7 +21,6 @@ import { Button, Input } from '@/ui';
 
 const roleLabels: Record<UserRoleType, string> = {
   [UserRoleType.User]: 'User',
-  [UserRoleType.ProjectAdmin]: 'Project Admin',
   [UserRoleType.OrgAdmin]: 'Organization Admin',
   [UserRoleType.OrgOwner]: 'Organization Owner',
   [UserRoleType.God]: 'System Admin'
@@ -33,7 +31,6 @@ const defaultValues = {
   firstName: '',
   lastName: '',
   role: UserRoleType.User,
-  projectId: '',
   isActive: true
 };
 
@@ -42,10 +39,9 @@ type UserFormValues = typeof defaultValues;
 const allowedRolesByAdmin = (adminRole?: UserRoleType | null): UserRoleType[] => {
   const base = [UserRoleType.User];
   if (!adminRole) return base;
-  if (adminRole === UserRoleType.ProjectAdmin) return [...base, UserRoleType.ProjectAdmin];
-  if (adminRole === UserRoleType.OrgAdmin) return [...base, UserRoleType.ProjectAdmin, UserRoleType.OrgAdmin];
+  if (adminRole === UserRoleType.OrgAdmin) return [...base, UserRoleType.OrgAdmin];
   if (adminRole === UserRoleType.OrgOwner || adminRole === UserRoleType.God)
-    return [...base, UserRoleType.ProjectAdmin, UserRoleType.OrgAdmin, UserRoleType.OrgOwner];
+    return [...base, UserRoleType.OrgAdmin, UserRoleType.OrgOwner];
   return base;
 };
 
@@ -61,16 +57,13 @@ export default function UserUpsert() {
   const schema = useMemo(
     () =>
       z.object({
-        email: isEditMode
-          ? z.string().optional()
-          : z.string().trim().min(1, t('errors.emailRequired')).email(t('errors.emailInvalid')),
-        firstName: z.string().trim().optional(),
-        lastName: z.string().trim().optional(),
+        email: z.string().trim().min(1, t('errors.emailRequired')).email(t('errors.emailInvalid')),
+        firstName: z.string().trim().min(1, tCommon('errors.required')),
+        lastName: z.string().trim().min(1, tCommon('errors.required')),
         role: z.nativeEnum(UserRoleType),
-        projectId: z.string().trim().min(1, t('errors.projectRequired')),
         isActive: z.boolean()
       }),
-    [isEditMode, t]
+    [t, tCommon]
   );
 
   const { control, handleSubmit, reset } = useForm<UserFormValues>({
@@ -83,11 +76,10 @@ export default function UserUpsert() {
     data: userData,
     loading: isLoading,
     called
-  } = useGetUserByIdQuery({
+  } = useGetUserQuery({
     variables: { id: userId },
     skip: !isEditMode
   });
-  const { data: projectsData } = useProjectsQuery();
 
   const handleClose = useCallback(() => {
     navigate(toUsers());
@@ -111,7 +103,6 @@ export default function UserUpsert() {
         firstName: userData.user.firstName ?? '',
         lastName: userData.user.lastName ?? '',
         role: userData.user.role ?? UserRoleType.User,
-        projectId: userData.user.project?.id ?? '',
         isActive: userData.user.isActive ?? true
       });
       return;
@@ -152,7 +143,6 @@ export default function UserUpsert() {
       firstName: values.firstName?.trim() || null,
       lastName: values.lastName?.trim() || null,
       role: values.role,
-      project: { connect: { id: values.projectId } },
       isActive: values.isActive
     };
 
@@ -201,7 +191,7 @@ export default function UserUpsert() {
       ) : (
         <div className="flex flex-col gap-4">
           {isEditMode ? (
-            <ReadOnlyField label={t('fields.email')} value={userData?.user?.email ?? '—'} />
+            <ReadOnlyField label={t('fields.email')} value={userData?.user?.email} />
           ) : (
             <Controller
               name="email"
@@ -256,26 +246,6 @@ export default function UserUpsert() {
           />
 
           <Controller
-            name="projectId"
-            control={control}
-            render={({ field, fieldState }) => (
-              <FormField label={t('fields.project')} error={fieldState.error?.message}>
-                <select
-                  {...field}
-                  className="h-11 w-full rounded-xl border border-border bg-white/80 px-4 text-sm outline-none transition focus:border-primary focus:ring-2 focus:ring-primary/30"
-                >
-                  <option value="">{t('placeholders.selectProject')}</option>
-                  {(projectsData?.projects ?? []).map(project => (
-                    <option key={project?.id} value={project?.id ?? ''}>
-                      {project?.name}
-                    </option>
-                  ))}
-                </select>
-              </FormField>
-            )}
-          />
-
-          <Controller
             name="isActive"
             control={control}
             render={({ field }) => (
@@ -306,10 +276,12 @@ const FormField = ({ label, error, children }: { label: string; error?: string; 
   </div>
 );
 
-const ReadOnlyField = ({ label, value }: { label: string; value: string }) => (
+const ReadOnlyField = ({ label, value }: { label: string; value: string | null | undefined }) => (
   <div className="space-y-1">
     <p className="text-xs font-semibold uppercase text-muted-foreground">{label}</p>
-    <p className="rounded-xl border border-border bg-white/70 p-3 text-sm font-medium text-foreground">{value}</p>
+    <p className="rounded-xl border border-border bg-white/70 p-3 text-sm font-medium text-foreground">
+      {value ?? '—'}
+    </p>
   </div>
 );
 

@@ -1,15 +1,7 @@
 import { type Lists } from '.keystone/types';
 import { list } from '@keystone-6/core';
 import { relationship, text, timestamp } from '@keystone-6/core/fields';
-import {
-  canEditOrgData,
-  canEditProjectData,
-  filterByUserOrg,
-  isAuthenticated,
-  isGod,
-  isOrgAdmin,
-  isProjectAdmin
-} from '../domains/auth/userRole';
+import { canEditOrgData, filterByUserOrg, isAuthenticated, isGod, isOrgAdmin } from '../domains/auth/userRole';
 
 export default list({
   fields: {
@@ -31,8 +23,8 @@ export default list({
   access: {
     operation: {
       query: ({ session }) => isAuthenticated({ session }),
-      create: canEditProjectData,
-      update: canEditProjectData,
+      create: canEditOrgData,
+      update: canEditOrgData,
       delete: canEditOrgData
     },
     filter: {
@@ -56,10 +48,6 @@ export default list({
 
         if (isOrgAdmin({ session })) {
           return stored.project.org.id === session.orgId;
-        }
-
-        if (isProjectAdmin({ session })) {
-          return stored.project.id === session.projectId && stored.project.org.id === session.orgId;
         }
 
         return false;
@@ -92,4 +80,3 @@ export default list({
     }
   }
 }) satisfies Lists['Transcript'];
-

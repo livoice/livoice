@@ -2,7 +2,7 @@ import { type Lists } from '.keystone/types';
 import { list } from '@keystone-6/core';
 import { checkbox, integer, relationship, text } from '@keystone-6/core/fields';
 import { Prisma } from '@prisma/client';
-import { canEditProjectData, isAuthenticated, isGod, isOrgAdmin } from '../domains/auth/userRole';
+import { canEditOrgData, isAuthenticated, isGod, isOrgAdmin } from '../domains/auth/userRole';
 import { createEmbeddings } from '../lib/openai';
 import { formatVectorLiteral } from '../lib/pgvector';
 
@@ -31,9 +31,9 @@ export default list({
   access: {
     operation: {
       query: ({ session }) => isAuthenticated({ session }),
-      create: canEditProjectData,
-      update: canEditProjectData,
-      delete: canEditProjectData
+      create: canEditOrgData,
+      update: canEditOrgData,
+      delete: canEditOrgData
     },
     filter: {
       query: async ({ session }) => {
@@ -45,13 +45,6 @@ export default list({
         const orgFilter = {
           transcript: { project: { org: { id: { equals: session.orgId } } } }
         };
-
-        // Project-scoped visibility (for project admins with a projectId)
-        if (session.projectId) {
-          return {
-            OR: [orgFilter, { transcript: { project: { id: { equals: session.projectId } } } }]
-          };
-        }
 
         return orgFilter;
       }

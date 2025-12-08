@@ -7,10 +7,6 @@ query GetAllUsers {
     displayName
     role
     avatarUrl
-    project {
-      id
-      name
-    }
     provisionedAt
     seenAt
     isActive

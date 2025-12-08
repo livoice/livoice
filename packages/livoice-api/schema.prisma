@@ -57,7 +57,6 @@ model Project {
   description String        @default("")
   org         Organization? @relation("Project_org", fields: [orgId], references: [id])
   orgId       String?       @map("org")
-  users       User[]        @relation("User_project")
   transcripts Transcript[]  @relation("Transcript_project")
   chats       Chat[]        @relation("Chat_project")
 
@@ -115,8 +114,6 @@ model User {
   rawAuth           Json?
   org               Organization?    @relation("User_org", fields: [orgId], references: [id])
   orgId             String?          @map("org")
-  project           Project?         @relation("User_project", fields: [projectId], references: [id])
-  projectId         String?          @map("project")
   isActive          Boolean          @default(true)
   createdAt         DateTime?        @default(now())
   provisionedAt     DateTime?
@@ -125,12 +122,10 @@ model User {
 
   @@index([email])
   @@index([orgId])
-  @@index([projectId])
 }
 
 enum UserRoleType {
   USER
-  PROJECT_ADMIN
   ORG_ADMIN
   ORG_OWNER
   GOD

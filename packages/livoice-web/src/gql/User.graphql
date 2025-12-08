@@ -1,15 +1,12 @@
 query GetUser($id: ID!) {
   user(where: { id: $id }) {
     id
+    isActive
     avatarUrl
     email
     firstName
     lastName
     displayName
     role
-    project {
-      id
-      name
-    }
   }
 }

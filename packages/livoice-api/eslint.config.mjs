@@ -51,6 +51,11 @@ export default [
       '@typescript-eslint/no-non-null-asserted-optional-chain': 'warn',
       'no-prototype-builtins': 'warn',
       'arrow-body-style': ['error', 'as-needed'],
+      'no-unused-expressions': 'off',
+      '@typescript-eslint/no-unused-expressions': [
+        'error',
+        { allowShortCircuit: true, allowTernary: true, allowTaggedTemplates: true }
+      ],
       'import/no-unresolved': 'off',
       '@typescript-eslint/no-unused-vars': 'warn',
       '@typescript-eslint/no-explicit-any': 'warn'

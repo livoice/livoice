@@ -957,8 +957,6 @@ export type Project = {
   org?: Maybe<Organization>;
   transcripts?: Maybe<Array<Transcript>>;
   transcriptsCount?: Maybe<Scalars['Int']['output']>;
-  users?: Maybe<Array<User>>;
-  usersCount?: Maybe<Scalars['Int']['output']>;
 };
 
 
@@ -989,27 +987,12 @@ export type ProjectTranscriptsCountArgs = {
   where?: TranscriptWhereInput;
 };
 
-
-export type ProjectUsersArgs = {
-  cursor?: InputMaybe<UserWhereUniqueInput>;
-  orderBy?: Array<UserOrderByInput>;
-  skip?: Scalars['Int']['input'];
-  take?: InputMaybe<Scalars['Int']['input']>;
-  where?: UserWhereInput;
-};
-
-
-export type ProjectUsersCountArgs = {
-  where?: UserWhereInput;
-};
-
 export type ProjectCreateInput = {
   chats?: InputMaybe<ChatRelateToManyForCreateInput>;
   description?: InputMaybe<Scalars['String']['input']>;
   name?: InputMaybe<Scalars['String']['input']>;
   org?: InputMaybe<OrganizationRelateToOneForCreateInput>;
   transcripts?: InputMaybe<TranscriptRelateToManyForCreateInput>;
-  users?: InputMaybe<UserRelateToManyForCreateInput>;
 };
 
 export type ProjectManyRelationFilter = {
@@ -1058,7 +1041,6 @@ export type ProjectUpdateInput = {
   name?: InputMaybe<Scalars['String']['input']>;
   org?: InputMaybe<OrganizationRelateToOneForUpdateInput>;
   transcripts?: InputMaybe<TranscriptRelateToManyForUpdateInput>;
-  users?: InputMaybe<UserRelateToManyForUpdateInput>;
 };
 
 export type ProjectWhereInput = {
@@ -1071,7 +1053,6 @@ export type ProjectWhereInput = {
   name?: InputMaybe<StringFilter>;
   org?: InputMaybe<OrganizationWhereInput>;
   transcripts?: InputMaybe<TranscriptManyRelationFilter>;
-  users?: InputMaybe<UserManyRelationFilter>;
 };
 
 export type ProjectWhereUniqueInput = {
@@ -1532,7 +1513,6 @@ export type User = {
   isActive?: Maybe<Scalars['Boolean']['output']>;
   lastName?: Maybe<Scalars['String']['output']>;
   org?: Maybe<Organization>;
-  project?: Maybe<Project>;
   provider?: Maybe<UserProviderType>;
   providerAccountId?: Maybe<Scalars['String']['output']>;
   provisionedAt?: Maybe<Scalars['DateTime']['output']>;
@@ -1551,7 +1531,6 @@ export type UserCreateInput = {
   isActive?: InputMaybe<Scalars['Boolean']['input']>;
   lastName?: InputMaybe<Scalars['String']['input']>;
   org?: InputMaybe<OrganizationRelateToOneForCreateInput>;
-  project?: InputMaybe<ProjectRelateToOneForCreateInput>;
   provider?: InputMaybe<UserProviderType>;
   providerAccountId?: InputMaybe<Scalars['String']['input']>;
   provisionedAt?: InputMaybe<Scalars['DateTime']['input']>;
@@ -1610,7 +1589,6 @@ export enum UserRoleType {
   God = 'GOD',
   OrgAdmin = 'ORG_ADMIN',
   OrgOwner = 'ORG_OWNER',
-  ProjectAdmin = 'PROJECT_ADMIN',
   User = 'USER'
 }
 
@@ -1635,7 +1613,6 @@ export type UserUpdateInput = {
   isActive?: InputMaybe<Scalars['Boolean']['input']>;
   lastName?: InputMaybe<Scalars['String']['input']>;
   org?: InputMaybe<OrganizationRelateToOneForUpdateInput>;
-  project?: InputMaybe<ProjectRelateToOneForUpdateInput>;
   provider?: InputMaybe<UserProviderType>;
   providerAccountId?: InputMaybe<Scalars['String']['input']>;
   provisionedAt?: InputMaybe<Scalars['DateTime']['input']>;
@@ -1657,7 +1634,6 @@ export type UserWhereInput = {
   isActive?: InputMaybe<BooleanFilter>;
   lastName?: InputMaybe<StringFilter>;
   org?: InputMaybe<OrganizationWhereInput>;
-  project?: InputMaybe<ProjectWhereInput>;
   provider?: InputMaybe<UserProviderTypeNullableFilter>;
   providerAccountId?: InputMaybe<StringFilter>;
   provisionedAt?: InputMaybe<DateTimeNullableFilter>;
@@ -1674,7 +1650,7 @@ export type UserWhereUniqueInput = {
 export type GetAllUsersQueryVariables = Exact<{ [key: string]: never; }>;
 
 
-export type GetAllUsersQuery = { __typename?: 'Query', users?: Array<{ __typename?: 'User', id: string, firstName?: string | null, lastName?: string | null, email?: string | null, displayName?: string | null, role?: UserRoleType | null, avatarUrl?: string | null, provisionedAt?: any | null, seenAt?: any | null, isActive?: boolean | null, project?: { __typename?: 'Project', id: string, name?: string | null } | null }> | null };
+export type GetAllUsersQuery = { __typename?: 'Query', users?: Array<{ __typename?: 'User', id: string, firstName?: string | null, lastName?: string | null, email?: string | null, displayName?: string | null, role?: UserRoleType | null, avatarUrl?: string | null, provisionedAt?: any | null, seenAt?: any | null, isActive?: boolean | null }> | null };
 
 export type ChatProjectMutationVariables = Exact<{
   input: ChatProjectInput;
@@ -1716,7 +1692,7 @@ export type CreateUserMutationVariables = Exact<{
 }>;
 
 
-export type CreateUserMutation = { __typename?: 'Mutation', createUser?: { __typename?: 'User', id: string, email?: string | null, role?: UserRoleType | null, isActive?: boolean | null, project?: { __typename?: 'Project', id: string, name?: string | null } | null } | null };
+export type CreateUserMutation = { __typename?: 'Mutation', createUser?: { __typename?: 'User', id: string, email?: string | null, role?: UserRoleType | null, isActive?: boolean | null } | null };
 
 export type DeleteProjectMutationVariables = Exact<{
   id: Scalars['ID']['input'];
@@ -1804,14 +1780,7 @@ export type GetUserQueryVariables = Exact<{
 }>;
 
 
-export type GetUserQuery = { __typename?: 'Query', user?: { __typename?: 'User', id: string, avatarUrl?: string | null, email?: string | null, firstName?: string | null, lastName?: string | null, displayName?: string | null, role?: UserRoleType | null, project?: { __typename?: 'Project', id: string, name?: string | null } | null } | null };
-
-export type GetUserByIdQueryVariables = Exact<{
-  id: Scalars['ID']['input'];
-}>;
-
-
-export type GetUserByIdQuery = { __typename?: 'Query', user?: { __typename?: 'User', id: string, firstName?: string | null, lastName?: string | null, email?: string | null, displayName?: string | null, role?: UserRoleType | null, isActive?: boolean | null, project?: { __typename?: 'Project', id: string, name?: string | null } | null } | null };
+export type GetUserQuery = { __typename?: 'Query', user?: { __typename?: 'User', id: string, isActive?: boolean | null, avatarUrl?: string | null, email?: string | null, firstName?: string | null, lastName?: string | null, displayName?: string | null, role?: UserRoleType | null } | null };
 
 export type UpdateUserMutationVariables = Exact<{
   id: Scalars['ID']['input'];
@@ -1819,7 +1788,7 @@ export type UpdateUserMutationVariables = Exact<{
 }>;
 
 
-export type UpdateUserMutation = { __typename?: 'Mutation', updateUser?: { __typename?: 'User', id: string, role?: UserRoleType | null, isActive?: boolean | null, project?: { __typename?: 'Project', id: string, name?: string | null } | null } | null };
+export type UpdateUserMutation = { __typename?: 'Mutation', updateUser?: { __typename?: 'User', id: string, role?: UserRoleType | null, isActive?: boolean | null } | null };
 
 
 export const GetAllUsersDocument = gql`
@@ -1832,10 +1801,6 @@ export const GetAllUsersDocument = gql`
     displayName
     role
     avatarUrl
-    project {
-      id
-      name
-    }
     provisionedAt
     seenAt
     isActive
@@ -2133,10 +2098,6 @@ export const CreateUserDocument = gql`
     id
     email
     role
-    project {
-      id
-      name
-    }
     isActive
   }
 }
@@ -2697,16 +2658,13 @@ export const GetUserDocument = gql`
     query GetUser($id: ID!) {
   user(where: {id: $id}) {
     id
+    isActive
     avatarUrl
     email
     firstName
     lastName
     displayName
     role
-    project {
-      id
-      name
-    }
   }
 }
     `;
@@ -2743,65 +2701,11 @@ export type GetUserQueryHookResult = ReturnType<typeof useGetUserQuery>;
 export type GetUserLazyQueryHookResult = ReturnType<typeof useGetUserLazyQuery>;
 export type GetUserSuspenseQueryHookResult = ReturnType<typeof useGetUserSuspenseQuery>;
 export type GetUserQueryResult = Apollo.QueryResult<GetUserQuery, GetUserQueryVariables>;
-export const GetUserByIdDocument = gql`
-    query GetUserById($id: ID!) {
-  user(where: {id: $id}) {
-    id
-    firstName
-    lastName
-    email
-    displayName
-    role
-    project {
-      id
-      name
-    }
-    isActive
-  }
-}
-    `;
-
-/**
- * __useGetUserByIdQuery__
- *
- * To run a query within a React component, call `useGetUserByIdQuery` and pass it any options that fit your needs.
- * When your component renders, `useGetUserByIdQuery` returns an object from Apollo Client that contains loading, error, and data properties
- * you can use to render your UI.
- *
- * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
- *
- * @example
- * const { data, loading, error } = useGetUserByIdQuery({
- *   variables: {
- *      id: // value for 'id'
- *   },
- * });
- */
-export function useGetUserByIdQuery(baseOptions: Apollo.QueryHookOptions<GetUserByIdQuery, GetUserByIdQueryVariables> & ({ variables: GetUserByIdQueryVariables; skip?: boolean; } | { skip: boolean; }) ) {
-        const options = {...defaultOptions, ...baseOptions}
-        return Apollo.useQuery<GetUserByIdQuery, GetUserByIdQueryVariables>(GetUserByIdDocument, options);
-      }
-export function useGetUserByIdLazyQuery(baseOptions?: Apollo.LazyQueryHookOptions<GetUserByIdQuery, GetUserByIdQueryVariables>) {
-          const options = {...defaultOptions, ...baseOptions}
-          return Apollo.useLazyQuery<GetUserByIdQuery, GetUserByIdQueryVariables>(GetUserByIdDocument, options);
-        }
-export function useGetUserByIdSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<GetUserByIdQuery, GetUserByIdQueryVariables>) {
-          const options = baseOptions === Apollo.skipToken ? baseOptions : {...defaultOptions, ...baseOptions}
-          return Apollo.useSuspenseQuery<GetUserByIdQuery, GetUserByIdQueryVariables>(GetUserByIdDocument, options);
-        }
-export type GetUserByIdQueryHookResult = ReturnType<typeof useGetUserByIdQuery>;
-export type GetUserByIdLazyQueryHookResult = ReturnType<typeof useGetUserByIdLazyQuery>;
-export type GetUserByIdSuspenseQueryHookResult = ReturnType<typeof useGetUserByIdSuspenseQuery>;
-export type GetUserByIdQueryResult = Apollo.QueryResult<GetUserByIdQuery, GetUserByIdQueryVariables>;
 export const UpdateUserDocument = gql`
     mutation UpdateUser($id: ID!, $data: UserUpdateInput!) {
   updateUser(where: {id: $id}, data: $data) {
     id
     role
-    project {
-      id
-      name
-    }
     isActive
   }
 }

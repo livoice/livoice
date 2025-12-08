@@ -21,7 +21,6 @@ type ProviderType = 'google';
 
 type UserItem = TypeInfo['lists']['User']['item'];
 type OrganizationItem = TypeInfo['lists']['Organization']['item'];
-type ProjectItem = TypeInfo['lists']['Project']['item'];
 
 export type Session = {
   id: string;
@@ -32,7 +31,6 @@ export type Session = {
   displayName?: string | null;
   role: UserRole;
   orgId: string | null;
-  projectId: string | null;
   providerAccountId: string | null;
   emailDomain: string | null;
   isAutojoinDomainAllowed: boolean;
@@ -90,10 +88,9 @@ export const nextAuthOptions: NextAuthOptions = {
 
       const existingUsers = (await sudoContext.query.User.findMany({
         where: { email: { equals: email } },
-        query: 'id org { id } project { id }'
+        query: 'id org { id }'
       })) as (Pick<UserItem, 'id'> & {
         org: Pick<OrganizationItem, 'id'> | null;
-        project: Pick<ProjectItem, 'id'> | null;
       })[];
 
       const baseUserData = {
@@ -123,24 +120,9 @@ export const nextAuthOptions: NextAuthOptions = {
         matchedOrgId = matchedOrg?.id ?? null;
       }
 
-      let projectToConnect: { id: string } | null = null;
-      if (matchedOrgId) {
-        const candidateProjects = (await sudoContext.query.Project.findMany({
-          where: { org: { id: { equals: matchedOrgId } } },
-          take: 1,
-          query: 'id'
-        })) as Pick<ProjectItem, 'id'>[];
-        const primaryProject = candidateProjects?.[0];
-        if (!primaryProject?.id) {
-          throw new Error('Auto-join target organization does not have a project configured.');
-        }
-        projectToConnect = { id: primaryProject.id };
-      }
-
       if (existingUsers.length > 0) {
         const existingUser = existingUsers[0] as Pick<UserItem, 'id'> & {
           org: Pick<OrganizationItem, 'id'> | null;
-          project: Pick<ProjectItem, 'id'> | null;
         };
         const { role: _, ...userDataWithoutRole } = baseUserData;
         await sudoContext.db.User.updateOne({
@@ -148,8 +130,7 @@ export const nextAuthOptions: NextAuthOptions = {
           data: {
             ...userDataWithoutRole,
             provisionedAt: nowIso,
-            ...(matchedOrgId && !existingUser.org?.id ? { org: { connect: { id: matchedOrgId } } } : {}),
-            ...(projectToConnect && !existingUser.project?.id ? { project: { connect: projectToConnect } } : {})
+            ...(matchedOrgId && !existingUser.org?.id ? { org: { connect: { id: matchedOrgId } } } : {})
           },
           query: 'id'
         } as Parameters<typeof sudoContext.db.User.updateOne>[0] & { query: string });
@@ -161,8 +142,7 @@ export const nextAuthOptions: NextAuthOptions = {
         data: {
           ...baseUserData,
           provisionedAt: nowIso,
-          ...(matchedOrgId ? { org: { connect: { id: matchedOrgId } } } : {}),
-          ...(projectToConnect ? { project: { connect: projectToConnect } } : {})
+          ...(matchedOrgId ? { org: { connect: { id: matchedOrgId } } } : {})
         },
         query: 'id'
       } as Parameters<typeof sudoContext.db.User.createOne>[0] & { query: string });
@@ -202,10 +182,9 @@ export const nextAuthOptions: NextAuthOptions = {
 
       const dbUser = (await sudoContext.query.User.findMany({
         where: { email: { equals: normalizedEmail } },
-        query: 'id email org { id } project { id } role providerAccountId isActive seenAt avatarUrl displayName'
+        query: 'id email org { id } role providerAccountId isActive seenAt avatarUrl displayName'
       })) as (Pick<UserItem, 'id' | 'email' | 'role' | 'providerAccountId' | 'isActive' | 'seenAt'> & {
         org: Pick<OrganizationItem, 'id'> | null;
-        project: Pick<ProjectItem, 'id'> | null;
         avatarUrl?: string | null;
         displayName?: string | null;
       })[];
@@ -241,7 +220,6 @@ export const nextAuthOptions: NextAuthOptions = {
         displayName: user?.displayName || null,
         providerAccountId: user?.providerAccountId || null,
         orgId: user?.org?.id || null,
-        projectId: user?.project?.id || null,
         role: userRole,
         emailDomain,
         isAutojoinDomainAllowed,

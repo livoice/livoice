@@ -9,20 +9,17 @@ import env from '../config/env';
 import {
   canEditUserByRole,
   filterByUserOrg,
-  filterByUserProject,
   isAnyAdmin,
   isAuthenticated,
   isGod,
   isOrgAdmin,
   isOrgAdminOrAbove,
-  isProjectAdmin,
   isSelf,
   UserRole
 } from '../domains/auth/userRole';
 
 type UserItem = TypeInfo['lists']['User']['item'];
 type OrganizationItem = TypeInfo['lists']['Organization']['item'];
-type ProjectItem = TypeInfo['lists']['Project']['item'];
 type RelationshipInput =
   | { disconnect?: boolean | Array<{ id: string }> }
   | { connect?: { id: string } | Array<{ id: string }> }
@@ -35,7 +32,6 @@ const socialLoginOpts = [{ label: 'Google', value: 'google' }];
 
 const userRoleOptions = [
   { label: 'User', value: UserRole.USER },
-  { label: 'Project Admin', value: UserRole.PROJECT_ADMIN },
   { label: 'Organization Admin', value: UserRole.ORG_ADMIN },
   { label: 'Organization Owner', value: UserRole.ORG_OWNER },
   { label: 'System Admin', value: UserRole.GOD }
@@ -131,16 +127,6 @@ export default list({
         update: isOrgAdminOrAbove
       }
     }),
-    project: relationship({
-      ref: 'Project.users',
-      many: false,
-      access: {
-        ...allOperations(denyAll),
-        read: isAuthenticated,
-        create: isAnyAdmin,
-        update: isAnyAdmin
-      }
-    }),
     isActive: checkbox({
       defaultValue: true,
       access: {
@@ -220,11 +206,10 @@ export default list({
         const sudoContext = context.sudo();
         const userWithRelations = (await sudoContext.query.User.findOne({
           where: { id: targetUserId },
-          query: 'id org { id } project { id } role'
+          query: 'id org { id }'
         })) as
           | (Pick<UserItem, 'id' | 'role'> & {
               org: Pick<OrganizationItem, 'id'> | null;
-              project: Pick<ProjectItem, 'id'> | null;
             })
           | null;
 
@@ -243,18 +228,6 @@ export default list({
           return String(userWithRelations.org.id) === String(session.orgId);
         }
 
-        // Project admins can update users in their project
-        if (isProjectAdmin({ session })) {
-          if (!session?.projectId || !session?.orgId) return false;
-          if (!userWithRelations.project?.id || !userWithRelations.org?.id) return false;
-
-          // Must be in same project and same org
-          return (
-            String(userWithRelations.project.id) === String(session.projectId) &&
-            String(userWithRelations.org.id) === String(session.orgId)
-          );
-        }
-
         return false;
       }
     },
@@ -263,7 +236,6 @@ export default list({
         if (!isAuthenticated({ session })) return false;
         if (isGod({ session })) return true;
         if (isOrgAdmin({ session })) return filterByUserOrg({ session });
-        if (isProjectAdmin({ session })) return filterByUserProject({ session });
         return isSelf({ session });
       }
     }
@@ -285,11 +257,10 @@ export default list({
       const existingUser = item?.id
         ? ((await context.query.User.findOne({
             where: { id: item.id as string },
-            query: 'id org { id } project { id } role'
+            query: 'id org { id }'
           })) as
             | (Pick<UserItem, 'id' | 'role'> & {
                 org: Pick<OrganizationItem, 'id'> | null;
-                project: Pick<ProjectItem, 'id'> | null;
               })
             | null)
         : null;
@@ -306,13 +277,6 @@ export default list({
       isEditingSelf &&
         resolvedData.isActive !== undefined &&
         addValidationError('You cannot edit your own active status.');
-
-      // Prevent self-editing of project unless ORG_OWNER/ORG_ADMIN
-      isEditingSelf &&
-        resolvedData.project &&
-        session?.role !== UserRole.ORG_ADMIN &&
-        session?.role !== UserRole.ORG_OWNER &&
-        addValidationError('You cannot edit your own project.');
 
       const resolveRelationshipId = (input: RelationshipInput | unknown, existingId: string | null): string | null => {
         const typedInput = input as RelationshipInput;
@@ -345,10 +309,9 @@ export default list({
         const baseRoles: UserRole[] = [UserRole.USER];
         const roleMap: Record<UserRole, UserRole[]> = {
           [UserRole.USER]: baseRoles,
-          [UserRole.PROJECT_ADMIN]: [...baseRoles, UserRole.PROJECT_ADMIN],
-          [UserRole.ORG_ADMIN]: [...baseRoles, UserRole.PROJECT_ADMIN, UserRole.ORG_ADMIN],
-          [UserRole.ORG_OWNER]: [...baseRoles, UserRole.PROJECT_ADMIN, UserRole.ORG_ADMIN, UserRole.ORG_OWNER],
-          [UserRole.GOD]: [...baseRoles, UserRole.PROJECT_ADMIN, UserRole.ORG_ADMIN, UserRole.ORG_OWNER]
+          [UserRole.ORG_ADMIN]: [...baseRoles, UserRole.ORG_ADMIN],
+          [UserRole.ORG_OWNER]: [...baseRoles, UserRole.ORG_ADMIN, UserRole.ORG_OWNER],
+          [UserRole.GOD]: [...baseRoles, UserRole.ORG_ADMIN, UserRole.ORG_OWNER]
         };
         return roleMap[adminRole] ?? baseRoles;
       };
@@ -367,69 +330,25 @@ export default list({
         }
       };
 
-      const validateProjectRestriction = (
-        operation: string,
-        nextProjectId: string | null,
-        adminRole: UserRole | null | undefined,
-        adminProjectId: string | null | undefined
-      ): void => {
-        const isProjectAdminCreating = operation === 'create' && adminRole === UserRole.PROJECT_ADMIN && adminProjectId;
-        if (isProjectAdminCreating && nextProjectId && String(nextProjectId) !== String(adminProjectId)) {
-          addValidationError('Project Admins can only create users in their own project.');
-        }
-      };
-
       const validateProvisioning = (
         operation: string,
         nextOrgId: string | null,
-        nextProjectId: string | null,
-        existingOrgId: string | null,
-        existingProjectId: string | null
+        existingOrgId: string | null
       ): void => {
-        const isUnprovisioned = !nextOrgId && !nextProjectId;
+        const isUnprovisioned = !nextOrgId;
         const isInitialProvision = operation === 'create' && isUnprovisioned;
-        const isExistingUnprovisioned =
-          operation === 'update' && isUnprovisioned && !existingOrgId && !existingProjectId;
+        const isExistingUnprovisioned = operation === 'update' && isUnprovisioned && !existingOrgId;
 
-        if (!isInitialProvision && !isExistingUnprovisioned && (!nextOrgId || !nextProjectId)) {
-          addValidationError('Users must belong to both an organization and a project once provisioned.');
-        }
-      };
-
-      const validateProjectOrgMatch = async (
-        nextOrgId: string | null,
-        nextProjectId: string | null,
-        context: Context
-      ): Promise<void> => {
-        if (!nextOrgId || !nextProjectId) return;
-
-        const project = (await context.query.Project.findOne({
-          where: { id: nextProjectId },
-          query: 'id org { id }'
-        })) as (Pick<ProjectItem, 'id'> & { org: Pick<OrganizationItem, 'id'> | null }) | null;
-
-        const projectOrgId = project?.org?.id ?? null;
-        if (projectOrgId && projectOrgId !== nextOrgId) {
-          addValidationError("Selected project does not belong to the user's organization.");
+        if (!isInitialProvision && !isExistingUnprovisioned && !nextOrgId) {
+          addValidationError('Users must belong to an organization once provisioned.');
         }
       };
 
       const nextOrgId = resolveRelationshipId(resolvedData.org, existingUser?.org?.id ?? null);
-      const nextProjectId = resolveRelationshipId(resolvedData.project, existingUser?.project?.id ?? null);
 
       resolvedData.role && validateRoleAssignment(resolvedData.role as UserRole, session?.role);
 
-      validateProjectRestriction(operation, nextProjectId, session?.role, session?.projectId);
-
-      validateProvisioning(
-        operation,
-        nextOrgId,
-        nextProjectId,
-        existingUser?.org?.id ?? null,
-        existingUser?.project?.id ?? null
-      );
-
-      await validateProjectOrgMatch(nextOrgId, nextProjectId, context);
+      validateProvisioning(operation, nextOrgId, existingUser?.org?.id ?? null);
     }
   }
 }) satisfies Lists['User'];

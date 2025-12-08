@@ -1,7 +1,7 @@
 {
-  "appName": "PTO",
+  "appName": "Livoice",
   "loginTo": "Login to",
-  "title": "Welcome to PTO",
+  "title": "Welcome to Livoice",
   "welcome": "Welcome {{name}}",
   "notFound": "Oops! Page Not Found",
   "Saving...": "Saving...",
@@ -179,22 +179,12 @@
     }
   },
   "sidebar": {
-    "title": "PTO",
-    "home": "Home",
-    "clients": "Clients",
-    "activity": "Activity",
-    "influencers": "Influencers",
-    "monitoring": "Monitoring",
+    "title": "Livoice",
     "settings": "Settings",
     "dashboard": "Dashboard",
-    "calendar": "Calendar",
-    "requests": "Requests",
     "users": "Users",
     "projects": "Projects",
     "transcripts": "Transcripts",
-    "timeTypes": "Time Types",
-    "locations": "Locations",
-    "policies": "Time Policies",
     "profile": "Profile"
   },
   "calendar": {
@@ -449,7 +439,7 @@
     }
   },
   "onboarding": {
-    "title": "Welcome to PTO",
+    "title": "Welcome to Livoice",
     "description": "Let's create your organization and get you started.",
     "fields": {
       "orgName": "Organization name"

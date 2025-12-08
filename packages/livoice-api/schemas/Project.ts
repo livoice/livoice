@@ -1,22 +1,13 @@
 import { type Lists } from '.keystone/types';
 import { list } from '@keystone-6/core';
 import { relationship, text } from '@keystone-6/core/fields';
-import {
-  canEditOrgData,
-  canEditProjectData,
-  filterByUserOrg,
-  isAuthenticated,
-  isGod,
-  isOrgAdmin,
-  isProjectAdmin
-} from '../domains/auth/userRole';
+import { canEditOrgData, filterByUserOrg, isAuthenticated, isGod, isOrgAdmin } from '../domains/auth/userRole';
 
 export default list({
   fields: {
     name: text({ validation: { isRequired: true } }),
     description: text({ ui: { displayMode: 'textarea' }, validation: { isRequired: false } }),
     org: relationship({ ref: 'Organization.projects', many: false }),
-    users: relationship({ ref: 'User.project', many: true }),
     transcripts: relationship({ ref: 'Transcript.project', many: true }),
     chats: relationship({ ref: 'Chat.project', many: true })
   },
@@ -27,7 +18,7 @@ export default list({
     operation: {
       query: ({ session }) => isAuthenticated({ session }),
       create: canEditOrgData,
-      update: canEditProjectData,
+      update: canEditOrgData,
       delete: canEditOrgData
     },
     item: {
@@ -47,11 +38,6 @@ export default list({
         if (isOrgAdmin({ session })) {
           if (!session?.orgId) return false;
           return project.org?.id ? String(project.org.id) === String(session.orgId) : false;
-        }
-
-        if (isProjectAdmin({ session })) {
-          if (!session?.projectId) return false;
-          return targetProjectId === String(session.projectId);
         }
 
         return false;

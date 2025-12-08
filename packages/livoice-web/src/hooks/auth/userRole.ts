@@ -16,20 +16,14 @@ export const isGod = (userOrSession: UserOrSession): boolean => hasRole([UserRol
 export const isOrgAdmin = (userOrSession: UserOrSession): boolean =>
   hasRole([UserRoleType.OrgAdmin, UserRoleType.OrgOwner])(userOrSession);
 
-export const isProjectAdmin = (userOrSession: UserOrSession): boolean =>
-  hasRole([UserRoleType.ProjectAdmin])(userOrSession);
-
 export const isOrgAdminOrAbove = (userOrSession: UserOrSession): boolean =>
   hasRole([UserRoleType.God, UserRoleType.OrgAdmin, UserRoleType.OrgOwner])(userOrSession);
 
 export const isAnyAdmin = (userOrSession: UserOrSession): boolean =>
-  hasRole([UserRoleType.God, UserRoleType.OrgAdmin, UserRoleType.OrgOwner, UserRoleType.ProjectAdmin])(userOrSession);
+  hasRole([UserRoleType.God, UserRoleType.OrgAdmin, UserRoleType.OrgOwner])(userOrSession);
 
 export const canEditOrgData = (userOrSession: UserOrSession): boolean =>
   isGod(userOrSession) || isOrgAdmin(userOrSession);
-
-export const canEditProjectData = (userOrSession: UserOrSession): boolean =>
-  isGod(userOrSession) || isOrgAdmin(userOrSession) || isProjectAdmin(userOrSession);
 
 export const isSelf = (
   selfUser: UserOrSession,
@@ -41,17 +35,15 @@ export const isSelf = (
 
 const roleHierarchy: Record<UserRoleType, number> = {
   [UserRoleType.User]: 0,
-  [UserRoleType.ProjectAdmin]: 1,
-  [UserRoleType.OrgAdmin]: 2,
-  [UserRoleType.OrgOwner]: 3,
-  [UserRoleType.God]: 4
+  [UserRoleType.OrgAdmin]: 1,
+  [UserRoleType.OrgOwner]: 2,
+  [UserRoleType.God]: 3
 };
 
 /**
  * Check if a user can edit another user based on role hierarchy
- * - PROJECT_ADMIN can only edit USER or PROJECT_ADMIN
- * - ORG_ADMIN can only edit USER, PROJECT_ADMIN, ORG_ADMIN
- * - ORG_OWNER can only edit USER, PROJECT_ADMIN, ORG_ADMIN, ORG_OWNER
+ * - ORG_ADMIN can only edit USER, ORG_ADMIN
+ * - ORG_OWNER can only edit USER, ORG_ADMIN, ORG_OWNER
  * - GOD can edit anyone
  */
 export const canEditUserByRole = (

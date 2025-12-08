@@ -3,10 +3,6 @@ mutation CreateUser($data: UserCreateInput!) {
     id
     email
     role
-    project {
-      id
-      name
-    }
     isActive
   }
 }
