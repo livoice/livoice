@@ -145,14 +145,14 @@ const fetchSegments = async ({ context, projectId, transcriptId, queryText }: Fe
 
       const literal = formatVectorLiteral(embedding);
       const joinClause = isTranscriptContext
-        ? 'LEFT JOIN "Transcript" t ON t.id = "TranscriptSegment"."transcriptId"'
-        : 'INNER JOIN "Transcript" t ON t.id = "TranscriptSegment"."transcriptId"';
+        ? 'LEFT JOIN "Transcript" t ON t.id = "TranscriptSegment"."transcript"'
+        : 'INNER JOIN "Transcript" t ON t.id = "TranscriptSegment"."transcript"';
       const whereClause = isTranscriptContext
-        ? `"TranscriptSegment"."transcriptId" = '${transcriptId}'`
-        : `"Transcript"."projectId" = '${projectId}'`;
+        ? `"TranscriptSegment"."transcript" = '${transcriptId}'`
+        : `"Transcript"."project" = '${projectId}'`;
 
       const rows =
-        (await sudoContext.prisma.$queryRawUnsafe<RawSegment>(`
+        ((await sudoContext.prisma.$queryRaw(`
         SELECT
           "TranscriptSegment"."id",
           "TranscriptSegment"."text",
@@ -169,7 +169,7 @@ const fetchSegments = async ({ context, projectId, transcriptId, queryText }: Fe
           AND ${whereClause}
         ORDER BY "TranscriptSegment"."embedding" <-> ${literal}
         LIMIT ${VECTOR_LIMIT}
-      `)) ?? [];
+      `)) as RawSegment[]) ?? [];
 
       return rows.map(mapRawToSegment);
     } catch (error) {
