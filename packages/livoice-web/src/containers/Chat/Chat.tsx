@@ -1,7 +1,11 @@
 import { useApolloClient } from '@apollo/client';
 import { useEffect, useMemo, useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
+import type { Components } from 'react-markdown';
+import ReactMarkdown from 'react-markdown';
 import { useNavigate, useParams } from 'react-router-dom';
+import remarkBreaks from 'remark-breaks';
+import remarkGfm from 'remark-gfm';
 
 import FormDrawer from '@/components/FormDrawer/FormDrawer';
 import {
@@ -31,6 +35,21 @@ export type ChatMessageItem = {
   content: string;
   createdAt?: string | null;
   segments: SegmentReference[];
+};
+
+const markdownComponents: Components = {
+  ol: ({ node, ...props }) => {
+    void node;
+    return <ol className="list-decimal space-y-1 pl-5" {...props} />;
+  },
+  ul: ({ node, ...props }) => {
+    void node;
+    return <ul className="list-disc space-y-1 pl-5" {...props} />;
+  },
+  li: ({ node, ...props }) => {
+    void node;
+    return <li className="ml-1" {...props} />;
+  }
 };
 
 const formatTime = (value?: number | null) => {
@@ -223,7 +242,11 @@ const Chat = () => {
                     <span>{message.role === 'user' ? t('chat.roles.you') : t('chat.roles.assistant')}</span>
                     {message.createdAt ? <span>{new Date(message.createdAt).toLocaleTimeString()}</span> : null}
                   </div>
-                  <p className="mt-2 whitespace-pre-line font-normal leading-relaxed">{message.content}</p>
+                  <div className="mt-2 space-y-2 whitespace-pre-wrap font-normal leading-relaxed break-words">
+                    <ReactMarkdown components={markdownComponents} remarkPlugins={[remarkGfm, remarkBreaks]} skipHtml>
+                      {message.content}
+                    </ReactMarkdown>
+                  </div>
                   {message.segments.length ? (
                     <div className="mt-3 flex flex-wrap gap-2">
                       {message.segments.map(segment => (
