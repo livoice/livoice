@@ -2,3 +2,6 @@
 ALTER TABLE "Chat" DROP COLUMN "contextType";
 
 
+
+
+

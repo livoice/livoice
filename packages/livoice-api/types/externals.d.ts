@@ -11,3 +11,6 @@ declare module 'srt-parser-2' {
     toSrt(cues: SrtCue[]): string;
   }
 }
+
+
+
