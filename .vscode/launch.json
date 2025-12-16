@@ -1,8 +1,12 @@
 {
-  "name": "Attach to Port",
-  "type": "node",
-  "request": "attach",
-  "port": 9229,
-  "restart": true,
-  "configurations": []
+  "version": "0.2.0",
+  "configurations": [
+    {
+      "name": "Attach to Port",
+      "type": "node",
+      "request": "attach",
+      "port": 9229,
+      "restart": true
+    }
+  ]
 }
