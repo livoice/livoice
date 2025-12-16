@@ -608,6 +608,9 @@ type Transcript {
   embeddingAttempts: Int
   embeddingError: String
   embeddingCompletedAt: DateTime
+  importStatus: TranscriptImportStatusType
+  importAttempts: Int
+  importError: String
   source: Source
   org: Organization
   segments(where: TranscriptSegmentWhereInput! = {}, orderBy: [TranscriptSegmentOrderByInput!]! = [], take: Int, skip: Int! = 0, cursor: TranscriptSegmentWhereUniqueInput): [TranscriptSegment!]
@@ -623,6 +626,14 @@ enum TranscriptEmbeddingStatusType {
   processing
   completed
   failed
+}
+
+enum TranscriptImportStatusType {
+  pending
+  fetching
+  completed
+  failed
+  skipped
 }
 
 input TranscriptWhereUniqueInput {
@@ -647,6 +658,9 @@ input TranscriptWhereInput {
   embeddingAttempts: IntNullableFilter
   embeddingError: StringFilter
   embeddingCompletedAt: DateTimeNullableFilter
+  importStatus: TranscriptImportStatusTypeNullableFilter
+  importAttempts: IntNullableFilter
+  importError: StringFilter
   source: SourceWhereInput
   org: OrganizationWhereInput
   segments: TranscriptSegmentManyRelationFilter
@@ -673,6 +687,13 @@ input TranscriptEmbeddingStatusTypeNullableFilter {
   not: TranscriptEmbeddingStatusTypeNullableFilter
 }
 
+input TranscriptImportStatusTypeNullableFilter {
+  equals: TranscriptImportStatusType
+  in: [TranscriptImportStatusType!]
+  notIn: [TranscriptImportStatusType!]
+  not: TranscriptImportStatusTypeNullableFilter
+}
+
 input TranscriptOrderByInput {
   id: OrderDirection
   title: OrderDirection
@@ -688,6 +709,9 @@ input TranscriptOrderByInput {
   embeddingAttempts: OrderDirection
   embeddingError: OrderDirection
   embeddingCompletedAt: OrderDirection
+  importStatus: OrderDirection
+  importAttempts: OrderDirection
+  importError: OrderDirection
   createdAt: OrderDirection
   updatedAt: OrderDirection
 }
@@ -706,6 +730,9 @@ input TranscriptUpdateInput {
   embeddingAttempts: Int
   embeddingError: String
   embeddingCompletedAt: DateTime
+  importStatus: TranscriptImportStatusType
+  importAttempts: Int
+  importError: String
   source: SourceRelateToOneForUpdateInput
   org: OrganizationRelateToOneForUpdateInput
   segments: TranscriptSegmentRelateToManyForUpdateInput
@@ -739,6 +766,9 @@ input TranscriptCreateInput {
   embeddingAttempts: Int
   embeddingError: String
   embeddingCompletedAt: DateTime
+  importStatus: TranscriptImportStatusType
+  importAttempts: Int
+  importError: String
   source: SourceRelateToOneForCreateInput
   org: OrganizationRelateToOneForCreateInput
   segments: TranscriptSegmentRelateToManyForCreateInput

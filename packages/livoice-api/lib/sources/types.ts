@@ -11,6 +11,6 @@ export type SourceItem = {
 
 export type SourceAdapter = {
   listItems: (sourceExternalId: string) => Promise<SourceItem[]>;
-  fetchSubtitles: (itemExternalId: string) => Promise<string>;
+  fetchTranscript: (itemExternalId: string) => Promise<string>;
   parseSourceUrl: (url: string | undefined | null) => string | null;
 };

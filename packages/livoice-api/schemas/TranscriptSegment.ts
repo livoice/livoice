@@ -71,8 +71,5 @@ export default list({
         return record?.transcript?.org?.id === session.orgId;
       }
     }
-  },
-  hooks: {
-    afterOperation: undefined
   }
 }) satisfies Lists['TranscriptSegment'];

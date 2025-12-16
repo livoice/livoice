@@ -27,6 +27,19 @@ export default list({
     embeddingAttempts: integer({ defaultValue: 0 }),
     embeddingError: text(),
     embeddingCompletedAt: timestamp(),
+    importStatus: select({
+      type: 'enum',
+      options: [
+        { label: 'Pending', value: 'pending' },
+        { label: 'Fetching', value: 'fetching' },
+        { label: 'Completed', value: 'completed' },
+        { label: 'Failed', value: 'failed' },
+        { label: 'Skipped', value: 'skipped' }
+      ],
+      defaultValue: 'pending'
+    }),
+    importAttempts: integer({ defaultValue: 0 }),
+    importError: text(),
     source: relationship({ ref: 'Source.transcripts', many: false }),
     org: relationship({ ref: 'Organization.transcripts', many: false }),
     segments: relationship({ ref: 'TranscriptSegment.transcript', many: true }),
@@ -102,6 +115,10 @@ export default list({
 
         if (!source?.org?.id) return resolvedData;
         return { ...resolvedData, org: { connect: { id: source.org.id } } };
+      },
+      update: async ({ resolvedData }) => {
+        if (resolvedData.importStatus === 'pending') resolvedData.importAttempts = 0;
+        return resolvedData;
       }
     },
     afterOperation: {

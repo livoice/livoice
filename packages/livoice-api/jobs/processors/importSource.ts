@@ -1,9 +1,11 @@
 import { Job } from 'bullmq';
+import PQueue from 'p-queue';
 import { getKeystoneContext } from '../../context/keystoneContext';
 import { getSourceAdapter } from '../../lib/sources';
-import { toTranscriptSegments } from '../../lib/toTranscriptSegments';
+import type { SourceItem } from '../../lib/sources/types';
 
 const MAX_IMPORT_HISTORY_ENTRIES = 100;
+const IMPORT_CONCURRENCY = 1;
 
 type ImportSourceJob = { sourceId: string };
 
@@ -43,58 +45,43 @@ export const processImportSource = async (job: Job<ImportSourceJob>) => {
     });
   };
 
+  const queue = new PQueue({ concurrency: IMPORT_CONCURRENCY });
+
+  const processItem = async (item: SourceItem) => {
+    const existing = await prisma.transcript.findFirst({
+      where: { sourceId: source.id, externalId: item.externalId }
+    });
+    if (existing) return { imported: 0, skipped: 1, failed: 0 };
+
+    try {
+      await prisma.transcript.create({
+        data: {
+          title: item.title,
+          sourceUrl: item.url,
+          externalId: item.externalId,
+          publishedAt: item.publishedAt,
+          duration: item.duration ? item.duration * 1000 : undefined,
+          thumbnailUrl: item.thumbnailUrl ?? '',
+          source: { connect: { id: source.id } },
+          org: source.orgId ? { connect: { id: source.orgId } } : undefined,
+          embeddingStatus: 'pending',
+          importStatus: 'pending'
+        }
+      });
+
+      return { imported: 1, skipped: 0, failed: 0 };
+    } catch (error) {
+      console.error(`Failed to import item ${item.externalId}`, error);
+      return { imported: 0, skipped: 0, failed: 1 };
+    }
+  };
+
   try {
     // TODO: only for debugging
-    const n = 0;
-    const items = (await adapter.listItems(source.externalId)).slice(n, n + 10);
+    const items = await adapter.listItems(source.externalId);
     const itemsFound = items.length;
 
-    const results = await Promise.all(
-      items.map(async item => {
-        const existing = await prisma.transcript.findFirst({
-          where: { sourceId: source.id, externalId: item.externalId }
-        });
-        if (existing) return { imported: 0, skipped: 1, failed: 0 };
-
-        try {
-          const segments = toTranscriptSegments(await adapter.fetchSubtitles(item.externalId));
-          console.log(`[import-source] ${item.externalId} -> fetched ${segments.length} segments`);
-
-          const transcript = await prisma.transcript.create({
-            data: {
-              title: item.title,
-              sourceUrl: item.url,
-              externalId: item.externalId,
-              publishedAt: item.publishedAt,
-              duration: item.duration ? item.duration * 1000 : undefined,
-              thumbnailUrl: item.thumbnailUrl ?? '',
-              source: { connect: { id: source.id } },
-              org: source.orgId ? { connect: { id: source.orgId } } : undefined,
-              embeddingStatus: 'pending'
-            }
-          });
-
-          if (segments.length) {
-            await prisma.transcriptSegment.createMany({
-              data: segments.map((segment, idx) => ({
-                transcriptId: transcript.id,
-                index: idx + 1,
-                startMs: segment.startMs,
-                endMs: segment.endMs,
-                durationMs: segment.endMs - segment.startMs,
-                text: segment.text,
-                isMetadata: false
-              }))
-            });
-          }
-
-          return { imported: 1, skipped: 0, failed: 0 };
-        } catch (error) {
-          console.error(`Failed to import item ${item.externalId}`, error);
-          return { imported: 0, skipped: 0, failed: 1 };
-        }
-      })
-    );
+    const results = await Promise.all(items.map(item => queue.add(() => processItem(item), { throwOnTimeout: true })));
 
     const {
       imported: itemsImported,

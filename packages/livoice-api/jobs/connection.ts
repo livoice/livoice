@@ -9,7 +9,3 @@ export const connection: RedisOptions = {
   tls: useTls ? {} : undefined,
   maxRetriesPerRequest: null
 };
-
-
-
-

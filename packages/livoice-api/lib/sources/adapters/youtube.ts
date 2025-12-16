@@ -2,8 +2,10 @@ import youtubeDlExec from 'youtube-dl-exec';
 import { Innertube, Log, YTNodes } from 'youtubei.js';
 import { TempFile } from '../../TempFile';
 import { SourceAdapter, SourceItem } from '../types';
-import { proxyFetch } from './utils/fetchWithProxy';
+import { proxyFetch } from './utils/proxyFetch';
+import { secondsFromDuration } from './utils/secondsFromDuration';
 
+const youtubeClient = Innertube.create({ fetch: proxyFetch });
 Log.setLevel(Log.Level.INFO);
 
 const extractChannelId = (url: string): string | null => {
@@ -20,25 +22,26 @@ const extractChannelId = (url: string): string | null => {
   }
 };
 
-const secondsFromDuration = (duration?: number | string | null) => {
-  if (!duration) return null;
-  if (typeof duration === 'number') return duration;
-  const parsed = Number.parseInt(duration, 10);
-  return Number.isNaN(parsed) ? null : parsed;
-};
-
-type YoutubeClient = Awaited<ReturnType<typeof Innertube.create>>;
+type YoutubeClient = Awaited<typeof youtubeClient>;
 type YoutubeChannel = Awaited<ReturnType<YoutubeClient['getChannel']>>;
 type YoutubeVideosTab = Awaited<ReturnType<YoutubeChannel['getVideos']>>;
 type YoutubeVideoArray = YoutubeVideosTab['videos'];
+
+type YoutubeVideo = {
+  id: string;
+  title?: { text?: string };
+  published?: { text?: string };
+  duration?: { seconds?: string | number | null };
+  best_thumbnail?: { url?: string };
+};
 
 const cloneVideos = (videos?: YoutubeVideoArray): YoutubeVideoArray => {
   if (videos) return videos.slice() as YoutubeVideoArray;
   return [] as unknown as YoutubeVideoArray;
 };
 
-const isYoutubeVideo = (node: unknown): node is YTNodes.Video =>
-  node instanceof YTNodes.Video || (node as { id?: unknown })?.id !== undefined;
+const isYoutubeVideo = (node: unknown): node is YoutubeVideo =>
+  node instanceof YTNodes.Video || typeof (node as { id?: unknown }).id === 'string';
 
 const parsePublished = (published?: { text?: string }) => {
   const text = published?.text;
@@ -46,6 +49,8 @@ const parsePublished = (published?: { text?: string }) => {
   const parsed = new Date(text);
   return Number.isNaN(parsed.getTime()) ? null : parsed;
 };
+
+const toVideoUrl = (videoId: string) => `https://www.youtube.com/watch?v=${videoId}`;
 
 const gatherVideos = async (videosTab: YoutubeVideosTab): Promise<YoutubeVideosTab['videos']> => {
   if (!videosTab?.videos) return [] as unknown as YoutubeVideoArray;
@@ -74,10 +79,6 @@ const toChannelId = async (client: YoutubeClient, sourceExternalId: string) => {
   return sourceExternalId;
 };
 
-const toVideoUrl = (videoId: string) => `https://www.youtube.com/watch?v=${videoId}`;
-
-const youtubeClient = Innertube.create({ fetch: proxyFetch });
-
 export const youtubeAdapter: SourceAdapter = {
   parseSourceUrl: (url: string | undefined | null) => extractChannelId(url ?? ''),
 
@@ -90,9 +91,10 @@ export const youtubeAdapter: SourceAdapter = {
     const videosTab = await channel.getVideos();
 
     const allVideos = await gatherVideos(videosTab);
+    const normalized = allVideos.filter(isYoutubeVideo) as YoutubeVideo[];
 
-    console.log(`[youtubeAdapter] listItems: fetched ${allVideos.length} videos`);
-    return allVideos.filter(isYoutubeVideo).map(
+    console.log(`[youtubeAdapter] listItems: fetched ${normalized.length} videos`);
+    return normalized.map(
       (video): SourceItem => ({
         externalId: video.id,
         title: video.title?.text ?? '',
@@ -104,7 +106,7 @@ export const youtubeAdapter: SourceAdapter = {
     );
   },
 
-  fetchSubtitles: async itemExternalId => {
+  fetchTranscript: async itemExternalId => {
     const LANG = 'en';
     const SUB_FORMAT = 'srt';
 

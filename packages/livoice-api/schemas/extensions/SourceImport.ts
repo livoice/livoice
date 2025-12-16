@@ -35,7 +35,3 @@ export const SourceImportExtension = (base: BaseSchemaMeta) => ({
     })
   }
 });
-
-
-
-

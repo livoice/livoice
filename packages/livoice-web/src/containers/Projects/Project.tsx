@@ -51,7 +51,7 @@ export default function Project() {
           <Card className="space-y-4 p-4">
             <h2 className="text-lg font-semibold text-slate-900">{t('sources.list.title')}</h2>
             <div className="space-y-2">
-              {(project.sources ?? []).length ? (
+              {project.sources?.length ? (
                 project.sources?.map(source =>
                   source?.id ? (
                     <Link

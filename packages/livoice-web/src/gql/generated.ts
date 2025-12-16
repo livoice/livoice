@@ -1510,6 +1510,9 @@ export type Transcript = {
   embeddingStatus?: Maybe<TranscriptEmbeddingStatusType>;
   externalId?: Maybe<Scalars['String']['output']>;
   id: Scalars['ID']['output'];
+  importAttempts?: Maybe<Scalars['Int']['output']>;
+  importError?: Maybe<Scalars['String']['output']>;
+  importStatus?: Maybe<TranscriptImportStatusType>;
   intervieweeName?: Maybe<Scalars['String']['output']>;
   language?: Maybe<Scalars['String']['output']>;
   notes?: Maybe<Scalars['String']['output']>;
@@ -1561,6 +1564,9 @@ export type TranscriptCreateInput = {
   embeddingError?: InputMaybe<Scalars['String']['input']>;
   embeddingStatus?: InputMaybe<TranscriptEmbeddingStatusType>;
   externalId?: InputMaybe<Scalars['String']['input']>;
+  importAttempts?: InputMaybe<Scalars['Int']['input']>;
+  importError?: InputMaybe<Scalars['String']['input']>;
+  importStatus?: InputMaybe<TranscriptImportStatusType>;
   intervieweeName?: InputMaybe<Scalars['String']['input']>;
   language?: InputMaybe<Scalars['String']['input']>;
   notes?: InputMaybe<Scalars['String']['input']>;
@@ -1588,6 +1594,21 @@ export type TranscriptEmbeddingStatusTypeNullableFilter = {
   notIn?: InputMaybe<Array<TranscriptEmbeddingStatusType>>;
 };
 
+export enum TranscriptImportStatusType {
+  Completed = 'completed',
+  Failed = 'failed',
+  Fetching = 'fetching',
+  Pending = 'pending',
+  Skipped = 'skipped'
+}
+
+export type TranscriptImportStatusTypeNullableFilter = {
+  equals?: InputMaybe<TranscriptImportStatusType>;
+  in?: InputMaybe<Array<TranscriptImportStatusType>>;
+  not?: InputMaybe<TranscriptImportStatusTypeNullableFilter>;
+  notIn?: InputMaybe<Array<TranscriptImportStatusType>>;
+};
+
 export type TranscriptManyRelationFilter = {
   every?: InputMaybe<TranscriptWhereInput>;
   none?: InputMaybe<TranscriptWhereInput>;
@@ -1603,6 +1624,9 @@ export type TranscriptOrderByInput = {
   embeddingStatus?: InputMaybe<OrderDirection>;
   externalId?: InputMaybe<OrderDirection>;
   id?: InputMaybe<OrderDirection>;
+  importAttempts?: InputMaybe<OrderDirection>;
+  importError?: InputMaybe<OrderDirection>;
+  importStatus?: InputMaybe<OrderDirection>;
   intervieweeName?: InputMaybe<OrderDirection>;
   language?: InputMaybe<OrderDirection>;
   notes?: InputMaybe<OrderDirection>;
@@ -1757,6 +1781,9 @@ export type TranscriptUpdateInput = {
   embeddingError?: InputMaybe<Scalars['String']['input']>;
   embeddingStatus?: InputMaybe<TranscriptEmbeddingStatusType>;
   externalId?: InputMaybe<Scalars['String']['input']>;
+  importAttempts?: InputMaybe<Scalars['Int']['input']>;
+  importError?: InputMaybe<Scalars['String']['input']>;
+  importStatus?: InputMaybe<TranscriptImportStatusType>;
   intervieweeName?: InputMaybe<Scalars['String']['input']>;
   language?: InputMaybe<Scalars['String']['input']>;
   notes?: InputMaybe<Scalars['String']['input']>;
@@ -1783,6 +1810,9 @@ export type TranscriptWhereInput = {
   embeddingStatus?: InputMaybe<TranscriptEmbeddingStatusTypeNullableFilter>;
   externalId?: InputMaybe<StringFilter>;
   id?: InputMaybe<IdFilter>;
+  importAttempts?: InputMaybe<IntNullableFilter>;
+  importError?: InputMaybe<StringFilter>;
+  importStatus?: InputMaybe<TranscriptImportStatusTypeNullableFilter>;
   intervieweeName?: InputMaybe<StringFilter>;
   language?: InputMaybe<StringFilter>;
   notes?: InputMaybe<StringFilter>;

@@ -2,7 +2,6 @@ import type { Context } from '.keystone/types';
 import type { Application } from 'express';
 import express from 'express';
 import path from 'path';
-// import ratehawk from './ratehawk';
 import { registerQueueDashboard } from './admin/queues';
 import example from './example';
 

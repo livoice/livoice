@@ -98,6 +98,9 @@ model Transcript {
   embeddingAttempts    Int?                           @default(0)
   embeddingError       String                         @default("")
   embeddingCompletedAt DateTime?
+  importStatus         TranscriptImportStatusType?    @default(pending)
+  importAttempts       Int?                           @default(0)
+  importError          String                         @default("")
   source               Source?                        @relation("Transcript_source", fields: [sourceId], references: [id])
   sourceId             String?                        @map("source")
   org                  Organization?                  @relation("Transcript_org", fields: [orgId], references: [id])
@@ -168,6 +171,14 @@ enum TranscriptEmbeddingStatusType {
   processing
   completed
   failed
+}
+
+enum TranscriptImportStatusType {
+  pending
+  fetching
+  completed
+  failed
+  skipped
 }
 
 enum UserRoleType {
