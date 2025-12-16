@@ -1,14 +1,13 @@
 import { useTranslation } from 'react-i18next';
 import { Link } from 'react-router-dom';
 
-import { useProjectChatsQuery, useTranscriptChatsQuery } from '@/gql/generated';
-import { toProjectChat, toProjectChatNew, toTranscriptChat, toTranscriptChatNew } from '@/services/linker';
+import { useProjectChatsQuery } from '@/gql/generated';
+import { toProjectChat, toProjectChatNew } from '@/services/linker';
 import { buttonVariants } from '@/ui';
 import { Card } from '@/ui/card';
 
 type ChatListProps = {
-  projectId?: string;
-  transcriptId?: string;
+  projectId: string;
 };
 
 const formatDate = (value?: string | null) => {
@@ -20,43 +19,30 @@ const formatDate = (value?: string | null) => {
   }
 };
 
-const ChatList = ({ projectId, transcriptId }: ChatListProps) => {
+const ChatList = ({ projectId }: ChatListProps) => {
   const { t } = useTranslation('common');
 
-  const isTranscriptContext = Boolean(transcriptId);
-  const heading = isTranscriptContext ? t('transcripts.chat.title') : t('projects.chat.title');
+  const heading = t('projects.chat.title');
   const emptyLabel = t('errors.noResultsFound', { label: heading });
   const buttonLabel = t('buttons.newChat');
 
-  const { data: transcriptData, loading: transcriptLoading } = useTranscriptChatsQuery({
-    variables: { transcriptId: transcriptId ?? '' },
-    skip: !isTranscriptContext || !transcriptId
+  const { data: projectData, loading } = useProjectChatsQuery({
+    variables: { projectId },
+    skip: !projectId
   });
 
-  const { data: projectData, loading: projectLoading } = useProjectChatsQuery({
-    variables: { projectId: projectId ?? '' },
-    skip: isTranscriptContext || !projectId
-  });
+  const chats = projectData?.chats ?? [];
 
-  const chats = isTranscriptContext ? (transcriptData?.chats ?? []) : (projectData?.chats ?? []);
-  const loading = isTranscriptContext ? transcriptLoading : projectLoading;
-
-  const buttonHref = isTranscriptContext
-    ? toTranscriptChatNew({ projectId: projectId || '', transcriptId: transcriptId || '' })
-    : toProjectChatNew({ projectId: projectId || '' });
-
-  const itemHref = (chatId: string) =>
-    isTranscriptContext
-      ? toTranscriptChat({ projectId: projectId || '', transcriptId: transcriptId || '', chatId })
-      : toProjectChat({ projectId: projectId || '', chatId });
-
-  if (!projectId && !transcriptId) return null;
+  if (!projectId) return null;
 
   return (
     <Card className="space-y-4">
       <div className="flex items-center justify-between">
         <h2 className="text-sm font-semibold uppercase tracking-[0.3em] text-slate-500">{heading}</h2>
-        <Link to={buttonHref} className={buttonVariants({ variant: 'default', className: 'text-sm font-semibold' })}>
+        <Link
+          to={toProjectChatNew({ projectId })}
+          className={buttonVariants({ variant: 'default', className: 'text-sm font-semibold' })}
+        >
           {buttonLabel}
         </Link>
       </div>
@@ -67,7 +53,7 @@ const ChatList = ({ projectId, transcriptId }: ChatListProps) => {
           {chats.map(chat => (
             <Link
               key={chat.id}
-              to={itemHref(chat.id)}
+              to={toProjectChat({ projectId, chatId: chat.id })}
               className="flex items-center justify-between rounded-xl border border-slate-200 bg-white/80 px-4 py-3 text-sm font-semibold text-slate-900 transition hover:border-primary hover:bg-white"
             >
               <span>{chat.title || heading}</span>

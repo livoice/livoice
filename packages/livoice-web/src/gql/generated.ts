@@ -340,21 +340,15 @@ export type IdFilter = {
   notIn?: InputMaybe<Array<Scalars['ID']['input']>>;
 };
 
-export type IngestTranscriptInput = {
-  intervieweeName?: InputMaybe<Scalars['String']['input']>;
-  language?: InputMaybe<Scalars['String']['input']>;
-  notes?: InputMaybe<Scalars['String']['input']>;
-  projectId: Scalars['ID']['input'];
-  sourceUrl?: InputMaybe<Scalars['String']['input']>;
-  srt: Scalars['String']['input'];
-  title: Scalars['String']['input'];
-};
-
-export type IngestTranscriptResult = {
-  __typename?: 'IngestTranscriptResult';
-  projectId: Scalars['ID']['output'];
-  segmentsCount: Scalars['Int']['output'];
-  transcriptId: Scalars['ID']['output'];
+export type ImportHistoryEntry = {
+  __typename?: 'ImportHistoryEntry';
+  completedAt?: Maybe<Scalars['DateTime']['output']>;
+  error?: Maybe<Scalars['String']['output']>;
+  itemsFailed?: Maybe<Scalars['Int']['output']>;
+  itemsFound?: Maybe<Scalars['Int']['output']>;
+  itemsImported?: Maybe<Scalars['Int']['output']>;
+  itemsSkipped?: Maybe<Scalars['Int']['output']>;
+  startedAt?: Maybe<Scalars['DateTime']['output']>;
 };
 
 export type IntNullableFilter = {
@@ -532,6 +526,8 @@ export type Mutation = {
   createOrganizations?: Maybe<Array<Maybe<Organization>>>;
   createProject?: Maybe<Project>;
   createProjects?: Maybe<Array<Maybe<Project>>>;
+  createSource?: Maybe<Source>;
+  createSources?: Maybe<Array<Maybe<Source>>>;
   createTranscript?: Maybe<Transcript>;
   createTranscriptSegment?: Maybe<TranscriptSegment>;
   createTranscriptSegments?: Maybe<Array<Maybe<TranscriptSegment>>>;
@@ -546,6 +542,8 @@ export type Mutation = {
   deleteOrganizations?: Maybe<Array<Maybe<Organization>>>;
   deleteProject?: Maybe<Project>;
   deleteProjects?: Maybe<Array<Maybe<Project>>>;
+  deleteSource?: Maybe<Source>;
+  deleteSources?: Maybe<Array<Maybe<Source>>>;
   deleteTranscript?: Maybe<Transcript>;
   deleteTranscriptSegment?: Maybe<TranscriptSegment>;
   deleteTranscriptSegments?: Maybe<Array<Maybe<TranscriptSegment>>>;
@@ -553,7 +551,7 @@ export type Mutation = {
   deleteUser?: Maybe<User>;
   deleteUsers?: Maybe<Array<Maybe<User>>>;
   endSession: Scalars['Boolean']['output'];
-  ingestTranscript: IngestTranscriptResult;
+  triggerSourceImport: Source;
   updateChat?: Maybe<Chat>;
   updateChatMessage?: Maybe<ChatMessage>;
   updateChatMessages?: Maybe<Array<Maybe<ChatMessage>>>;
@@ -562,6 +560,8 @@ export type Mutation = {
   updateOrganizations?: Maybe<Array<Maybe<Organization>>>;
   updateProject?: Maybe<Project>;
   updateProjects?: Maybe<Array<Maybe<Project>>>;
+  updateSource?: Maybe<Source>;
+  updateSources?: Maybe<Array<Maybe<Source>>>;
   updateTranscript?: Maybe<Transcript>;
   updateTranscriptSegment?: Maybe<TranscriptSegment>;
   updateTranscriptSegments?: Maybe<Array<Maybe<TranscriptSegment>>>;
@@ -618,6 +618,16 @@ export type MutationCreateProjectArgs = {
 
 export type MutationCreateProjectsArgs = {
   data: Array<ProjectCreateInput>;
+};
+
+
+export type MutationCreateSourceArgs = {
+  data: SourceCreateInput;
+};
+
+
+export type MutationCreateSourcesArgs = {
+  data: Array<SourceCreateInput>;
 };
 
 
@@ -691,6 +701,16 @@ export type MutationDeleteProjectsArgs = {
 };
 
 
+export type MutationDeleteSourceArgs = {
+  where: SourceWhereUniqueInput;
+};
+
+
+export type MutationDeleteSourcesArgs = {
+  where: Array<SourceWhereUniqueInput>;
+};
+
+
 export type MutationDeleteTranscriptArgs = {
   where: TranscriptWhereUniqueInput;
 };
@@ -721,8 +741,8 @@ export type MutationDeleteUsersArgs = {
 };
 
 
-export type MutationIngestTranscriptArgs = {
-  input: IngestTranscriptInput;
+export type MutationTriggerSourceImportArgs = {
+  sourceId: Scalars['ID']['input'];
 };
 
 
@@ -767,6 +787,17 @@ export type MutationUpdateProjectArgs = {
 
 export type MutationUpdateProjectsArgs = {
   data: Array<ProjectUpdateArgs>;
+};
+
+
+export type MutationUpdateSourceArgs = {
+  data: SourceUpdateInput;
+  where: SourceWhereUniqueInput;
+};
+
+
+export type MutationUpdateSourcesArgs = {
+  data: Array<SourceUpdateArgs>;
 };
 
 
@@ -830,6 +861,8 @@ export type Organization = {
   name?: Maybe<Scalars['String']['output']>;
   projects?: Maybe<Array<Project>>;
   projectsCount?: Maybe<Scalars['Int']['output']>;
+  sources?: Maybe<Array<Source>>;
+  sourcesCount?: Maybe<Scalars['Int']['output']>;
   transcripts?: Maybe<Array<Transcript>>;
   transcriptsCount?: Maybe<Scalars['Int']['output']>;
   users?: Maybe<Array<User>>;
@@ -865,6 +898,20 @@ export type OrganizationProjectsCountArgs = {
 };
 
 
+export type OrganizationSourcesArgs = {
+  cursor?: InputMaybe<SourceWhereUniqueInput>;
+  orderBy?: Array<SourceOrderByInput>;
+  skip?: Scalars['Int']['input'];
+  take?: InputMaybe<Scalars['Int']['input']>;
+  where?: SourceWhereInput;
+};
+
+
+export type OrganizationSourcesCountArgs = {
+  where?: SourceWhereInput;
+};
+
+
 export type OrganizationTranscriptsArgs = {
   cursor?: InputMaybe<TranscriptWhereUniqueInput>;
   orderBy?: Array<TranscriptOrderByInput>;
@@ -897,6 +944,7 @@ export type OrganizationCreateInput = {
   chats?: InputMaybe<ChatRelateToManyForCreateInput>;
   name?: InputMaybe<Scalars['String']['input']>;
   projects?: InputMaybe<ProjectRelateToManyForCreateInput>;
+  sources?: InputMaybe<SourceRelateToManyForCreateInput>;
   transcripts?: InputMaybe<TranscriptRelateToManyForCreateInput>;
   users?: InputMaybe<UserRelateToManyForCreateInput>;
 };
@@ -927,6 +975,7 @@ export type OrganizationUpdateInput = {
   chats?: InputMaybe<ChatRelateToManyForUpdateInput>;
   name?: InputMaybe<Scalars['String']['input']>;
   projects?: InputMaybe<ProjectRelateToManyForUpdateInput>;
+  sources?: InputMaybe<SourceRelateToManyForUpdateInput>;
   transcripts?: InputMaybe<TranscriptRelateToManyForUpdateInput>;
   users?: InputMaybe<UserRelateToManyForUpdateInput>;
 };
@@ -939,6 +988,7 @@ export type OrganizationWhereInput = {
   id?: InputMaybe<IdFilter>;
   name?: InputMaybe<StringFilter>;
   projects?: InputMaybe<ProjectManyRelationFilter>;
+  sources?: InputMaybe<SourceManyRelationFilter>;
   transcripts?: InputMaybe<TranscriptManyRelationFilter>;
   users?: InputMaybe<UserManyRelationFilter>;
 };
@@ -955,8 +1005,8 @@ export type Project = {
   id: Scalars['ID']['output'];
   name?: Maybe<Scalars['String']['output']>;
   org?: Maybe<Organization>;
-  transcripts?: Maybe<Array<Transcript>>;
-  transcriptsCount?: Maybe<Scalars['Int']['output']>;
+  sources?: Maybe<Array<Source>>;
+  sourcesCount?: Maybe<Scalars['Int']['output']>;
 };
 
 
@@ -974,17 +1024,17 @@ export type ProjectChatsCountArgs = {
 };
 
 
-export type ProjectTranscriptsArgs = {
-  cursor?: InputMaybe<TranscriptWhereUniqueInput>;
-  orderBy?: Array<TranscriptOrderByInput>;
+export type ProjectSourcesArgs = {
+  cursor?: InputMaybe<SourceWhereUniqueInput>;
+  orderBy?: Array<SourceOrderByInput>;
   skip?: Scalars['Int']['input'];
   take?: InputMaybe<Scalars['Int']['input']>;
-  where?: TranscriptWhereInput;
+  where?: SourceWhereInput;
 };
 
 
-export type ProjectTranscriptsCountArgs = {
-  where?: TranscriptWhereInput;
+export type ProjectSourcesCountArgs = {
+  where?: SourceWhereInput;
 };
 
 export type ProjectCreateInput = {
@@ -992,7 +1042,7 @@ export type ProjectCreateInput = {
   description?: InputMaybe<Scalars['String']['input']>;
   name?: InputMaybe<Scalars['String']['input']>;
   org?: InputMaybe<OrganizationRelateToOneForCreateInput>;
-  transcripts?: InputMaybe<TranscriptRelateToManyForCreateInput>;
+  sources?: InputMaybe<SourceRelateToManyForCreateInput>;
 };
 
 export type ProjectManyRelationFilter = {
@@ -1040,7 +1090,7 @@ export type ProjectUpdateInput = {
   description?: InputMaybe<Scalars['String']['input']>;
   name?: InputMaybe<Scalars['String']['input']>;
   org?: InputMaybe<OrganizationRelateToOneForUpdateInput>;
-  transcripts?: InputMaybe<TranscriptRelateToManyForUpdateInput>;
+  sources?: InputMaybe<SourceRelateToManyForUpdateInput>;
 };
 
 export type ProjectWhereInput = {
@@ -1052,7 +1102,7 @@ export type ProjectWhereInput = {
   id?: InputMaybe<IdFilter>;
   name?: InputMaybe<StringFilter>;
   org?: InputMaybe<OrganizationWhereInput>;
-  transcripts?: InputMaybe<TranscriptManyRelationFilter>;
+  sources?: InputMaybe<SourceManyRelationFilter>;
 };
 
 export type ProjectWhereUniqueInput = {
@@ -1076,6 +1126,9 @@ export type Query = {
   project?: Maybe<Project>;
   projects?: Maybe<Array<Project>>;
   projectsCount?: Maybe<Scalars['Int']['output']>;
+  source?: Maybe<Source>;
+  sources?: Maybe<Array<Source>>;
+  sourcesCount?: Maybe<Scalars['Int']['output']>;
   transcript?: Maybe<Transcript>;
   transcriptSegment?: Maybe<TranscriptSegment>;
   transcriptSegments?: Maybe<Array<TranscriptSegment>>;
@@ -1176,6 +1229,25 @@ export type QueryProjectsCountArgs = {
 };
 
 
+export type QuerySourceArgs = {
+  where: SourceWhereUniqueInput;
+};
+
+
+export type QuerySourcesArgs = {
+  cursor?: InputMaybe<SourceWhereUniqueInput>;
+  orderBy?: Array<SourceOrderByInput>;
+  skip?: Scalars['Int']['input'];
+  take?: InputMaybe<Scalars['Int']['input']>;
+  where?: SourceWhereInput;
+};
+
+
+export type QuerySourcesCountArgs = {
+  where?: SourceWhereInput;
+};
+
+
 export type QueryTranscriptArgs = {
   where: TranscriptWhereUniqueInput;
 };
@@ -1237,6 +1309,180 @@ export enum QueryMode {
   Insensitive = 'insensitive'
 }
 
+export type Source = {
+  __typename?: 'Source';
+  externalId?: Maybe<Scalars['String']['output']>;
+  id: Scalars['ID']['output'];
+  importCompletedAt?: Maybe<Scalars['DateTime']['output']>;
+  importCronExpression?: Maybe<Scalars['String']['output']>;
+  importHistory?: Maybe<Scalars['JSON']['output']>;
+  importHistoryTyped?: Maybe<Array<Maybe<ImportHistoryEntry>>>;
+  importNextAt?: Maybe<Scalars['DateTime']['output']>;
+  importStartedAt?: Maybe<Scalars['DateTime']['output']>;
+  importStatus?: Maybe<SourceImportStatusType>;
+  importTrigger?: Maybe<Scalars['String']['output']>;
+  name?: Maybe<Scalars['String']['output']>;
+  org?: Maybe<Organization>;
+  projects?: Maybe<Array<Project>>;
+  projectsCount?: Maybe<Scalars['Int']['output']>;
+  transcripts?: Maybe<Array<Transcript>>;
+  transcriptsCount?: Maybe<Scalars['Int']['output']>;
+  type?: Maybe<SourceTypeType>;
+  url?: Maybe<Scalars['String']['output']>;
+};
+
+
+export type SourceProjectsArgs = {
+  cursor?: InputMaybe<ProjectWhereUniqueInput>;
+  orderBy?: Array<ProjectOrderByInput>;
+  skip?: Scalars['Int']['input'];
+  take?: InputMaybe<Scalars['Int']['input']>;
+  where?: ProjectWhereInput;
+};
+
+
+export type SourceProjectsCountArgs = {
+  where?: ProjectWhereInput;
+};
+
+
+export type SourceTranscriptsArgs = {
+  cursor?: InputMaybe<TranscriptWhereUniqueInput>;
+  orderBy?: Array<TranscriptOrderByInput>;
+  skip?: Scalars['Int']['input'];
+  take?: InputMaybe<Scalars['Int']['input']>;
+  where?: TranscriptWhereInput;
+};
+
+
+export type SourceTranscriptsCountArgs = {
+  where?: TranscriptWhereInput;
+};
+
+export type SourceCreateInput = {
+  externalId?: InputMaybe<Scalars['String']['input']>;
+  importCompletedAt?: InputMaybe<Scalars['DateTime']['input']>;
+  importCronExpression?: InputMaybe<Scalars['String']['input']>;
+  importHistory?: InputMaybe<Scalars['JSON']['input']>;
+  importStartedAt?: InputMaybe<Scalars['DateTime']['input']>;
+  importStatus?: InputMaybe<SourceImportStatusType>;
+  name?: InputMaybe<Scalars['String']['input']>;
+  org?: InputMaybe<OrganizationRelateToOneForCreateInput>;
+  projects?: InputMaybe<ProjectRelateToManyForCreateInput>;
+  transcripts?: InputMaybe<TranscriptRelateToManyForCreateInput>;
+  type?: InputMaybe<SourceTypeType>;
+  url?: InputMaybe<Scalars['String']['input']>;
+};
+
+export enum SourceImportStatusType {
+  Completed = 'completed',
+  Failed = 'failed',
+  Idle = 'idle',
+  Importing = 'importing'
+}
+
+export type SourceImportStatusTypeNullableFilter = {
+  equals?: InputMaybe<SourceImportStatusType>;
+  in?: InputMaybe<Array<SourceImportStatusType>>;
+  not?: InputMaybe<SourceImportStatusTypeNullableFilter>;
+  notIn?: InputMaybe<Array<SourceImportStatusType>>;
+};
+
+export type SourceManyRelationFilter = {
+  every?: InputMaybe<SourceWhereInput>;
+  none?: InputMaybe<SourceWhereInput>;
+  some?: InputMaybe<SourceWhereInput>;
+};
+
+export type SourceOrderByInput = {
+  externalId?: InputMaybe<OrderDirection>;
+  id?: InputMaybe<OrderDirection>;
+  importCompletedAt?: InputMaybe<OrderDirection>;
+  importCronExpression?: InputMaybe<OrderDirection>;
+  importStartedAt?: InputMaybe<OrderDirection>;
+  importStatus?: InputMaybe<OrderDirection>;
+  name?: InputMaybe<OrderDirection>;
+  type?: InputMaybe<OrderDirection>;
+  url?: InputMaybe<OrderDirection>;
+};
+
+export type SourceRelateToManyForCreateInput = {
+  connect?: InputMaybe<Array<SourceWhereUniqueInput>>;
+  create?: InputMaybe<Array<SourceCreateInput>>;
+};
+
+export type SourceRelateToManyForUpdateInput = {
+  connect?: InputMaybe<Array<SourceWhereUniqueInput>>;
+  create?: InputMaybe<Array<SourceCreateInput>>;
+  disconnect?: InputMaybe<Array<SourceWhereUniqueInput>>;
+  set?: InputMaybe<Array<SourceWhereUniqueInput>>;
+};
+
+export type SourceRelateToOneForCreateInput = {
+  connect?: InputMaybe<SourceWhereUniqueInput>;
+  create?: InputMaybe<SourceCreateInput>;
+};
+
+export type SourceRelateToOneForUpdateInput = {
+  connect?: InputMaybe<SourceWhereUniqueInput>;
+  create?: InputMaybe<SourceCreateInput>;
+  disconnect?: InputMaybe<Scalars['Boolean']['input']>;
+};
+
+export enum SourceTypeType {
+  YoutubeChannel = 'youtube_channel'
+}
+
+export type SourceTypeTypeNullableFilter = {
+  equals?: InputMaybe<SourceTypeType>;
+  in?: InputMaybe<Array<SourceTypeType>>;
+  not?: InputMaybe<SourceTypeTypeNullableFilter>;
+  notIn?: InputMaybe<Array<SourceTypeType>>;
+};
+
+export type SourceUpdateArgs = {
+  data: SourceUpdateInput;
+  where: SourceWhereUniqueInput;
+};
+
+export type SourceUpdateInput = {
+  externalId?: InputMaybe<Scalars['String']['input']>;
+  importCompletedAt?: InputMaybe<Scalars['DateTime']['input']>;
+  importCronExpression?: InputMaybe<Scalars['String']['input']>;
+  importHistory?: InputMaybe<Scalars['JSON']['input']>;
+  importStartedAt?: InputMaybe<Scalars['DateTime']['input']>;
+  importStatus?: InputMaybe<SourceImportStatusType>;
+  name?: InputMaybe<Scalars['String']['input']>;
+  org?: InputMaybe<OrganizationRelateToOneForUpdateInput>;
+  projects?: InputMaybe<ProjectRelateToManyForUpdateInput>;
+  transcripts?: InputMaybe<TranscriptRelateToManyForUpdateInput>;
+  type?: InputMaybe<SourceTypeType>;
+  url?: InputMaybe<Scalars['String']['input']>;
+};
+
+export type SourceWhereInput = {
+  AND?: InputMaybe<Array<SourceWhereInput>>;
+  NOT?: InputMaybe<Array<SourceWhereInput>>;
+  OR?: InputMaybe<Array<SourceWhereInput>>;
+  externalId?: InputMaybe<StringFilter>;
+  id?: InputMaybe<IdFilter>;
+  importCompletedAt?: InputMaybe<DateTimeNullableFilter>;
+  importCronExpression?: InputMaybe<StringFilter>;
+  importStartedAt?: InputMaybe<DateTimeNullableFilter>;
+  importStatus?: InputMaybe<SourceImportStatusTypeNullableFilter>;
+  name?: InputMaybe<StringFilter>;
+  org?: InputMaybe<OrganizationWhereInput>;
+  projects?: InputMaybe<ProjectManyRelationFilter>;
+  transcripts?: InputMaybe<TranscriptManyRelationFilter>;
+  type?: InputMaybe<SourceTypeTypeNullableFilter>;
+  url?: InputMaybe<StringFilter>;
+};
+
+export type SourceWhereUniqueInput = {
+  externalId?: InputMaybe<Scalars['String']['input']>;
+  id?: InputMaybe<Scalars['ID']['input']>;
+};
+
 export type StringFilter = {
   contains?: InputMaybe<Scalars['String']['input']>;
   endsWith?: InputMaybe<Scalars['String']['input']>;
@@ -1257,15 +1503,23 @@ export type Transcript = {
   chats?: Maybe<Array<Chat>>;
   chatsCount?: Maybe<Scalars['Int']['output']>;
   createdAt?: Maybe<Scalars['DateTime']['output']>;
+  duration?: Maybe<Scalars['Int']['output']>;
+  embeddingAttempts?: Maybe<Scalars['Int']['output']>;
+  embeddingCompletedAt?: Maybe<Scalars['DateTime']['output']>;
+  embeddingError?: Maybe<Scalars['String']['output']>;
+  embeddingStatus?: Maybe<TranscriptEmbeddingStatusType>;
+  externalId?: Maybe<Scalars['String']['output']>;
   id: Scalars['ID']['output'];
   intervieweeName?: Maybe<Scalars['String']['output']>;
   language?: Maybe<Scalars['String']['output']>;
   notes?: Maybe<Scalars['String']['output']>;
   org?: Maybe<Organization>;
-  project?: Maybe<Project>;
+  publishedAt?: Maybe<Scalars['DateTime']['output']>;
   segments?: Maybe<Array<TranscriptSegment>>;
   segmentsCount?: Maybe<Scalars['Int']['output']>;
+  source?: Maybe<Source>;
   sourceUrl?: Maybe<Scalars['String']['output']>;
+  thumbnailUrl?: Maybe<Scalars['String']['output']>;
   title?: Maybe<Scalars['String']['output']>;
   updatedAt?: Maybe<Scalars['DateTime']['output']>;
 };
@@ -1301,15 +1555,37 @@ export type TranscriptSegmentsCountArgs = {
 export type TranscriptCreateInput = {
   chats?: InputMaybe<ChatRelateToManyForCreateInput>;
   createdAt?: InputMaybe<Scalars['DateTime']['input']>;
+  duration?: InputMaybe<Scalars['Int']['input']>;
+  embeddingAttempts?: InputMaybe<Scalars['Int']['input']>;
+  embeddingCompletedAt?: InputMaybe<Scalars['DateTime']['input']>;
+  embeddingError?: InputMaybe<Scalars['String']['input']>;
+  embeddingStatus?: InputMaybe<TranscriptEmbeddingStatusType>;
+  externalId?: InputMaybe<Scalars['String']['input']>;
   intervieweeName?: InputMaybe<Scalars['String']['input']>;
   language?: InputMaybe<Scalars['String']['input']>;
   notes?: InputMaybe<Scalars['String']['input']>;
   org?: InputMaybe<OrganizationRelateToOneForCreateInput>;
-  project?: InputMaybe<ProjectRelateToOneForCreateInput>;
+  publishedAt?: InputMaybe<Scalars['DateTime']['input']>;
   segments?: InputMaybe<TranscriptSegmentRelateToManyForCreateInput>;
+  source?: InputMaybe<SourceRelateToOneForCreateInput>;
   sourceUrl?: InputMaybe<Scalars['String']['input']>;
+  thumbnailUrl?: InputMaybe<Scalars['String']['input']>;
   title?: InputMaybe<Scalars['String']['input']>;
   updatedAt?: InputMaybe<Scalars['DateTime']['input']>;
+};
+
+export enum TranscriptEmbeddingStatusType {
+  Completed = 'completed',
+  Failed = 'failed',
+  Pending = 'pending',
+  Processing = 'processing'
+}
+
+export type TranscriptEmbeddingStatusTypeNullableFilter = {
+  equals?: InputMaybe<TranscriptEmbeddingStatusType>;
+  in?: InputMaybe<Array<TranscriptEmbeddingStatusType>>;
+  not?: InputMaybe<TranscriptEmbeddingStatusTypeNullableFilter>;
+  notIn?: InputMaybe<Array<TranscriptEmbeddingStatusType>>;
 };
 
 export type TranscriptManyRelationFilter = {
@@ -1320,11 +1596,19 @@ export type TranscriptManyRelationFilter = {
 
 export type TranscriptOrderByInput = {
   createdAt?: InputMaybe<OrderDirection>;
+  duration?: InputMaybe<OrderDirection>;
+  embeddingAttempts?: InputMaybe<OrderDirection>;
+  embeddingCompletedAt?: InputMaybe<OrderDirection>;
+  embeddingError?: InputMaybe<OrderDirection>;
+  embeddingStatus?: InputMaybe<OrderDirection>;
+  externalId?: InputMaybe<OrderDirection>;
   id?: InputMaybe<OrderDirection>;
   intervieweeName?: InputMaybe<OrderDirection>;
   language?: InputMaybe<OrderDirection>;
   notes?: InputMaybe<OrderDirection>;
+  publishedAt?: InputMaybe<OrderDirection>;
   sourceUrl?: InputMaybe<OrderDirection>;
+  thumbnailUrl?: InputMaybe<OrderDirection>;
   title?: InputMaybe<OrderDirection>;
   updatedAt?: InputMaybe<OrderDirection>;
 };
@@ -1467,13 +1751,21 @@ export type TranscriptUpdateArgs = {
 export type TranscriptUpdateInput = {
   chats?: InputMaybe<ChatRelateToManyForUpdateInput>;
   createdAt?: InputMaybe<Scalars['DateTime']['input']>;
+  duration?: InputMaybe<Scalars['Int']['input']>;
+  embeddingAttempts?: InputMaybe<Scalars['Int']['input']>;
+  embeddingCompletedAt?: InputMaybe<Scalars['DateTime']['input']>;
+  embeddingError?: InputMaybe<Scalars['String']['input']>;
+  embeddingStatus?: InputMaybe<TranscriptEmbeddingStatusType>;
+  externalId?: InputMaybe<Scalars['String']['input']>;
   intervieweeName?: InputMaybe<Scalars['String']['input']>;
   language?: InputMaybe<Scalars['String']['input']>;
   notes?: InputMaybe<Scalars['String']['input']>;
   org?: InputMaybe<OrganizationRelateToOneForUpdateInput>;
-  project?: InputMaybe<ProjectRelateToOneForUpdateInput>;
+  publishedAt?: InputMaybe<Scalars['DateTime']['input']>;
   segments?: InputMaybe<TranscriptSegmentRelateToManyForUpdateInput>;
+  source?: InputMaybe<SourceRelateToOneForUpdateInput>;
   sourceUrl?: InputMaybe<Scalars['String']['input']>;
+  thumbnailUrl?: InputMaybe<Scalars['String']['input']>;
   title?: InputMaybe<Scalars['String']['input']>;
   updatedAt?: InputMaybe<Scalars['DateTime']['input']>;
 };
@@ -1484,14 +1776,22 @@ export type TranscriptWhereInput = {
   OR?: InputMaybe<Array<TranscriptWhereInput>>;
   chats?: InputMaybe<ChatManyRelationFilter>;
   createdAt?: InputMaybe<DateTimeNullableFilter>;
+  duration?: InputMaybe<IntNullableFilter>;
+  embeddingAttempts?: InputMaybe<IntNullableFilter>;
+  embeddingCompletedAt?: InputMaybe<DateTimeNullableFilter>;
+  embeddingError?: InputMaybe<StringFilter>;
+  embeddingStatus?: InputMaybe<TranscriptEmbeddingStatusTypeNullableFilter>;
+  externalId?: InputMaybe<StringFilter>;
   id?: InputMaybe<IdFilter>;
   intervieweeName?: InputMaybe<StringFilter>;
   language?: InputMaybe<StringFilter>;
   notes?: InputMaybe<StringFilter>;
   org?: InputMaybe<OrganizationWhereInput>;
-  project?: InputMaybe<ProjectWhereInput>;
+  publishedAt?: InputMaybe<DateTimeNullableFilter>;
   segments?: InputMaybe<TranscriptSegmentManyRelationFilter>;
+  source?: InputMaybe<SourceWhereInput>;
   sourceUrl?: InputMaybe<StringFilter>;
+  thumbnailUrl?: InputMaybe<StringFilter>;
   title?: InputMaybe<StringFilter>;
   updatedAt?: InputMaybe<DateTimeNullableFilter>;
 };
@@ -1687,6 +1987,13 @@ export type CreateProjectMutationVariables = Exact<{
 
 export type CreateProjectMutation = { __typename?: 'Mutation', createProject?: { __typename?: 'Project', id: string } | null };
 
+export type CreateSourceMutationVariables = Exact<{
+  data: SourceCreateInput;
+}>;
+
+
+export type CreateSourceMutation = { __typename?: 'Mutation', createSource?: { __typename?: 'Source', id: string } | null };
+
 export type CreateUserMutationVariables = Exact<{
   data: UserCreateInput;
 }>;
@@ -1701,12 +2008,19 @@ export type DeleteProjectMutationVariables = Exact<{
 
 export type DeleteProjectMutation = { __typename?: 'Mutation', deleteProject?: { __typename?: 'Project', id: string } | null };
 
-export type IngestTranscriptMutationVariables = Exact<{
-  input: IngestTranscriptInput;
+export type DeleteSourceMutationVariables = Exact<{
+  id: Scalars['ID']['input'];
 }>;
 
 
-export type IngestTranscriptMutation = { __typename?: 'Mutation', ingestTranscript: { __typename?: 'IngestTranscriptResult', transcriptId: string, segmentsCount: number, projectId: string } };
+export type DeleteSourceMutation = { __typename?: 'Mutation', deleteSource?: { __typename?: 'Source', id: string } | null };
+
+export type TriggerSourceImportMutationVariables = Exact<{
+  sourceId: Scalars['ID']['input'];
+}>;
+
+
+export type TriggerSourceImportMutation = { __typename?: 'Mutation', triggerSourceImport: { __typename?: 'Source', id: string, importStatus?: SourceImportStatusType | null, importStartedAt?: any | null, importCompletedAt?: any | null } };
 
 export type OrganizationsQueryVariables = Exact<{ [key: string]: never; }>;
 
@@ -1718,7 +2032,7 @@ export type ProjectQueryVariables = Exact<{
 }>;
 
 
-export type ProjectQuery = { __typename?: 'Query', project?: { __typename?: 'Project', id: string, name?: string | null, description?: string | null, org?: { __typename?: 'Organization', id: string, name?: string | null } | null } | null };
+export type ProjectQuery = { __typename?: 'Query', project?: { __typename?: 'Project', id: string, name?: string | null, description?: string | null, org?: { __typename?: 'Organization', id: string, name?: string | null } | null, sources?: Array<{ __typename?: 'Source', id: string, name?: string | null }> | null } | null };
 
 export type ProjectChatsQueryVariables = Exact<{
   projectId: Scalars['ID']['input'];
@@ -1732,19 +2046,31 @@ export type ProjectDetailQueryVariables = Exact<{
 }>;
 
 
-export type ProjectDetailQuery = { __typename?: 'Query', project?: { __typename?: 'Project', id: string, name?: string | null, description?: string | null, org?: { __typename?: 'Organization', id: string, name?: string | null } | null, transcripts?: Array<{ __typename?: 'Transcript', id: string, title?: string | null, intervieweeName?: string | null, createdAt?: any | null, segmentsCount?: number | null }> | null } | null };
+export type ProjectDetailQuery = { __typename?: 'Query', project?: { __typename?: 'Project', id: string, name?: string | null, description?: string | null, org?: { __typename?: 'Organization', id: string, name?: string | null } | null, sources?: Array<{ __typename?: 'Source', id: string, name?: string | null, type?: SourceTypeType | null, importStatus?: SourceImportStatusType | null, transcriptsCount?: number | null }> | null } | null };
 
 export type ProjectTranscriptsQueryVariables = Exact<{
   projectId: Scalars['ID']['input'];
 }>;
 
 
-export type ProjectTranscriptsQuery = { __typename?: 'Query', project?: { __typename?: 'Project', id: string, transcripts?: Array<{ __typename?: 'Transcript', id: string, title?: string | null, intervieweeName?: string | null, createdAt?: any | null, segmentsCount?: number | null }> | null } | null };
+export type ProjectTranscriptsQuery = { __typename?: 'Query', project?: { __typename?: 'Project', id: string, sources?: Array<{ __typename?: 'Source', id: string, name?: string | null, transcripts?: Array<{ __typename?: 'Transcript', id: string, title?: string | null, intervieweeName?: string | null, createdAt?: any | null }> | null }> | null } | null };
 
 export type ProjectsQueryVariables = Exact<{ [key: string]: never; }>;
 
 
-export type ProjectsQuery = { __typename?: 'Query', projects?: Array<{ __typename?: 'Project', id: string, name?: string | null, description?: string | null, transcriptsCount?: number | null, org?: { __typename?: 'Organization', id: string, name?: string | null } | null }> | null };
+export type ProjectsQuery = { __typename?: 'Query', projects?: Array<{ __typename?: 'Project', id: string, name?: string | null, description?: string | null, sourcesCount?: number | null, org?: { __typename?: 'Organization', id: string, name?: string | null } | null }> | null };
+
+export type SourceQueryVariables = Exact<{
+  id: Scalars['ID']['input'];
+}>;
+
+
+export type SourceQuery = { __typename?: 'Query', source?: { __typename?: 'Source', id: string, type?: SourceTypeType | null, name?: string | null, url?: string | null, externalId?: string | null, importStatus?: SourceImportStatusType | null, importCronExpression?: string | null, importStartedAt?: any | null, importCompletedAt?: any | null, importHistory?: any | null, transcriptsCount?: number | null, transcripts?: Array<{ __typename?: 'Transcript', id: string, title?: string | null, intervieweeName?: string | null, createdAt?: any | null, segmentsCount?: number | null }> | null, projects?: Array<{ __typename?: 'Project', id: string, name?: string | null }> | null } | null };
+
+export type SourcesQueryVariables = Exact<{ [key: string]: never; }>;
+
+
+export type SourcesQuery = { __typename?: 'Query', sources?: Array<{ __typename?: 'Source', id: string, type?: SourceTypeType | null, name?: string | null, url?: string | null, externalId?: string | null, importStatus?: SourceImportStatusType | null, importCronExpression?: string | null, importStartedAt?: any | null, importCompletedAt?: any | null, transcriptsCount?: number | null, projects?: Array<{ __typename?: 'Project', id: string, name?: string | null }> | null }> | null };
 
 export type TranscriptQueryVariables = Exact<{
   id: Scalars['ID']['input'];
@@ -1761,11 +2087,11 @@ export type TranscriptChatsQueryVariables = Exact<{
 export type TranscriptChatsQuery = { __typename?: 'Query', chats?: Array<{ __typename?: 'Chat', id: string, title?: string | null, createdAt?: any | null }> | null };
 
 export type TranscriptsQueryVariables = Exact<{
-  projectId?: InputMaybe<Scalars['ID']['input']>;
+  sourceId?: InputMaybe<Scalars['ID']['input']>;
 }>;
 
 
-export type TranscriptsQuery = { __typename?: 'Query', transcripts?: Array<{ __typename?: 'Transcript', id: string, title?: string | null, intervieweeName?: string | null, notes?: string | null, createdAt?: any | null, segmentsCount?: number | null, project?: { __typename?: 'Project', id: string, name?: string | null } | null }> | null };
+export type TranscriptsQuery = { __typename?: 'Query', transcripts?: Array<{ __typename?: 'Transcript', id: string, title?: string | null, intervieweeName?: string | null, notes?: string | null, createdAt?: any | null, segmentsCount?: number | null, source?: { __typename?: 'Source', id: string, name?: string | null } | null }> | null };
 
 export type UpdateProjectMutationVariables = Exact<{
   id: Scalars['ID']['input'];
@@ -1774,6 +2100,14 @@ export type UpdateProjectMutationVariables = Exact<{
 
 
 export type UpdateProjectMutation = { __typename?: 'Mutation', updateProject?: { __typename?: 'Project', id: string } | null };
+
+export type UpdateSourceMutationVariables = Exact<{
+  id: Scalars['ID']['input'];
+  data: SourceUpdateInput;
+}>;
+
+
+export type UpdateSourceMutation = { __typename?: 'Mutation', updateSource?: { __typename?: 'Source', id: string } | null };
 
 export type GetUserQueryVariables = Exact<{
   id: Scalars['ID']['input'];
@@ -2092,6 +2426,39 @@ export function useCreateProjectMutation(baseOptions?: Apollo.MutationHookOption
 export type CreateProjectMutationHookResult = ReturnType<typeof useCreateProjectMutation>;
 export type CreateProjectMutationResult = Apollo.MutationResult<CreateProjectMutation>;
 export type CreateProjectMutationOptions = Apollo.BaseMutationOptions<CreateProjectMutation, CreateProjectMutationVariables>;
+export const CreateSourceDocument = gql`
+    mutation CreateSource($data: SourceCreateInput!) {
+  createSource(data: $data) {
+    id
+  }
+}
+    `;
+export type CreateSourceMutationFn = Apollo.MutationFunction<CreateSourceMutation, CreateSourceMutationVariables>;
+
+/**
+ * __useCreateSourceMutation__
+ *
+ * To run a mutation, you first call `useCreateSourceMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `useCreateSourceMutation` returns a tuple that includes:
+ * - A mutate function that you can call at any time to execute the mutation
+ * - An object with fields that represent the current status of the mutation's execution
+ *
+ * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
+ *
+ * @example
+ * const [createSourceMutation, { data, loading, error }] = useCreateSourceMutation({
+ *   variables: {
+ *      data: // value for 'data'
+ *   },
+ * });
+ */
+export function useCreateSourceMutation(baseOptions?: Apollo.MutationHookOptions<CreateSourceMutation, CreateSourceMutationVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useMutation<CreateSourceMutation, CreateSourceMutationVariables>(CreateSourceDocument, options);
+      }
+export type CreateSourceMutationHookResult = ReturnType<typeof useCreateSourceMutation>;
+export type CreateSourceMutationResult = Apollo.MutationResult<CreateSourceMutation>;
+export type CreateSourceMutationOptions = Apollo.BaseMutationOptions<CreateSourceMutation, CreateSourceMutationVariables>;
 export const CreateUserDocument = gql`
     mutation CreateUser($data: UserCreateInput!) {
   createUser(data: $data) {
@@ -2161,41 +2528,75 @@ export function useDeleteProjectMutation(baseOptions?: Apollo.MutationHookOption
 export type DeleteProjectMutationHookResult = ReturnType<typeof useDeleteProjectMutation>;
 export type DeleteProjectMutationResult = Apollo.MutationResult<DeleteProjectMutation>;
 export type DeleteProjectMutationOptions = Apollo.BaseMutationOptions<DeleteProjectMutation, DeleteProjectMutationVariables>;
-export const IngestTranscriptDocument = gql`
-    mutation IngestTranscript($input: IngestTranscriptInput!) {
-  ingestTranscript(input: $input) {
-    transcriptId
-    segmentsCount
-    projectId
+export const DeleteSourceDocument = gql`
+    mutation DeleteSource($id: ID!) {
+  deleteSource(where: {id: $id}) {
+    id
   }
 }
     `;
-export type IngestTranscriptMutationFn = Apollo.MutationFunction<IngestTranscriptMutation, IngestTranscriptMutationVariables>;
+export type DeleteSourceMutationFn = Apollo.MutationFunction<DeleteSourceMutation, DeleteSourceMutationVariables>;
 
 /**
- * __useIngestTranscriptMutation__
+ * __useDeleteSourceMutation__
  *
- * To run a mutation, you first call `useIngestTranscriptMutation` within a React component and pass it any options that fit your needs.
- * When your component renders, `useIngestTranscriptMutation` returns a tuple that includes:
+ * To run a mutation, you first call `useDeleteSourceMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `useDeleteSourceMutation` returns a tuple that includes:
  * - A mutate function that you can call at any time to execute the mutation
  * - An object with fields that represent the current status of the mutation's execution
  *
  * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
  *
  * @example
- * const [ingestTranscriptMutation, { data, loading, error }] = useIngestTranscriptMutation({
+ * const [deleteSourceMutation, { data, loading, error }] = useDeleteSourceMutation({
  *   variables: {
- *      input: // value for 'input'
+ *      id: // value for 'id'
  *   },
  * });
  */
-export function useIngestTranscriptMutation(baseOptions?: Apollo.MutationHookOptions<IngestTranscriptMutation, IngestTranscriptMutationVariables>) {
+export function useDeleteSourceMutation(baseOptions?: Apollo.MutationHookOptions<DeleteSourceMutation, DeleteSourceMutationVariables>) {
         const options = {...defaultOptions, ...baseOptions}
-        return Apollo.useMutation<IngestTranscriptMutation, IngestTranscriptMutationVariables>(IngestTranscriptDocument, options);
+        return Apollo.useMutation<DeleteSourceMutation, DeleteSourceMutationVariables>(DeleteSourceDocument, options);
       }
-export type IngestTranscriptMutationHookResult = ReturnType<typeof useIngestTranscriptMutation>;
-export type IngestTranscriptMutationResult = Apollo.MutationResult<IngestTranscriptMutation>;
-export type IngestTranscriptMutationOptions = Apollo.BaseMutationOptions<IngestTranscriptMutation, IngestTranscriptMutationVariables>;
+export type DeleteSourceMutationHookResult = ReturnType<typeof useDeleteSourceMutation>;
+export type DeleteSourceMutationResult = Apollo.MutationResult<DeleteSourceMutation>;
+export type DeleteSourceMutationOptions = Apollo.BaseMutationOptions<DeleteSourceMutation, DeleteSourceMutationVariables>;
+export const TriggerSourceImportDocument = gql`
+    mutation TriggerSourceImport($sourceId: ID!) {
+  triggerSourceImport(sourceId: $sourceId) {
+    id
+    importStatus
+    importStartedAt
+    importCompletedAt
+  }
+}
+    `;
+export type TriggerSourceImportMutationFn = Apollo.MutationFunction<TriggerSourceImportMutation, TriggerSourceImportMutationVariables>;
+
+/**
+ * __useTriggerSourceImportMutation__
+ *
+ * To run a mutation, you first call `useTriggerSourceImportMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `useTriggerSourceImportMutation` returns a tuple that includes:
+ * - A mutate function that you can call at any time to execute the mutation
+ * - An object with fields that represent the current status of the mutation's execution
+ *
+ * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
+ *
+ * @example
+ * const [triggerSourceImportMutation, { data, loading, error }] = useTriggerSourceImportMutation({
+ *   variables: {
+ *      sourceId: // value for 'sourceId'
+ *   },
+ * });
+ */
+export function useTriggerSourceImportMutation(baseOptions?: Apollo.MutationHookOptions<TriggerSourceImportMutation, TriggerSourceImportMutationVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useMutation<TriggerSourceImportMutation, TriggerSourceImportMutationVariables>(TriggerSourceImportDocument, options);
+      }
+export type TriggerSourceImportMutationHookResult = ReturnType<typeof useTriggerSourceImportMutation>;
+export type TriggerSourceImportMutationResult = Apollo.MutationResult<TriggerSourceImportMutation>;
+export type TriggerSourceImportMutationOptions = Apollo.BaseMutationOptions<TriggerSourceImportMutation, TriggerSourceImportMutationVariables>;
 export const OrganizationsDocument = gql`
     query Organizations {
   organizations {
@@ -2244,6 +2645,10 @@ export const ProjectDocument = gql`
     name
     description
     org {
+      id
+      name
+    }
+    sources {
       id
       name
     }
@@ -2338,12 +2743,12 @@ export const ProjectDetailDocument = gql`
       id
       name
     }
-    transcripts {
+    sources {
       id
-      title
-      intervieweeName
-      createdAt
-      segmentsCount
+      name
+      type
+      importStatus
+      transcriptsCount
     }
   }
 }
@@ -2385,12 +2790,15 @@ export const ProjectTranscriptsDocument = gql`
     query ProjectTranscripts($projectId: ID!) {
   project(where: {id: $projectId}) {
     id
-    transcripts {
+    sources {
       id
-      title
-      intervieweeName
-      createdAt
-      segmentsCount
+      name
+      transcripts {
+        id
+        title
+        intervieweeName
+        createdAt
+      }
     }
   }
 }
@@ -2434,7 +2842,7 @@ export const ProjectsDocument = gql`
     id
     name
     description
-    transcriptsCount
+    sourcesCount
     org {
       id
       name
@@ -2474,6 +2882,119 @@ export type ProjectsQueryHookResult = ReturnType<typeof useProjectsQuery>;
 export type ProjectsLazyQueryHookResult = ReturnType<typeof useProjectsLazyQuery>;
 export type ProjectsSuspenseQueryHookResult = ReturnType<typeof useProjectsSuspenseQuery>;
 export type ProjectsQueryResult = Apollo.QueryResult<ProjectsQuery, ProjectsQueryVariables>;
+export const SourceDocument = gql`
+    query Source($id: ID!) {
+  source(where: {id: $id}) {
+    id
+    type
+    name
+    url
+    externalId
+    importStatus
+    importCronExpression
+    importStartedAt
+    importCompletedAt
+    importHistory
+    transcriptsCount
+    transcripts {
+      id
+      title
+      intervieweeName
+      createdAt
+      segmentsCount
+    }
+    projects {
+      id
+      name
+    }
+  }
+}
+    `;
+
+/**
+ * __useSourceQuery__
+ *
+ * To run a query within a React component, call `useSourceQuery` and pass it any options that fit your needs.
+ * When your component renders, `useSourceQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * you can use to render your UI.
+ *
+ * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ *
+ * @example
+ * const { data, loading, error } = useSourceQuery({
+ *   variables: {
+ *      id: // value for 'id'
+ *   },
+ * });
+ */
+export function useSourceQuery(baseOptions: Apollo.QueryHookOptions<SourceQuery, SourceQueryVariables> & ({ variables: SourceQueryVariables; skip?: boolean; } | { skip: boolean; }) ) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useQuery<SourceQuery, SourceQueryVariables>(SourceDocument, options);
+      }
+export function useSourceLazyQuery(baseOptions?: Apollo.LazyQueryHookOptions<SourceQuery, SourceQueryVariables>) {
+          const options = {...defaultOptions, ...baseOptions}
+          return Apollo.useLazyQuery<SourceQuery, SourceQueryVariables>(SourceDocument, options);
+        }
+export function useSourceSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<SourceQuery, SourceQueryVariables>) {
+          const options = baseOptions === Apollo.skipToken ? baseOptions : {...defaultOptions, ...baseOptions}
+          return Apollo.useSuspenseQuery<SourceQuery, SourceQueryVariables>(SourceDocument, options);
+        }
+export type SourceQueryHookResult = ReturnType<typeof useSourceQuery>;
+export type SourceLazyQueryHookResult = ReturnType<typeof useSourceLazyQuery>;
+export type SourceSuspenseQueryHookResult = ReturnType<typeof useSourceSuspenseQuery>;
+export type SourceQueryResult = Apollo.QueryResult<SourceQuery, SourceQueryVariables>;
+export const SourcesDocument = gql`
+    query Sources {
+  sources {
+    id
+    type
+    name
+    url
+    externalId
+    importStatus
+    importCronExpression
+    importStartedAt
+    importCompletedAt
+    transcriptsCount
+    projects {
+      id
+      name
+    }
+  }
+}
+    `;
+
+/**
+ * __useSourcesQuery__
+ *
+ * To run a query within a React component, call `useSourcesQuery` and pass it any options that fit your needs.
+ * When your component renders, `useSourcesQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * you can use to render your UI.
+ *
+ * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ *
+ * @example
+ * const { data, loading, error } = useSourcesQuery({
+ *   variables: {
+ *   },
+ * });
+ */
+export function useSourcesQuery(baseOptions?: Apollo.QueryHookOptions<SourcesQuery, SourcesQueryVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useQuery<SourcesQuery, SourcesQueryVariables>(SourcesDocument, options);
+      }
+export function useSourcesLazyQuery(baseOptions?: Apollo.LazyQueryHookOptions<SourcesQuery, SourcesQueryVariables>) {
+          const options = {...defaultOptions, ...baseOptions}
+          return Apollo.useLazyQuery<SourcesQuery, SourcesQueryVariables>(SourcesDocument, options);
+        }
+export function useSourcesSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<SourcesQuery, SourcesQueryVariables>) {
+          const options = baseOptions === Apollo.skipToken ? baseOptions : {...defaultOptions, ...baseOptions}
+          return Apollo.useSuspenseQuery<SourcesQuery, SourcesQueryVariables>(SourcesDocument, options);
+        }
+export type SourcesQueryHookResult = ReturnType<typeof useSourcesQuery>;
+export type SourcesLazyQueryHookResult = ReturnType<typeof useSourcesLazyQuery>;
+export type SourcesSuspenseQueryHookResult = ReturnType<typeof useSourcesSuspenseQuery>;
+export type SourcesQueryResult = Apollo.QueryResult<SourcesQuery, SourcesQueryVariables>;
 export const TranscriptDocument = gql`
     query Transcript($id: ID!) {
   transcript(where: {id: $id}) {
@@ -2572,15 +3093,15 @@ export type TranscriptChatsLazyQueryHookResult = ReturnType<typeof useTranscript
 export type TranscriptChatsSuspenseQueryHookResult = ReturnType<typeof useTranscriptChatsSuspenseQuery>;
 export type TranscriptChatsQueryResult = Apollo.QueryResult<TranscriptChatsQuery, TranscriptChatsQueryVariables>;
 export const TranscriptsDocument = gql`
-    query Transcripts($projectId: ID) {
-  transcripts(where: {project: {id: {equals: $projectId}}}) {
+    query Transcripts($sourceId: ID) {
+  transcripts(where: {source: {id: {equals: $sourceId}}}) {
     id
     title
     intervieweeName
     notes
     createdAt
     segmentsCount
-    project {
+    source {
       id
       name
     }
@@ -2600,7 +3121,7 @@ export const TranscriptsDocument = gql`
  * @example
  * const { data, loading, error } = useTranscriptsQuery({
  *   variables: {
- *      projectId: // value for 'projectId'
+ *      sourceId: // value for 'sourceId'
  *   },
  * });
  */
@@ -2654,6 +3175,40 @@ export function useUpdateProjectMutation(baseOptions?: Apollo.MutationHookOption
 export type UpdateProjectMutationHookResult = ReturnType<typeof useUpdateProjectMutation>;
 export type UpdateProjectMutationResult = Apollo.MutationResult<UpdateProjectMutation>;
 export type UpdateProjectMutationOptions = Apollo.BaseMutationOptions<UpdateProjectMutation, UpdateProjectMutationVariables>;
+export const UpdateSourceDocument = gql`
+    mutation UpdateSource($id: ID!, $data: SourceUpdateInput!) {
+  updateSource(where: {id: $id}, data: $data) {
+    id
+  }
+}
+    `;
+export type UpdateSourceMutationFn = Apollo.MutationFunction<UpdateSourceMutation, UpdateSourceMutationVariables>;
+
+/**
+ * __useUpdateSourceMutation__
+ *
+ * To run a mutation, you first call `useUpdateSourceMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `useUpdateSourceMutation` returns a tuple that includes:
+ * - A mutate function that you can call at any time to execute the mutation
+ * - An object with fields that represent the current status of the mutation's execution
+ *
+ * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
+ *
+ * @example
+ * const [updateSourceMutation, { data, loading, error }] = useUpdateSourceMutation({
+ *   variables: {
+ *      id: // value for 'id'
+ *      data: // value for 'data'
+ *   },
+ * });
+ */
+export function useUpdateSourceMutation(baseOptions?: Apollo.MutationHookOptions<UpdateSourceMutation, UpdateSourceMutationVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useMutation<UpdateSourceMutation, UpdateSourceMutationVariables>(UpdateSourceDocument, options);
+      }
+export type UpdateSourceMutationHookResult = ReturnType<typeof useUpdateSourceMutation>;
+export type UpdateSourceMutationResult = Apollo.MutationResult<UpdateSourceMutation>;
+export type UpdateSourceMutationOptions = Apollo.BaseMutationOptions<UpdateSourceMutation, UpdateSourceMutationVariables>;
 export const GetUserDocument = gql`
     query GetUser($id: ID!) {
   user(where: {id: $id}) {

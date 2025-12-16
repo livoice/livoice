@@ -1,0 +1,26 @@
+query Source($id: ID!) {
+  source(where: { id: $id }) {
+    id
+    type
+    name
+    url
+    externalId
+    importStatus
+    importCronExpression
+    importStartedAt
+    importCompletedAt
+    importHistory
+    transcriptsCount
+    transcripts {
+      id
+      title
+      intervieweeName
+      createdAt
+      segmentsCount
+    }
+    projects {
+      id
+      name
+    }
+  }
+}

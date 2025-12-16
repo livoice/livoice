@@ -2,7 +2,6 @@ export * from './appShell';
 export * from './badge';
 export * from './button';
 export * from './card';
-export * from './input';
 export * from './pageHeader';
 export * from './sheet';
 export * from './sidebar';

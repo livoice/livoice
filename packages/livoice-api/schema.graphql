@@ -270,6 +270,8 @@ type Organization {
   projectsCount(where: ProjectWhereInput! = {}): Int
   transcripts(where: TranscriptWhereInput! = {}, orderBy: [TranscriptOrderByInput!]! = [], take: Int, skip: Int! = 0, cursor: TranscriptWhereUniqueInput): [Transcript!]
   transcriptsCount(where: TranscriptWhereInput! = {}): Int
+  sources(where: SourceWhereInput! = {}, orderBy: [SourceOrderByInput!]! = [], take: Int, skip: Int! = 0, cursor: SourceWhereUniqueInput): [Source!]
+  sourcesCount(where: SourceWhereInput! = {}): Int
   chats(where: ChatWhereInput! = {}, orderBy: [ChatOrderByInput!]! = [], take: Int, skip: Int! = 0, cursor: ChatWhereUniqueInput): [Chat!]
   chatsCount(where: ChatWhereInput! = {}): Int
 }
@@ -287,6 +289,7 @@ input OrganizationWhereInput {
   users: UserManyRelationFilter
   projects: ProjectManyRelationFilter
   transcripts: TranscriptManyRelationFilter
+  sources: SourceManyRelationFilter
   chats: ChatManyRelationFilter
 }
 
@@ -308,6 +311,12 @@ input TranscriptManyRelationFilter {
   none: TranscriptWhereInput
 }
 
+input SourceManyRelationFilter {
+  every: SourceWhereInput
+  some: SourceWhereInput
+  none: SourceWhereInput
+}
+
 input ChatManyRelationFilter {
   every: ChatWhereInput
   some: ChatWhereInput
@@ -325,6 +334,7 @@ input OrganizationUpdateInput {
   users: UserRelateToManyForUpdateInput
   projects: ProjectRelateToManyForUpdateInput
   transcripts: TranscriptRelateToManyForUpdateInput
+  sources: SourceRelateToManyForUpdateInput
   chats: ChatRelateToManyForUpdateInput
 }
 
@@ -349,6 +359,13 @@ input TranscriptRelateToManyForUpdateInput {
   connect: [TranscriptWhereUniqueInput!]
 }
 
+input SourceRelateToManyForUpdateInput {
+  disconnect: [SourceWhereUniqueInput!]
+  set: [SourceWhereUniqueInput!]
+  create: [SourceCreateInput!]
+  connect: [SourceWhereUniqueInput!]
+}
+
 input ChatRelateToManyForUpdateInput {
   disconnect: [ChatWhereUniqueInput!]
   set: [ChatWhereUniqueInput!]
@@ -367,6 +384,7 @@ input OrganizationCreateInput {
   users: UserRelateToManyForCreateInput
   projects: ProjectRelateToManyForCreateInput
   transcripts: TranscriptRelateToManyForCreateInput
+  sources: SourceRelateToManyForCreateInput
   chats: ChatRelateToManyForCreateInput
 }
 
@@ -385,6 +403,11 @@ input TranscriptRelateToManyForCreateInput {
   connect: [TranscriptWhereUniqueInput!]
 }
 
+input SourceRelateToManyForCreateInput {
+  create: [SourceCreateInput!]
+  connect: [SourceWhereUniqueInput!]
+}
+
 input ChatRelateToManyForCreateInput {
   create: [ChatCreateInput!]
   connect: [ChatWhereUniqueInput!]
@@ -395,8 +418,8 @@ type Project {
   name: String
   description: String
   org: Organization
-  transcripts(where: TranscriptWhereInput! = {}, orderBy: [TranscriptOrderByInput!]! = [], take: Int, skip: Int! = 0, cursor: TranscriptWhereUniqueInput): [Transcript!]
-  transcriptsCount(where: TranscriptWhereInput! = {}): Int
+  sources(where: SourceWhereInput! = {}, orderBy: [SourceOrderByInput!]! = [], take: Int, skip: Int! = 0, cursor: SourceWhereUniqueInput): [Source!]
+  sourcesCount(where: SourceWhereInput! = {}): Int
   chats(where: ChatWhereInput! = {}, orderBy: [ChatOrderByInput!]! = [], take: Int, skip: Int! = 0, cursor: ChatWhereUniqueInput): [Chat!]
   chatsCount(where: ChatWhereInput! = {}): Int
 }
@@ -413,7 +436,7 @@ input ProjectWhereInput {
   name: StringFilter
   description: StringFilter
   org: OrganizationWhereInput
-  transcripts: TranscriptManyRelationFilter
+  sources: SourceManyRelationFilter
   chats: ChatManyRelationFilter
 }
 
@@ -427,7 +450,7 @@ input ProjectUpdateInput {
   name: String
   description: String
   org: OrganizationRelateToOneForUpdateInput
-  transcripts: TranscriptRelateToManyForUpdateInput
+  sources: SourceRelateToManyForUpdateInput
   chats: ChatRelateToManyForUpdateInput
 }
 
@@ -440,8 +463,134 @@ input ProjectCreateInput {
   name: String
   description: String
   org: OrganizationRelateToOneForCreateInput
-  transcripts: TranscriptRelateToManyForCreateInput
+  sources: SourceRelateToManyForCreateInput
   chats: ChatRelateToManyForCreateInput
+}
+
+type Source {
+  id: ID!
+  type: SourceTypeType
+  name: String
+  url: String
+  externalId: String
+  importStatus: SourceImportStatusType
+  importStartedAt: DateTime
+  importCompletedAt: DateTime
+  importCronExpression: String
+  importNextAt: DateTime
+  importHistory: JSON
+  importHistoryTyped: [ImportHistoryEntry]
+  org: Organization
+  transcripts(where: TranscriptWhereInput! = {}, orderBy: [TranscriptOrderByInput!]! = [], take: Int, skip: Int! = 0, cursor: TranscriptWhereUniqueInput): [Transcript!]
+  transcriptsCount(where: TranscriptWhereInput! = {}): Int
+  projects(where: ProjectWhereInput! = {}, orderBy: [ProjectOrderByInput!]! = [], take: Int, skip: Int! = 0, cursor: ProjectWhereUniqueInput): [Project!]
+  projectsCount(where: ProjectWhereInput! = {}): Int
+  importTrigger: String
+}
+
+enum SourceTypeType {
+  youtube_channel
+}
+
+enum SourceImportStatusType {
+  idle
+  importing
+  completed
+  failed
+}
+
+type ImportHistoryEntry {
+  startedAt: DateTime
+  completedAt: DateTime
+  itemsFound: Int
+  itemsImported: Int
+  itemsSkipped: Int
+  itemsFailed: Int
+  error: String
+}
+
+input SourceWhereUniqueInput {
+  id: ID
+  externalId: String
+}
+
+input SourceWhereInput {
+  AND: [SourceWhereInput!]
+  OR: [SourceWhereInput!]
+  NOT: [SourceWhereInput!]
+  id: IDFilter
+  type: SourceTypeTypeNullableFilter
+  name: StringFilter
+  url: StringFilter
+  externalId: StringFilter
+  importStatus: SourceImportStatusTypeNullableFilter
+  importStartedAt: DateTimeNullableFilter
+  importCompletedAt: DateTimeNullableFilter
+  importCronExpression: StringFilter
+  org: OrganizationWhereInput
+  transcripts: TranscriptManyRelationFilter
+  projects: ProjectManyRelationFilter
+}
+
+input SourceTypeTypeNullableFilter {
+  equals: SourceTypeType
+  in: [SourceTypeType!]
+  notIn: [SourceTypeType!]
+  not: SourceTypeTypeNullableFilter
+}
+
+input SourceImportStatusTypeNullableFilter {
+  equals: SourceImportStatusType
+  in: [SourceImportStatusType!]
+  notIn: [SourceImportStatusType!]
+  not: SourceImportStatusTypeNullableFilter
+}
+
+input SourceOrderByInput {
+  id: OrderDirection
+  type: OrderDirection
+  name: OrderDirection
+  url: OrderDirection
+  externalId: OrderDirection
+  importStatus: OrderDirection
+  importStartedAt: OrderDirection
+  importCompletedAt: OrderDirection
+  importCronExpression: OrderDirection
+}
+
+input SourceUpdateInput {
+  type: SourceTypeType
+  name: String
+  url: String
+  externalId: String
+  importStatus: SourceImportStatusType
+  importStartedAt: DateTime
+  importCompletedAt: DateTime
+  importCronExpression: String
+  importHistory: JSON
+  org: OrganizationRelateToOneForUpdateInput
+  transcripts: TranscriptRelateToManyForUpdateInput
+  projects: ProjectRelateToManyForUpdateInput
+}
+
+input SourceUpdateArgs {
+  where: SourceWhereUniqueInput!
+  data: SourceUpdateInput!
+}
+
+input SourceCreateInput {
+  type: SourceTypeType
+  name: String
+  url: String
+  externalId: String
+  importStatus: SourceImportStatusType
+  importStartedAt: DateTime
+  importCompletedAt: DateTime
+  importCronExpression: String
+  importHistory: JSON
+  org: OrganizationRelateToOneForCreateInput
+  transcripts: TranscriptRelateToManyForCreateInput
+  projects: ProjectRelateToManyForCreateInput
 }
 
 type Transcript {
@@ -451,7 +600,15 @@ type Transcript {
   sourceUrl: String
   language: String
   notes: String
-  project: Project
+  externalId: String
+  publishedAt: DateTime
+  duration: Int
+  thumbnailUrl: String
+  embeddingStatus: TranscriptEmbeddingStatusType
+  embeddingAttempts: Int
+  embeddingError: String
+  embeddingCompletedAt: DateTime
+  source: Source
   org: Organization
   segments(where: TranscriptSegmentWhereInput! = {}, orderBy: [TranscriptSegmentOrderByInput!]! = [], take: Int, skip: Int! = 0, cursor: TranscriptSegmentWhereUniqueInput): [TranscriptSegment!]
   segmentsCount(where: TranscriptSegmentWhereInput! = {}): Int
@@ -459,6 +616,13 @@ type Transcript {
   chatsCount(where: ChatWhereInput! = {}): Int
   createdAt: DateTime
   updatedAt: DateTime
+}
+
+enum TranscriptEmbeddingStatusType {
+  pending
+  processing
+  completed
+  failed
 }
 
 input TranscriptWhereUniqueInput {
@@ -475,12 +639,38 @@ input TranscriptWhereInput {
   sourceUrl: StringFilter
   language: StringFilter
   notes: StringFilter
-  project: ProjectWhereInput
+  externalId: StringFilter
+  publishedAt: DateTimeNullableFilter
+  duration: IntNullableFilter
+  thumbnailUrl: StringFilter
+  embeddingStatus: TranscriptEmbeddingStatusTypeNullableFilter
+  embeddingAttempts: IntNullableFilter
+  embeddingError: StringFilter
+  embeddingCompletedAt: DateTimeNullableFilter
+  source: SourceWhereInput
   org: OrganizationWhereInput
   segments: TranscriptSegmentManyRelationFilter
   chats: ChatManyRelationFilter
   createdAt: DateTimeNullableFilter
   updatedAt: DateTimeNullableFilter
+}
+
+input IntNullableFilter {
+  equals: Int
+  in: [Int!]
+  notIn: [Int!]
+  lt: Int
+  lte: Int
+  gt: Int
+  gte: Int
+  not: IntNullableFilter
+}
+
+input TranscriptEmbeddingStatusTypeNullableFilter {
+  equals: TranscriptEmbeddingStatusType
+  in: [TranscriptEmbeddingStatusType!]
+  notIn: [TranscriptEmbeddingStatusType!]
+  not: TranscriptEmbeddingStatusTypeNullableFilter
 }
 
 input TranscriptOrderByInput {
@@ -490,6 +680,14 @@ input TranscriptOrderByInput {
   sourceUrl: OrderDirection
   language: OrderDirection
   notes: OrderDirection
+  externalId: OrderDirection
+  publishedAt: OrderDirection
+  duration: OrderDirection
+  thumbnailUrl: OrderDirection
+  embeddingStatus: OrderDirection
+  embeddingAttempts: OrderDirection
+  embeddingError: OrderDirection
+  embeddingCompletedAt: OrderDirection
   createdAt: OrderDirection
   updatedAt: OrderDirection
 }
@@ -500,12 +698,26 @@ input TranscriptUpdateInput {
   sourceUrl: String
   language: String
   notes: String
-  project: ProjectRelateToOneForUpdateInput
+  externalId: String
+  publishedAt: DateTime
+  duration: Int
+  thumbnailUrl: String
+  embeddingStatus: TranscriptEmbeddingStatusType
+  embeddingAttempts: Int
+  embeddingError: String
+  embeddingCompletedAt: DateTime
+  source: SourceRelateToOneForUpdateInput
   org: OrganizationRelateToOneForUpdateInput
   segments: TranscriptSegmentRelateToManyForUpdateInput
   chats: ChatRelateToManyForUpdateInput
   createdAt: DateTime
   updatedAt: DateTime
+}
+
+input SourceRelateToOneForUpdateInput {
+  create: SourceCreateInput
+  connect: SourceWhereUniqueInput
+  disconnect: Boolean
 }
 
 input TranscriptUpdateArgs {
@@ -519,12 +731,25 @@ input TranscriptCreateInput {
   sourceUrl: String
   language: String
   notes: String
-  project: ProjectRelateToOneForCreateInput
+  externalId: String
+  publishedAt: DateTime
+  duration: Int
+  thumbnailUrl: String
+  embeddingStatus: TranscriptEmbeddingStatusType
+  embeddingAttempts: Int
+  embeddingError: String
+  embeddingCompletedAt: DateTime
+  source: SourceRelateToOneForCreateInput
   org: OrganizationRelateToOneForCreateInput
   segments: TranscriptSegmentRelateToManyForCreateInput
   chats: ChatRelateToManyForCreateInput
   createdAt: DateTime
   updatedAt: DateTime
+}
+
+input SourceRelateToOneForCreateInput {
+  create: SourceCreateInput
+  connect: SourceWhereUniqueInput
 }
 
 type TranscriptSegment {
@@ -559,17 +784,6 @@ input TranscriptSegmentWhereInput {
   speaker: StringFilter
   isMetadata: BooleanFilter
   chatMessages: ChatMessageManyRelationFilter
-}
-
-input IntNullableFilter {
-  equals: Int
-  in: [Int!]
-  notIn: [Int!]
-  lt: Int
-  lte: Int
-  gt: Int
-  gte: Int
-  not: IntNullableFilter
 }
 
 input BooleanFilter {
@@ -826,6 +1040,12 @@ type Mutation {
   updateProjects(data: [ProjectUpdateArgs!]!): [Project]
   deleteProject(where: ProjectWhereUniqueInput!): Project
   deleteProjects(where: [ProjectWhereUniqueInput!]!): [Project]
+  createSource(data: SourceCreateInput!): Source
+  createSources(data: [SourceCreateInput!]!): [Source]
+  updateSource(where: SourceWhereUniqueInput!, data: SourceUpdateInput!): Source
+  updateSources(data: [SourceUpdateArgs!]!): [Source]
+  deleteSource(where: SourceWhereUniqueInput!): Source
+  deleteSources(where: [SourceWhereUniqueInput!]!): [Source]
   createTranscript(data: TranscriptCreateInput!): Transcript
   createTranscripts(data: [TranscriptCreateInput!]!): [Transcript]
   updateTranscript(where: TranscriptWhereUniqueInput!, data: TranscriptUpdateInput!): Transcript
@@ -845,25 +1065,9 @@ type Mutation {
   deleteUser(where: UserWhereUniqueInput!): User
   deleteUsers(where: [UserWhereUniqueInput!]!): [User]
   endSession: Boolean!
-  ingestTranscript(input: IngestTranscriptInput!): IngestTranscriptResult!
+  triggerSourceImport(sourceId: ID!): Source!
   chatTranscript(input: ChatTranscriptInput!): ChatMutationResult!
   chatProject(input: ChatProjectInput!): ChatMutationResult!
-}
-
-type IngestTranscriptResult {
-  transcriptId: ID!
-  segmentsCount: Int!
-  projectId: ID!
-}
-
-input IngestTranscriptInput {
-  projectId: ID!
-  title: String!
-  intervieweeName: String
-  sourceUrl: String
-  language: String
-  notes: String
-  srt: String!
 }
 
 type ChatMutationResult {
@@ -915,6 +1119,9 @@ type Query {
   project(where: ProjectWhereUniqueInput!): Project
   projects(where: ProjectWhereInput! = {}, orderBy: [ProjectOrderByInput!]! = [], take: Int, skip: Int! = 0, cursor: ProjectWhereUniqueInput): [Project!]
   projectsCount(where: ProjectWhereInput! = {}): Int
+  source(where: SourceWhereUniqueInput!): Source
+  sources(where: SourceWhereInput! = {}, orderBy: [SourceOrderByInput!]! = [], take: Int, skip: Int! = 0, cursor: SourceWhereUniqueInput): [Source!]
+  sourcesCount(where: SourceWhereInput! = {}): Int
   transcript(where: TranscriptWhereUniqueInput!): Transcript
   transcripts(where: TranscriptWhereInput! = {}, orderBy: [TranscriptOrderByInput!]! = [], take: Int, skip: Int! = 0, cursor: TranscriptWhereUniqueInput): [Transcript!]
   transcriptsCount(where: TranscriptWhereInput! = {}): Int

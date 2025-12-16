@@ -1,6 +1,6 @@
 import { type Lists } from '.keystone/types';
 import { list } from '@keystone-6/core';
-import { relationship, text, timestamp } from '@keystone-6/core/fields';
+import { integer, relationship, select, text, timestamp } from '@keystone-6/core/fields';
 import { canEditOrgData, filterByUserOrg, isAuthenticated, isGod, isOrgAdmin } from '../domains/auth/userRole';
 
 export default list({
@@ -10,7 +10,24 @@ export default list({
     sourceUrl: text({ ui: { description: 'Optional source or recording URL' } }),
     language: text(),
     notes: text({ ui: { displayMode: 'textarea' } }),
-    project: relationship({ ref: 'Project.transcripts', many: false }),
+    externalId: text(),
+    publishedAt: timestamp(),
+    duration: integer(),
+    thumbnailUrl: text(),
+    embeddingStatus: select({
+      type: 'enum',
+      options: [
+        { label: 'Pending', value: 'pending' },
+        { label: 'Processing', value: 'processing' },
+        { label: 'Completed', value: 'completed' },
+        { label: 'Failed', value: 'failed' }
+      ],
+      defaultValue: 'pending'
+    }),
+    embeddingAttempts: integer({ defaultValue: 0 }),
+    embeddingError: text(),
+    embeddingCompletedAt: timestamp(),
+    source: relationship({ ref: 'Source.transcripts', many: false }),
     org: relationship({ ref: 'Organization.transcripts', many: false }),
     segments: relationship({ ref: 'TranscriptSegment.transcript', many: true }),
     chats: relationship({ ref: 'Chat.transcript', many: true }),
@@ -42,12 +59,12 @@ export default list({
         const sudoContext = context.sudo();
         const stored = (await sudoContext.query.Transcript.findOne({
           where: { id: String(item.id) },
-          query: 'id project { id org { id } }'
-        })) as { project?: { id: string; org?: { id: string } | null } | null } | null;
-        if (!stored?.project?.id || !stored.project.org?.id) return false;
+          query: 'id source { org { id } }'
+        })) as { source?: { org?: { id: string } | null } | null } | null;
+        if (!stored?.source?.org?.id) return false;
 
         if (isOrgAdmin({ session })) {
-          return stored.project.org.id === session.orgId;
+          return stored.source.org.id === session.orgId;
         }
 
         return false;
@@ -60,9 +77,9 @@ export default list({
         const sudoContext = context.sudo();
         const stored = (await sudoContext.query.Transcript.findOne({
           where: { id: String(item.id) },
-          query: 'project { org { id } }'
-        })) as { project?: { org?: { id: string } | null } | null } | null;
-        return stored?.project?.org?.id === session.orgId;
+          query: 'source { org { id } }'
+        })) as { source?: { org?: { id: string } | null } | null } | null;
+        return stored?.source?.org?.id === session.orgId;
       }
     }
   },
@@ -70,12 +87,31 @@ export default list({
     resolveInput: {
       create: async ({ resolvedData, context }) => {
         if (resolvedData.org) return resolvedData;
-        const orgId = context.session?.orgId as string | undefined;
-        if (!orgId) return resolvedData;
-        return {
-          ...resolvedData,
-          org: { connect: { id: orgId } }
-        };
+        const sourceId = resolvedData.source?.connect?.id as string | undefined;
+        if (!sourceId) {
+          const orgId = context.session?.orgId as string | undefined;
+          if (!orgId) return resolvedData;
+          return { ...resolvedData, org: { connect: { id: orgId } } };
+        }
+
+        const sudoContext = context.sudo();
+        const source = (await sudoContext.query.Source.findOne({
+          where: { id: sourceId },
+          query: 'org { id }'
+        })) as { org?: { id: string } | null } | null;
+
+        if (!source?.org?.id) return resolvedData;
+        return { ...resolvedData, org: { connect: { id: source.org.id } } };
+      }
+    },
+    afterOperation: {
+      delete: async ({ context, item }) => {
+        const transcriptId = (item as { id?: string } | undefined)?.id;
+        if (!transcriptId) return;
+        const sudoContext = context.sudo();
+        await sudoContext.prisma.transcriptSegment.deleteMany({
+          where: { transcriptId }
+        });
       }
     }
   }

@@ -132,7 +132,8 @@
       },
       "placeholders": {
         "name": "Enter project name",
-        "description": "Add a short description"
+        "description": "Add a short description",
+        "noSources": "No sources available"
       },
       "errors": {
         "nameRequired": "Name is required"
@@ -171,6 +172,57 @@
       }
     }
   },
+  "sources": {
+    "list": {
+      "title": "Sources",
+      "columns": {
+        "transcripts": "Transcripts"
+      },
+      "empty": "No sources connected"
+    },
+    "detail": {
+      "untitled": "Untitled source"
+    },
+    "upsert": {
+      "title": {
+        "create": "Add Source",
+        "edit": "Edit Source"
+      },
+      "fields": {
+        "type": "Type",
+        "name": "Name",
+        "url": "URL",
+        "cronExpression": "Auto-import schedule"
+      },
+      "placeholders": {
+        "type": "Select source type",
+        "name": "Source name",
+        "url": "https://youtube.com/@channel",
+        "cronExpression": "0 3 * * * (daily at 3am)",
+        "noSources": "No sources available"
+      },
+      "errors": {
+        "typeRequired": "Source type is required",
+        "nameRequired": "Name is required",
+        "urlInvalid": "Enter a valid URL"
+      },
+      "confirmations": {
+        "delete": "Are you sure you want to delete this source?"
+      },
+      "deleteHint": "Deleting a source will remove its association from projects"
+    },
+    "types": {
+      "youtube_channel": "YouTube Channel",
+      "podcast_feed": "Podcast Feed",
+      "vimeo_channel": "Vimeo Channel"
+    },
+    "status": {
+      "idle": "Idle",
+      "importing": "Importing...",
+      "completed": "Completed",
+      "failed": "Failed"
+    }
+  },
   "transcripts": {
     "chat": {
       "title": "Transcript chat",
@@ -184,6 +236,7 @@
     "dashboard": "Dashboard",
     "users": "Users",
     "projects": "Projects",
+    "sources": "Sources",
     "transcripts": "Transcripts",
     "profile": "Profile"
   },
@@ -234,7 +287,9 @@
     "duplicate": "Duplicate",
     "goToDashboard": "Go to Dashboard",
     "signInWithGoogle": "Sign in with Google",
-    "close": "Close"
+    "close": "Close",
+    "runImport": "Run import",
+    "running": "Running..."
   },
   "errors": {
     "noResultsFound": "No {{label}} available yet",

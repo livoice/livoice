@@ -48,6 +48,7 @@ model Organization {
   users           User[]       @relation("User_org")
   projects        Project[]    @relation("Project_org")
   transcripts     Transcript[] @relation("Transcript_org")
+  sources         Source[]     @relation("Source_org")
   chats           Chat[]       @relation("Chat_org")
 }
 
@@ -57,29 +58,56 @@ model Project {
   description String        @default("")
   org         Organization? @relation("Project_org", fields: [orgId], references: [id])
   orgId       String?       @map("org")
-  transcripts Transcript[]  @relation("Transcript_project")
+  sources     Source[]      @relation("Project_sources")
   chats       Chat[]        @relation("Chat_project")
 
   @@index([orgId])
 }
 
-model Transcript {
-  id              String              @id @default(cuid())
-  title           String              @default("")
-  intervieweeName String              @default("")
-  sourceUrl       String              @default("")
-  language        String              @default("")
-  notes           String              @default("")
-  project         Project?            @relation("Transcript_project", fields: [projectId], references: [id])
-  projectId       String?             @map("project")
-  org             Organization?       @relation("Transcript_org", fields: [orgId], references: [id])
-  orgId           String?             @map("org")
-  segments        TranscriptSegment[] @relation("TranscriptSegment_transcript")
-  chats           Chat[]              @relation("Chat_transcript")
-  createdAt       DateTime?           @default(now())
-  updatedAt       DateTime?           @updatedAt
+model Source {
+  id                   String                  @id @default(cuid())
+  type                 SourceTypeType
+  name                 String                  @default("")
+  url                  String                  @default("")
+  externalId           String                  @unique @default("")
+  importStatus         SourceImportStatusType? @default(idle)
+  importStartedAt      DateTime?
+  importCompletedAt    DateTime?
+  importCronExpression String                  @default("")
+  importHistory        Json?
+  org                  Organization?           @relation("Source_org", fields: [orgId], references: [id])
+  orgId                String?                 @map("org")
+  transcripts          Transcript[]            @relation("Transcript_source")
+  projects             Project[]               @relation("Project_sources")
 
-  @@index([projectId])
+  @@index([orgId])
+}
+
+model Transcript {
+  id                   String                         @id @default(cuid())
+  title                String                         @default("")
+  intervieweeName      String                         @default("")
+  sourceUrl            String                         @default("")
+  language             String                         @default("")
+  notes                String                         @default("")
+  externalId           String                         @default("")
+  publishedAt          DateTime?
+  duration             Int?
+  thumbnailUrl         String                         @default("")
+  embeddingStatus      TranscriptEmbeddingStatusType? @default(pending)
+  embeddingAttempts    Int?                           @default(0)
+  embeddingError       String                         @default("")
+  embeddingCompletedAt DateTime?
+  source               Source?                        @relation("Transcript_source", fields: [sourceId], references: [id])
+  sourceId             String?                        @map("source")
+  org                  Organization?                  @relation("Transcript_org", fields: [orgId], references: [id])
+  orgId                String?                        @map("org")
+  segments             TranscriptSegment[]            @relation("TranscriptSegment_transcript")
+  chats                Chat[]                         @relation("Chat_transcript")
+  createdAt            DateTime?                      @default(now())
+  updatedAt            DateTime?                      @updatedAt
+
+  @@index([sourceId])
   @@index([orgId])
 }
 
@@ -122,6 +150,24 @@ model User {
 
   @@index([email])
   @@index([orgId])
+}
+
+enum SourceTypeType {
+  youtube_channel
+}
+
+enum SourceImportStatusType {
+  idle
+  importing
+  completed
+  failed
+}
+
+enum TranscriptEmbeddingStatusType {
+  pending
+  processing
+  completed
+  failed
 }
 
 enum UserRoleType {

@@ -7,5 +7,9 @@ query Project($id: ID!) {
       id
       name
     }
+    sources {
+      id
+      name
+    }
   }
 }

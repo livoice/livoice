@@ -9,8 +9,10 @@ import { ROUTER_PATHS, toDashboard, toLogin, toProjects, toUsers } from '@/servi
 import { route } from './route';
 
 const Transcript = lazy(() => import('@/containers/Transcript/Transcript'));
-const TranscriptUpsert = lazy(() => import('@/containers/Transcripts/containers/TranscriptUpsert'));
 const Chat = lazy(() => import('@/containers/Chat/Chat'));
+const Sources = lazy(() => import('@/containers/Sources/Sources'));
+const SourceUpsert = lazy(() => import('@/containers/Sources/containers/SourceUpsert'));
+const Source = lazy(() => import('@/containers/Sources/Source'));
 
 export interface RouteConfig {
   path?: string;
@@ -89,7 +91,7 @@ export const routes: RouteConfig[] = [
           {
             path: ROUTER_PATHS.PROJECTS_EDIT,
             protectedRoute: {
-              permissions: auth => auth.canEditProject,
+              permissions: auth => auth.canEditOrg,
               onForbiddenRedirectTo: toProjects()
             },
             element: <ProjectUpsert />
@@ -107,24 +109,28 @@ export const routes: RouteConfig[] = [
           {
             path: ROUTER_PATHS.PROJECT_CHAT,
             element: <Chat />
-          },
-          {
-            path: ROUTER_PATHS.TRANSCRIPTS_CREATE,
-            element: <TranscriptUpsert />
           }
         ]
       },
       {
-        path: ROUTER_PATHS.TRANSCRIPT,
-        element: <Transcript />,
+        path: ROUTER_PATHS.SOURCES,
+        element: <Sources />,
         children: [
           {
-            path: ROUTER_PATHS.TRANSCRIPT_CHAT_NEW,
-            element: <Chat />
+            path: ROUTER_PATHS.SOURCES_CREATE,
+            element: <SourceUpsert />
           },
           {
-            path: ROUTER_PATHS.TRANSCRIPT_CHAT,
-            element: <Chat />
+            path: ROUTER_PATHS.SOURCES_EDIT,
+            element: <SourceUpsert />
+          },
+          {
+            path: ROUTER_PATHS.SOURCE,
+            element: <Source />
+          },
+          {
+            path: ROUTER_PATHS.TRANSCRIPT,
+            element: <Transcript />
           }
         ]
       }

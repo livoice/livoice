@@ -1,0 +1,8 @@
+{
+  "name": "Attach to Port",
+  "type": "node",
+  "request": "attach",
+  "port": 9229,
+  "restart": true,
+  "configurations": []
+}

@@ -1,6 +1,6 @@
 import { ChatExtension } from './Chat';
-import { TranscriptIngestion } from './TranscriptIngestion';
+import { SourceImportExtension } from './SourceImport';
 
-export const SCHEMA_EXTENSIONS = [TranscriptIngestion, ChatExtension];
+export const SCHEMA_EXTENSIONS = [SourceImportExtension, ChatExtension];
 
-export { ChatExtension, TranscriptIngestion };
+export { ChatExtension, SourceImportExtension };

@@ -28,6 +28,10 @@ const env = cleanEnv(process.env, {
   OPENAI_API_KEY: str(),
   OPENAI_MODEL: str({ default: 'gpt-4o-mini' }),
   OPENAI_EMBEDDING_MODEL: str({ default: 'text-embedding-3-small' }),
+  REDIS_HOST: str({ default: 'localhost' }),
+  REDIS_PORT: str({ default: '6379' }),
+  REDIS_PASSWORD: str({ default: '' }),
+  REDIS_TLS: str({ default: 'false' }),
 
   GOOGLE_CLIENT_ID: str(),
   GOOGLE_CLIENT_SECRET: str(),

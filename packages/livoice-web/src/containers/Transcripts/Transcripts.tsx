@@ -3,23 +3,24 @@ import { parseAsString, useQueryState } from 'nuqs';
 import type { FormEvent } from 'react';
 import { useMemo } from 'react';
 import { useTranslation } from 'react-i18next';
-import { Link } from 'react-router-dom';
 
 import { useTranscriptsQuery, type TranscriptsQuery } from '@/gql/generated';
-import { toTranscript, toTranscriptCreate } from '@/services/linker';
-import { Card, buttonVariants } from '@/ui';
+import { Card } from '@/ui';
+import { SummaryStat } from './components/SummaryStat';
+import { TranscriptGrid } from './components/TranscriptGrid';
 
 type TranscriptsProps = {
-  projectId: string;
+  sourceId?: string;
+  projectId?: string;
   title?: string;
   showSummary?: boolean;
 };
 
-const Transcripts = ({ projectId, title, showSummary = true }: TranscriptsProps) => {
+const Transcripts = ({ sourceId, title, showSummary = true }: TranscriptsProps) => {
   const { t } = useTranslation('common');
   const { data, loading, error } = useTranscriptsQuery({
-    variables: { projectId },
-    skip: !projectId
+    variables: { sourceId },
+    skip: !sourceId
   });
   const [searchValue, setSearchValue] = useQueryState('search', parseAsString.withDefault(''));
 
@@ -34,14 +35,14 @@ const Transcripts = ({ projectId, title, showSummary = true }: TranscriptsProps)
 
     return transcripts.filter(transcript => {
       const haystack =
-        `${transcript.title ?? ''} ${transcript.description ?? ''} ${transcript.intervieweeName ?? ''}`.toLowerCase();
+        `${transcript.title ?? ''} ${transcript.notes ?? ''} ${transcript.intervieweeName ?? ''}`.toLowerCase();
       return haystack.includes(normalized);
     });
   }, [searchValue, transcripts]);
 
   const totalChunks = filteredTranscripts.reduce((sum, transcript) => sum + (transcript.segmentsCount ?? 0), 0);
   const mostRecentTimestamp = filteredTranscripts.reduce((latest, transcript) => {
-    const timestamp = transcript.transcriptDate ? new Date(transcript.transcriptDate).getTime() : 0;
+    const timestamp = transcript.createdAt ? new Date(transcript.createdAt).getTime() : 0;
     return timestamp > latest ? timestamp : latest;
   }, 0);
   const formattedLastUpdated = mostRecentTimestamp ? new Date(mostRecentTimestamp).toLocaleDateString() : '—';
@@ -65,9 +66,6 @@ const Transcripts = ({ projectId, title, showSummary = true }: TranscriptsProps)
               <h1 className="text-3xl font-semibold text-slate-900">{title || t('pageTitles.transcripts')}</h1>
               <p className="text-sm text-slate-500">Monitor interviews, uploads, and AI conversations in one place.</p>
             </div>
-            <Link to={toTranscriptCreate({ projectId })} className={buttonVariants({ className: 'w-full md:w-auto' })}>
-              {t('buttons.createTranscript')}
-            </Link>
           </div>
           <form onSubmit={handleSearchSubmit} className="relative max-w-md">
             <Search className="pointer-events-none absolute left-4 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-400" />
@@ -85,71 +83,15 @@ const Transcripts = ({ projectId, title, showSummary = true }: TranscriptsProps)
         <div className="space-y-6 px-8 py-6">
           {showSummary ? (
             <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
-              <SummaryStat label="Transcripts" value={transcriptCount.toString()} />
-              <SummaryStat label="Total chunks" value={totalChunks.toString()} />
-              <SummaryStat label="Avg chunks/interview" value={averageChunkCount.toString()} />
+              <SummaryStat label="Transcripts" value={transcriptCount} />
+              <SummaryStat label="Total chunks" value={totalChunks} />
+              <SummaryStat label="Avg chunks/interview" value={averageChunkCount} />
               <SummaryStat label="Last updated" value={formattedLastUpdated} />
             </div>
           ) : null}
-          <TranscriptItem projectId={projectId} transcripts={filteredTranscripts} />
+          <TranscriptGrid transcripts={filteredTranscripts} sourceId={sourceId} />
         </div>
       </Card>
-    </div>
-  );
-};
-
-const SummaryStat = ({ label, value }: { label: string; value: string }) => (
-  <div className="rounded-2xl border border-slate-100 bg-white/70 px-4 py-3 shadow-sm">
-    <p className="text-xs font-semibold uppercase tracking-[0.4em] text-slate-400">{label}</p>
-    <p className="text-2xl font-semibold text-slate-900">{value}</p>
-  </div>
-);
-
-const dateFormatter = new Intl.DateTimeFormat(undefined, { dateStyle: 'medium' });
-
-const TranscriptItem = ({
-  projectId,
-  transcripts
-}: {
-  projectId: string;
-  transcripts: NonNullable<TranscriptsQuery['transcripts']>;
-}) => {
-  if (!transcripts.length)
-    return (
-      <div className="flex flex-col items-center gap-3 rounded-2xl border-2 border-dashed border-slate-200 bg-white/60 px-8 py-12 text-center text-slate-500">
-        <p className="text-lg font-semibold text-slate-700">No transcripts found</p>
-        <p className="text-sm">Upload a new interview or adjust your filters to see data here.</p>
-      </div>
-    );
-
-  return (
-    <div className="space-y-3">
-      {transcripts.map(transcript => (
-        <Link
-          key={transcript.id}
-          to={toTranscript({ projectId, transcriptId: transcript.id })}
-          className="flex flex-col gap-3 rounded-2xl border border-slate-100 bg-white/90 p-4 text-left shadow-sm transition hover:shadow-md"
-        >
-          <div className="flex items-center justify-between gap-3">
-            <div className="flex flex-col">
-              <span className="text-sm font-semibold uppercase tracking-[0.3em] text-slate-500">
-                {transcript.project?.name || 'Transcript'}
-              </span>
-              <h3 className="text-lg font-semibold text-slate-900">{transcript.title || 'Untitled transcript'}</h3>
-              <p className="text-sm text-slate-500">{transcript.notes || 'No notes yet'}</p>
-            </div>
-            <div className="text-right text-sm text-slate-500">
-              <div className="font-semibold text-slate-900">{transcript.segmentsCount ?? 0} chunks</div>
-              <div>{transcript.createdAt ? dateFormatter.format(new Date(transcript.createdAt)) : '—'}</div>
-            </div>
-          </div>
-          <div className="flex flex-wrap gap-4 text-xs text-slate-500">
-            <span className="rounded-full bg-slate-100 px-3 py-1 font-semibold text-slate-700">
-              {transcript.intervieweeName || 'Unknown speaker'}
-            </span>
-          </div>
-        </Link>
-      ))}
     </div>
   );
 };

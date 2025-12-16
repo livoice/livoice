@@ -8,7 +8,7 @@ export default list({
     name: text({ validation: { isRequired: true } }),
     description: text({ ui: { displayMode: 'textarea' }, validation: { isRequired: false } }),
     org: relationship({ ref: 'Organization.projects', many: false }),
-    transcripts: relationship({ ref: 'Transcript.project', many: true }),
+    sources: relationship({ ref: 'Source.projects', many: true }),
     chats: relationship({ ref: 'Chat.project', many: true })
   },
   ui: {

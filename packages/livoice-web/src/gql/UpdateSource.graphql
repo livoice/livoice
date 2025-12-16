@@ -1,0 +1,9 @@
+mutation UpdateSource($id: ID!, $data: SourceUpdateInput!) {
+  updateSource(where: { id: $id }, data: $data) {
+    id
+  }
+}
+
+
+
+

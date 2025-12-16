@@ -1,0 +1,9 @@
+mutation CreateSource($data: SourceCreateInput!) {
+  createSource(data: $data) {
+    id
+  }
+}
+
+
+
+

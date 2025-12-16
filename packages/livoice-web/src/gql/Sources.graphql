@@ -1,0 +1,21 @@
+query Sources {
+  sources {
+    id
+    type
+    name
+    url
+    externalId
+    importStatus
+    importCronExpression
+    importStartedAt
+    importCompletedAt
+    transcriptsCount
+    projects {
+      id
+      name
+    }
+  }
+}
+
+
+
