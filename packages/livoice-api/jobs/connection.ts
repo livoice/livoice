@@ -1,11 +1,12 @@
 import { RedisOptions } from 'bullmq';
+import env from '../config/env';
 
-const useTls = (process.env.REDIS_TLS ?? 'false').toLowerCase() === 'true';
+const useTls = env.REDIS_TLS === 'true';
 
 export const connection: RedisOptions = {
-  host: process.env.REDIS_HOST,
-  port: Number(process.env.REDIS_PORT ?? 6379),
-  password: process.env.REDIS_PASSWORD || undefined,
+  host: env.REDIS_HOST,
+  port: env.REDIS_PORT,
+  password: env.REDIS_PASSWORD || undefined,
   tls: useTls ? {} : undefined,
   maxRetriesPerRequest: null
 };
