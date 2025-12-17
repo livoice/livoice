@@ -6,7 +6,7 @@ import { proxyFetch } from './utils/proxyFetch';
 import { secondsFromDuration } from './utils/secondsFromDuration';
 
 const youtubeClient = Innertube.create({ fetch: proxyFetch });
-Log.setLevel(Log.Level.INFO);
+Log.setLevel(Log.Level.WARNING);
 
 const extractChannelId = (url: string): string | null => {
   try {

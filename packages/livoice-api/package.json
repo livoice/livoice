@@ -3,12 +3,14 @@
   "version": "1.0.3",
   "private": true,
   "scripts": {
-    "dev": "keystone dev",
-    "start": "keystone start",
+    "dev": "concurrently --names \"api,worker\" --prefix \"[{name}]\" --prefix-colors \"magenta,green\" \"npm run dev:api\" \"npm run dev:worker\"",
+    "dev:api": "keystone dev",
+    "dev:worker": "tsx watch --inspect workers/index.ts",
+    "start": "concurrently --names \"api,worker\" --prefix \"[{name}]\" --prefix-colors \"magenta,green\" \"npm run start:api\" \"npm run start:worker\"",
+    "start:api": "keystone start",
+    "start:worker": "tsx workers/index.ts",
     "build": "NODE_ENV=production keystone build",
     "test": "tsx tests/**/*.test.ts",
-    "worker": "tsx workers/index.ts",
-    "worker:dev": "tsx watch --inspect workers/index.ts",
     "prisma:hardreset": "keystone prisma db push --force-reset",
     "prisma:migrate:dev": "keystone prisma migrate dev",
     "prisma:migrate:deploy": "keystone prisma migrate deploy"
@@ -40,7 +42,8 @@
     "undici": "^7.16.0",
     "user-agents": "^1.1.669",
     "youtube-dl-exec": "^3.0.27",
-    "youtubei.js": "^16.0.1"
+    "youtubei.js": "^16.0.1",
+    "concurrently": "^9.0.0"
   },
   "devDependencies": {
     "@eslint/js": "^9.29.0",
