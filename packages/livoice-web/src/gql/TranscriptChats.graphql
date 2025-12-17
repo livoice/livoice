@@ -1,7 +1,0 @@
-query TranscriptChats($transcriptId: ID!) {
-  chats(where: { transcript: { id: { equals: $transcriptId } } }, orderBy: { createdAt: desc }) {
-    id
-    title
-    createdAt
-  }
-}

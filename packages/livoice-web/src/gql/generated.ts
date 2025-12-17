@@ -2109,13 +2109,6 @@ export type TranscriptQueryVariables = Exact<{
 
 export type TranscriptQuery = { __typename?: 'Query', transcript?: { __typename?: 'Transcript', id: string, title?: string | null, intervieweeName?: string | null, notes?: string | null, createdAt?: any | null, segments?: Array<{ __typename?: 'TranscriptSegment', id: string, text?: string | null, speaker?: string | null, startMs?: number | null, endMs?: number | null, durationMs?: number | null }> | null } | null };
 
-export type TranscriptChatsQueryVariables = Exact<{
-  transcriptId: Scalars['ID']['input'];
-}>;
-
-
-export type TranscriptChatsQuery = { __typename?: 'Query', chats?: Array<{ __typename?: 'Chat', id: string, title?: string | null, createdAt?: any | null }> | null };
-
 export type TranscriptsQueryVariables = Exact<{
   sourceId?: InputMaybe<Scalars['ID']['input']>;
 }>;
@@ -3077,51 +3070,6 @@ export type TranscriptQueryHookResult = ReturnType<typeof useTranscriptQuery>;
 export type TranscriptLazyQueryHookResult = ReturnType<typeof useTranscriptLazyQuery>;
 export type TranscriptSuspenseQueryHookResult = ReturnType<typeof useTranscriptSuspenseQuery>;
 export type TranscriptQueryResult = Apollo.QueryResult<TranscriptQuery, TranscriptQueryVariables>;
-export const TranscriptChatsDocument = gql`
-    query TranscriptChats($transcriptId: ID!) {
-  chats(
-    where: {transcript: {id: {equals: $transcriptId}}}
-    orderBy: {createdAt: desc}
-  ) {
-    id
-    title
-    createdAt
-  }
-}
-    `;
-
-/**
- * __useTranscriptChatsQuery__
- *
- * To run a query within a React component, call `useTranscriptChatsQuery` and pass it any options that fit your needs.
- * When your component renders, `useTranscriptChatsQuery` returns an object from Apollo Client that contains loading, error, and data properties
- * you can use to render your UI.
- *
- * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
- *
- * @example
- * const { data, loading, error } = useTranscriptChatsQuery({
- *   variables: {
- *      transcriptId: // value for 'transcriptId'
- *   },
- * });
- */
-export function useTranscriptChatsQuery(baseOptions: Apollo.QueryHookOptions<TranscriptChatsQuery, TranscriptChatsQueryVariables> & ({ variables: TranscriptChatsQueryVariables; skip?: boolean; } | { skip: boolean; }) ) {
-        const options = {...defaultOptions, ...baseOptions}
-        return Apollo.useQuery<TranscriptChatsQuery, TranscriptChatsQueryVariables>(TranscriptChatsDocument, options);
-      }
-export function useTranscriptChatsLazyQuery(baseOptions?: Apollo.LazyQueryHookOptions<TranscriptChatsQuery, TranscriptChatsQueryVariables>) {
-          const options = {...defaultOptions, ...baseOptions}
-          return Apollo.useLazyQuery<TranscriptChatsQuery, TranscriptChatsQueryVariables>(TranscriptChatsDocument, options);
-        }
-export function useTranscriptChatsSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<TranscriptChatsQuery, TranscriptChatsQueryVariables>) {
-          const options = baseOptions === Apollo.skipToken ? baseOptions : {...defaultOptions, ...baseOptions}
-          return Apollo.useSuspenseQuery<TranscriptChatsQuery, TranscriptChatsQueryVariables>(TranscriptChatsDocument, options);
-        }
-export type TranscriptChatsQueryHookResult = ReturnType<typeof useTranscriptChatsQuery>;
-export type TranscriptChatsLazyQueryHookResult = ReturnType<typeof useTranscriptChatsLazyQuery>;
-export type TranscriptChatsSuspenseQueryHookResult = ReturnType<typeof useTranscriptChatsSuspenseQuery>;
-export type TranscriptChatsQueryResult = Apollo.QueryResult<TranscriptChatsQuery, TranscriptChatsQueryVariables>;
 export const TranscriptsDocument = gql`
     query Transcripts($sourceId: ID) {
   transcripts(where: {source: {id: {equals: $sourceId}}}) {

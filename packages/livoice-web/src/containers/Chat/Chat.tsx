@@ -8,14 +8,9 @@ import remarkBreaks from 'remark-breaks';
 import remarkGfm from 'remark-gfm';
 
 import FormDrawer from '@/components/FormDrawer/FormDrawer';
-import {
-  useChatProjectHistoryQuery,
-  useChatProjectMutation,
-  useChatTranscriptHistoryQuery,
-  useChatTranscriptMutation
-} from '@/gql/generated';
+import { useChatProjectHistoryQuery, useChatProjectMutation } from '@/gql/generated';
 import { cn } from '@/lib/cn';
-import { toProjectChat, toTranscriptChat } from '@/services/linker';
+import { toProjectChat } from '@/services/linker';
 import { Button } from '@/ui/button';
 import { Card } from '@/ui/card';
 import { TextField } from '@/ui/text-field';
@@ -69,16 +64,10 @@ const formatRange = (segment: SegmentReference) => {
 
 const Chat = () => {
   const { t } = useTranslation('common');
-  const {
-    projectId = '',
-    transcriptId = '',
-    chatId = ''
-  } = useParams<{
+  const { projectId = '', chatId = '' } = useParams<{
     projectId?: string;
-    transcriptId?: string;
     chatId?: string;
   }>();
-  const isTranscriptContext = Boolean(transcriptId);
   const isNewChat = !chatId;
   const navigate = useNavigate();
   const client = useApolloClient();
@@ -88,38 +77,18 @@ const Chat = () => {
   const messagesEndRef = useRef<HTMLDivElement | null>(null);
 
   const {
-    data: transcriptHistory,
-    loading: transcriptLoading,
-    refetch: refetchTranscriptHistory
-  } = useChatTranscriptHistoryQuery({
-    variables: { transcriptId },
-    skip: !isTranscriptContext || !transcriptId
-  });
-
-  const {
     data: projectHistory,
     loading: projectLoading,
     refetch: refetchProjectHistory
   } = useChatProjectHistoryQuery({
     variables: { projectId },
-    skip: isTranscriptContext || !projectId
-  });
-
-  const [chatTranscript, { loading: sendingTranscript }] = useChatTranscriptMutation({
-    onCompleted: result => {
-      void refetchTranscriptHistory();
-      void client.refetchQueries({ include: ['ProjectChats', 'TranscriptChats'] });
-      const createdId = result?.chatTranscript?.chatId;
-      if (createdId && isNewChat) {
-        navigate(toTranscriptChat({ projectId, transcriptId, chatId: createdId }), { replace: true });
-      }
-    }
+    skip: !projectId
   });
 
   const [chatProject, { loading: sendingProject }] = useChatProjectMutation({
     onCompleted: result => {
       void refetchProjectHistory();
-      void client.refetchQueries({ include: ['ProjectChats', 'TranscriptChats'] });
+      void client.refetchQueries({ include: ['ProjectChats'] });
       const createdId = result?.chatProject?.chatId;
       if (createdId && isNewChat) {
         navigate(toProjectChat({ projectId, chatId: createdId }), { replace: true });
@@ -128,24 +97,6 @@ const Chat = () => {
   });
 
   const messages: ChatMessageItem[] = useMemo(() => {
-    if (isTranscriptContext) {
-      if (isNewChat) return [];
-      return (transcriptHistory?.chatTranscriptHistory?.messages ?? []).map(msg => ({
-        id: msg.id,
-        role: msg.role as 'user' | 'assistant',
-        content: msg.content,
-        createdAt: msg.createdAt ?? undefined,
-        segments: msg.segments.map(seg => ({
-          id: seg.id,
-          startMs: seg.startMs ?? null,
-          endMs: seg.endMs ?? null,
-          text: seg.text,
-          speaker: seg.speaker ?? undefined,
-          transcriptTitle: seg.transcriptTitle ?? undefined
-        }))
-      }));
-    }
-
     if (isNewChat) return [];
     return (projectHistory?.chatProjectHistory?.messages ?? []).map(msg => ({
       id: msg.id,
@@ -161,49 +112,30 @@ const Chat = () => {
         transcriptTitle: seg.transcriptTitle ?? undefined
       }))
     }));
-  }, [
-    isTranscriptContext,
-    isNewChat,
-    transcriptHistory?.chatTranscriptHistory?.messages,
-    projectHistory?.chatProjectHistory?.messages
-  ]);
+  }, [isNewChat, projectHistory?.chatProjectHistory?.messages]);
 
-  const isBusy = isTranscriptContext ? sendingTranscript || transcriptLoading : sendingProject || projectLoading;
+  const isBusy = sendingProject || projectLoading;
 
   const handleSubmit = async () => {
     const trimmed = draft.trim();
     if (!trimmed) return;
 
-    if (isTranscriptContext) {
-      await chatTranscript({
-        variables: {
-          input: {
-            chatId: isNewChat ? null : chatId,
-            transcriptId: transcriptId ?? '',
-            message: trimmed
-          }
+    await chatProject({
+      variables: {
+        input: {
+          chatId: isNewChat ? null : chatId,
+          projectId,
+          message: trimmed
         }
-      });
-    } else {
-      await chatProject({
-        variables: {
-          input: {
-            chatId: isNewChat ? null : chatId,
-            projectId: projectId ?? '',
-            message: trimmed
-          }
-        }
-      });
-    }
+      }
+    });
 
     setDraft('');
   };
 
-  const title = isTranscriptContext ? t('transcripts.chat.title') : t('projects.chat.title');
-  const subtitle = isTranscriptContext
-    ? t('transcripts.chat.subtitle', { transcript: transcriptId })
-    : t('projects.chat.subtitle', { project: projectId });
-  const placeholder = isTranscriptContext ? t('transcripts.chat.placeholder') : t('projects.chat.placeholder');
+  const title = t('projects.chat.title');
+  const subtitle = t('projects.chat.subtitle', { project: projectId });
+  const placeholder = t('projects.chat.placeholder');
   const emptyPlaceholder = placeholder || t('chat.emptyPlaceholder');
   const inputPlaceholder = placeholder || t('chat.inputPlaceholder');
   const buttonLabel = isBusy ? t('buttons.sending') : t('buttons.sendQuestion');
