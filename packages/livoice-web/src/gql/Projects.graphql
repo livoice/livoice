@@ -3,7 +3,7 @@ query Projects {
     id
     name
     description
-    transcriptsCount
+    sourcesCount
     org {
       id
       name

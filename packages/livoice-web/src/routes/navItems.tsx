@@ -1,4 +1,4 @@
-import { ROUTER_PATHS, toDashboard, toProjects, toSettingsOrg, toUsers } from '@/services/linker';
+import { ROUTER_PATHS, toDashboard, toProjects, toSettingsOrg, toSources, toUsers } from '@/services/linker';
 
 export type NavSection = 'primary' | 'settings' | 'secondary';
 
@@ -26,6 +26,14 @@ export const NAV_ITEMS: NavItemConfig[] = [
     icon: 'folder',
     path: toProjects(),
     routePath: ROUTER_PATHS.PROJECTS,
+    section: 'primary'
+  },
+  {
+    key: 'sources',
+    labelKey: 'sidebar.sources',
+    icon: 'cloud_download',
+    path: toSources(),
+    routePath: ROUTER_PATHS.SOURCES,
     section: 'primary'
   },
   // {

@@ -1,10 +1,7 @@
 import { type Lists } from '.keystone/types';
 import { list } from '@keystone-6/core';
 import { checkbox, integer, relationship, text } from '@keystone-6/core/fields';
-import { Prisma } from '@prisma/client';
 import { canEditOrgData, isAuthenticated, isGod, isOrgAdmin } from '../domains/auth/userRole';
-import { createEmbeddings } from '../lib/openai';
-import { formatVectorLiteral } from '../lib/pgvector';
 
 export default list({
   fields: {
@@ -43,7 +40,7 @@ export default list({
 
         // Org-level visibility
         const orgFilter = {
-          transcript: { project: { org: { id: { equals: session.orgId } } } }
+          transcript: { org: { id: { equals: session.orgId } } }
         };
 
         return orgFilter;
@@ -57,10 +54,10 @@ export default list({
         const sudoContext = context.sudo();
         const record = (await sudoContext.query.TranscriptSegment.findOne({
           where: { id: String(item.id) },
-          query: 'transcript { project { org { id } } }'
-        })) as { transcript?: { project?: { org?: { id: string } | null } | null } | null } | null;
-        if (!record?.transcript?.project?.org?.id) return false;
-        return record.transcript.project.org.id === session.orgId;
+          query: 'transcript { org { id } }'
+        })) as { transcript?: { org?: { id: string } | null } | null } | null;
+        if (!record?.transcript?.org?.id) return false;
+        return record.transcript.org.id === session.orgId;
       },
       delete: async ({ session, item, context }) => {
         if (isGod({ session })) return true;
@@ -69,27 +66,9 @@ export default list({
         const sudoContext = context.sudo();
         const record = (await sudoContext.query.TranscriptSegment.findOne({
           where: { id: String(item.id) },
-          query: 'transcript { project { org { id } } }'
-        })) as { transcript?: { project?: { org?: { id: string } | null } | null } | null } | null;
-        return record?.transcript?.project?.org?.id === session.orgId;
-      }
-    }
-  },
-  hooks: {
-    afterOperation: async ({ operation, item, resolvedData, context }) => {
-      const shouldEmbed = operation === 'create' || (operation === 'update' && resolvedData?.text !== undefined);
-      if (!shouldEmbed) return;
-      if (!item?.id || !item?.text) return;
-
-      try {
-        const embedding = formatVectorLiteral((await createEmbeddings([item.text]))[0]);
-        if (!embedding) return;
-
-        await context.sudo().prisma.$executeRaw`
-          UPDATE "TranscriptSegment" SET "embedding" = ${Prisma.raw(embedding)} WHERE id = ${item.id}
-        `;
-      } catch (error) {
-        console.error('Failed to generate embedding for TranscriptSegment', error);
+          query: 'transcript { org { id } }'
+        })) as { transcript?: { org?: { id: string } | null } | null } | null;
+        return record?.transcript?.org?.id === session.orgId;
       }
     }
   }

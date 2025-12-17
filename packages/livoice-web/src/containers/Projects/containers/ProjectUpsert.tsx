@@ -13,21 +13,25 @@ import {
   useCreateProjectMutation,
   useDeleteProjectMutation,
   useProjectQuery,
+  useSourcesQuery,
   useUpdateProjectMutation
 } from '@/gql/generated';
 import { useAuth } from '@/hooks/auth/useAuth';
 import { useToast } from '@/hooks/useToast';
 import { toProjects } from '@/services/linker';
-import { Button, Input, TextField } from '@/ui';
+import { Button, TextField } from '@/ui';
+import { FormField } from '@/ui/form-field';
 
 type ProjectFormValues = {
   name: string;
   description: string;
+  sourceIds: string[];
 };
 
 const defaultValues: ProjectFormValues = {
   name: '',
-  description: ''
+  description: '',
+  sourceIds: []
 };
 
 export default function ProjectUpsert() {
@@ -39,12 +43,14 @@ export default function ProjectUpsert() {
   const apolloClient = useApolloClient();
   const { showToast } = useToast();
   const { canEditOrg } = useAuth();
+  const { data: sourcesData } = useSourcesQuery();
 
   const schema = useMemo(
     () =>
       z.object({
         name: z.string().trim().min(1, t('errors.nameRequired')),
-        description: z.string().optional()
+        description: z.string().optional(),
+        sourceIds: z.array(z.string()).optional()
       }),
     [t]
   );
@@ -94,7 +100,8 @@ export default function ProjectUpsert() {
     if (!project) return;
     reset({
       name: project.name ?? '',
-      description: project.description ?? ''
+      description: project.description ?? '',
+      sourceIds: project.sources?.map(({ id }) => id ?? '').filter(Boolean) ?? []
     });
   }, [project, reset]);
 
@@ -108,12 +115,20 @@ export default function ProjectUpsert() {
     if (isEditMode && !projectId) return;
     if (!isEditMode && !canEditOrg) return;
 
+    const sourceRelations = (values.sourceIds ?? []).map(id => ({ id }));
+    const sourcesPayload = sourceRelations.length
+      ? isEditMode
+        ? { set: sourceRelations }
+        : { connect: sourceRelations }
+      : undefined;
+
     void handler({
       variables: {
         id: projectId,
         data: {
           name: values.name.trim(),
-          description: values.description?.trim() || ''
+          description: values.description?.trim() || '',
+          ...(sourcesPayload ? { sources: sourcesPayload } : {})
         }
       }
     });
@@ -176,7 +191,7 @@ export default function ProjectUpsert() {
             control={control}
             render={({ field, fieldState }) => (
               <FormField label={t('fields.name')} error={fieldState.error?.message}>
-                <Input {...field} placeholder={t('placeholders.name')} />
+                <TextField {...field} placeholder={t('placeholders.name')} />
               </FormField>
             )}
           />
@@ -186,6 +201,37 @@ export default function ProjectUpsert() {
             render={({ field, fieldState }) => (
               <FormField label={t('fields.description')} error={fieldState.error?.message}>
                 <TextField {...field} multiline rows={4} placeholder={t('placeholders.description')} />
+              </FormField>
+            )}
+          />
+          <Controller
+            name="sourceIds"
+            control={control}
+            render={({ field }) => (
+              <FormField label={t('fields.sources')}>
+                <div className="space-y-2 rounded-2xl border border-slate-200 bg-white p-3">
+                  {(sourcesData?.sources ?? []).map(source =>
+                    source?.id ? (
+                      <label key={source.id} className="flex items-center gap-2 text-sm text-slate-700">
+                        <input
+                          type="checkbox"
+                          value={source.id}
+                          checked={field.value?.includes(source.id) ?? false}
+                          onChange={event => {
+                            const checked = event.target.checked;
+                            const value = event.target.value;
+                            if (checked) field.onChange([...(field.value ?? []), value]);
+                            else field.onChange((field.value ?? []).filter((id: string) => id !== value));
+                          }}
+                        />
+                        <span>{source.name || source.url || source.id}</span>
+                      </label>
+                    ) : null
+                  )}
+                  {!(sourcesData?.sources?.length ?? 0) ? (
+                    <p className="text-xs text-slate-500">{t('placeholders.noSources')}</p>
+                  ) : null}
+                </div>
               </FormField>
             )}
           />
@@ -205,11 +251,3 @@ export default function ProjectUpsert() {
     </>
   );
 }
-
-const FormField = ({ label, error, children }: { label: string; error?: string; children: React.ReactNode }) => (
-  <div className="space-y-2">
-    <span className="text-sm font-medium text-muted-foreground">{label}</span>
-    {children}
-    {error ? <p className="text-xs text-destructive">{error}</p> : null}
-  </div>
-);

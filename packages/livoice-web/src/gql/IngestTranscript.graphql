@@ -1,8 +1,8 @@
-mutation IngestTranscript($input: IngestTranscriptInput!) {
-  ingestTranscript(input: $input) {
-    transcriptId
-    segmentsCount
-    projectId
+mutation TriggerSourceImport($sourceId: ID!) {
+  triggerSourceImport(sourceId: $sourceId) {
+    id
+    importStatus
+    importStartedAt
+    importCompletedAt
   }
 }
-

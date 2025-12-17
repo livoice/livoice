@@ -34,6 +34,7 @@ export default list({
     users: relationship({ ref: 'User.org', many: true }),
     projects: relationship({ ref: 'Project.org', many: true }),
     transcripts: relationship({ ref: 'Transcript.org', many: true }),
+    sources: relationship({ ref: 'Source.org', many: true }),
     chats: relationship({ ref: 'Chat.org', many: true })
   },
   ui: {

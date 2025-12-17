@@ -99,8 +99,12 @@ const fetchSegments = async ({ context, projectId, transcriptId, queryText }: Fe
       : {
           where: {
             transcript: {
-              project: {
+              source: {
+                projects: {
+                  some: {
                 id: { equals: projectId }
+                  }
+                }
               }
             }
           }
@@ -110,7 +114,7 @@ const fetchSegments = async ({ context, projectId, transcriptId, queryText }: Fe
       ...baseArgs,
       orderBy: [{ startMs: 'asc' }],
       take: VECTOR_LIMIT,
-      query: 'id text startMs endMs speaker isMetadata transcript { id title project { id } }'
+      query: 'id text startMs endMs speaker isMetadata transcript { id title }'
     });
 
     return segments
@@ -144,10 +148,13 @@ const fetchSegments = async ({ context, projectId, transcriptId, queryText }: Fe
       const literal = formatVectorLiteral(embedding);
       const joinClause = isTranscriptContext
         ? 'LEFT JOIN "Transcript" t ON t.id = "TranscriptSegment"."transcript"'
-        : 'INNER JOIN "Transcript" t ON t.id = "TranscriptSegment"."transcript"';
+        : `INNER JOIN "Transcript" t ON t.id = "TranscriptSegment"."transcript"
+          INNER JOIN "Source" s ON s.id = t."source"
+          INNER JOIN "_Project_sources" ps ON ps."B" = s.id
+          INNER JOIN "Project" p ON p.id = ps."A"`;
       const whereClause = isTranscriptContext
         ? `"TranscriptSegment"."transcript" = '${transcriptId}'`
-        : `"Transcript"."project" = '${projectId}'`;
+        : `p.id = '${projectId}'`;
 
       const rows =
         ((await sudoContext.prisma.$queryRaw(`
@@ -265,11 +272,14 @@ export const runChatConversation = async ({
     if (!input.transcriptId) throw new Error('Transcript ID is required');
     const transcript = await sudoContext.query.Transcript.findOne({
       where: { id: input.transcriptId },
-      query: 'id title project { id name org { id } } org { id }'
+      query: 'id title source { projects { id name org { id } } org { id } } org { id }'
     });
     if (!transcript) throw new Error('Transcript not found');
-    if (!transcript.project?.id) throw new Error('Transcript is missing project reference');
-    return { targetTranscript: transcript, targetProject: transcript.project };
+    const project =
+      transcript.source?.projects?.find(project => project.org?.id === session.orgId) ??
+      transcript.source?.projects?.[0];
+    if (!project?.id) throw new Error('Transcript is missing project reference');
+    return { targetTranscript: transcript, targetProject: project };
   };
 
   const fetchProjectContext = async () => {

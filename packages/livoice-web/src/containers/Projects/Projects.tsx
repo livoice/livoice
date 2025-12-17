@@ -7,7 +7,7 @@ import { Link } from 'react-router-dom';
 import { useProjectsQuery, type ProjectsQuery } from '@/gql/generated';
 import { useAuth } from '@/hooks/auth/useAuth';
 import { toProject, toProjectCreate, toProjectEdit } from '@/services/linker';
-import { Button, Input, PageHeader, buttonVariants } from '@/ui';
+import { Button, PageHeader, TextField, buttonVariants } from '@/ui';
 
 type ProjectListItem = NonNullable<NonNullable<ProjectsQuery['projects']>[number]>;
 
@@ -53,7 +53,7 @@ export default function Projects() {
         <span className="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground">
           search
         </span>
-        <Input
+        <TextField
           value={search}
           onChange={event => setSearch(event.target.value)}
           placeholder={t('input.searchPlaceholder', { label: t('sidebar.projects').toLowerCase() })}

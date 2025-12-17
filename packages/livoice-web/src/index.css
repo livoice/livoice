@@ -61,6 +61,29 @@
   --shadow-surface: 0 15px 35px rgba(15, 23, 42, 0.08);
   --shadow-elevated: 0 1px 3px rgba(15, 23, 42, 0.08), 0 12px 30px rgba(15, 23, 42, 0.1);
   --breakpoint-2xl: 1440px;
+  --selected: 222.2 47.4% 11.2%;
+  --selected-foreground: 210 40% 98%;
+  --pressed: 222.2 84% 4.9%;
+  --pressed-foreground: 210 40% 98%;
+  --disabled: 210 40% 96%;
+  --disabled-foreground: 215.4 16.3% 46.9%;
+  --processing: 217.2 32.6% 17.5%;
+  --processing-foreground: 210 40% 98%;
+  --focused: 217.2 32.6% 17.5%;
+  --focused-foreground: 210 40% 98%;
+}
+
+.dark {
+  --selected: 210 40% 98%;
+  --selected-foreground: 222.2 47.4% 11.2%;
+  --pressed: 212.7 26.8% 83.9%;
+  --pressed-foreground: 222.2 47.4% 11.2%;
+  --disabled: 217.2 32.6% 17.5%;
+  --disabled-foreground: 215 20.2% 65.1%;
+  --processing: 217.2 32.6% 25.5%;
+  --processing-foreground: 210 40% 98%;
+  --focused: 217.2 32.6% 25.5%;
+  --focused-foreground: 210 40% 98%;
 }
 
 @theme inline {

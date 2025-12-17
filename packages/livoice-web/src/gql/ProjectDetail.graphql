@@ -7,12 +7,12 @@ query ProjectDetail($projectId: ID!) {
       id
       name
     }
-    transcripts {
+    sources {
       id
-      title
-      intervieweeName
-      createdAt
-      segmentsCount
+      name
+      type
+      importStatus
+      transcriptsCount
     }
   }
 }

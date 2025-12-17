@@ -61,11 +61,11 @@ const Transcript = () => {
       </Card>
 
       <div className="space-y-6">
-        <ChatList projectId={projectId} transcriptId={transcriptId} />
-
         <Card className="space-y-6">
           <TranscriptTimeline chunks={timelineChunks} />
         </Card>
+
+        <ChatList projectId={projectId} />
       </div>
 
       <Outlet />

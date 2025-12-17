@@ -10,7 +10,6 @@ import { useIngestTranscriptMutation, useProjectTranscriptsQuery } from '@/gql/g
 import { useToast } from '@/hooks/useToast';
 import { Button } from '@/ui/button';
 import { Card } from '@/ui/card';
-import { Input } from '@/ui/input';
 import { TextField } from '@/ui/text-field';
 
 type FormValues = {
@@ -148,7 +147,7 @@ export default function ProjectTranscripts({ projectId, projectName }: ProjectTr
             control={control}
             render={({ field, fieldState }) => (
               <FormField label={t('projects.transcripts.ingest.fields.title')} error={fieldState.error?.message}>
-                <Input {...field} placeholder={t('projects.transcripts.ingest.placeholders.title')} />
+                <TextField {...field} placeholder={t('projects.transcripts.ingest.placeholders.title')} />
               </FormField>
             )}
           />
@@ -157,7 +156,7 @@ export default function ProjectTranscripts({ projectId, projectName }: ProjectTr
             control={control}
             render={({ field }) => (
               <FormField label={t('projects.transcripts.ingest.fields.intervieweeName')}>
-                <Input {...field} placeholder={t('projects.transcripts.ingest.placeholders.intervieweeName')} />
+                <TextField {...field} placeholder={t('projects.transcripts.ingest.placeholders.intervieweeName')} />
               </FormField>
             )}
           />
@@ -166,7 +165,7 @@ export default function ProjectTranscripts({ projectId, projectName }: ProjectTr
             control={control}
             render={({ field }) => (
               <FormField label={t('projects.transcripts.ingest.fields.language')}>
-                <Input {...field} placeholder={t('projects.transcripts.ingest.placeholders.language')} />
+                <TextField {...field} placeholder={t('projects.transcripts.ingest.placeholders.language')} />
               </FormField>
             )}
           />

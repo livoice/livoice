@@ -13,14 +13,14 @@ import {
   Button,
   Card,
   CardContent,
-  Input,
   PageHeader,
   Table,
   TableBody,
   TableCell,
   TableHead,
   TableHeader,
-  TableRow
+  TableRow,
+  TextField
 } from '@/ui';
 
 type UserListItem = NonNullable<NonNullable<GetAllUsersQuery['users']>[number]>;
@@ -259,7 +259,7 @@ export default function Users() {
         <span className="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground">
           search
         </span>
-        <Input
+        <TextField
           value={search}
           onChange={event => setSearch(event.target.value || null)}
           placeholder={t('users.searchPlaceholder')}

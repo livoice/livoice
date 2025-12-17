@@ -17,7 +17,8 @@ import { useAuth } from '@/hooks/auth/useAuth';
 import { canEditUserByRole } from '@/hooks/auth/userRole';
 import { useToast } from '@/hooks/useToast';
 import { toUsers } from '@/services/linker';
-import { Button, Input } from '@/ui';
+import { Button, TextField } from '@/ui';
+import { FormField } from '@/ui/form-field';
 
 const roleLabels: Record<UserRoleType, string> = {
   [UserRoleType.User]: 'User',
@@ -198,7 +199,7 @@ export default function UserUpsert() {
               control={control}
               render={({ field, fieldState }) => (
                 <FormField label={t('fields.email')} error={fieldState.error?.message}>
-                  <Input {...field} type="email" placeholder="jane@example.com" />
+                  <TextField {...field} type="email" placeholder="jane@example.com" />
                 </FormField>
               )}
             />
@@ -210,7 +211,7 @@ export default function UserUpsert() {
               control={control}
               render={({ field }) => (
                 <FormField label={t('fields.firstName')}>
-                  <Input {...field} placeholder={t('placeholders.firstName')} />
+                  <TextField {...field} placeholder={t('placeholders.firstName')} />
                 </FormField>
               )}
             />
@@ -219,7 +220,7 @@ export default function UserUpsert() {
               control={control}
               render={({ field }) => (
                 <FormField label={t('fields.lastName')}>
-                  <Input {...field} placeholder={t('placeholders.lastName')} />
+                  <TextField {...field} placeholder={t('placeholders.lastName')} />
                 </FormField>
               )}
             />
@@ -267,14 +268,6 @@ export default function UserUpsert() {
     </FormDrawer>
   );
 }
-
-const FormField = ({ label, error, children }: { label: string; error?: string; children: React.ReactNode }) => (
-  <div className="space-y-2">
-    <p className="text-sm font-medium text-muted-foreground">{label}</p>
-    {children}
-    {error ? <p className="text-xs text-destructive">{error}</p> : null}
-  </div>
-);
 
 const ReadOnlyField = ({ label, value }: { label: string; value: string | null | undefined }) => (
   <div className="space-y-1">

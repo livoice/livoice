@@ -3,9 +3,8 @@ import { useTranslation } from 'react-i18next';
 import { Link, Outlet, useParams } from 'react-router-dom';
 
 import ChatList from '@/containers/Chat/ChatList';
-import TranscriptsList from '@/containers/Transcripts/Transcripts';
 import { useProjectQuery } from '@/gql/generated';
-import { toProjectEdit, toProjects } from '@/services/linker';
+import { toProjectEdit, toProjects, toSource } from '@/services/linker';
 import { Card } from '@/ui';
 
 export default function Project() {
@@ -49,12 +48,26 @@ export default function Project() {
       <div className={`grid gap-6 lg:grid-cols-1`}>
         <div className="space-y-6">
           <ChatList projectId={projectId} />
-
-          <TranscriptsList
-            projectId={projectId}
-            title={project.name || t('projects.detail.untitled')}
-            showSummary={false}
-          />
+          <Card className="space-y-4 p-4">
+            <h2 className="text-lg font-semibold text-slate-900">{t('sources.list.title')}</h2>
+            <div className="space-y-2">
+              {project.sources?.length ? (
+                project.sources?.map(source =>
+                  source?.id ? (
+                    <Link
+                      key={source.id}
+                      to={toSource({ sourceId: source.id })}
+                      className="flex items-center justify-between rounded-xl border border-slate-200 bg-white px-3 py-2 text-sm text-slate-800 no-underline transition hover:bg-slate-50"
+                    >
+                      <span>{source.name || source.id}</span>
+                    </Link>
+                  ) : null
+                )
+              ) : (
+                <p className="text-sm text-muted-foreground">{t('sources.list.empty')}</p>
+              )}
+            </div>
+          </Card>
         </div>
 
         <Outlet />

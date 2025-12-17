@@ -1,0 +1,9 @@
+mutation DeleteSource($id: ID!) {
+  deleteSource(where: { id: $id }) {
+    id
+  }
+}
+
+
+
+
