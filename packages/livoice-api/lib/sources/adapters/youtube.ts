@@ -1,12 +1,25 @@
 import youtubeDlExec from 'youtube-dl-exec';
-import { Innertube, Log, YTNodes } from 'youtubei.js';
 import { TempFile } from '../../TempFile';
 import { SourceAdapter, SourceItem } from '../types';
 import { proxyFetch } from './utils/proxyFetch';
 import { secondsFromDuration } from './utils/secondsFromDuration';
 
-const youtubeClient = Innertube.create({ fetch: proxyFetch });
-Log.setLevel(Log.Level.WARNING);
+type YoutubeModule = typeof import('youtubei.js');
+type YoutubeClient = Awaited<ReturnType<YoutubeModule['Innertube']['create']>>;
+
+const getYoutubeClient = (() => {
+  let clientPromise: Promise<YoutubeClient> | null = null;
+  return async () => {
+    if (!clientPromise) {
+      clientPromise = (async () => {
+        const { Innertube, Log } = await import('youtubei.js');
+        Log.setLevel(Log.Level.WARNING);
+        return Innertube.create({ fetch: proxyFetch });
+      })();
+    }
+    return clientPromise;
+  };
+})();
 
 const extractChannelId = (url: string): string | null => {
   try {
@@ -22,7 +35,6 @@ const extractChannelId = (url: string): string | null => {
   }
 };
 
-type YoutubeClient = Awaited<typeof youtubeClient>;
 type YoutubeChannel = Awaited<ReturnType<YoutubeClient['getChannel']>>;
 type YoutubeVideosTab = Awaited<ReturnType<YoutubeChannel['getVideos']>>;
 type YoutubeVideoArray = YoutubeVideosTab['videos'];
@@ -41,7 +53,7 @@ const cloneVideos = (videos?: YoutubeVideoArray): YoutubeVideoArray => {
 };
 
 const isYoutubeVideo = (node: unknown): node is YoutubeVideo =>
-  node instanceof YTNodes.Video || typeof (node as { id?: unknown }).id === 'string';
+  typeof node === 'object' && node !== null && typeof (node as { id?: unknown }).id === 'string';
 
 const parsePublished = (published?: { text?: string }) => {
   const text = published?.text;
@@ -83,7 +95,7 @@ export const youtubeAdapter: SourceAdapter = {
   parseSourceUrl: (url: string | undefined | null) => extractChannelId(url ?? ''),
 
   listItems: async sourceExternalId => {
-    const client = await youtubeClient;
+    const client = await getYoutubeClient();
     console.log(`[youtubeAdapter] listItems: sourceExternalId=${sourceExternalId}`);
     const channelId = await toChannelId(client, sourceExternalId);
     console.log(`[youtubeAdapter] listItems: channelId=${channelId}`);

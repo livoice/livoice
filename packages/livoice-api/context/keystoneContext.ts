@@ -1,5 +1,5 @@
-import { getContext } from '@keystone-6/core/context';
 import { Context } from '.keystone/types';
+import { getContext } from '@keystone-6/core/context';
 
 let _keystoneContext: Context = (globalThis as any)._keystoneContext;
 export const getKeystoneContext = async () => {
