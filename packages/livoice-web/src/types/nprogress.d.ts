@@ -29,12 +29,3 @@ declare module 'nprogress' {
   const nprogress: NProgress;
   export default nprogress;
 }
-
-
-
-
-
-
-
-
-

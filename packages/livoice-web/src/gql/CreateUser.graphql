@@ -6,10 +6,3 @@ mutation CreateUser($data: UserCreateInput!) {
     isActive
   }
 }
-
-
-
-
-
-
-

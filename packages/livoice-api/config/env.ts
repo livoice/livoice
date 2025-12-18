@@ -4,7 +4,7 @@ dotenv.config();
 import { cleanEnv, num, str, url } from 'envalid';
 
 const DEFAULT_PORT = 3000;
-const DEFAULT_APP_URL = 'http://localhost:3000';
+const DEFAULT_APP_URL = `http://localhost:${DEFAULT_PORT}`;
 
 const env = cleanEnv(process.env, {
   NODE_ENV: str({ choices: ['development', 'production'], default: 'development' }),

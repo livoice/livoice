@@ -24,13 +24,3 @@ module.exports = {
     return config;
   }
 };
-
-
-
-
-
-
-
-
-
-
