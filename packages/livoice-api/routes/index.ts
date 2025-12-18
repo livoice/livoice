@@ -9,8 +9,6 @@ const publicDir = path.resolve(__dirname, '..', 'public');
 
 const extendExpressApp = async (app: Application, context: Context) => {
   app.use('/public', express.static(publicDir));
-
-  // Health check endpoint for readiness probes
   app.get('/health', (req, res) => {
     res.status(200).json({ status: 'ok' });
   });
