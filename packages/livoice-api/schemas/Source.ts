@@ -128,6 +128,14 @@ export default list({
       }
     },
     afterOperation: {
+      create: async ({ context, item }) => {
+        if (!item?.id) return;
+
+        await context.graphql.run({
+          query: `mutation TriggerSourceImport($sourceId: ID!) { triggerSourceImport(sourceId: $sourceId) { id } }`,
+          variables: { sourceId: item.id }
+        });
+      },
       delete: async ({ context, item }: { context: KeystoneContext; item?: { id?: string } }) => {
         if (!item?.id) return;
         const sudo = context.sudo();
