@@ -1,7 +1,6 @@
+import { existsSync } from 'fs';
 import path from 'path';
-import { packageDirectory } from 'pkg-dir';
 import youtubeDlExec from 'youtube-dl-exec';
-import env from '../../../config/env';
 import { TempFile } from '../../TempFile';
 import { SourceAdapter, SourceItem } from '../types';
 import { proxyFetch } from './utils/proxyFetch';
@@ -128,6 +127,7 @@ export const youtubeAdapter: SourceAdapter = {
     console.log('[youtubeAdapter] fetchSubtitles: itemExternalId=', itemExternalId);
 
     const tempFile = await TempFile.create();
+    const cookiesPath = path.resolve(__dirname, 'assets', 'youtube-cookies.txt');
 
     await youtubeDlExec(toVideoUrl(itemExternalId), {
       skipDownload: true,
@@ -136,7 +136,7 @@ export const youtubeAdapter: SourceAdapter = {
       subFormat: SUB_FORMAT,
       output: tempFile.path,
       jsRuntimes: 'node',
-      cookies: env.YOUTUBE_COOKIES_FILE ?? path.resolve((await packageDirectory()) ?? '', env.YOUTUBE_COOKIES_FILE)
+      cookies: existsSync(cookiesPath) ? cookiesPath : undefined
     } as Parameters<typeof youtubeDlExec>[1] & { jsRuntimes?: string; cookies?: string });
 
     const strContent = await tempFile.content(`.${LANG}.${SUB_FORMAT}`);
