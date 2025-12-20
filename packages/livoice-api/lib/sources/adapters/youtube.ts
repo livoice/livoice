@@ -1,4 +1,7 @@
+import path from 'path';
+import { packageDirectory } from 'pkg-dir';
 import youtubeDlExec from 'youtube-dl-exec';
+import env from '../../../config/env';
 import { TempFile } from '../../TempFile';
 import { SourceAdapter, SourceItem } from '../types';
 import { proxyFetch } from './utils/proxyFetch';
@@ -132,8 +135,9 @@ export const youtubeAdapter: SourceAdapter = {
       subLang: LANG,
       subFormat: SUB_FORMAT,
       output: tempFile.path,
-      jsRuntimes: 'node'
-    } as Parameters<typeof youtubeDlExec>[1] & { jsRuntimes?: string });
+      jsRuntimes: 'node',
+      cookies: env.YOUTUBE_COOKIES_FILE ?? path.resolve((await packageDirectory()) ?? '', env.YOUTUBE_COOKIES_FILE)
+    } as Parameters<typeof youtubeDlExec>[1] & { jsRuntimes?: string; cookies?: string });
 
     const strContent = await tempFile.content(`.${LANG}.${SUB_FORMAT}`);
     console.log(`[youtubeAdapter] fetchSubtitles: downloaded content length=${strContent.length}`);

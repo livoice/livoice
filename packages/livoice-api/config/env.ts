@@ -43,6 +43,9 @@ const env = cleanEnv(process.env, {
   CLOUDINARY_API_SECRET: str(),
   CLOUDINARY_API_FOLDER: str(),
 
+  // YouTube
+  YOUTUBE_COOKIES_FILE: str({ default: '' }),
+
   // Web
   VITE_BASE_API: url({ default: DEFAULT_BASE_API }),
   VITE_BASE_API_PATH: str({ default: '' }),
