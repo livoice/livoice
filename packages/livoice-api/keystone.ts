@@ -35,7 +35,7 @@ export default config({
     }
   },
   server: {
-    port: env.PORT,
+    port: env.PORT_API,
     cors,
     extendExpressApp,
     maxFileSize: 50 * 1024 * 1024

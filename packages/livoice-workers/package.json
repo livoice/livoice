@@ -1,0 +1,18 @@
+{
+  "name": "livoice-workers",
+  "version": "1.0.0",
+  "private": true,
+  "scripts": {
+    "dev": "tsx watch --inspect src/index.ts",
+    "start": "tsx src/index.ts"
+  },
+  "dependencies": {
+    "livoice-api": "*",
+    "bullmq": "^5.65.0",
+    "cron-parser": "^5.4.0"
+  },
+  "devDependencies": {
+    "tsx": "^4.19.2",
+    "typescript": "^5.5.0"
+  }
+}

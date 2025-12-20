@@ -1,11 +1,11 @@
-import { getKeystoneContext } from '../context/keystoneContext';
-import { getSourceAdapter } from '../lib/sources';
-import { fetchPendingTranscript, processTranscriptImport } from '../lib/transcripts';
+import { getKeystoneContext } from 'livoice-api/context/keystoneContext';
+import { getSourceAdapter } from 'livoice-api/lib/sources';
+import { fetchPendingTranscript, processTranscriptImport } from 'livoice-api/lib/transcripts';
 import { runForever } from './utils/loop';
 
 const SLEEP_MS = 5_000;
 
-export const startTranscriptWorker = async () => {
+export const start = async () => {
   const context = await getKeystoneContext();
   const prisma = context.sudo().prisma;
 
@@ -38,12 +38,12 @@ export const startTranscriptWorker = async () => {
       return false;
     }
 
-    console.log(`[transcript-worker] processing transcript ${transcript.id}`);
+    console.log(`[transcriber] processing transcript ${transcript.id}`);
 
     try {
       await processTranscriptImport(prisma, transcript, adapter);
     } catch (error) {
-      console.error(`[transcript-worker] failed to import transcript ${transcript.id}:`, error);
+      console.error(`[transcriber] failed to import transcript ${transcript.id}:`, error);
     }
 
     return false;

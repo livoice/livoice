@@ -77,7 +77,6 @@ export const processImportSource = async (job: Job<ImportSourceJob>) => {
   };
 
   try {
-    // TODO: only for debugging
     const items = await adapter.listItems(source.externalId);
     const itemsFound = items.length;
 

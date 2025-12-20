@@ -1,46 +1,62 @@
 import dotenv from 'dotenv';
-dotenv.config();
+import path from 'path';
+
+// Load .env from monorepo root
+dotenv.config({ path: path.resolve(__dirname, '../../../.env') });
 
 import { cleanEnv, num, str, url } from 'envalid';
 
 const DEFAULT_PORT = 3000;
-const DEFAULT_APP_URL = `http://localhost:${DEFAULT_PORT}`;
+const DEFAULT_BASE_API = `http://localhost:${DEFAULT_PORT}`;
 
 const env = cleanEnv(process.env, {
   NODE_ENV: str({ choices: ['development', 'production'], default: 'development' }),
-  PORT: num({ default: DEFAULT_PORT }),
+
+  // API
+  PORT_API: num({ default: DEFAULT_PORT }),
   DATABASE_URL: url(),
-  /**
-   * The secret used to encrypt session data and magic links using @hapi/iron.
-   * Please use a 32-char or more password.
-   */
-  SESSION_SECRET: str(),
-  APP_URL: url({ default: DEFAULT_APP_URL }),
-  NEXTAUTH_URL: url(), // must be set in .env - the npm package reads from there
-
-  COOKIE_DOMAIN: str({ default: 'localhost' }),
-
   DATABASE_PROVIDER: str({ choices: ['sqlite', 'postgresql', 'mysql'], default: 'sqlite' }),
+  SESSION_SECRET: str(),
+  APP_URL: url({ default: DEFAULT_BASE_API }),
+  NEXTAUTH_URL: url(), // must be set in .env - the npm package reads from there
+  COOKIE_DOMAIN: str({ default: 'localhost' }),
+  ALLOWED_ORIGINS: str(),
 
+  // OpenAI
   OPENAI_API_KEY: str(),
   OPENAI_MODEL: str({ default: 'gpt-4o-mini' }),
   OPENAI_EMBEDDING_MODEL: str({ default: 'text-embedding-3-small' }),
+
+  // Redis
   REDIS_HOST: str({ default: 'localhost' }),
   REDIS_PORT: num({ default: 6379 }),
   REDIS_PASSWORD: str({ default: '' }),
   REDIS_TLS: str({ choices: ['true', 'false'], default: 'false' }),
 
+  // Google Cloud
   GOOGLE_CLIENT_ID: str(),
   GOOGLE_CLIENT_SECRET: str(),
 
+  // Cloudinary
   CLOUDINARY_CLOUD_NAME: str(),
   CLOUDINARY_API_KEY: str(),
   CLOUDINARY_API_SECRET: str(),
-  CLOUDINARY_API_FOLDER: str()
+  CLOUDINARY_API_FOLDER: str(),
+
+  // Web
+  VITE_BASE_API: url({ default: DEFAULT_BASE_API }),
+  VITE_BASE_API_PATH: str({ default: '' }),
+  VITE_BASE_APP: url({ default: DEFAULT_BASE_API })
 });
 
-// Compute BASE_URL and ALLOWED_ORIGINS dynamically based on PORT
-const BASE_URL = `http://localhost:${env.PORT}`;
-const ALLOWED_ORIGINS = [DEFAULT_APP_URL, BASE_URL].join(',');
+const { VITE_BASE_APP, VITE_BASE_API, ...restEnv } = env;
 
-export default { ...env, BASE_URL, ALLOWED_ORIGINS };
+const BASE_APP = VITE_BASE_APP;
+const BASE_API = VITE_BASE_API ?? `http://localhost:${env.PORT_API}`;
+
+export default {
+  ...restEnv,
+  BASE_APP,
+  BASE_API,
+  ALLOWED_ORIGINS: [...env.ALLOWED_ORIGINS.split(','), BASE_APP, BASE_API]
+};

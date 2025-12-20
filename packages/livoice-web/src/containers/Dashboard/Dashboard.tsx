@@ -1,7 +1,6 @@
-import { useTranslation } from 'react-i18next';
-
 import { useAuth } from '@/hooks/auth/useAuth';
 import { PageHeader } from '@/ui';
+import { useTranslation } from 'react-i18next';
 
 export default function Dashboard() {
   const { user } = useAuth();

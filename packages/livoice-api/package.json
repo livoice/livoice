@@ -3,17 +3,19 @@
   "version": "1.0.3",
   "private": true,
   "scripts": {
-    "dev": "concurrently --names \"api,worker\" --prefix \"[{name}]\" --prefix-colors \"magenta,green\" \"npm run dev:api\" \"npm run dev:worker\"",
-    "dev:api": "keystone dev",
-    "dev:worker": "tsx watch --inspect workers/index.ts",
-    "start": "concurrently --names \"api,worker\" --prefix \"[{name}]\" --prefix-colors \"magenta,green\" \"npm run start:api\" \"npm run start:worker\"",
-    "start:api": "NODE_ENV=production keystone start",
-    "start:worker": "tsx workers/index.ts",
+    "dev": "keystone dev",
+    "start": "NODE_ENV=production keystone start",
     "build": "NODE_ENV=production keystone build",
     "test": "tsx tests/**/*.test.ts",
     "prisma:hardreset": "keystone prisma db push --force-reset",
     "prisma:migrate:dev": "keystone prisma migrate dev",
     "prisma:migrate:deploy": "keystone prisma migrate deploy"
+  },
+  "exports": {
+    "./context/*": "./context/*",
+    "./lib/*": "./lib/*",
+    "./jobs/*": "./jobs/*",
+    "./config/*": "./config/*"
   },
   "dependencies": {
     "@bull-board/api": "^6.0.0",
@@ -42,8 +44,7 @@
     "undici": "^7.16.0",
     "user-agents": "^1.1.669",
     "youtube-dl-exec": "^3.0.27",
-    "youtubei.js": "^16.0.1",
-    "concurrently": "^9.0.0"
+    "youtubei.js": "^16.0.1"
   },
   "devDependencies": {
     "@eslint/js": "^9.29.0",

@@ -234,7 +234,7 @@ export const nextAuthOptions: NextAuthOptions = {
         return url;
       }
 
-      if (!url.startsWith(env.APP_URL) && !url.startsWith(baseUrl)) return baseUrl;
+      if (!url.startsWith(env.BASE_APP) && !url.startsWith(baseUrl)) return baseUrl;
       return url;
     }
   }
