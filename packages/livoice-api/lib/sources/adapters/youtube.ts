@@ -131,8 +131,9 @@ export const youtubeAdapter: SourceAdapter = {
       writeAutoSub: true,
       subLang: LANG,
       subFormat: SUB_FORMAT,
-      output: tempFile.path
-    });
+      output: tempFile.path,
+      jsRuntimes: 'node'
+    } as Parameters<typeof youtubeDlExec>[1] & { jsRuntimes?: string });
 
     const strContent = await tempFile.content(`.${LANG}.${SUB_FORMAT}`);
     console.log(`[youtubeAdapter] fetchSubtitles: downloaded content length=${strContent.length}`);
