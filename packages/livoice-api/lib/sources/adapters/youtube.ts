@@ -126,22 +126,59 @@ export const youtubeAdapter: SourceAdapter = {
 
     console.log('[youtubeAdapter] fetchSubtitles: itemExternalId=', itemExternalId);
 
-    const tempFile = await TempFile.create();
-    const cookiesPath = path.resolve(__dirname, 'assets', 'youtube-cookies.txt');
+    try {
+      const tempFile = await TempFile.create();
 
-    await youtubeDlExec(toVideoUrl(itemExternalId), {
-      skipDownload: true,
-      writeAutoSub: true,
-      subLang: LANG,
-      subFormat: SUB_FORMAT,
-      output: tempFile.path,
-      jsRuntimes: 'node',
-      cookies: existsSync(cookiesPath) ? cookiesPath : undefined
-    } as Parameters<typeof youtubeDlExec>[1] & { jsRuntimes?: string; cookies?: string });
+      // Resolve cookies path - try multiple methods for compatibility
+      const cookiesPath = (() => {
+        if (typeof __dirname !== 'undefined') {
+          return path.resolve(__dirname, 'assets', 'youtube-cookies.txt');
+        }
+        // Fallback: resolve from process.cwd() and known structure
+        try {
+          return path.resolve(process.cwd(), 'lib', 'sources', 'adapters', 'assets', 'youtube-cookies.txt');
+        } catch {
+          // Last resort: relative to current working directory
+          return path.resolve(
+            process.cwd(),
+            'packages',
+            'livoice-api',
+            'lib',
+            'sources',
+            'adapters',
+            'assets',
+            'youtube-cookies.txt'
+          );
+        }
+      })();
 
-    const strContent = await tempFile.content(`.${LANG}.${SUB_FORMAT}`);
-    console.log(`[youtubeAdapter] fetchSubtitles: downloaded content length=${strContent.length}`);
+      const hasCookies = existsSync(cookiesPath);
+      console.log(`[youtubeAdapter] cookiesPath: ${cookiesPath}`);
+      console.log(`[youtubeAdapter] cookies file exists: ${hasCookies}`);
+      console.log(`[youtubeAdapter] __dirname: ${typeof __dirname !== 'undefined' ? __dirname : 'undefined'}`);
+      console.log(`[youtubeAdapter] process.cwd(): ${process.cwd()}`);
 
-    return strContent;
+      await youtubeDlExec(toVideoUrl(itemExternalId), {
+        skipDownload: true,
+        writeAutoSub: true,
+        subLang: LANG,
+        subFormat: SUB_FORMAT,
+        output: tempFile.path,
+        jsRuntimes: 'node',
+        cookies: hasCookies ? cookiesPath : undefined
+      } as Parameters<typeof youtubeDlExec>[1] & { jsRuntimes?: string; cookies?: string });
+
+      const strContent = await tempFile.content(`.${LANG}.${SUB_FORMAT}`);
+      console.log(`[youtubeAdapter] fetchSubtitles: downloaded content length=${strContent.length}`);
+
+      return strContent;
+    } catch (error) {
+      console.error(`[youtubeAdapter] fetchSubtitles failed for ${itemExternalId}:`, error);
+      if (error instanceof Error) {
+        console.error(`[youtubeAdapter] Error message: ${error.message}`);
+        console.error(`[youtubeAdapter] Error stack: ${error.stack}`);
+      }
+      throw error;
+    }
   }
 };
