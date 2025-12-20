@@ -158,15 +158,27 @@ export const youtubeAdapter: SourceAdapter = {
       console.log(`[youtubeAdapter] __dirname: ${typeof __dirname !== 'undefined' ? __dirname : 'undefined'}`);
       console.log(`[youtubeAdapter] process.cwd(): ${process.cwd()}`);
 
-      await youtubeDlExec(toVideoUrl(itemExternalId), {
+      const execOptions = {
         skipDownload: true,
         writeAutoSub: true,
         subLang: LANG,
         subFormat: SUB_FORMAT,
         output: tempFile.path,
-        jsRuntimes: 'node',
-        cookies: hasCookies ? cookiesPath : undefined
-      } as Parameters<typeof youtubeDlExec>[1] & { jsRuntimes?: string; cookies?: string });
+        jsRuntimes: 'node' as const,
+        ...(hasCookies ? { cookies: cookiesPath } : {})
+      } as Parameters<typeof youtubeDlExec>[1] & { jsRuntimes?: string; cookies?: string };
+
+      console.log(`[youtubeAdapter] Calling youtubeDlExec with options:`, {
+        skipDownload: execOptions.skipDownload,
+        writeAutoSub: execOptions.writeAutoSub,
+        subLang: execOptions.subLang,
+        subFormat: execOptions.subFormat,
+        jsRuntimes: execOptions.jsRuntimes,
+        hasCookies: hasCookies,
+        cookiesPath: hasCookies ? cookiesPath : 'none'
+      });
+
+      await youtubeDlExec(toVideoUrl(itemExternalId), execOptions);
 
       const strContent = await tempFile.content(`.${LANG}.${SUB_FORMAT}`);
       console.log(`[youtubeAdapter] fetchSubtitles: downloaded content length=${strContent.length}`);
