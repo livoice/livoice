@@ -7,9 +7,9 @@
     "start": "NODE_ENV=production keystone start",
     "build": "NODE_ENV=production keystone build",
     "test": "tsx tests/**/*.test.ts",
-    "prisma:hardreset": "keystone prisma db push --force-reset",
-    "prisma:migrate:dev": "keystone prisma migrate dev",
-    "prisma:migrate:deploy": "keystone prisma migrate deploy"
+    "prisma:hardreset": "dotenv -e ../../.env -- prisma db push --force-reset",
+    "prisma:migrate:dev": "dotenv -e ../../.env -- prisma migrate dev",
+    "prisma:migrate:deploy": "dotenv -e ../../.env -- prisma migrate deploy"
   },
   "exports": {
     "./context/*": "./context/*",
@@ -55,6 +55,7 @@
     "@types/user-agents": "^1.0.4",
     "@typescript-eslint/eslint-plugin": "^8.35.0",
     "@typescript-eslint/parser": "^8.35.0",
+    "dotenv-cli": "^11.0.0",
     "eslint": "^9.28.0",
     "eslint-import-resolver-typescript": "^4.4.4",
     "eslint-plugin-import": "^2.32.0",
