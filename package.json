@@ -9,9 +9,9 @@
     "dev": "concurrently -n web,api,worker -c \"cyan,magenta,green\" \"npm run dev:web\" \"npm run dev:api\" \"npm run dev:worker\"",
     "dev:web": "npm run dev --workspace=livoice-web",
     "dev:api": "npm run dev --workspace=livoice-api",
-    "dev:worker": "npm run dev --workspace=livoice-workers",
+    "dev:workers": "npm run dev --workspace=livoice-workers",
     "start:api": "npm run start --workspace=livoice-api",
-    "start:worker": "npm run start --workspace=livoice-workers",
+    "start:workers": "npm run start --workspace=livoice-workers",
     "clean": "rm -rf node_modules packages/*/node_modules packages/*/package-lock.json packages/*/yarn.lock package-lock.json yarn.lock"
   },
   "devDependencies": {
