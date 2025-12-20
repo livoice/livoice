@@ -1,9 +1,11 @@
 import { getKeystoneContext } from 'livoice-api/context/keystoneContext';
 import { getSourceAdapter } from 'livoice-api/lib/sources';
 import { fetchPendingTranscript, processTranscriptImport } from 'livoice-api/lib/transcripts';
+import PQueue from 'p-queue';
 import { runForever } from './utils/loop';
 
 const SLEEP_MS = 5_000;
+const transcriptImportQueue = new PQueue({ concurrency: 1 });
 
 export const start = async () => {
   const context = await getKeystoneContext();
@@ -41,7 +43,7 @@ export const start = async () => {
     console.log(`[transcriber] processing transcript ${transcript.id}`);
 
     try {
-      await processTranscriptImport(prisma, transcript, adapter);
+      await transcriptImportQueue.add(() => processTranscriptImport(prisma, transcript, adapter));
     } catch (error) {
       console.error(`[transcriber] failed to import transcript ${transcript.id}:`, error);
       if (error instanceof Error) {
