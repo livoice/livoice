@@ -1,5 +1,6 @@
 import { graphql as g } from '@keystone-6/core';
 import type { BaseSchemaMeta } from '@keystone-6/core/dist/declarations/src/types/schema/graphql-ts-schema';
+import type { KeystoneContext } from '@keystone-6/core/types';
 import type { Session } from '../../auth';
 import { ChatHistoryItem, SegmentReference, loadChatHistory, runChatConversation } from '../../services/chat';
 
@@ -67,19 +68,13 @@ const ProjectChatInput = g.inputObject({
   }
 });
 
-const getSession = (context: BaseSchemaMeta['context']) => {
+const getSession = (context: KeystoneContext) => {
   const session = context.session as Session | undefined;
   if (!session?.id) throw new Error('Unauthorized');
   return session;
 };
 
-const findLatestChat = async ({
-  context,
-  where
-}: {
-  context: BaseSchemaMeta['context'];
-  where: Record<string, unknown>;
-}) => {
+const findLatestChat = async ({ context, where }: { context: KeystoneContext; where: Record<string, unknown> }) => {
   const chats = await context.sudo().query.Chat.findMany({
     where,
     orderBy: [{ createdAt: 'desc' }],
@@ -92,7 +87,7 @@ const findLatestChat = async ({
   return { chatId: record.id, messages: history };
 };
 
-export const ChatExtension = (base: BaseSchemaMeta) => ({
+export const ChatExtension = (_base: BaseSchemaMeta) => ({
   query: {
     chatTranscriptHistory: g.field({
       type: g.nonNull(ChatHistoryResult),

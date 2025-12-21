@@ -1,8 +1,20 @@
+import type { TypeInfo } from '.keystone/types';
 import type { KeystoneContext } from '@keystone-6/core/types';
 import { intervalToDuration } from 'date-fns';
 import type { Session } from '../auth';
 import { createEmbeddings, getOpenAIClient, openAiModel } from '../lib/openai';
 import { formatVectorLiteral } from '../lib/pgvector';
+
+type ProjectWithOrg = Pick<TypeInfo['lists']['Project']['item'], 'id' | 'name'> & {
+  org: Pick<TypeInfo['lists']['Organization']['item'], 'id'> | null;
+};
+
+type TranscriptSegmentWithTranscript = Pick<
+  TypeInfo['lists']['TranscriptSegment']['item'],
+  'id' | 'text' | 'startMs' | 'endMs' | 'speaker'
+> & {
+  transcript: Pick<TypeInfo['lists']['Transcript']['item'], 'title'> | null;
+};
 
 type SegmentRecord = {
   id: string;
@@ -92,23 +104,21 @@ const fetchSegments = async ({ context, projectId, transcriptId, queryText }: Fe
   const isTranscriptContext = Boolean(transcriptId);
 
   const fallback = async () => {
-    const baseArgs = isTranscriptContext
-      ? {
-          where: { transcript: { id: { equals: transcriptId } } }
-        }
-      : {
-          where: {
-            transcript: {
+    const baseArgs = {
+      where: {
+        transcript: isTranscriptContext
+          ? { id: { equals: transcriptId } }
+          : {
               source: {
                 projects: {
                   some: {
-                id: { equals: projectId }
+                    id: { equals: projectId }
                   }
                 }
               }
             }
-          }
-        };
+      }
+    };
 
     const segments = await sudoContext.query.TranscriptSegment.findMany({
       ...baseArgs,
@@ -204,7 +214,7 @@ const fetchChatHistory = async (context: KeystoneContext, chatId: string): Promi
     role: msg.role as 'user' | 'assistant',
     content: msg.content,
     createdAt: msg.createdAt ?? null,
-    segments: (msg.segments ?? []).map(segment => ({
+    segments: (msg.segments ?? []).map((segment: TranscriptSegmentWithTranscript) => ({
       id: segment.id,
       text: segment.text,
       startMs: typeof segment.startMs === 'number' ? segment.startMs : null,
@@ -223,9 +233,11 @@ const getOpenAiMessages = ({
   history: { role: 'user' | 'assistant'; content: string }[];
   systemPrompt: string;
   userMessage: string;
-}) => {
+}): Array<{ role: 'system' | 'user' | 'assistant'; content: string }> => {
   const trimmedHistory = history.slice(-6);
-  const messages = [{ role: 'system', content: systemPrompt }];
+  const messages: Array<{ role: 'system' | 'user' | 'assistant'; content: string }> = [
+    { role: 'system', content: systemPrompt }
+  ];
   trimmedHistory.forEach(item => messages.push({ role: item.role, content: item.content }));
   messages.push({ role: 'user', content: userMessage });
   return messages;
@@ -276,7 +288,7 @@ export const runChatConversation = async ({
     });
     if (!transcript) throw new Error('Transcript not found');
     const project =
-      transcript.source?.projects?.find(project => project.org?.id === session.orgId) ??
+      transcript.source?.projects?.find((project: ProjectWithOrg) => project.org?.id === session.orgId) ??
       transcript.source?.projects?.[0];
     if (!project?.id) throw new Error('Transcript is missing project reference');
     return { targetTranscript: transcript, targetProject: project };
@@ -322,20 +334,21 @@ export const runChatConversation = async ({
     transcriptName: targetTranscript?.title
   });
 
-  const chatId =
+  const chatId = String(
     input.chatId ??
-    (
-      await sudoContext.db.Chat.createOne({
-        data: {
-          title: isTranscriptContext
-            ? `Transcript chat • ${targetTranscript?.title ?? 'untitled'}`
-            : `Project chat • ${targetProject?.name ?? 'untitled'}`,
-          org: { connect: { id: session.orgId } },
-          ...(projectId ? { project: { connect: { id: projectId } } } : {}),
-          ...(transcriptId ? { transcript: { connect: { id: transcriptId } } } : {})
-        }
-      })
-    )?.id;
+      (
+        await sudoContext.db.Chat.createOne({
+          data: {
+            title: isTranscriptContext
+              ? `Transcript chat • ${targetTranscript?.title ?? 'untitled'}`
+              : `Project chat • ${targetProject?.name ?? 'untitled'}`,
+            org: { connect: { id: session.orgId } },
+            ...(projectId ? { project: { connect: { id: projectId } } } : {}),
+            ...(transcriptId ? { transcript: { connect: { id: transcriptId } } } : {})
+          }
+        })
+      )?.id
+  );
 
   if (!chatId) throw new Error('Failed to create chat session');
 
