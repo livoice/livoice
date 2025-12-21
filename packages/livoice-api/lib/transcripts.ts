@@ -1,4 +1,5 @@
-import type { Prisma, PrismaClient } from '@prisma/client';
+import type { Prisma, Transcript, TranscriptImportStatusType } from '@prisma/client';
+import { getKeystoneContext } from 'livoice-api/context/keystoneContext';
 import type { SourceAdapter } from './sources/types';
 import { toTranscriptSegments } from './toTranscriptSegments';
 
@@ -8,8 +9,10 @@ export type TranscriptWithSource = Prisma.TranscriptGetPayload<{
   include: { source: true };
 }>;
 
-export const fetchPendingTranscript = async (prisma: PrismaClient): Promise<TranscriptWithSource | null> =>
-  prisma.transcript.findFirst({
+const getPrisma = async () => (await getKeystoneContext()).sudo().prisma;
+
+export const fetchPendingTranscript = async (): Promise<TranscriptWithSource | null> =>
+  (await getPrisma()).transcript.findFirst({
     where: {
       OR: [
         { importStatus: 'pending' },
@@ -20,18 +23,27 @@ export const fetchPendingTranscript = async (prisma: PrismaClient): Promise<Tran
     orderBy: { createdAt: 'asc' }
   });
 
-export const processTranscriptImport = async (
-  prisma: PrismaClient,
-  transcript: TranscriptWithSource,
-  adapter: SourceAdapter
+export const updateTranscriptStatus = async (
+  transcript: Transcript,
+  importStatus: TranscriptImportStatusType,
+  importError: string = ''
 ) => {
-  await prisma.transcript.update({
+  await (
+    await getPrisma()
+  ).transcript.update({
     where: { id: transcript.id },
     data: {
-      importStatus: 'fetching',
-      importError: ''
+      importStatus,
+      importAttempts: { increment: 1 },
+      importError
     }
   });
+  return false;
+};
+
+export const processTranscriptImport = async (transcript: TranscriptWithSource, adapter: SourceAdapter) => {
+  const prisma = await getPrisma();
+  await updateTranscriptStatus(transcript, 'fetching');
 
   try {
     const transcriptSegments = toTranscriptSegments(await adapter.fetchTranscript(transcript.externalId));
@@ -55,23 +67,13 @@ export const processTranscriptImport = async (
       });
     }
 
-    await prisma.transcript.update({
-      where: { id: transcript.id },
-      data: {
-        importStatus: isEmpty ? 'skipped' : 'completed',
-        importError: ''
-      }
-    });
+    await updateTranscriptStatus(transcript, isEmpty ? 'skipped' : 'completed');
   } catch (error) {
-    const message = error instanceof Error ? error.message : 'Transcript import failed';
-    await prisma.transcript.update({
-      where: { id: transcript.id },
-      data: {
-        importStatus: 'failed',
-        importAttempts: { increment: 1 },
-        importError: message
-      }
-    });
+    await updateTranscriptStatus(
+      transcript,
+      'failed',
+      error instanceof Error ? error.message : 'Transcript import failed'
+    );
     throw error;
   }
 };

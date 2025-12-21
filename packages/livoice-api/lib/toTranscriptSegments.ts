@@ -45,7 +45,10 @@ const parseSrt = (srt: string): ParsedSegment[] =>
       ): ParsedSegment | null => {
         const startMs = toMilliseconds(cue.startTime);
         const endMs = toMilliseconds(cue.endTime);
-        if (endMs <= startMs) throw new Error('Segment end must be greater than start');
+        if (endMs < startMs)
+          throw new Error(
+            `Segment end must be greater than start: got ${endMs} < ${startMs} ( ${cue.startTime} -> ${cue.endTime})`
+          );
 
         const joinedText = normalizeWhitespace(cue.text.replace(/\n+/g, ' '));
         if (!joinedText) return null;
