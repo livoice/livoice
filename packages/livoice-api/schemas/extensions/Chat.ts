@@ -2,7 +2,7 @@ import { graphql as g } from '@keystone-6/core';
 import type { BaseSchemaMeta } from '@keystone-6/core/dist/declarations/src/types/schema/graphql-ts-schema';
 import type { KeystoneContext } from '@keystone-6/core/types';
 import type { Session } from '../../auth';
-import { ChatHistoryItem, SegmentReference, loadChatHistory, runChatConversation } from '../../services/chat';
+import { ChatHistoryItem, SegmentReference, fetchChatHistory, runChatConversation } from '../../services/chat';
 
 const ChatSegmentReference = g.object<SegmentReference>()({
   name: 'ChatSegmentReference',
@@ -83,7 +83,7 @@ const findLatestChat = async ({ context, where }: { context: KeystoneContext; wh
   });
   const record = chats?.[0];
   if (!record?.id) return null;
-  const history = await loadChatHistory(context, record.id);
+  const history = await fetchChatHistory(context, record.id);
   return { chatId: record.id, messages: history };
 };
 
