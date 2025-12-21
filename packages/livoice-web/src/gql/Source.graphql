@@ -11,6 +11,35 @@ query Source($id: ID!) {
     importCompletedAt
     importHistory
     transcriptsCount
+    transcriptImportProgress {
+      total
+      pending
+      fetching
+      completed
+      failed
+      skipped
+      pendingPercentage
+      fetchingPercentage
+      completedPercentage
+      failedPercentage
+      skippedPercentage
+    }
+    transcriptEmbeddingProgress {
+      total
+      pending
+      processing
+      completed
+      failed
+      pendingPercentage
+      processingPercentage
+      completedPercentage
+      failedPercentage
+    }
+    overallProgress {
+      importCompletedPercentage
+      embeddingCompletedPercentage
+      overallPercentage
+    }
     transcripts {
       id
       title

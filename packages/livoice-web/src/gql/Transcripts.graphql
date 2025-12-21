@@ -6,6 +6,15 @@ query Transcripts($sourceId: ID) {
     notes
     createdAt
     segmentsCount
+    importStatus
+    embeddingStatus
+    segmentEmbeddingProgress {
+      total
+      embedded
+      notEmbedded
+      embeddedPercentage
+      notEmbeddedPercentage
+    }
     source {
       id
       name

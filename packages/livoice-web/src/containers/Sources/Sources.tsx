@@ -103,16 +103,31 @@ export default function Sources() {
                     </div>
                   </div>
                   <div className="flex items-center justify-between gap-4 sm:justify-end">
-                    <div className="flex items-center gap-3 text-sm text-slate-600">
-                      <span className="rounded-full bg-slate-100 px-3 py-1 text-xs font-semibold text-slate-700">
-                        {typeLabel[source.type ?? ''] ?? source.type ?? '—'}
-                      </span>
-                      <span className="rounded-full bg-slate-50 px-3 py-1 text-xs font-semibold text-slate-600">
-                        {statusLabel[source.importStatus ?? ''] ?? source.importStatus ?? '—'}
-                      </span>
-                      <span className="text-sm font-semibold text-slate-900">
-                        {t('sources.list.columns.transcripts')}: {source.transcriptsCount ?? 0}
-                      </span>
+                    <div className="flex flex-col items-end gap-2">
+                      {source.overallProgress && (
+                        <div className="flex items-center gap-2">
+                          <div className="h-1.5 w-20 overflow-hidden rounded-full bg-slate-200">
+                            <div
+                              className="h-full bg-primary transition-all"
+                              style={{ width: `${source.overallProgress.overallPercentage}%` }}
+                            />
+                          </div>
+                          <span className="text-xs font-semibold text-slate-600">
+                            {Math.round(source.overallProgress.overallPercentage)}%
+                          </span>
+                        </div>
+                      )}
+                      <div className="flex items-center gap-3 text-sm text-slate-600">
+                        <span className="rounded-full bg-slate-100 px-3 py-1 text-xs font-semibold text-slate-700">
+                          {typeLabel[source.type ?? ''] ?? source.type ?? '—'}
+                        </span>
+                        <span className="rounded-full bg-slate-50 px-3 py-1 text-xs font-semibold text-slate-600">
+                          {statusLabel[source.importStatus ?? ''] ?? source.importStatus ?? '—'}
+                        </span>
+                        <span className="text-sm font-semibold text-slate-900">
+                          {t('sources.list.columns.transcripts')}: {source.transcriptsCount ?? 0}
+                        </span>
+                      </div>
                     </div>
                     <Button
                       variant="outline"

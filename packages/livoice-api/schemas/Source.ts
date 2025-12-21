@@ -1,7 +1,7 @@
+import type { TypeInfo } from '.keystone/types';
 import { graphql, list } from '@keystone-6/core';
 import { json, relationship, select, text, timestamp, virtual } from '@keystone-6/core/fields';
 import type { KeystoneContext } from '@keystone-6/core/types';
-import { CronExpressionParser } from 'cron-parser';
 import { canEditOrgData, filterByUserOrg, isAuthenticated, isGod, isOrgAdmin } from '../domains/auth/userRole';
 import { triggerButton } from '../fields/TriggerButton';
 import { virtualTypedJson } from '../fields/VirtualTypedJson';
@@ -9,6 +9,19 @@ import { aDate } from '../lib/date';
 import { getSourceAdapter } from '../lib/sources';
 import { SourceType } from '../lib/sources/types';
 import { SourceImportHistoryEntry, SourceImportHistoryEntryGraphqlType } from './extensions/SourceImportHistoryEntry';
+import {
+  OverallProgressGraphqlType,
+  TranscriptEmbeddingProgressGraphqlType,
+  TranscriptImportProgressGraphqlType
+} from './extensions/SourceImportProgress';
+import {
+  resolveImportNextAt,
+  resolveOverallProgress,
+  resolveTranscriptEmbeddingProgress,
+  resolveTranscriptImportProgress
+} from './resolvers/sourceResolvers';
+
+export type SourceItem = TypeInfo['lists']['Source']['item'];
 const SOURCE_TYPES = [{ label: 'YouTube Channel', value: 'youtube_channel' }] as const;
 
 const IMPORT_STATUSES = [
@@ -34,16 +47,7 @@ export default list({
     importNextAt: virtual({
       field: graphql.field({
         type: graphql.DateTime,
-        resolve: item => {
-          if (!item?.importCronExpression) return null;
-          try {
-            return CronExpressionParser.parse(item.importCronExpression as string)
-              .next()
-              .toDate();
-          } catch {
-            return null;
-          }
-        }
+        resolve: resolveImportNextAt
       })
     }),
     importHistory: json(),
@@ -59,6 +63,36 @@ export default list({
             startedAt: aDate(entry?.startedAt),
             completedAt: aDate(entry?.completedAt)
           }))
+      })
+    }),
+    transcriptImportProgress: virtual({
+      ui: {
+        listView: { fieldMode: 'hidden' },
+        itemView: { fieldMode: 'hidden' }
+      },
+      field: graphql.field({
+        type: TranscriptImportProgressGraphqlType,
+        resolve: resolveTranscriptImportProgress
+      })
+    }),
+    transcriptEmbeddingProgress: virtual({
+      ui: {
+        listView: { fieldMode: 'hidden' },
+        itemView: { fieldMode: 'hidden' }
+      },
+      field: graphql.field({
+        type: TranscriptEmbeddingProgressGraphqlType,
+        resolve: resolveTranscriptEmbeddingProgress
+      })
+    }),
+    overallProgress: virtual({
+      ui: {
+        listView: { fieldMode: 'hidden' },
+        itemView: { fieldMode: 'hidden' }
+      },
+      field: graphql.field({
+        type: OverallProgressGraphqlType,
+        resolve: resolveOverallProgress
       })
     }),
     org: relationship({ ref: 'Organization.sources', many: false }),

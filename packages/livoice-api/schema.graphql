@@ -480,6 +480,9 @@ type Source {
   importNextAt: DateTime
   importHistory: JSON
   importHistoryTyped: [ImportHistoryEntry]
+  transcriptImportProgress: TranscriptImportProgress
+  transcriptEmbeddingProgress: TranscriptEmbeddingProgress
+  overallProgress: OverallProgress
   org: Organization
   transcripts(where: TranscriptWhereInput! = {}, orderBy: [TranscriptOrderByInput!]! = [], take: Int, skip: Int! = 0, cursor: TranscriptWhereUniqueInput): [Transcript!]
   transcriptsCount(where: TranscriptWhereInput! = {}): Int
@@ -507,6 +510,38 @@ type ImportHistoryEntry {
   itemsSkipped: Int
   itemsFailed: Int
   error: String
+}
+
+type TranscriptImportProgress {
+  total: Int!
+  pending: Int!
+  fetching: Int!
+  completed: Int!
+  failed: Int!
+  skipped: Int!
+  pendingPercentage: Float!
+  fetchingPercentage: Float!
+  completedPercentage: Float!
+  failedPercentage: Float!
+  skippedPercentage: Float!
+}
+
+type TranscriptEmbeddingProgress {
+  total: Int!
+  pending: Int!
+  processing: Int!
+  completed: Int!
+  failed: Int!
+  pendingPercentage: Float!
+  processingPercentage: Float!
+  completedPercentage: Float!
+  failedPercentage: Float!
+}
+
+type OverallProgress {
+  importCompletedPercentage: Float!
+  embeddingCompletedPercentage: Float!
+  overallPercentage: Float!
 }
 
 input SourceWhereUniqueInput {
@@ -618,6 +653,7 @@ type Transcript {
   segmentsCount(where: TranscriptSegmentWhereInput! = {}): Int
   chats(where: ChatWhereInput! = {}, orderBy: [ChatOrderByInput!]! = [], take: Int, skip: Int! = 0, cursor: ChatWhereUniqueInput): [Chat!]
   chatsCount(where: ChatWhereInput! = {}): Int
+  segmentEmbeddingProgress: SegmentEmbeddingProgress
   createdAt: DateTime
   updatedAt: DateTime
 }
@@ -635,6 +671,14 @@ enum TranscriptImportStatusType {
   completed
   failed
   skipped
+}
+
+type SegmentEmbeddingProgress {
+  total: Int!
+  embedded: Int!
+  notEmbedded: Int!
+  embeddedPercentage: Float!
+  notEmbeddedPercentage: Float!
 }
 
 input TranscriptWhereUniqueInput {

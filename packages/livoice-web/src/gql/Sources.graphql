@@ -10,6 +10,11 @@ query Sources {
     importStartedAt
     importCompletedAt
     transcriptsCount
+    overallProgress {
+      importCompletedPercentage
+      embeddingCompletedPercentage
+      overallPercentage
+    }
     projects {
       id
       name

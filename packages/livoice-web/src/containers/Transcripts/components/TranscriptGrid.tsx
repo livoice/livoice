@@ -39,10 +39,53 @@ export const TranscriptGrid = ({ transcripts, sourceId }: TranscriptGridProps) =
                 <div>{transcript.createdAt ? dateFormatter.format(new Date(transcript.createdAt)) : '—'}</div>
               </div>
             </div>
-            <div className="flex flex-wrap gap-4 text-xs text-slate-500">
+            <div className="flex flex-wrap items-center gap-4 text-xs">
               <span className="rounded-full bg-slate-100 px-3 py-1 font-semibold text-slate-700">
                 {transcript.intervieweeName || 'Unknown speaker'}
               </span>
+              {transcript.importStatus && (
+                <span
+                  className={`rounded-full px-3 py-1 font-semibold ${
+                    transcript.importStatus === 'completed'
+                      ? 'bg-green-100 text-green-700'
+                      : transcript.importStatus === 'failed'
+                        ? 'bg-red-100 text-red-700'
+                        : transcript.importStatus === 'fetching'
+                          ? 'bg-blue-100 text-blue-700'
+                          : 'bg-slate-100 text-slate-700'
+                  }`}
+                >
+                  Import: {transcript.importStatus}
+                </span>
+              )}
+              {transcript.embeddingStatus && (
+                <span
+                  className={`rounded-full px-3 py-1 font-semibold ${
+                    transcript.embeddingStatus === 'completed'
+                      ? 'bg-green-100 text-green-700'
+                      : transcript.embeddingStatus === 'failed'
+                        ? 'bg-red-100 text-red-700'
+                        : transcript.embeddingStatus === 'processing'
+                          ? 'bg-purple-100 text-purple-700'
+                          : 'bg-slate-100 text-slate-700'
+                  }`}
+                >
+                  Embedding: {transcript.embeddingStatus}
+                </span>
+              )}
+              {transcript.segmentEmbeddingProgress && transcript.segmentEmbeddingProgress.total > 0 && (
+                <div className="flex items-center gap-2">
+                  <div className="h-1.5 w-16 overflow-hidden rounded-full bg-slate-200">
+                    <div
+                      className="h-full bg-purple-500 transition-all"
+                      style={{ width: `${transcript.segmentEmbeddingProgress.embeddedPercentage}%` }}
+                    />
+                  </div>
+                  <span className="text-xs font-semibold text-slate-600">
+                    {transcript.segmentEmbeddingProgress.embedded}/{transcript.segmentEmbeddingProgress.total}
+                  </span>
+                </div>
+              )}
             </div>
           </div>
         );

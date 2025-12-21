@@ -1,7 +1,9 @@
 import { type Lists } from '.keystone/types';
-import { list } from '@keystone-6/core';
-import { integer, relationship, select, text, timestamp } from '@keystone-6/core/fields';
+import { graphql, list } from '@keystone-6/core';
+import { integer, relationship, select, text, timestamp, virtual } from '@keystone-6/core/fields';
 import { canEditOrgData, filterByUserOrg, isAuthenticated, isGod, isOrgAdmin } from '../domains/auth/userRole';
+import { SegmentEmbeddingProgressGraphqlType } from './extensions/SourceImportProgress';
+import { resolveSegmentEmbeddingProgress } from './resolvers/transcriptResolvers';
 
 export default list({
   fields: {
@@ -45,6 +47,16 @@ export default list({
     org: relationship({ ref: 'Organization.transcripts', many: false }),
     segments: relationship({ ref: 'TranscriptSegment.transcript', many: true }),
     chats: relationship({ ref: 'Chat.transcript', many: true }),
+    segmentEmbeddingProgress: virtual({
+      ui: {
+        listView: { fieldMode: 'hidden' },
+        itemView: { fieldMode: 'hidden' }
+      },
+      field: graphql.field({
+        type: SegmentEmbeddingProgressGraphqlType,
+        resolve: resolveSegmentEmbeddingProgress
+      })
+    }),
     createdAt: timestamp({ defaultValue: { kind: 'now' }, ui: { createView: { fieldMode: 'hidden' } } }),
     updatedAt: timestamp({ db: { updatedAt: true }, ui: { createView: { fieldMode: 'hidden' } } })
   },

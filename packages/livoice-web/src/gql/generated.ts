@@ -997,6 +997,13 @@ export type OrganizationWhereUniqueInput = {
   id?: InputMaybe<Scalars['ID']['input']>;
 };
 
+export type OverallProgress = {
+  __typename?: 'OverallProgress';
+  embeddingCompletedPercentage: Scalars['Float']['output'];
+  importCompletedPercentage: Scalars['Float']['output'];
+  overallPercentage: Scalars['Float']['output'];
+};
+
 export type Project = {
   __typename?: 'Project';
   chats?: Maybe<Array<Chat>>;
@@ -1309,6 +1316,15 @@ export enum QueryMode {
   Insensitive = 'insensitive'
 }
 
+export type SegmentEmbeddingProgress = {
+  __typename?: 'SegmentEmbeddingProgress';
+  embedded: Scalars['Int']['output'];
+  embeddedPercentage: Scalars['Float']['output'];
+  notEmbedded: Scalars['Int']['output'];
+  notEmbeddedPercentage: Scalars['Float']['output'];
+  total: Scalars['Int']['output'];
+};
+
 export type Source = {
   __typename?: 'Source';
   externalId?: Maybe<Scalars['String']['output']>;
@@ -1323,8 +1339,11 @@ export type Source = {
   importTrigger?: Maybe<Scalars['String']['output']>;
   name?: Maybe<Scalars['String']['output']>;
   org?: Maybe<Organization>;
+  overallProgress?: Maybe<OverallProgress>;
   projects?: Maybe<Array<Project>>;
   projectsCount?: Maybe<Scalars['Int']['output']>;
+  transcriptEmbeddingProgress?: Maybe<TranscriptEmbeddingProgress>;
+  transcriptImportProgress?: Maybe<TranscriptImportProgress>;
   transcripts?: Maybe<Array<Transcript>>;
   transcriptsCount?: Maybe<Scalars['Int']['output']>;
   type?: Maybe<SourceTypeType>;
@@ -1519,6 +1538,7 @@ export type Transcript = {
   notes?: Maybe<Scalars['String']['output']>;
   org?: Maybe<Organization>;
   publishedAt?: Maybe<Scalars['DateTime']['output']>;
+  segmentEmbeddingProgress?: Maybe<SegmentEmbeddingProgress>;
   segments?: Maybe<Array<TranscriptSegment>>;
   segmentsCount?: Maybe<Scalars['Int']['output']>;
   source?: Maybe<Source>;
@@ -1582,6 +1602,19 @@ export type TranscriptCreateInput = {
   updatedAt?: InputMaybe<Scalars['DateTime']['input']>;
 };
 
+export type TranscriptEmbeddingProgress = {
+  __typename?: 'TranscriptEmbeddingProgress';
+  completed: Scalars['Int']['output'];
+  completedPercentage: Scalars['Float']['output'];
+  failed: Scalars['Int']['output'];
+  failedPercentage: Scalars['Float']['output'];
+  pending: Scalars['Int']['output'];
+  pendingPercentage: Scalars['Float']['output'];
+  processing: Scalars['Int']['output'];
+  processingPercentage: Scalars['Float']['output'];
+  total: Scalars['Int']['output'];
+};
+
 export enum TranscriptEmbeddingStatusType {
   Completed = 'completed',
   Failed = 'failed',
@@ -1594,6 +1627,21 @@ export type TranscriptEmbeddingStatusTypeNullableFilter = {
   in?: InputMaybe<Array<TranscriptEmbeddingStatusType>>;
   not?: InputMaybe<TranscriptEmbeddingStatusTypeNullableFilter>;
   notIn?: InputMaybe<Array<TranscriptEmbeddingStatusType>>;
+};
+
+export type TranscriptImportProgress = {
+  __typename?: 'TranscriptImportProgress';
+  completed: Scalars['Int']['output'];
+  completedPercentage: Scalars['Float']['output'];
+  failed: Scalars['Int']['output'];
+  failedPercentage: Scalars['Float']['output'];
+  fetching: Scalars['Int']['output'];
+  fetchingPercentage: Scalars['Float']['output'];
+  pending: Scalars['Int']['output'];
+  pendingPercentage: Scalars['Float']['output'];
+  skipped: Scalars['Int']['output'];
+  skippedPercentage: Scalars['Float']['output'];
+  total: Scalars['Int']['output'];
 };
 
 export enum TranscriptImportStatusType {
@@ -2100,26 +2148,26 @@ export type SourceQueryVariables = Exact<{
 }>;
 
 
-export type SourceQuery = { __typename?: 'Query', source?: { __typename?: 'Source', id: string, type?: SourceTypeType | null, name?: string | null, url?: string | null, externalId?: string | null, importStatus?: SourceImportStatusType | null, importCronExpression?: string | null, importStartedAt?: any | null, importCompletedAt?: any | null, importHistory?: any | null, transcriptsCount?: number | null, transcripts?: Array<{ __typename?: 'Transcript', id: string, title?: string | null, intervieweeName?: string | null, createdAt?: any | null, segmentsCount?: number | null }> | null, projects?: Array<{ __typename?: 'Project', id: string, name?: string | null }> | null } | null };
+export type SourceQuery = { __typename?: 'Query', source?: { __typename?: 'Source', id: string, type?: SourceTypeType | null, name?: string | null, url?: string | null, externalId?: string | null, importStatus?: SourceImportStatusType | null, importCronExpression?: string | null, importStartedAt?: any | null, importCompletedAt?: any | null, importHistory?: any | null, transcriptsCount?: number | null, transcriptImportProgress?: { __typename?: 'TranscriptImportProgress', total: number, pending: number, fetching: number, completed: number, failed: number, skipped: number, pendingPercentage: number, fetchingPercentage: number, completedPercentage: number, failedPercentage: number, skippedPercentage: number } | null, transcriptEmbeddingProgress?: { __typename?: 'TranscriptEmbeddingProgress', total: number, pending: number, processing: number, completed: number, failed: number, pendingPercentage: number, processingPercentage: number, completedPercentage: number, failedPercentage: number } | null, overallProgress?: { __typename?: 'OverallProgress', importCompletedPercentage: number, embeddingCompletedPercentage: number, overallPercentage: number } | null, transcripts?: Array<{ __typename?: 'Transcript', id: string, title?: string | null, intervieweeName?: string | null, createdAt?: any | null, segmentsCount?: number | null }> | null, projects?: Array<{ __typename?: 'Project', id: string, name?: string | null }> | null } | null };
 
 export type SourcesQueryVariables = Exact<{ [key: string]: never; }>;
 
 
-export type SourcesQuery = { __typename?: 'Query', sources?: Array<{ __typename?: 'Source', id: string, type?: SourceTypeType | null, name?: string | null, url?: string | null, externalId?: string | null, importStatus?: SourceImportStatusType | null, importCronExpression?: string | null, importStartedAt?: any | null, importCompletedAt?: any | null, transcriptsCount?: number | null, projects?: Array<{ __typename?: 'Project', id: string, name?: string | null }> | null }> | null };
+export type SourcesQuery = { __typename?: 'Query', sources?: Array<{ __typename?: 'Source', id: string, type?: SourceTypeType | null, name?: string | null, url?: string | null, externalId?: string | null, importStatus?: SourceImportStatusType | null, importCronExpression?: string | null, importStartedAt?: any | null, importCompletedAt?: any | null, transcriptsCount?: number | null, overallProgress?: { __typename?: 'OverallProgress', importCompletedPercentage: number, embeddingCompletedPercentage: number, overallPercentage: number } | null, projects?: Array<{ __typename?: 'Project', id: string, name?: string | null }> | null }> | null };
 
 export type TranscriptQueryVariables = Exact<{
   id: Scalars['ID']['input'];
 }>;
 
 
-export type TranscriptQuery = { __typename?: 'Query', transcript?: { __typename?: 'Transcript', id: string, title?: string | null, intervieweeName?: string | null, notes?: string | null, createdAt?: any | null, segments?: Array<{ __typename?: 'TranscriptSegment', id: string, text?: string | null, speaker?: string | null, startMs?: number | null, endMs?: number | null, durationMs?: number | null }> | null } | null };
+export type TranscriptQuery = { __typename?: 'Query', transcript?: { __typename?: 'Transcript', id: string, title?: string | null, intervieweeName?: string | null, notes?: string | null, createdAt?: any | null, segmentEmbeddingProgress?: { __typename?: 'SegmentEmbeddingProgress', total: number, embedded: number, notEmbedded: number, embeddedPercentage: number, notEmbeddedPercentage: number } | null, segments?: Array<{ __typename?: 'TranscriptSegment', id: string, text?: string | null, speaker?: string | null, startMs?: number | null, endMs?: number | null, durationMs?: number | null }> | null } | null };
 
 export type TranscriptsQueryVariables = Exact<{
   sourceId?: InputMaybe<Scalars['ID']['input']>;
 }>;
 
 
-export type TranscriptsQuery = { __typename?: 'Query', transcripts?: Array<{ __typename?: 'Transcript', id: string, title?: string | null, intervieweeName?: string | null, notes?: string | null, createdAt?: any | null, segmentsCount?: number | null, source?: { __typename?: 'Source', id: string, name?: string | null } | null }> | null };
+export type TranscriptsQuery = { __typename?: 'Query', transcripts?: Array<{ __typename?: 'Transcript', id: string, title?: string | null, intervieweeName?: string | null, notes?: string | null, createdAt?: any | null, segmentsCount?: number | null, importStatus?: TranscriptImportStatusType | null, embeddingStatus?: TranscriptEmbeddingStatusType | null, segmentEmbeddingProgress?: { __typename?: 'SegmentEmbeddingProgress', total: number, embedded: number, notEmbedded: number, embeddedPercentage: number, notEmbeddedPercentage: number } | null, source?: { __typename?: 'Source', id: string, name?: string | null } | null }> | null };
 
 export type UpdateProjectMutationVariables = Exact<{
   id: Scalars['ID']['input'];
@@ -2924,6 +2972,35 @@ export const SourceDocument = gql`
     importCompletedAt
     importHistory
     transcriptsCount
+    transcriptImportProgress {
+      total
+      pending
+      fetching
+      completed
+      failed
+      skipped
+      pendingPercentage
+      fetchingPercentage
+      completedPercentage
+      failedPercentage
+      skippedPercentage
+    }
+    transcriptEmbeddingProgress {
+      total
+      pending
+      processing
+      completed
+      failed
+      pendingPercentage
+      processingPercentage
+      completedPercentage
+      failedPercentage
+    }
+    overallProgress {
+      importCompletedPercentage
+      embeddingCompletedPercentage
+      overallPercentage
+    }
     transcripts {
       id
       title
@@ -2984,6 +3061,11 @@ export const SourcesDocument = gql`
     importStartedAt
     importCompletedAt
     transcriptsCount
+    overallProgress {
+      importCompletedPercentage
+      embeddingCompletedPercentage
+      overallPercentage
+    }
     projects {
       id
       name
@@ -3031,6 +3113,13 @@ export const TranscriptDocument = gql`
     intervieweeName
     notes
     createdAt
+    segmentEmbeddingProgress {
+      total
+      embedded
+      notEmbedded
+      embeddedPercentage
+      notEmbeddedPercentage
+    }
     segments {
       id
       text
@@ -3084,6 +3173,15 @@ export const TranscriptsDocument = gql`
     notes
     createdAt
     segmentsCount
+    importStatus
+    embeddingStatus
+    segmentEmbeddingProgress {
+      total
+      embedded
+      notEmbedded
+      embeddedPercentage
+      notEmbeddedPercentage
+    }
     source {
       id
       name

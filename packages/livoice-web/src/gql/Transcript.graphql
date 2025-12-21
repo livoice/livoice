@@ -5,6 +5,13 @@ query Transcript($id: ID!) {
     intervieweeName
     notes
     createdAt
+    segmentEmbeddingProgress {
+      total
+      embedded
+      notEmbedded
+      embeddedPercentage
+      notEmbeddedPercentage
+    }
     segments {
       id
       text
