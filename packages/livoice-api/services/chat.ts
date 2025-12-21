@@ -1,5 +1,6 @@
 import type { TypeInfo } from '.keystone/types';
 import type { KeystoneContext } from '@keystone-6/core/types';
+import { Prisma } from '@prisma/client';
 import { intervalToDuration } from 'date-fns';
 import type { Session } from '../auth';
 import { createEmbeddings, getOpenAIClient, openAiModel } from '../lib/openai';
@@ -82,7 +83,7 @@ type RawSegment = {
   transcriptTitle?: string | null;
 };
 
-const VECTOR_LIMIT = 40;
+const VECTOR_LIMIT = 20;
 
 const mapRawToSegment = (row: RawSegment): SegmentRecord => ({
   id: row.id,
@@ -99,7 +100,12 @@ const mapRawToSegment = (row: RawSegment): SegmentRecord => ({
     : null
 });
 
-const fetchSegments = async ({ context, projectId, transcriptId, queryText }: FetchSegmentsParams) => {
+const fetchSegments = async ({
+  context,
+  projectId,
+  transcriptId,
+  queryText
+}: FetchSegmentsParams): Promise<SegmentRecord[]> => {
   const sudoContext = context.sudo();
   const isTranscriptContext = Boolean(transcriptId);
 
@@ -151,40 +157,41 @@ const fetchSegments = async ({ context, projectId, transcriptId, queryText }: Fe
     if (!isTranscriptContext && !projectId) return [];
 
     try {
-      const embeddings = await createEmbeddings([text]);
-      const embedding = embeddings?.[0];
+      const embedding = (await createEmbeddings([text]))?.[0];
       if (!embedding?.length) return [];
 
-      const literal = formatVectorLiteral(embedding);
+      const literal = Prisma.raw(formatVectorLiteral(embedding) ?? '');
+
       const joinClause = isTranscriptContext
-        ? 'LEFT JOIN "Transcript" t ON t.id = "TranscriptSegment"."transcript"'
-        : `INNER JOIN "Transcript" t ON t.id = "TranscriptSegment"."transcript"
-          INNER JOIN "Source" s ON s.id = t."source"
-          INNER JOIN "_Project_sources" ps ON ps."B" = s.id
-          INNER JOIN "Project" p ON p.id = ps."A"`;
+        ? Prisma.sql`LEFT JOIN "Transcript" t ON t.id = "TranscriptSegment"."transcript"`
+        : Prisma.sql`INNER JOIN "Transcript" t ON t.id = "TranscriptSegment"."transcript"`;
+
       const whereClause = isTranscriptContext
-        ? `"TranscriptSegment"."transcript" = '${transcriptId}'`
-        : `p.id = '${projectId}'`;
+        ? Prisma.sql`"TranscriptSegment"."transcript" = ${transcriptId}`
+        : Prisma.sql`p.id = ${projectId}`;
 
       const rows =
-        ((await sudoContext.prisma.$queryRaw(`
-        SELECT
-          "TranscriptSegment"."id",
-          "TranscriptSegment"."text",
-          "TranscriptSegment"."startMs",
-          "TranscriptSegment"."endMs",
-          "TranscriptSegment"."speaker",
-          "TranscriptSegment"."isMetadata",
-          t."id" AS "transcriptId",
-          t."title" AS "transcriptTitle"
-        FROM "TranscriptSegment"
-        ${joinClause}
-        WHERE "TranscriptSegment"."isMetadata" = FALSE
-          AND "TranscriptSegment"."embedding" IS NOT NULL
-          AND ${whereClause}
-        ORDER BY "TranscriptSegment"."embedding" <-> ${literal}
-        LIMIT ${VECTOR_LIMIT}
-      `)) as RawSegment[]) ?? [];
+        (await sudoContext.prisma.$queryRaw<RawSegment[]>`
+          SELECT
+            "TranscriptSegment"."id",
+            "TranscriptSegment"."text",
+            "TranscriptSegment"."startMs",
+            "TranscriptSegment"."endMs",
+            "TranscriptSegment"."speaker",
+            "TranscriptSegment"."isMetadata",
+            t."id" AS "transcriptId",
+            t."title" AS "transcriptTitle"
+          FROM "TranscriptSegment"
+          ${joinClause}
+          INNER JOIN "Source" s ON s.id = t."source"
+          INNER JOIN "_Project_sources" ps ON ps."B" = s.id
+          INNER JOIN "Project" p ON p.id = ps."A"
+          WHERE "TranscriptSegment"."isMetadata" = FALSE
+            AND "TranscriptSegment"."embedding" IS NOT NULL
+            AND ${whereClause}
+          ORDER BY "TranscriptSegment"."embedding" <-> ${literal}
+          LIMIT ${VECTOR_LIMIT}
+        `) ?? [];
 
       return rows.map(mapRawToSegment);
     } catch (error) {
@@ -195,10 +202,33 @@ const fetchSegments = async ({ context, projectId, transcriptId, queryText }: Fe
 
   if (queryText) {
     const vectorSegments = await runVectorSearch(queryText);
+    console.log('vectorSegments', vectorSegments);
     if (vectorSegments.length) return vectorSegments;
   }
 
   return fallback();
+};
+
+const selectSegmentsWithinBudget = (segments: SegmentRecord[], maxTokens: number): SegmentRecord[] => {
+  const segmentWithTokens = segments.map(segment => ({
+    segment,
+    tokens: estimateTokens(buildSegmentDescription(segment))
+  }));
+
+  const { selected } = segmentWithTokens.reduce(
+    (acc, { segment, tokens }) => {
+      const exceeded = acc.exceeded || acc.totalTokens + tokens > maxTokens;
+
+      return {
+        ...acc,
+        ...(!exceeded && { selected: [...acc.selected, segment], totalTokens: acc.totalTokens + tokens }),
+        exceeded
+      };
+    },
+    { selected: [] as SegmentRecord[], totalTokens: 0, exceeded: false }
+  );
+
+  return selected;
 };
 
 export const fetchChatHistory = async (context: KeystoneContext, chatId: string): Promise<ChatHistoryItem[]> => {
@@ -225,22 +255,59 @@ export const fetchChatHistory = async (context: KeystoneContext, chatId: string)
   }));
 };
 
+// Rough token estimation (OpenAI uses ~1 token per 4 characters)
+const estimateTokens = (text: string): number => Math.ceil(text.length / 4);
+
+// Take messages from end while under token limit
+const takeMessagesWithinLimit = (
+  messages: Array<{ role: 'user' | 'assistant'; content: string }>,
+  tokenLimit: number
+): Array<{ role: 'user' | 'assistant'; content: string }> => {
+  const reversed = [...messages].reverse();
+
+  const { included } = reversed.reduce(
+    (acc, msg) => {
+      if (acc.exceeded) return acc;
+
+      const msgTokens = estimateTokens(msg.content);
+      const newTotal = acc.currentTokens + msgTokens;
+
+      return newTotal <= tokenLimit
+        ? {
+            included: [msg, ...acc.included],
+            currentTokens: newTotal,
+            exceeded: false
+          }
+        : { ...acc, exceeded: true };
+    },
+    { included: [] as typeof messages, currentTokens: 0, exceeded: false }
+  );
+
+  return included;
+};
+
 const getOpenAiMessages = ({
   history,
   systemPrompt,
-  userMessage
+  userMessage,
+  maxContextTokens = 6000,
+  reservedTokens = 1000
 }: {
   history: { role: 'user' | 'assistant'; content: string }[];
   systemPrompt: string;
   userMessage: string;
+  maxContextTokens?: number;
+  reservedTokens?: number;
 }): Array<{ role: 'system' | 'user' | 'assistant'; content: string }> => {
-  const trimmedHistory = history.slice(-6);
-  const messages: Array<{ role: 'system' | 'user' | 'assistant'; content: string }> = [
-    { role: 'system', content: systemPrompt }
+  const fixedTokens = estimateTokens(systemPrompt) + estimateTokens(userMessage) + reservedTokens;
+  const availableTokens = maxContextTokens - fixedTokens;
+  const includedHistory = takeMessagesWithinLimit(history, availableTokens);
+
+  return [
+    { role: 'system' as const, content: systemPrompt },
+    ...includedHistory,
+    { role: 'user' as const, content: userMessage }
   ];
-  trimmedHistory.forEach(item => messages.push({ role: item.role, content: item.content }));
-  messages.push({ role: 'user', content: userMessage });
-  return messages;
 };
 
 const getSystemPrompt = ({
@@ -288,6 +355,7 @@ Title should:
 - Avoid generic terms like "chat" or "question"
 - Use title case
 - Focus on the content, not the context
+- Not wrapped with quotes
 
 Examples of GOOD titles:
 - "Key Takeaways and Insights"
@@ -380,20 +448,19 @@ export const runChatConversation = async ({
     throw new Error('Missing organization context for chat target');
   }
 
-  const projectId = targetProject?.id ?? null;
-  const transcriptId = targetTranscript?.id ?? null;
+  const projectId = targetProject?.id;
+  const transcriptId = targetTranscript?.id;
+
   const segments = await fetchSegments({
     context,
-    projectId: projectId ?? undefined,
-    transcriptId: transcriptId ?? undefined,
+    projectId,
+    transcriptId,
     queryText: messageText
   });
-  if (!segments.length) {
-    throw new Error('No transcript segments found for this context yet');
-  }
+  if (!segments.length) throw new Error('No transcript segments found for this context yet');
 
   const referenceSegments = segments.slice(0, 3);
-  const segmentsForPrompt = segments.slice(0, 8);
+  const segmentsForPrompt = selectSegmentsWithinBudget(segments, 2_000);
   const segmentsText = segmentsForPrompt.map(buildSegmentDescription).join('\n');
 
   const systemPrompt = getSystemPrompt({
@@ -402,15 +469,16 @@ export const runChatConversation = async ({
     transcriptName: targetTranscript?.title
   });
 
-  const title =
-    (await generateChatTitle({
-      firstMessage: messageText,
-      isTranscriptContext,
-      contextName: isTranscriptContext ? targetTranscript?.title : targetProject?.name
-    })) ??
-    (isTranscriptContext
-      ? `Transcript chat • ${targetTranscript?.title ?? 'untitled'}`
-      : `Project chat • ${targetProject?.name ?? 'untitled'}`);
+  const title = input.chatId
+    ? ''
+    : ((await generateChatTitle({
+        firstMessage: messageText,
+        isTranscriptContext,
+        contextName: isTranscriptContext ? targetTranscript?.title : targetProject?.name
+      })) ??
+      (isTranscriptContext
+        ? `Transcript chat • ${targetTranscript?.title ?? 'untitled'}`
+        : `Project chat • ${targetProject?.name ?? 'untitled'}`));
 
   const chatId = String(
     input.chatId ??
@@ -429,50 +497,50 @@ export const runChatConversation = async ({
   if (!chatId) throw new Error('Failed to create chat session');
 
   const history = await fetchChatHistory(context, chatId);
-  const systemMessages = getOpenAiMessages({
+
+  const messages = getOpenAiMessages({
     history: history.map(item => ({ role: item.role, content: item.content })),
     systemPrompt,
-    userMessage: `${segmentsText}\n\nQuestion: ${messageText}`
+    userMessage: `${segmentsText}\n\nQuestion: ${messageText}`,
+    maxContextTokens: 8_000, // Input limit (what we SEND)
+    reservedTokens: 1_500 // Reserved within maxContextTokens
   });
 
   const openai = getOpenAIClient();
   const completion = await openai.chat.completions.create({
     model: openAiModel,
-    messages: systemMessages,
+    messages,
     temperature: 0.25,
-    max_tokens: 700
+    max_tokens: 700 // This is the OUTPUT token limit
   });
 
   const answer = completion.choices?.[0]?.message?.content?.trim();
-  if (!answer) {
-    throw new Error('OpenAI did not return an answer');
-  }
+  if (!answer) throw new Error('OpenAI did not return an answer');
 
-  await sudoContext.db.ChatMessage.createOne({
-    data: {
-      chat: { connect: { id: chatId } },
-      role: 'user',
-      content: messageText
-    }
-  });
-
-  await sudoContext.db.ChatMessage.createOne({
-    data: {
-      chat: { connect: { id: chatId } },
-      role: 'assistant',
-      content: answer,
-      ...(referenceSegments.length
-        ? { segments: { connect: referenceSegments.map(segment => ({ id: segment.id })) } }
-        : {})
-    }
-  });
-
-  const updatedHistory = await fetchChatHistory(context, chatId);
+  await Promise.all([
+    sudoContext.db.ChatMessage.createOne({
+      data: {
+        chat: { connect: { id: chatId } },
+        role: 'user',
+        content: messageText
+      }
+    }),
+    sudoContext.db.ChatMessage.createOne({
+      data: {
+        chat: { connect: { id: chatId } },
+        role: 'assistant',
+        content: answer,
+        ...(referenceSegments.length
+          ? { segments: { connect: referenceSegments.map((segment: SegmentRecord) => ({ id: segment.id })) } }
+          : {})
+      }
+    })
+  ]);
 
   return {
     chatId,
     answer,
-    messages: updatedHistory,
+    messages: await fetchChatHistory(context, chatId),
     references: referenceSegments.map(mapSegmentReference)
   };
 };
