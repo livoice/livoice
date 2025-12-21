@@ -6,10 +6,6 @@ import type { Session } from '../auth';
 import { createEmbeddings, getOpenAIClient, openAiModel } from '../lib/openai';
 import { formatVectorLiteral } from '../lib/pgvector';
 
-type ProjectWithOrg = Pick<TypeInfo['lists']['Project']['item'], 'id' | 'name'> & {
-  org: Pick<TypeInfo['lists']['Organization']['item'], 'id'> | null;
-};
-
 type TranscriptSegmentWithTranscript = Pick<
   TypeInfo['lists']['TranscriptSegment']['item'],
   'id' | 'text' | 'startMs' | 'endMs' | 'speaker'
@@ -68,7 +64,6 @@ const mapSegmentReference = (segment: SegmentRecord): SegmentReference => ({
 type FetchSegmentsParams = {
   context: KeystoneContext;
   projectId?: string;
-  transcriptId?: string;
   queryText?: string;
 };
 
@@ -100,29 +95,21 @@ const mapRawToSegment = (row: RawSegment): SegmentRecord => ({
     : null
 });
 
-const fetchSegments = async ({
-  context,
-  projectId,
-  transcriptId,
-  queryText
-}: FetchSegmentsParams): Promise<SegmentRecord[]> => {
+const fetchSegments = async ({ context, projectId, queryText }: FetchSegmentsParams): Promise<SegmentRecord[]> => {
   const sudoContext = context.sudo();
-  const isTranscriptContext = Boolean(transcriptId);
 
   const fallback = async () => {
     const baseArgs = {
       where: {
-        transcript: isTranscriptContext
-          ? { id: { equals: transcriptId } }
-          : {
-              source: {
-                projects: {
-                  some: {
-                    id: { equals: projectId }
-                  }
-                }
+        transcript: {
+          source: {
+            projects: {
+              some: {
+                id: { equals: projectId }
               }
             }
+          }
+        }
       }
     };
 
@@ -153,8 +140,7 @@ const fetchSegments = async ({
 
   const runVectorSearch = async (text: string) => {
     if (!text.trim()) return [];
-    if (isTranscriptContext && !transcriptId) return [];
-    if (!isTranscriptContext && !projectId) return [];
+    if (!projectId) return [];
 
     try {
       const embedding = (await createEmbeddings([text]))?.[0];
@@ -162,13 +148,7 @@ const fetchSegments = async ({
 
       const literal = Prisma.raw(formatVectorLiteral(embedding) ?? '');
 
-      const joinClause = isTranscriptContext
-        ? Prisma.sql`LEFT JOIN "Transcript" t ON t.id = "TranscriptSegment"."transcript"`
-        : Prisma.sql`INNER JOIN "Transcript" t ON t.id = "TranscriptSegment"."transcript"`;
-
-      const whereClause = isTranscriptContext
-        ? Prisma.sql`"TranscriptSegment"."transcript" = ${transcriptId}`
-        : Prisma.sql`p.id = ${projectId}`;
+      const whereClause = Prisma.sql`p.id = ${projectId}`;
 
       const rows =
         (await sudoContext.prisma.$queryRaw<RawSegment[]>`
@@ -182,7 +162,7 @@ const fetchSegments = async ({
             t."id" AS "transcriptId",
             t."title" AS "transcriptTitle"
           FROM "TranscriptSegment"
-          ${joinClause}
+          INNER JOIN "Transcript" t ON t.id = "TranscriptSegment"."transcript"
           INNER JOIN "Source" s ON s.id = t."source"
           INNER JOIN "_Project_sources" ps ON ps."B" = s.id
           INNER JOIN "Project" p ON p.id = ps."A"
@@ -310,44 +290,28 @@ const getOpenAiMessages = ({
   ];
 };
 
-const getSystemPrompt = ({
-  isTranscriptContext,
-  projectName,
-  transcriptName
-}: {
-  isTranscriptContext: boolean;
-  projectName?: string | null;
-  transcriptName?: string | null;
-}) => {
-  if (isTranscriptContext) {
-    return `You are an interview intelligence assistant. Use timestamps and transcript snippets when you answer questions about "${transcriptName ?? 'this transcript'}".`;
-  }
-
-  return `You are an insights assistant for the "${projectName ?? 'project'}" workspace. Lean on the available transcript segments when summarizing or answering questions.`;
-};
+const getSystemPrompt = ({ projectName }: { projectName?: string | null }) =>
+  `You are an insights assistant for the "${projectName ?? 'project'}" workspace. Lean on the available transcript segments when summarizing or answering questions.`;
 
 const generateChatTitle = async ({
   firstMessage,
-  isTranscriptContext,
   contextName
 }: {
   firstMessage: string;
-  isTranscriptContext: boolean;
   contextName?: string | null;
 }): Promise<string | null> => {
   if (!firstMessage.trim()) return null;
 
   const sanitizedMessage = firstMessage.replace(/\n/g, ' ').trim();
   const truncatedMessage = sanitizedMessage.length > 200 ? `${sanitizedMessage.slice(0, 197)}...` : sanitizedMessage;
-  const contextLabel = isTranscriptContext ? 'Transcript' : 'Project';
   const contextValue = contextName ?? 'untitled';
 
   const prompt = `Generate a concise, descriptive title (3-6 words, max 60 chars) for this chat conversation.
 
-Context: ${contextLabel}: "${contextValue}"
+Context: Project: "${contextValue}"
 First message: "${truncatedMessage}"
 
-IMPORTANT: The title should focus ONLY on the topic/question from the first message. Do NOT include the context name ("${contextValue}") or context type ("${contextLabel}") in the title.
+IMPORTANT: The title should focus ONLY on the topic/question from the first message. Do NOT include the context name ("${contextValue}") or context type ("Project") in the title.
 
 Title should:
 - Capture the main topic/question from the first message
@@ -404,7 +368,6 @@ export const runChatConversation = async ({
   session: Session;
   input: {
     chatId?: string | null;
-    transcriptId?: string;
     projectId?: string;
     message: string;
   };
@@ -414,21 +377,6 @@ export const runChatConversation = async ({
   const sudoContext = context.sudo();
   const messageText = input.message.trim();
   if (!messageText) throw new Error('Message cannot be empty');
-  const isTranscriptContext = Boolean(input.transcriptId);
-
-  const fetchTranscriptContext = async () => {
-    if (!input.transcriptId) throw new Error('Transcript ID is required');
-    const transcript = await sudoContext.query.Transcript.findOne({
-      where: { id: input.transcriptId },
-      query: 'id title source { projects { id name org { id } } org { id } } org { id }'
-    });
-    if (!transcript) throw new Error('Transcript not found');
-    const project =
-      transcript.source?.projects?.find((project: ProjectWithOrg) => project.org?.id === session.orgId) ??
-      transcript.source?.projects?.[0];
-    if (!project?.id) throw new Error('Transcript is missing project reference');
-    return { targetTranscript: transcript, targetProject: project };
-  };
 
   const fetchProjectContext = async () => {
     if (!input.projectId) throw new Error('Project ID is required');
@@ -440,21 +388,17 @@ export const runChatConversation = async ({
     return { targetProject: project, targetTranscript: null };
   };
 
-  const { targetProject, targetTranscript } = isTranscriptContext
-    ? await fetchTranscriptContext()
-    : await fetchProjectContext();
+  const { targetProject } = await fetchProjectContext();
 
-  if (!targetProject?.org?.id && !targetTranscript?.org?.id) {
+  if (!targetProject?.org?.id) {
     throw new Error('Missing organization context for chat target');
   }
 
   const projectId = targetProject?.id;
-  const transcriptId = targetTranscript?.id;
 
   const segments = await fetchSegments({
     context,
     projectId,
-    transcriptId,
     queryText: messageText
   });
   if (!segments.length) throw new Error('No transcript segments found for this context yet');
@@ -464,21 +408,15 @@ export const runChatConversation = async ({
   const segmentsText = segmentsForPrompt.map(buildSegmentDescription).join('\n');
 
   const systemPrompt = getSystemPrompt({
-    isTranscriptContext,
-    projectName: targetProject?.name,
-    transcriptName: targetTranscript?.title
+    projectName: targetProject?.name
   });
 
   const title = input.chatId
     ? ''
     : ((await generateChatTitle({
         firstMessage: messageText,
-        isTranscriptContext,
-        contextName: isTranscriptContext ? targetTranscript?.title : targetProject?.name
-      })) ??
-      (isTranscriptContext
-        ? `Transcript chat • ${targetTranscript?.title ?? 'untitled'}`
-        : `Project chat • ${targetProject?.name ?? 'untitled'}`));
+        contextName: targetProject?.name
+      })) ?? `Project chat • ${targetProject?.name ?? 'untitled'}`);
 
   const chatId = String(
     input.chatId ??
@@ -487,8 +425,7 @@ export const runChatConversation = async ({
           data: {
             title,
             org: { connect: { id: session.orgId } },
-            ...(projectId ? { project: { connect: { id: projectId } } } : {}),
-            ...(transcriptId ? { transcript: { connect: { id: transcriptId } } } : {})
+            ...(projectId ? { project: { connect: { id: projectId } } } : {})
           }
         })
       )?.id

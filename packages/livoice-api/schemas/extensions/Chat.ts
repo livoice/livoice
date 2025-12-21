@@ -50,15 +50,6 @@ const ChatMutationResult = g.object<{
   }
 });
 
-const TranscriptChatInput = g.inputObject({
-  name: 'ChatTranscriptInput',
-  fields: {
-    chatId: g.arg({ type: g.ID }),
-    transcriptId: g.arg({ type: g.nonNull(g.ID) }),
-    message: g.arg({ type: g.nonNull(g.String) })
-  }
-});
-
 const ProjectChatInput = g.inputObject({
   name: 'ChatProjectInput',
   fields: {
@@ -89,26 +80,6 @@ const findLatestChat = async ({ context, where }: { context: KeystoneContext; wh
 
 export const ChatExtension = (_base: BaseSchemaMeta) => ({
   query: {
-    chatTranscriptHistory: g.field({
-      type: g.nonNull(ChatHistoryResult),
-      args: {
-        transcriptId: g.arg({ type: g.nonNull(g.ID) }),
-        chatId: g.arg({ type: g.ID })
-      },
-      resolve: async (_root, { transcriptId, chatId }, context) => {
-        const session = getSession(context);
-        const history = await findLatestChat({
-          context,
-          where: {
-            transcript: { id: { equals: transcriptId } },
-            org: { id: { equals: session.orgId } },
-            ...(chatId ? { id: { equals: chatId } } : {})
-          }
-        });
-        if (!history) return { chatId: null, messages: [] };
-        return history;
-      }
-    }),
     chatProjectHistory: g.field({
       type: g.nonNull(ChatHistoryResult),
       args: {
@@ -131,24 +102,6 @@ export const ChatExtension = (_base: BaseSchemaMeta) => ({
     })
   },
   mutation: {
-    chatTranscript: g.field({
-      type: g.nonNull(ChatMutationResult),
-      args: {
-        input: g.arg({ type: g.nonNull(TranscriptChatInput) })
-      },
-      resolve: async (_root, { input }, context) => {
-        const session = getSession(context);
-        return runChatConversation({
-          context,
-          session,
-          input: {
-            chatId: input.chatId ?? null,
-            transcriptId: input.transcriptId,
-            message: input.message
-          }
-        });
-      }
-    }),
     chatProject: g.field({
       type: g.nonNull(ChatMutationResult),
       args: {

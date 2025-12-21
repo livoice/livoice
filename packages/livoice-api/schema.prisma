@@ -12,21 +12,18 @@ generator client {
 }
 
 model Chat {
-  id           String        @id @default(cuid())
-  title        String        @default("AI chat")
-  org          Organization? @relation("Chat_org", fields: [orgId], references: [id])
-  orgId        String?       @map("org")
-  project      Project?      @relation("Chat_project", fields: [projectId], references: [id])
-  projectId    String?       @map("project")
-  transcript   Transcript?   @relation("Chat_transcript", fields: [transcriptId], references: [id])
-  transcriptId String?       @map("transcript")
-  messages     ChatMessage[] @relation("ChatMessage_chat")
-  createdAt    DateTime?     @default(now())
-  updatedAt    DateTime?     @updatedAt
+  id        String        @id @default(cuid())
+  title     String        @default("AI chat")
+  org       Organization? @relation("Chat_org", fields: [orgId], references: [id])
+  orgId     String?       @map("org")
+  project   Project?      @relation("Chat_project", fields: [projectId], references: [id])
+  projectId String?       @map("project")
+  messages  ChatMessage[] @relation("ChatMessage_chat")
+  createdAt DateTime?     @default(now())
+  updatedAt DateTime?     @updatedAt
 
   @@index([orgId])
   @@index([projectId])
-  @@index([transcriptId])
 }
 
 model ChatMessage {
@@ -107,7 +104,6 @@ model Transcript {
   org               Organization?                  @relation("Transcript_org", fields: [orgId], references: [id])
   orgId             String?                        @map("org")
   segments          TranscriptSegment[]            @relation("TranscriptSegment_transcript")
-  chats             Chat[]                         @relation("Chat_transcript")
   createdAt         DateTime?                      @default(now())
   updatedAt         DateTime?                      @updatedAt
 

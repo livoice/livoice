@@ -8,7 +8,6 @@ export default list({
     title: text({ validation: { isRequired: true }, defaultValue: 'AI chat' }),
     org: relationship({ ref: 'Organization.chats', many: false }),
     project: relationship({ ref: 'Project.chats', many: false }),
-    transcript: relationship({ ref: 'Transcript.chats', many: false }),
     messages: relationship({ ref: 'ChatMessage.chat', many: true }),
     createdAt: timestamp({ defaultValue: { kind: 'now' }, ui: { createView: { fieldMode: 'hidden' } } }),
     updatedAt: timestamp({ db: { updatedAt: true }, ui: { createView: { fieldMode: 'hidden' } } })

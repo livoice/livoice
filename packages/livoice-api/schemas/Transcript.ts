@@ -46,7 +46,6 @@ export default list({
     source: relationship({ ref: 'Source.transcripts', many: false }),
     org: relationship({ ref: 'Organization.transcripts', many: false }),
     segments: relationship({ ref: 'TranscriptSegment.transcript', many: true }),
-    chats: relationship({ ref: 'Chat.transcript', many: true }),
     segmentEmbeddingProgress: virtual({
       ui: {
         listView: { fieldMode: 'hidden' },

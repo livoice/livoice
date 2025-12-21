@@ -6,7 +6,6 @@ type Chat {
   title: String
   org: Organization
   project: Project
-  transcript: Transcript
   messages(where: ChatMessageWhereInput! = {}, orderBy: [ChatMessageOrderByInput!]! = [], take: Int, skip: Int! = 0, cursor: ChatMessageWhereUniqueInput): [ChatMessage!]
   messagesCount(where: ChatMessageWhereInput! = {}): Int
   createdAt: DateTime
@@ -27,7 +26,6 @@ input ChatWhereInput {
   title: StringFilter
   org: OrganizationWhereInput
   project: ProjectWhereInput
-  transcript: TranscriptWhereInput
   messages: ChatMessageManyRelationFilter
   createdAt: DateTimeNullableFilter
   updatedAt: DateTimeNullableFilter
@@ -111,7 +109,6 @@ input ChatUpdateInput {
   title: String
   org: OrganizationRelateToOneForUpdateInput
   project: ProjectRelateToOneForUpdateInput
-  transcript: TranscriptRelateToOneForUpdateInput
   messages: ChatMessageRelateToManyForUpdateInput
   createdAt: DateTime
   updatedAt: DateTime
@@ -126,12 +123,6 @@ input OrganizationRelateToOneForUpdateInput {
 input ProjectRelateToOneForUpdateInput {
   create: ProjectCreateInput
   connect: ProjectWhereUniqueInput
-  disconnect: Boolean
-}
-
-input TranscriptRelateToOneForUpdateInput {
-  create: TranscriptCreateInput
-  connect: TranscriptWhereUniqueInput
   disconnect: Boolean
 }
 
@@ -151,7 +142,6 @@ input ChatCreateInput {
   title: String
   org: OrganizationRelateToOneForCreateInput
   project: ProjectRelateToOneForCreateInput
-  transcript: TranscriptRelateToOneForCreateInput
   messages: ChatMessageRelateToManyForCreateInput
   createdAt: DateTime
   updatedAt: DateTime
@@ -165,11 +155,6 @@ input OrganizationRelateToOneForCreateInput {
 input ProjectRelateToOneForCreateInput {
   create: ProjectCreateInput
   connect: ProjectWhereUniqueInput
-}
-
-input TranscriptRelateToOneForCreateInput {
-  create: TranscriptCreateInput
-  connect: TranscriptWhereUniqueInput
 }
 
 input ChatMessageRelateToManyForCreateInput {
@@ -651,8 +636,6 @@ type Transcript {
   org: Organization
   segments(where: TranscriptSegmentWhereInput! = {}, orderBy: [TranscriptSegmentOrderByInput!]! = [], take: Int, skip: Int! = 0, cursor: TranscriptSegmentWhereUniqueInput): [TranscriptSegment!]
   segmentsCount(where: TranscriptSegmentWhereInput! = {}): Int
-  chats(where: ChatWhereInput! = {}, orderBy: [ChatOrderByInput!]! = [], take: Int, skip: Int! = 0, cursor: ChatWhereUniqueInput): [Chat!]
-  chatsCount(where: ChatWhereInput! = {}): Int
   segmentEmbeddingProgress: SegmentEmbeddingProgress
   createdAt: DateTime
   updatedAt: DateTime
@@ -710,7 +693,6 @@ input TranscriptWhereInput {
   source: SourceWhereInput
   org: OrganizationWhereInput
   segments: TranscriptSegmentManyRelationFilter
-  chats: ChatManyRelationFilter
   createdAt: DateTimeNullableFilter
   updatedAt: DateTimeNullableFilter
 }
@@ -784,7 +766,6 @@ input TranscriptUpdateInput {
   source: SourceRelateToOneForUpdateInput
   org: OrganizationRelateToOneForUpdateInput
   segments: TranscriptSegmentRelateToManyForUpdateInput
-  chats: ChatRelateToManyForUpdateInput
   createdAt: DateTime
   updatedAt: DateTime
 }
@@ -821,7 +802,6 @@ input TranscriptCreateInput {
   source: SourceRelateToOneForCreateInput
   org: OrganizationRelateToOneForCreateInput
   segments: TranscriptSegmentRelateToManyForCreateInput
-  chats: ChatRelateToManyForCreateInput
   createdAt: DateTime
   updatedAt: DateTime
 }
@@ -893,6 +873,12 @@ input TranscriptSegmentUpdateInput {
   chatMessages: ChatMessageRelateToManyForUpdateInput
 }
 
+input TranscriptRelateToOneForUpdateInput {
+  create: TranscriptCreateInput
+  connect: TranscriptWhereUniqueInput
+  disconnect: Boolean
+}
+
 input TranscriptSegmentUpdateArgs {
   where: TranscriptSegmentWhereUniqueInput!
   data: TranscriptSegmentUpdateInput!
@@ -908,6 +894,11 @@ input TranscriptSegmentCreateInput {
   speaker: String
   isMetadata: Boolean
   chatMessages: ChatMessageRelateToManyForCreateInput
+}
+
+input TranscriptRelateToOneForCreateInput {
+  create: TranscriptCreateInput
+  connect: TranscriptWhereUniqueInput
 }
 
 type User {
@@ -1145,7 +1136,6 @@ type Mutation {
   deleteUsers(where: [UserWhereUniqueInput!]!): [User]
   endSession: Boolean!
   triggerSourceImport(sourceId: ID!): Source!
-  chatTranscript(input: ChatTranscriptInput!): ChatMutationResult!
   chatProject(input: ChatProjectInput!): ChatMutationResult!
 }
 
@@ -1171,12 +1161,6 @@ type ChatSegmentReference {
   endMs: Int
   speaker: String
   transcriptTitle: String
-}
-
-input ChatTranscriptInput {
-  chatId: ID
-  transcriptId: ID!
-  message: String!
 }
 
 input ChatProjectInput {
@@ -1211,7 +1195,6 @@ type Query {
   users(where: UserWhereInput! = {}, orderBy: [UserOrderByInput!]! = [], take: Int, skip: Int! = 0, cursor: UserWhereUniqueInput): [User!]
   usersCount(where: UserWhereInput! = {}): Int
   keystone: KeystoneMeta!
-  chatTranscriptHistory(transcriptId: ID!, chatId: ID): ChatHistoryResult!
   chatProjectHistory(projectId: ID!, chatId: ID): ChatHistoryResult!
 }
 
