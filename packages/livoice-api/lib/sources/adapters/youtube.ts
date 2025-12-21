@@ -136,8 +136,8 @@ export const youtubeAdapter: SourceAdapter = {
         output: tempFile.path,
         jsRuntimes: 'node' as const,
         cookies: path.resolve(__dirname, 'assets', 'youtube-cookies.txt'),
-        sleepInterval: 2,
-        maxSleepInterval: 7
+        sleepRequests: Math.random() * 2 + 0.5,
+        sleepSubtitles: Math.floor(Math.random() * 5) + 1
       } as Parameters<typeof youtubeDlExec>[1] & {
         jsRuntimes?: string;
         sleepInterval?: number;
