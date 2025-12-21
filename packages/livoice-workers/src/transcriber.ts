@@ -46,16 +46,6 @@ export const start = async () => {
       await transcriptImportQueue.add(() => processTranscriptImport(prisma, transcript, adapter));
     } catch (error) {
       console.error(`[transcriber] failed to import transcript ${transcript.id}:`, error);
-      if (error instanceof Error) {
-        console.error(`[transcriber] Error message: ${error.message}`);
-        console.error(`[transcriber] Error stack: ${error.stack}`);
-        if ('stderr' in error) {
-          console.error(`[transcriber] Error stderr:`, (error as { stderr?: string }).stderr);
-        }
-        if ('stdout' in error) {
-          console.error(`[transcriber] Error stdout:`, (error as { stdout?: string }).stdout);
-        }
-      }
     }
 
     return false;

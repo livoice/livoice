@@ -1,4 +1,3 @@
-import { existsSync } from 'fs';
 import path from 'path';
 import youtubeDlExec from 'youtube-dl-exec';
 import { TempFile } from '../../TempFile';
@@ -129,56 +128,15 @@ export const youtubeAdapter: SourceAdapter = {
     try {
       const tempFile = await TempFile.create();
 
-      // Resolve cookies path - try multiple methods for compatibility
-      const cookiesPath = (() => {
-        if (typeof __dirname !== 'undefined') {
-          return path.resolve(__dirname, 'assets', 'youtube-cookies.txt');
-        }
-        // Fallback: resolve from process.cwd() and known structure
-        try {
-          return path.resolve(process.cwd(), 'lib', 'sources', 'adapters', 'assets', 'youtube-cookies.txt');
-        } catch {
-          // Last resort: relative to current working directory
-          return path.resolve(
-            process.cwd(),
-            'packages',
-            'livoice-api',
-            'lib',
-            'sources',
-            'adapters',
-            'assets',
-            'youtube-cookies.txt'
-          );
-        }
-      })();
-
-      const hasCookies = existsSync(cookiesPath);
-      console.log(`[youtubeAdapter] cookiesPath: ${cookiesPath}`);
-      console.log(`[youtubeAdapter] cookies file exists: ${hasCookies}`);
-      console.log(`[youtubeAdapter] __dirname: ${typeof __dirname !== 'undefined' ? __dirname : 'undefined'}`);
-      console.log(`[youtubeAdapter] process.cwd(): ${process.cwd()}`);
-
-      const execOptions = {
+      await youtubeDlExec(toVideoUrl(itemExternalId), {
         skipDownload: true,
         writeAutoSub: true,
         subLang: LANG,
         subFormat: SUB_FORMAT,
         output: tempFile.path,
         jsRuntimes: 'node' as const,
-        ...(hasCookies ? { cookies: cookiesPath } : {})
-      } as Parameters<typeof youtubeDlExec>[1] & { jsRuntimes?: string; cookies?: string };
-
-      console.log(`[youtubeAdapter] Calling youtubeDlExec with options:`, {
-        skipDownload: execOptions.skipDownload,
-        writeAutoSub: execOptions.writeAutoSub,
-        subLang: execOptions.subLang,
-        subFormat: execOptions.subFormat,
-        jsRuntimes: execOptions.jsRuntimes,
-        hasCookies: hasCookies,
-        cookiesPath: hasCookies ? cookiesPath : 'none'
-      });
-
-      await youtubeDlExec(toVideoUrl(itemExternalId), execOptions);
+        cookiesPath: path.resolve(__dirname, 'assets', 'youtube-cookies.txt')
+      } as Parameters<typeof youtubeDlExec>[1] & { jsRuntimes?: string });
 
       const strContent = await tempFile.content(`.${LANG}.${SUB_FORMAT}`);
       console.log(`[youtubeAdapter] fetchSubtitles: downloaded content length=${strContent.length}`);

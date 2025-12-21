@@ -37,9 +37,5 @@ const start = async () => {
 
 start().catch(error => {
   console.error('Worker fatal error', error);
-  if (error instanceof Error) {
-    console.error('Worker fatal error message:', error.message);
-    console.error('Worker fatal error stack:', error.stack);
-  }
   process.exit(1);
 });
