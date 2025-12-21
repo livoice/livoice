@@ -135,8 +135,14 @@ export const youtubeAdapter: SourceAdapter = {
         subFormat: SUB_FORMAT,
         output: tempFile.path,
         jsRuntimes: 'node' as const,
-        cookies: path.resolve(__dirname, 'assets', 'youtube-cookies.txt')
-      } as Parameters<typeof youtubeDlExec>[1] & { jsRuntimes?: string });
+        cookies: path.resolve(__dirname, 'assets', 'youtube-cookies.txt'),
+        sleepInterval: 10,
+        maxSleepInterval: 30
+      } as Parameters<typeof youtubeDlExec>[1] & {
+        jsRuntimes?: string;
+        sleepInterval?: number;
+        maxSleepInterval?: number;
+      });
 
       const strContent = await tempFile.content(`.${LANG}.${SUB_FORMAT}`);
       console.log(`[youtubeAdapter] fetchTranscript: downloaded content length=${strContent.length}`);
