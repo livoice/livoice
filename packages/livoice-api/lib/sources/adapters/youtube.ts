@@ -135,7 +135,7 @@ export const youtubeAdapter: SourceAdapter = {
         subFormat: SUB_FORMAT,
         output: tempFile.path,
         jsRuntimes: 'node' as const,
-        cookiesPath: path.resolve(__dirname, 'assets', 'youtube-cookies.txt')
+        cookies: path.resolve(__dirname, 'assets', 'youtube-cookies.txt')
       } as Parameters<typeof youtubeDlExec>[1] & { jsRuntimes?: string });
 
       const strContent = await tempFile.content(`.${LANG}.${SUB_FORMAT}`);
