@@ -1,7 +1,7 @@
-import { Context } from '.keystone/types';
 import { Prisma } from '@prisma/client';
 import { createEmbeddings } from './openai';
 import { formatVectorLiteral } from './pgvector';
+import { getPrismaSudo } from './prisma';
 
 type PendingSegment = {
   id: string;
@@ -9,9 +9,10 @@ type PendingSegment = {
   transcriptId: string;
 };
 
-export const fetchPendingSegments = async (context: Context, limit = 500): Promise<PendingSegment[]> => {
-  const prisma = context.sudo().prisma;
-  const rows = await prisma.$queryRawUnsafe<{ id: string; text: string; transcriptId: string }[]>(
+export const fetchPendingSegments = async (limit = 500): Promise<PendingSegment[]> => {
+  const rows = await (
+    await getPrismaSudo()
+  ).$queryRawUnsafe<{ id: string; text: string; transcriptId: string }[]>(
     `SELECT ts.id, ts.text, ts.transcript as "transcriptId"
      FROM "TranscriptSegment" ts
      INNER JOIN "Transcript" t ON ts.transcript = t.id
@@ -22,7 +23,7 @@ export const fetchPendingSegments = async (context: Context, limit = 500): Promi
   return rows;
 };
 
-export const batchEmbed = async (context: Context, segments: PendingSegment[]) => {
+export const batchEmbed = async (segments: PendingSegment[]) => {
   if (!segments.length) return;
   const texts = segments.map(segment => segment.text);
   const embeddings = await createEmbeddings(texts);
@@ -34,7 +35,7 @@ export const batchEmbed = async (context: Context, segments: PendingSegment[]) =
     }))
     .filter((update): update is { id: string; embedding: string } => update.embedding !== undefined);
 
-  const prisma = context.sudo().prisma;
+  const prisma = await getPrismaSudo();
   await Promise.all(
     updates.map(
       update =>
@@ -45,10 +46,10 @@ export const batchEmbed = async (context: Context, segments: PendingSegment[]) =
   );
 };
 
-export const markCompletedTranscripts = async (context: Context) =>
-  context.sudo().prisma.$executeRawUnsafe(`
+export const markCompletedTranscripts = async () =>
+  (await getPrismaSudo()).$executeRawUnsafe(`
     UPDATE "Transcript"
-    SET "embeddingStatus" = 'completed', "embeddingCompletedAt" = NOW()
+    SET "embeddingStatus" = 'completed', "embeddingAt" = NOW()
     WHERE "embeddingStatus" IN ('pending', 'processing')
       AND "importStatus" IN ('completed', 'skipped')
       AND NOT EXISTS (

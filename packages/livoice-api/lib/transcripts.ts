@@ -1,5 +1,5 @@
 import type { Prisma, Transcript, TranscriptImportStatusType } from '@prisma/client';
-import { getKeystoneContext } from 'livoice-api/context/keystoneContext';
+import { getPrismaSudo } from './prisma';
 import type { SourceAdapter } from './sources/types';
 import { toTranscriptSegments } from './toTranscriptSegments';
 
@@ -9,10 +9,8 @@ export type TranscriptWithSource = Prisma.TranscriptGetPayload<{
   include: { source: true };
 }>;
 
-const getPrisma = async () => (await getKeystoneContext()).sudo().prisma;
-
 export const fetchPendingTranscript = async (): Promise<TranscriptWithSource | null> =>
-  (await getPrisma()).transcript.findFirst({
+  (await getPrismaSudo()).transcript.findFirst({
     where: {
       OR: [
         { importStatus: 'pending' },
@@ -29,25 +27,24 @@ export const updateTranscriptStatus = async (
   importError: string = ''
 ) => {
   await (
-    await getPrisma()
+    await getPrismaSudo()
   ).transcript.update({
     where: { id: transcript.id },
     data: {
       importStatus,
-      importAttempts: { increment: 1 },
-      importError
+      importError,
+      ...(importStatus === 'failed' && { importAttempts: { increment: 1 } })
     }
   });
   return false;
 };
 
 export const processTranscriptImport = async (transcript: TranscriptWithSource, adapter: SourceAdapter) => {
-  const prisma = await getPrisma();
+  const prisma = await getPrismaSudo();
   await updateTranscriptStatus(transcript, 'fetching');
 
   try {
     const transcriptSegments = toTranscriptSegments(await adapter.fetchTranscript(transcript.externalId));
-
     const isEmpty = transcriptSegments.length === 0;
 
     if (!isEmpty) {

@@ -84,31 +84,32 @@ model Source {
 }
 
 model Transcript {
-  id                   String                         @id @default(cuid())
-  title                String                         @default("")
-  intervieweeName      String                         @default("")
-  sourceUrl            String                         @default("")
-  language             String                         @default("")
-  notes                String                         @default("")
-  externalId           String                         @default("")
-  publishedAt          DateTime?
-  duration             Int?
-  thumbnailUrl         String                         @default("")
-  embeddingStatus      TranscriptEmbeddingStatusType? @default(pending)
-  embeddingAttempts    Int?                           @default(0)
-  embeddingError       String                         @default("")
-  embeddingCompletedAt DateTime?
-  importStatus         TranscriptImportStatusType?    @default(pending)
-  importAttempts       Int?                           @default(0)
-  importError          String                         @default("")
-  source               Source?                        @relation("Transcript_source", fields: [sourceId], references: [id])
-  sourceId             String?                        @map("source")
-  org                  Organization?                  @relation("Transcript_org", fields: [orgId], references: [id])
-  orgId                String?                        @map("org")
-  segments             TranscriptSegment[]            @relation("TranscriptSegment_transcript")
-  chats                Chat[]                         @relation("Chat_transcript")
-  createdAt            DateTime?                      @default(now())
-  updatedAt            DateTime?                      @updatedAt
+  id                String                         @id @default(cuid())
+  title             String                         @default("")
+  intervieweeName   String                         @default("")
+  sourceUrl         String                         @default("")
+  language          String                         @default("")
+  notes             String                         @default("")
+  externalId        String                         @default("")
+  publishedAt       DateTime?
+  duration          Int?
+  thumbnailUrl      String                         @default("")
+  embeddingStatus   TranscriptEmbeddingStatusType? @default(pending)
+  embeddingAttempts Int?                           @default(0)
+  embeddingError    String                         @default("")
+  embeddingAt       DateTime?
+  importStatus      TranscriptImportStatusType?    @default(pending)
+  importAttempts    Int?                           @default(0)
+  importError       String                         @default("")
+  importAt          DateTime?
+  source            Source?                        @relation("Transcript_source", fields: [sourceId], references: [id])
+  sourceId          String?                        @map("source")
+  org               Organization?                  @relation("Transcript_org", fields: [orgId], references: [id])
+  orgId             String?                        @map("org")
+  segments          TranscriptSegment[]            @relation("TranscriptSegment_transcript")
+  chats             Chat[]                         @relation("Chat_transcript")
+  createdAt         DateTime?                      @default(now())
+  updatedAt         DateTime?                      @updatedAt
 
   @@index([sourceId])
   @@index([orgId])

@@ -1,6 +1,6 @@
 import { CronExpressionParser } from 'cron-parser';
-import { getKeystoneContext } from 'livoice-api/context/keystoneContext';
 import { enqueueSourceImport } from 'livoice-api/jobs/queues';
+import { getPrismaSudo } from 'livoice-api/lib/prisma';
 import { runForever } from './utils/loop';
 
 const SLEEP_MS = 60_000;
@@ -17,8 +17,7 @@ const isDue = (cronExpression: string, lastCompletedAt?: Date | null) => {
 };
 
 export const start = async () => {
-  const context = await getKeystoneContext();
-  const prisma = context.sudo().prisma;
+  const prisma = await getPrismaSudo();
 
   await runForever(async () => {
     const sources = await prisma.source.findMany({

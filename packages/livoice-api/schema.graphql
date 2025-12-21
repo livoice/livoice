@@ -607,10 +607,11 @@ type Transcript {
   embeddingStatus: TranscriptEmbeddingStatusType
   embeddingAttempts: Int
   embeddingError: String
-  embeddingCompletedAt: DateTime
+  embeddingAt: DateTime
   importStatus: TranscriptImportStatusType
   importAttempts: Int
   importError: String
+  importAt: DateTime
   source: Source
   org: Organization
   segments(where: TranscriptSegmentWhereInput! = {}, orderBy: [TranscriptSegmentOrderByInput!]! = [], take: Int, skip: Int! = 0, cursor: TranscriptSegmentWhereUniqueInput): [TranscriptSegment!]
@@ -657,10 +658,11 @@ input TranscriptWhereInput {
   embeddingStatus: TranscriptEmbeddingStatusTypeNullableFilter
   embeddingAttempts: IntNullableFilter
   embeddingError: StringFilter
-  embeddingCompletedAt: DateTimeNullableFilter
+  embeddingAt: DateTimeNullableFilter
   importStatus: TranscriptImportStatusTypeNullableFilter
   importAttempts: IntNullableFilter
   importError: StringFilter
+  importAt: DateTimeNullableFilter
   source: SourceWhereInput
   org: OrganizationWhereInput
   segments: TranscriptSegmentManyRelationFilter
@@ -708,10 +710,11 @@ input TranscriptOrderByInput {
   embeddingStatus: OrderDirection
   embeddingAttempts: OrderDirection
   embeddingError: OrderDirection
-  embeddingCompletedAt: OrderDirection
+  embeddingAt: OrderDirection
   importStatus: OrderDirection
   importAttempts: OrderDirection
   importError: OrderDirection
+  importAt: OrderDirection
   createdAt: OrderDirection
   updatedAt: OrderDirection
 }
@@ -729,10 +732,11 @@ input TranscriptUpdateInput {
   embeddingStatus: TranscriptEmbeddingStatusType
   embeddingAttempts: Int
   embeddingError: String
-  embeddingCompletedAt: DateTime
+  embeddingAt: DateTime
   importStatus: TranscriptImportStatusType
   importAttempts: Int
   importError: String
+  importAt: DateTime
   source: SourceRelateToOneForUpdateInput
   org: OrganizationRelateToOneForUpdateInput
   segments: TranscriptSegmentRelateToManyForUpdateInput
@@ -765,10 +769,11 @@ input TranscriptCreateInput {
   embeddingStatus: TranscriptEmbeddingStatusType
   embeddingAttempts: Int
   embeddingError: String
-  embeddingCompletedAt: DateTime
+  embeddingAt: DateTime
   importStatus: TranscriptImportStatusType
   importAttempts: Int
   importError: String
+  importAt: DateTime
   source: SourceRelateToOneForCreateInput
   org: OrganizationRelateToOneForCreateInput
   segments: TranscriptSegmentRelateToManyForCreateInput

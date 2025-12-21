@@ -26,7 +26,7 @@ export default list({
     }),
     embeddingAttempts: integer({ defaultValue: 0 }),
     embeddingError: text(),
-    embeddingCompletedAt: timestamp(),
+    embeddingAt: timestamp(),
     importStatus: select({
       type: 'enum',
       options: [
@@ -40,6 +40,7 @@ export default list({
     }),
     importAttempts: integer({ defaultValue: 0 }),
     importError: text(),
+    importAt: timestamp(),
     source: relationship({ ref: 'Source.transcripts', many: false }),
     org: relationship({ ref: 'Organization.transcripts', many: false }),
     segments: relationship({ ref: 'TranscriptSegment.transcript', many: true }),
@@ -116,8 +117,26 @@ export default list({
         if (!source?.org?.id) return resolvedData;
         return { ...resolvedData, org: { connect: { id: source.org.id } } };
       },
-      update: async ({ resolvedData }) => {
+      update: async ({ resolvedData, context, item }) => {
         if (resolvedData.importStatus === 'pending') resolvedData.importAttempts = 0;
+
+        if (!item?.id) return resolvedData;
+
+        const sudoContext = context.sudo();
+        const current = (await sudoContext.query.Transcript.findOne({
+          where: { id: String(item.id) },
+          query: 'embeddingStatus importStatus'
+        })) as { embeddingStatus?: string; importStatus?: string } | null;
+
+        if (current) {
+          if (resolvedData.embeddingStatus !== undefined && resolvedData.embeddingStatus !== current.embeddingStatus) {
+            (resolvedData as Record<string, unknown>).embeddingAt = new Date();
+          }
+          if (resolvedData.importStatus !== undefined && resolvedData.importStatus !== current.importStatus) {
+            (resolvedData as Record<string, unknown>).importAt = new Date();
+          }
+        }
+
         return resolvedData;
       }
     },
