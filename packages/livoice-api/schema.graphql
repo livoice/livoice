@@ -4,6 +4,7 @@
 type Chat {
   id: ID!
   title: String
+  systemPrompt: String
   org: Organization
   project: Project
   messages(where: ChatMessageWhereInput! = {}, orderBy: [ChatMessageOrderByInput!]! = [], take: Int, skip: Int! = 0, cursor: ChatMessageWhereUniqueInput): [ChatMessage!]
@@ -24,6 +25,7 @@ input ChatWhereInput {
   NOT: [ChatWhereInput!]
   id: IDFilter
   title: StringFilter
+  systemPrompt: StringFilter
   org: OrganizationWhereInput
   project: ProjectWhereInput
   messages: ChatMessageManyRelationFilter
@@ -96,6 +98,7 @@ input DateTimeNullableFilter {
 input ChatOrderByInput {
   id: OrderDirection
   title: OrderDirection
+  systemPrompt: OrderDirection
   createdAt: OrderDirection
   updatedAt: OrderDirection
 }
@@ -107,6 +110,7 @@ enum OrderDirection {
 
 input ChatUpdateInput {
   title: String
+  systemPrompt: String
   org: OrganizationRelateToOneForUpdateInput
   project: ProjectRelateToOneForUpdateInput
   messages: ChatMessageRelateToManyForUpdateInput
@@ -140,6 +144,7 @@ input ChatUpdateArgs {
 
 input ChatCreateInput {
   title: String
+  systemPrompt: String
   org: OrganizationRelateToOneForCreateInput
   project: ProjectRelateToOneForCreateInput
   messages: ChatMessageRelateToManyForCreateInput
@@ -1136,6 +1141,7 @@ type Mutation {
   deleteUsers(where: [UserWhereUniqueInput!]!): [User]
   endSession: Boolean!
   triggerSourceImport(sourceId: ID!): Source!
+  chatTranscript(input: ChatTranscriptInput!): ChatMutationResult!
   chatProject(input: ChatProjectInput!): ChatMutationResult!
 }
 
@@ -1163,10 +1169,18 @@ type ChatSegmentReference {
   transcriptTitle: String
 }
 
+input ChatTranscriptInput {
+  chatId: ID
+  transcriptId: ID!
+  message: String!
+  systemPrompt: String!
+}
+
 input ChatProjectInput {
   chatId: ID
   projectId: ID!
   message: String!
+  systemPrompt: String!
 }
 
 type Query {
@@ -1195,12 +1209,15 @@ type Query {
   users(where: UserWhereInput! = {}, orderBy: [UserOrderByInput!]! = [], take: Int, skip: Int! = 0, cursor: UserWhereUniqueInput): [User!]
   usersCount(where: UserWhereInput! = {}): Int
   keystone: KeystoneMeta!
+  chatTranscriptHistory(transcriptId: ID!, chatId: ID): ChatHistoryResult!
   chatProjectHistory(projectId: ID!, chatId: ID): ChatHistoryResult!
 }
 
 type ChatHistoryResult {
   chatId: ID
   messages: [ChatMessageResult!]!
+  systemPrompt: String
+  resolvedSystemPrompt: String
 }
 
 type KeystoneMeta {

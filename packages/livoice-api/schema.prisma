@@ -12,15 +12,16 @@ generator client {
 }
 
 model Chat {
-  id        String        @id @default(cuid())
-  title     String        @default("AI chat")
-  org       Organization? @relation("Chat_org", fields: [orgId], references: [id])
-  orgId     String?       @map("org")
-  project   Project?      @relation("Chat_project", fields: [projectId], references: [id])
-  projectId String?       @map("project")
-  messages  ChatMessage[] @relation("ChatMessage_chat")
-  createdAt DateTime?     @default(now())
-  updatedAt DateTime?     @updatedAt
+  id           String        @id @default(cuid())
+  title        String        @default("AI chat")
+  systemPrompt String        @default("")
+  org          Organization? @relation("Chat_org", fields: [orgId], references: [id])
+  orgId        String?       @map("org")
+  project      Project?      @relation("Chat_project", fields: [projectId], references: [id])
+  projectId    String?       @map("project")
+  messages     ChatMessage[] @relation("ChatMessage_chat")
+  createdAt    DateTime?     @default(now())
+  updatedAt    DateTime?     @updatedAt
 
   @@index([orgId])
   @@index([projectId])

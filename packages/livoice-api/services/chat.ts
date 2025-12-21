@@ -182,7 +182,6 @@ const fetchSegments = async ({ context, projectId, queryText }: FetchSegmentsPar
 
   if (queryText) {
     const vectorSegments = await runVectorSearch(queryText);
-    console.log('vectorSegments', vectorSegments);
     if (vectorSegments.length) return vectorSegments;
   }
 
@@ -290,8 +289,85 @@ const getOpenAiMessages = ({
   ];
 };
 
-const getSystemPrompt = ({ projectName }: { projectName?: string | null }) =>
-  `You are an insights assistant for the "${projectName ?? 'project'}" workspace. Lean on the available transcript segments when summarizing or answering questions.`;
+export const getSystemPromptReplacements = async ({
+  context,
+  projectId,
+  transcriptId
+}: {
+  context: KeystoneContext;
+  projectId?: string | null;
+  transcriptId?: string | null;
+}): Promise<{ projectName: string; transcriptTitles: string[]; sourceNames: string[] }> => {
+  const sudoContext = context.sudo();
+
+  let projectName = 'project';
+  let transcriptTitles: string[] = [];
+  let sourceNames: string[] = [];
+
+  if (transcriptId) {
+    // Transcript context: get the single transcript and its source
+    const transcript = await sudoContext.query.Transcript.findOne({
+      where: { id: transcriptId },
+      query: 'title source { name } project { name }'
+    });
+
+    if (transcript) {
+      transcriptTitles = [transcript.title];
+      if (transcript.source?.name) {
+        sourceNames = [transcript.source.name];
+      }
+      if (transcript.project?.name) {
+        projectName = transcript.project.name;
+      }
+    }
+  } else if (projectId) {
+    // Project context: get all transcripts and sources for the project
+    const project = await sudoContext.query.Project.findOne({
+      where: { id: projectId },
+      query: 'name sources { name transcripts { title } }'
+    });
+
+    if (project) {
+      projectName = project.name;
+
+      // Get all source names
+      sourceNames = project.sources?.map(source => source.name).filter(Boolean) ?? [];
+
+      // Get all transcript titles
+      transcriptTitles =
+        project.sources?.flatMap(
+          source => source.transcripts?.map(transcript => transcript.title).filter(Boolean) ?? []
+        ) ?? [];
+    }
+  }
+
+  return { projectName, transcriptTitles, sourceNames };
+};
+
+const replaceSystemPromptPlaceholders = async ({
+  systemPrompt,
+  context,
+  projectId,
+  transcriptId,
+  session
+}: {
+  systemPrompt: string;
+  context: KeystoneContext;
+  projectId?: string;
+  transcriptId?: string;
+  session: Session;
+}): Promise<string> => {
+  const { projectName, transcriptTitles, sourceNames } = await getSystemPromptReplacements({
+    context,
+    projectId,
+    transcriptId
+  });
+
+  return systemPrompt
+    .replace(/\{projectName\}/g, projectName)
+    .replace(/\{transcriptTitles\}/g, transcriptTitles.join(', '))
+    .replace(/\{sourceNames\}/g, sourceNames.join(', '));
+};
 
 const generateChatTitle = async ({
   firstMessage,
@@ -368,8 +444,10 @@ export const runChatConversation = async ({
   session: Session;
   input: {
     chatId?: string | null;
+    transcriptId?: string;
     projectId?: string;
     message: string;
+    systemPrompt: string;
   };
 }) => {
   if (!session?.id) throw new Error('Unauthorized');
@@ -377,6 +455,20 @@ export const runChatConversation = async ({
   const sudoContext = context.sudo();
   const messageText = input.message.trim();
   if (!messageText) throw new Error('Message cannot be empty');
+
+  const fetchTranscriptContext = async () => {
+    if (!input.transcriptId) throw new Error('Transcript ID is required');
+    const transcript = await sudoContext.query.Transcript.findOne({
+      where: { id: input.transcriptId },
+      query: 'id title source { projects { id name org { id } } org { id } } org { id }'
+    });
+    if (!transcript) throw new Error('Transcript not found');
+    const project =
+      transcript.source?.projects?.find((project: ProjectWithOrg) => project.org?.id === session.orgId) ??
+      transcript.source?.projects?.[0];
+    if (!project?.id) throw new Error('Transcript is missing project reference');
+    return { targetTranscript: transcript, targetProject: project };
+  };
 
   const fetchProjectContext = async () => {
     if (!input.projectId) throw new Error('Project ID is required');
@@ -388,17 +480,22 @@ export const runChatConversation = async ({
     return { targetProject: project, targetTranscript: null };
   };
 
-  const { targetProject } = await fetchProjectContext();
+  const isTranscriptContext = Boolean(input.transcriptId);
+  const { targetProject, targetTranscript } = isTranscriptContext
+    ? await fetchTranscriptContext()
+    : await fetchProjectContext();
 
   if (!targetProject?.org?.id) {
     throw new Error('Missing organization context for chat target');
   }
 
   const projectId = targetProject?.id;
+  const transcriptId = targetTranscript?.id;
 
   const segments = await fetchSegments({
     context,
     projectId,
+    transcriptId,
     queryText: messageText
   });
   if (!segments.length) throw new Error('No transcript segments found for this context yet');
@@ -407,16 +504,23 @@ export const runChatConversation = async ({
   const segmentsForPrompt = selectSegmentsWithinBudget(segments, 2_000);
   const segmentsText = segmentsForPrompt.map(buildSegmentDescription).join('\n');
 
-  const systemPrompt = getSystemPrompt({
-    projectName: targetProject?.name
+  const finalSystemPrompt = await replaceSystemPromptPlaceholders({
+    systemPrompt: input.systemPrompt,
+    context,
+    projectId,
+    transcriptId,
+    session
   });
 
   const title = input.chatId
     ? ''
     : ((await generateChatTitle({
         firstMessage: messageText,
-        contextName: targetProject?.name
-      })) ?? `Project chat • ${targetProject?.name ?? 'untitled'}`);
+        contextName: isTranscriptContext ? targetTranscript?.title : targetProject?.name
+      })) ??
+      (isTranscriptContext
+        ? `Transcript chat • ${targetTranscript?.title ?? 'untitled'}`
+        : `Project chat • ${targetProject?.name ?? 'untitled'}`));
 
   const chatId = String(
     input.chatId ??
@@ -424,8 +528,10 @@ export const runChatConversation = async ({
         await sudoContext.db.Chat.createOne({
           data: {
             title,
+            systemPrompt: input.systemPrompt,
             org: { connect: { id: session.orgId } },
-            ...(projectId ? { project: { connect: { id: projectId } } } : {})
+            ...(projectId ? { project: { connect: { id: projectId } } } : {}),
+            ...(transcriptId ? { transcript: { connect: { id: transcriptId } } } : {})
           }
         })
       )?.id
@@ -437,7 +543,7 @@ export const runChatConversation = async ({
 
   const messages = getOpenAiMessages({
     history: history.map(item => ({ role: item.role, content: item.content })),
-    systemPrompt,
+    systemPrompt: finalSystemPrompt,
     userMessage: `${segmentsText}\n\nQuestion: ${messageText}`,
     maxContextTokens: 8_000, // Input limit (what we SEND)
     reservedTokens: 1_500 // Reserved within maxContextTokens

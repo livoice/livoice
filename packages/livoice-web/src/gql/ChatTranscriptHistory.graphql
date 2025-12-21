@@ -1,5 +1,5 @@
-query ChatProjectHistory($projectId: ID!) {
-  chatProjectHistory(projectId: $projectId) {
+query ChatTranscriptHistory($transcriptId: ID!) {
+  chatTranscriptHistory(transcriptId: $transcriptId) {
     chatId
     systemPrompt
     resolvedSystemPrompt
@@ -19,4 +19,3 @@ query ChatProjectHistory($projectId: ID!) {
     }
   }
 }
-

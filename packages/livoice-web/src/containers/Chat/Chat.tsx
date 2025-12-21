@@ -56,6 +56,9 @@ const formatTime = (value?: number | null) => {
   return [hours, minutes, seconds].map(unit => unit.toString().padStart(2, '0')).join(':');
 };
 
+const getSystemPrompt = () =>
+  `You are an insights assistant for the "{projectName}" workspace. Available transcripts: {transcriptTitles}. Sources: {sourceNames}. Lean on the available transcript segments when summarizing or answering questions.`;
+
 const formatRange = (segment: SegmentReference) => {
   const start = formatTime(segment.startMs);
   const end = formatTime(segment.endMs);
@@ -73,6 +76,8 @@ const Chat = () => {
   const client = useApolloClient();
 
   const [draft, setDraft] = useState('');
+  const [systemPrompt, setSystemPrompt] = useState(() => getSystemPrompt());
+  const [systemPromptExpanded, setSystemPromptExpanded] = useState({ raw: false, resolved: false });
   const canSend = Boolean(draft.trim());
   const messagesEndRef = useRef<HTMLDivElement | null>(null);
 
@@ -95,6 +100,10 @@ const Chat = () => {
       }
     }
   });
+
+  const currentSystemPrompt = projectHistory?.chatProjectHistory?.systemPrompt ?? '';
+  const resolvedSystemPrompt =
+    (projectHistory?.chatProjectHistory as { resolvedSystemPrompt?: string })?.resolvedSystemPrompt ?? '';
 
   const messages: ChatMessageItem[] = useMemo(() => {
     if (isNewChat) return [];
@@ -125,7 +134,8 @@ const Chat = () => {
         input: {
           chatId: isNewChat ? null : chatId,
           projectId,
-          message: trimmed
+          message: trimmed,
+          systemPrompt
         }
       }
     });
@@ -158,6 +168,88 @@ const Chat = () => {
         </div>
 
         <div className="flex-1 space-y-3 overflow-y-auto pr-1">
+          {isNewChat ? (
+            <div className="space-y-4 rounded-2xl border border-slate-200 bg-slate-50/50 p-4">
+              <div className="space-y-2">
+                <label htmlFor="system-prompt" className="text-sm font-semibold text-slate-700">
+                  System Prompt
+                </label>
+                <p className="text-xs text-slate-500 font-medium">
+                  You can set the system prompt for this conversation. After you set one, you can type at the bottom
+                  into the chat input and start the conversation.
+                </p>
+                <TextField
+                  id="system-prompt"
+                  multiline
+                  rows={14}
+                  placeholder="Enter system prompt..."
+                  value={systemPrompt}
+                  onChange={event => setSystemPrompt(event.target.value)}
+                  className="w-full"
+                />
+                <div className="text-xs text-slate-500 space-y-1">
+                  <p className="font-medium">Available placeholders:</p>
+                  <ul className="list-disc list-inside space-y-0.5 ml-2">
+                    <li>
+                      <code className="bg-slate-100 px-1 rounded text-xs">{'{projectName}'}</code> - The name of the
+                      current project
+                    </li>
+                    <li>
+                      <code className="bg-slate-100 px-1 rounded text-xs">{'{transcriptTitles}'}</code> - All transcript
+                      titles in the project
+                    </li>
+                    <li>
+                      <code className="bg-slate-100 px-1 rounded text-xs">{'{sourceNames}'}</code> - All source names in
+                      the project
+                    </li>
+                  </ul>
+                </div>
+              </div>
+            </div>
+          ) : (
+            currentSystemPrompt && (
+              <div className="rounded-2xl border border-slate-200 bg-slate-50/50 p-4">
+                <div className="space-y-3">
+                  <div className="flex items-center justify-between">
+                    <label className="text-sm font-semibold text-slate-700">System Prompt</label>
+                  </div>
+
+                  <div className="space-y-2">
+                    <div className="border-b border-slate-200 pb-2">
+                      <button
+                        type="button"
+                        className="text-sm font-medium text-slate-600 hover:text-slate-800"
+                        onClick={() => setSystemPromptExpanded(prev => ({ ...prev, raw: !prev.raw }))}
+                      >
+                        Raw (with placeholders) {systemPromptExpanded.raw ? '▼' : '▶'}
+                      </button>
+                      {systemPromptExpanded.raw && (
+                        <div className="mt-2 rounded-lg bg-white p-3 text-sm text-slate-600 whitespace-pre-wrap font-mono">
+                          {currentSystemPrompt}
+                        </div>
+                      )}
+                    </div>
+
+                    <div>
+                      <button
+                        type="button"
+                        className="text-sm font-medium text-slate-600 hover:text-slate-800"
+                        onClick={() => setSystemPromptExpanded(prev => ({ ...prev, resolved: !prev.resolved }))}
+                      >
+                        Resolved (with content filled) {systemPromptExpanded.resolved ? '▼' : '▶'}
+                      </button>
+                      {systemPromptExpanded.resolved && (
+                        <div className="mt-2 rounded-lg bg-white p-3 text-sm text-slate-600 whitespace-pre-wrap font-mono">
+                          {resolvedSystemPrompt}
+                        </div>
+                      )}
+                    </div>
+                  </div>
+                </div>
+              </div>
+            )
+          )}
+
           {messages.length ? (
             <div className="space-y-3">
               {messages.map(message => (
