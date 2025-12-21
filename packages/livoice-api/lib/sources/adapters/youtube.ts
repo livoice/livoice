@@ -123,7 +123,7 @@ export const youtubeAdapter: SourceAdapter = {
     const LANG = 'en';
     const SUB_FORMAT = 'srt';
 
-    console.log('[youtubeAdapter] fetchSubtitles: itemExternalId=', itemExternalId);
+    console.log('[youtubeAdapter] fetchTranscript: itemExternalId=', itemExternalId);
 
     try {
       const tempFile = await TempFile.create();
@@ -139,11 +139,11 @@ export const youtubeAdapter: SourceAdapter = {
       } as Parameters<typeof youtubeDlExec>[1] & { jsRuntimes?: string });
 
       const strContent = await tempFile.content(`.${LANG}.${SUB_FORMAT}`);
-      console.log(`[youtubeAdapter] fetchSubtitles: downloaded content length=${strContent.length}`);
+      console.log(`[youtubeAdapter] fetchTranscript: downloaded content length=${strContent.length}`);
 
       return strContent;
     } catch (error) {
-      console.error(`[youtubeAdapter] fetchSubtitles failed for ${itemExternalId}:`, error);
+      console.error(`[youtubeAdapter] fetchTranscript failed for ${itemExternalId}:`, error);
       if (error instanceof Error) {
         console.error(`[youtubeAdapter] Error message: ${error.message}`);
         console.error(`[youtubeAdapter] Error stack: ${error.stack}`);
