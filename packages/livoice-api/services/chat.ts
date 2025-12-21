@@ -530,9 +530,9 @@ export const runChatConversation = async ({
         chat: { connect: { id: chatId } },
         role: 'assistant',
         content: answer,
-        ...(referenceSegments.length
-          ? { segments: { connect: referenceSegments.map((segment: SegmentRecord) => ({ id: segment.id })) } }
-          : {})
+        ...(referenceSegments.length && {
+          segments: { connect: referenceSegments.map((segment: SegmentRecord) => ({ id: segment.id })) }
+        })
       }
     })
   ]);
