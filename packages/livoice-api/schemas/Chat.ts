@@ -1,9 +1,7 @@
 import { type Lists } from '.keystone/types';
 import { list } from '@keystone-6/core';
-import { graphql as g } from '@keystone-6/core';
-import { relationship, text, timestamp, virtual } from '@keystone-6/core/fields';
+import { relationship, text, timestamp } from '@keystone-6/core/fields';
 import { filterByUserOrg, isAuthenticated, isGod, isOrgAdmin } from '../domains/auth/userRole';
-import { getSystemPromptReplacements } from '../services/chat';
 
 export default list({
   fields: {
