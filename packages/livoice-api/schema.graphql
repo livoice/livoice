@@ -5,6 +5,7 @@ type Chat {
   id: ID!
   title: String
   systemPrompt: String
+  user: User
   org: Organization
   project: Project
   messages(where: ChatMessageWhereInput! = {}, orderBy: [ChatMessageOrderByInput!]! = [], take: Int, skip: Int! = 0, cursor: ChatMessageWhereUniqueInput): [ChatMessage!]
@@ -26,6 +27,7 @@ input ChatWhereInput {
   id: IDFilter
   title: StringFilter
   systemPrompt: StringFilter
+  user: UserWhereInput
   org: OrganizationWhereInput
   project: ProjectWhereInput
   messages: ChatMessageManyRelationFilter
@@ -111,11 +113,18 @@ enum OrderDirection {
 input ChatUpdateInput {
   title: String
   systemPrompt: String
+  user: UserRelateToOneForUpdateInput
   org: OrganizationRelateToOneForUpdateInput
   project: ProjectRelateToOneForUpdateInput
   messages: ChatMessageRelateToManyForUpdateInput
   createdAt: DateTime
   updatedAt: DateTime
+}
+
+input UserRelateToOneForUpdateInput {
+  create: UserCreateInput
+  connect: UserWhereUniqueInput
+  disconnect: Boolean
 }
 
 input OrganizationRelateToOneForUpdateInput {
@@ -145,11 +154,17 @@ input ChatUpdateArgs {
 input ChatCreateInput {
   title: String
   systemPrompt: String
+  user: UserRelateToOneForCreateInput
   org: OrganizationRelateToOneForCreateInput
   project: ProjectRelateToOneForCreateInput
   messages: ChatMessageRelateToManyForCreateInput
   createdAt: DateTime
   updatedAt: DateTime
+}
+
+input UserRelateToOneForCreateInput {
+  create: UserCreateInput
+  connect: UserWhereUniqueInput
 }
 
 input OrganizationRelateToOneForCreateInput {
@@ -920,6 +935,8 @@ type User {
   provider: UserProviderType
   rawAuth: JSON
   org: Organization
+  chats(where: ChatWhereInput! = {}, orderBy: [ChatOrderByInput!]! = [], take: Int, skip: Int! = 0, cursor: ChatWhereUniqueInput): [Chat!]
+  chatsCount(where: ChatWhereInput! = {}): Int
   isActive: Boolean
   createdAt: DateTime
   provisionedAt: DateTime
@@ -1004,6 +1021,7 @@ input UserWhereInput {
   providerAccountId: StringFilter
   provider: UserProviderTypeNullableFilter
   org: OrganizationWhereInput
+  chats: ChatManyRelationFilter
   isActive: BooleanFilter
   createdAt: DateTimeNullableFilter
   provisionedAt: DateTimeNullableFilter
@@ -1052,6 +1070,7 @@ input UserUpdateInput {
   provider: UserProviderType
   rawAuth: JSON
   org: OrganizationRelateToOneForUpdateInput
+  chats: ChatRelateToManyForUpdateInput
   isActive: Boolean
   createdAt: DateTime
   provisionedAt: DateTime
@@ -1078,6 +1097,7 @@ input UserCreateInput {
   provider: UserProviderType
   rawAuth: JSON
   org: OrganizationRelateToOneForCreateInput
+  chats: ChatRelateToManyForCreateInput
   isActive: Boolean
   createdAt: DateTime
   provisionedAt: DateTime

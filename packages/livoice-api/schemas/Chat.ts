@@ -7,6 +7,7 @@ export default list({
   fields: {
     title: text({ validation: { isRequired: true }, defaultValue: 'AI chat' }),
     systemPrompt: text({ ui: { displayMode: 'textarea' } }),
+    user: relationship({ ref: 'User.chats', many: false }),
     org: relationship({ ref: 'Organization.chats', many: false }),
     project: relationship({ ref: 'Project.chats', many: false }),
     messages: relationship({ ref: 'ChatMessage.chat', many: true }),
@@ -17,8 +18,19 @@ export default list({
     operation: {
       query: isAuthenticated,
       create: isAuthenticated,
-      update: isOrgAdmin,
+      update: isAuthenticated,
       delete: isOrgAdmin
+    },
+    item: {
+      update: async ({ session, item }) => {
+        if (isGod({ session })) return true;
+        if (isOrgAdmin({ session })) return true;
+
+        // Allow the chat owner to update their own chat
+        if (item.userId === session?.id) return true;
+
+        return false;
+      }
     },
     filter: {
       query: async ({ session }) => {

@@ -127,6 +127,14 @@ export default list({
         update: isOrgAdminOrAbove
       }
     }),
+    chats: relationship({
+      ref: 'Chat.user',
+      many: true,
+      ui: {
+        createView: { fieldMode: 'hidden' },
+        itemView: { fieldMode: 'read' }
+      }
+    }),
     isActive: checkbox({
       defaultValue: true,
       access: {

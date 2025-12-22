@@ -15,6 +15,8 @@ model Chat {
   id           String        @id @default(cuid())
   title        String        @default("AI chat")
   systemPrompt String        @default("")
+  user         User?         @relation("Chat_user", fields: [userId], references: [id])
+  userId       String?       @map("user")
   org          Organization? @relation("Chat_org", fields: [orgId], references: [id])
   orgId        String?       @map("org")
   project      Project?      @relation("Chat_project", fields: [projectId], references: [id])
@@ -23,6 +25,7 @@ model Chat {
   createdAt    DateTime?     @default(now())
   updatedAt    DateTime?     @updatedAt
 
+  @@index([userId])
   @@index([orgId])
   @@index([projectId])
 }
@@ -143,6 +146,7 @@ model User {
   rawAuth           Json?
   org               Organization?    @relation("User_org", fields: [orgId], references: [id])
   orgId             String?          @map("org")
+  chats             Chat[]           @relation("Chat_user")
   isActive          Boolean          @default(true)
   createdAt         DateTime?        @default(now())
   provisionedAt     DateTime?

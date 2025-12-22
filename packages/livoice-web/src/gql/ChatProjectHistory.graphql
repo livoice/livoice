@@ -1,5 +1,5 @@
-query ChatProjectHistory($projectId: ID!) {
-  chatProjectHistory(projectId: $projectId) {
+query ChatProjectHistory($projectId: ID!, $chatId: ID) {
+  chatProjectHistory(projectId: $projectId, chatId: $chatId) {
     chatId
     title
     systemPrompt

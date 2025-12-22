@@ -64,6 +64,7 @@ const mapSegmentReference = (segment: SegmentRecord): SegmentReference => ({
 type FetchSegmentsParams = {
   context: KeystoneContext;
   projectId?: string;
+  transcriptId?: string;
   queryText?: string;
 };
 
@@ -95,29 +96,39 @@ const mapRawToSegment = (row: RawSegment): SegmentRecord => ({
     : null
 });
 
-const fetchSegments = async ({ context, projectId, queryText }: FetchSegmentsParams): Promise<SegmentRecord[]> => {
+const fetchSegments = async ({
+  context,
+  projectId,
+  transcriptId,
+  queryText
+}: FetchSegmentsParams): Promise<SegmentRecord[]> => {
   const sudoContext = context.sudo();
 
   const fallback = async () => {
     const baseArgs = {
-      where: {
-        transcript: {
-          source: {
-            projects: {
-              some: {
-                id: { equals: projectId }
+      where: transcriptId
+        ? {
+            transcript: {
+              id: { equals: transcriptId }
+            }
+          }
+        : {
+            transcript: {
+              source: {
+                projects: {
+                  some: {
+                    id: { equals: projectId }
+                  }
+                }
               }
             }
           }
-        }
-      }
     };
-
     const segments = await sudoContext.query.TranscriptSegment.findMany({
       ...baseArgs,
       orderBy: [{ startMs: 'asc' }],
       take: VECTOR_LIMIT,
-      query: 'id text startMs endMs speaker isMetadata transcript { id title }'
+      query: 'id text startMs endMs speaker isMetadata transcript { id title source { id name projects { id name } } }'
     });
 
     return segments
@@ -529,6 +540,7 @@ export const runChatConversation = async ({
           data: {
             title,
             systemPrompt: input.systemPrompt,
+            user: { connect: { id: session.id } },
             org: { connect: { id: session.orgId } },
             ...(projectId ? { project: { connect: { id: projectId } } } : {}),
             ...(transcriptId ? { transcript: { connect: { id: transcriptId } } } : {})

@@ -93,7 +93,7 @@ const Chat = () => {
     loading: projectLoading,
     refetch: refetchProjectHistory
   } = useChatProjectHistoryQuery({
-    variables: { projectId },
+    variables: { projectId, chatId: isNewChat ? null : chatId },
     skip: !projectId
   });
 
@@ -127,7 +127,7 @@ const Chat = () => {
   const currentSystemPrompt = projectHistory?.chatProjectHistory?.systemPrompt ?? '';
   const resolvedSystemPrompt =
     (projectHistory?.chatProjectHistory as { resolvedSystemPrompt?: string })?.resolvedSystemPrompt ?? '';
-  const chatTitle = (projectHistory?.chatProjectHistory as { title?: string })?.title ?? '';
+  const chatTitle = isNewChat ? '' : ((projectHistory?.chatProjectHistory as { title?: string })?.title ?? '');
 
   const messages: ChatMessageItem[] = useMemo(() => {
     if (isNewChat) return [];
@@ -307,6 +307,13 @@ const Chat = () => {
     void refetchSystemPrompts();
   }, [isNewChat, refetchSystemPrompts]);
 
+  useEffect(() => {
+    if (isNewChat) {
+      setIsEditingTitle(false);
+      setEditedTitle('');
+    }
+  }, [isNewChat]);
+
   const downloadConversation = () => {
     const lines: string[] = [];
 
@@ -357,11 +364,10 @@ const Chat = () => {
   };
 
   return (
-    <FormDrawer open={open} title={customTitle as React.ReactNode} onClose={onClose} onSubmit={() => {}}>
+    <FormDrawer open={open} title={customTitle} onClose={onClose} onSubmit={() => {}}>
       <Card className="flex h-full flex-col space-y-4 border-0 shadow-none">
         <div className="sticky top-0 z-10 space-y-1 bg-white/90 px-1 pb-2 pt-1 backdrop-blur">
           <div className="flex items-center justify-between gap-2">
-            <div></div>
             <Button variant="ghost" size="sm" onClick={downloadConversation} className="flex items-center gap-2">
               <Download className="h-4 w-4" />
               {t('buttons.downloadConversation')}

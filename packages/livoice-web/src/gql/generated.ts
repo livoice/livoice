@@ -38,6 +38,7 @@ export type Chat = {
   systemPrompt?: Maybe<Scalars['String']['output']>;
   title?: Maybe<Scalars['String']['output']>;
   updatedAt?: Maybe<Scalars['DateTime']['output']>;
+  user?: Maybe<User>;
 };
 
 
@@ -62,6 +63,7 @@ export type ChatCreateInput = {
   systemPrompt?: InputMaybe<Scalars['String']['input']>;
   title?: InputMaybe<Scalars['String']['input']>;
   updatedAt?: InputMaybe<Scalars['DateTime']['input']>;
+  user?: InputMaybe<UserRelateToOneForCreateInput>;
 };
 
 export type ChatHistoryResult = {
@@ -251,6 +253,7 @@ export type ChatUpdateInput = {
   systemPrompt?: InputMaybe<Scalars['String']['input']>;
   title?: InputMaybe<Scalars['String']['input']>;
   updatedAt?: InputMaybe<Scalars['DateTime']['input']>;
+  user?: InputMaybe<UserRelateToOneForUpdateInput>;
 };
 
 export type ChatWhereInput = {
@@ -265,6 +268,7 @@ export type ChatWhereInput = {
   systemPrompt?: InputMaybe<StringFilter>;
   title?: InputMaybe<StringFilter>;
   updatedAt?: InputMaybe<DateTimeNullableFilter>;
+  user?: InputMaybe<UserWhereInput>;
 };
 
 export type ChatWhereUniqueInput = {
@@ -1875,6 +1879,8 @@ export type User = {
   avatarSocialUrl?: Maybe<Scalars['String']['output']>;
   avatarUploaded?: Maybe<CloudinaryImage_File>;
   avatarUrl?: Maybe<Scalars['String']['output']>;
+  chats?: Maybe<Array<Chat>>;
+  chatsCount?: Maybe<Scalars['Int']['output']>;
   createdAt?: Maybe<Scalars['DateTime']['output']>;
   displayName?: Maybe<Scalars['String']['output']>;
   email?: Maybe<Scalars['String']['output']>;
@@ -1892,9 +1898,24 @@ export type User = {
   updatedAt?: Maybe<Scalars['DateTime']['output']>;
 };
 
+
+export type UserChatsArgs = {
+  cursor?: InputMaybe<ChatWhereUniqueInput>;
+  orderBy?: Array<ChatOrderByInput>;
+  skip?: Scalars['Int']['input'];
+  take?: InputMaybe<Scalars['Int']['input']>;
+  where?: ChatWhereInput;
+};
+
+
+export type UserChatsCountArgs = {
+  where?: ChatWhereInput;
+};
+
 export type UserCreateInput = {
   avatarSocialUrl?: InputMaybe<Scalars['String']['input']>;
   avatarUploaded?: InputMaybe<Scalars['Upload']['input']>;
+  chats?: InputMaybe<ChatRelateToManyForCreateInput>;
   createdAt?: InputMaybe<Scalars['DateTime']['input']>;
   email?: InputMaybe<Scalars['String']['input']>;
   firstName?: InputMaybe<Scalars['String']['input']>;
@@ -1955,6 +1976,17 @@ export type UserRelateToManyForUpdateInput = {
   set?: InputMaybe<Array<UserWhereUniqueInput>>;
 };
 
+export type UserRelateToOneForCreateInput = {
+  connect?: InputMaybe<UserWhereUniqueInput>;
+  create?: InputMaybe<UserCreateInput>;
+};
+
+export type UserRelateToOneForUpdateInput = {
+  connect?: InputMaybe<UserWhereUniqueInput>;
+  create?: InputMaybe<UserCreateInput>;
+  disconnect?: InputMaybe<Scalars['Boolean']['input']>;
+};
+
 export enum UserRoleType {
   God = 'GOD',
   OrgAdmin = 'ORG_ADMIN',
@@ -1977,6 +2009,7 @@ export type UserUpdateArgs = {
 export type UserUpdateInput = {
   avatarSocialUrl?: InputMaybe<Scalars['String']['input']>;
   avatarUploaded?: InputMaybe<Scalars['Upload']['input']>;
+  chats?: InputMaybe<ChatRelateToManyForUpdateInput>;
   createdAt?: InputMaybe<Scalars['DateTime']['input']>;
   email?: InputMaybe<Scalars['String']['input']>;
   firstName?: InputMaybe<Scalars['String']['input']>;
@@ -1997,6 +2030,7 @@ export type UserWhereInput = {
   NOT?: InputMaybe<Array<UserWhereInput>>;
   OR?: InputMaybe<Array<UserWhereInput>>;
   avatarSocialUrl?: InputMaybe<StringFilter>;
+  chats?: InputMaybe<ChatManyRelationFilter>;
   createdAt?: InputMaybe<DateTimeNullableFilter>;
   email?: InputMaybe<StringFilter>;
   firstName?: InputMaybe<StringFilter>;
@@ -2031,6 +2065,7 @@ export type ChatProjectMutation = { __typename?: 'Mutation', chatProject: { __ty
 
 export type ChatProjectHistoryQueryVariables = Exact<{
   projectId: Scalars['ID']['input'];
+  chatId?: InputMaybe<Scalars['ID']['input']>;
 }>;
 
 
@@ -2306,8 +2341,8 @@ export type ChatProjectMutationHookResult = ReturnType<typeof useChatProjectMuta
 export type ChatProjectMutationResult = Apollo.MutationResult<ChatProjectMutation>;
 export type ChatProjectMutationOptions = Apollo.BaseMutationOptions<ChatProjectMutation, ChatProjectMutationVariables>;
 export const ChatProjectHistoryDocument = gql`
-    query ChatProjectHistory($projectId: ID!) {
-  chatProjectHistory(projectId: $projectId) {
+    query ChatProjectHistory($projectId: ID!, $chatId: ID) {
+  chatProjectHistory(projectId: $projectId, chatId: $chatId) {
     chatId
     title
     systemPrompt
@@ -2343,6 +2378,7 @@ export const ChatProjectHistoryDocument = gql`
  * const { data, loading, error } = useChatProjectHistoryQuery({
  *   variables: {
  *      projectId: // value for 'projectId'
+ *      chatId: // value for 'chatId'
  *   },
  * });
  */
