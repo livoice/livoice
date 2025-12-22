@@ -5,7 +5,7 @@ import { Sheet, SheetContent, SheetFooter, SheetHeader, SheetTitle } from '@/ui'
 interface FormDrawerProps {
   open: boolean;
   onClose: () => void;
-  title: string;
+  title: ReactNode;
   children: ReactNode;
   actions?: ReactNode;
   onSubmit: FormEventHandler<HTMLFormElement>;

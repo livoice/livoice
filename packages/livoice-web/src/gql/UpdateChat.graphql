@@ -1,0 +1,6 @@
+mutation UpdateChat($id: ID!, $data: ChatUpdateInput!) {
+  updateChat(where: { id: $id }, data: $data) {
+    id
+    title
+  }
+}

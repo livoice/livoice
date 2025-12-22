@@ -1,7 +1,6 @@
-import { useChatSystemPromptsQuery } from '@/gql/generated';
 import { useApolloClient } from '@apollo/client';
 import { direction } from 'direction';
-import { Download } from 'lucide-react';
+import { Check, Download, Pencil, X } from 'lucide-react';
 import { useEffect, useMemo, useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import type { Components } from 'react-markdown';
@@ -11,7 +10,12 @@ import remarkBreaks from 'remark-breaks';
 import remarkGfm from 'remark-gfm';
 
 import FormDrawer from '@/components/FormDrawer/FormDrawer';
-import { useChatProjectHistoryQuery, useChatProjectMutation } from '@/gql/generated';
+import {
+  useChatProjectHistoryQuery,
+  useChatProjectMutation,
+  useChatSystemPromptsQuery,
+  useUpdateChatMutation
+} from '@/gql/generated';
 import { cn } from '@/lib/cn';
 import { toProjectChat } from '@/services/linker';
 import { Button } from '@/ui/button';
@@ -79,6 +83,8 @@ const Chat = () => {
   const [systemPrompt, setSystemPrompt] = useState('');
   const [systemPromptExpanded, setSystemPromptExpanded] = useState({ raw: false, resolved: false });
   const [inputDirection, setInputDirection] = useState<'ltr' | 'rtl'>('ltr');
+  const [isEditingTitle, setIsEditingTitle] = useState(false);
+  const [editedTitle, setEditedTitle] = useState('');
   const canSend = Boolean(draft.trim());
   const messagesEndRef = useRef<HTMLDivElement | null>(null);
 
@@ -110,9 +116,18 @@ const Chat = () => {
     }
   });
 
+  const [updateChat, { loading: updatingTitle }] = useUpdateChatMutation({
+    onCompleted: () => {
+      void refetchProjectHistory();
+      void client.refetchQueries({ include: ['ProjectChats'] });
+      setIsEditingTitle(false);
+    }
+  });
+
   const currentSystemPrompt = projectHistory?.chatProjectHistory?.systemPrompt ?? '';
   const resolvedSystemPrompt =
     (projectHistory?.chatProjectHistory as { resolvedSystemPrompt?: string })?.resolvedSystemPrompt ?? '';
+  const chatTitle = (projectHistory?.chatProjectHistory as { title?: string })?.title ?? '';
 
   const messages: ChatMessageItem[] = useMemo(() => {
     if (isNewChat) return [];
@@ -206,6 +221,83 @@ const Chat = () => {
   const open = true;
   const onClose = () => navigate(-1);
 
+  const handleStartEditing = () => {
+    setEditedTitle(chatTitle || title);
+    setIsEditingTitle(true);
+  };
+
+  const handleSaveTitle = () => {
+    if (editedTitle.trim() && editedTitle.trim() !== chatTitle && chatId) {
+      void updateChat({
+        variables: {
+          id: chatId,
+          data: { title: editedTitle.trim() }
+        }
+      });
+    } else {
+      setIsEditingTitle(false);
+    }
+  };
+
+  const handleCancelEditing = () => {
+    setEditedTitle('');
+    setIsEditingTitle(false);
+  };
+
+  const handleTitleKeyDown = (event: React.KeyboardEvent<HTMLInputElement>) => {
+    if (event.key === 'Enter') {
+      event.preventDefault();
+      handleSaveTitle();
+    } else if (event.key === 'Escape') {
+      event.preventDefault();
+      handleCancelEditing();
+    }
+  };
+
+  const customTitle = isEditingTitle ? (
+    <div className="flex items-center gap-2">
+      <input
+        type="text"
+        value={editedTitle}
+        onChange={e => setEditedTitle(e.target.value)}
+        onKeyDown={handleTitleKeyDown}
+        className="flex-1 bg-transparent border border-slate-200 rounded px-2 py-1 text-lg font-semibold text-slate-900 outline-none focus:border-violet-300 focus:ring-2 focus:ring-violet-100"
+        autoFocus
+        disabled={updatingTitle}
+      />
+      <button
+        type="button"
+        onClick={handleSaveTitle}
+        disabled={updatingTitle || !editedTitle.trim() || editedTitle.trim() === chatTitle}
+        className="p-1 rounded hover:bg-green-50 disabled:opacity-50 disabled:cursor-not-allowed"
+      >
+        <Check className="h-4 w-4 text-green-600" />
+      </button>
+      <button
+        type="button"
+        onClick={handleCancelEditing}
+        disabled={updatingTitle}
+        className="p-1 rounded hover:bg-red-50 disabled:opacity-50 disabled:cursor-not-allowed"
+      >
+        <X className="h-4 w-4 text-red-600" />
+      </button>
+    </div>
+  ) : (
+    <div className="flex items-center gap-2">
+      <span className="text-lg font-semibold text-slate-900">{chatTitle || title}</span>
+      {chatId && (
+        <button
+          type="button"
+          onClick={handleStartEditing}
+          className="p-1 rounded hover:bg-slate-100 opacity-60 hover:opacity-100 transition-opacity"
+          title="Edit title"
+        >
+          <Pencil className="h-4 w-4 text-slate-600" />
+        </button>
+      )}
+    </div>
+  );
+
   useEffect(() => {
     if (messagesEndRef.current) messagesEndRef.current.scrollIntoView({ behavior: 'smooth', block: 'end' });
   }, [messages.length]);
@@ -265,11 +357,11 @@ const Chat = () => {
   };
 
   return (
-    <FormDrawer open={open} title={title} onClose={onClose} onSubmit={() => {}}>
+    <FormDrawer open={open} title={customTitle as React.ReactNode} onClose={onClose} onSubmit={() => {}}>
       <Card className="flex h-full flex-col space-y-4 border-0 shadow-none">
         <div className="sticky top-0 z-10 space-y-1 bg-white/90 px-1 pb-2 pt-1 backdrop-blur">
           <div className="flex items-center justify-between gap-2">
-            <h2 className="text-lg font-semibold text-slate-900">{title}</h2>
+            <div></div>
             <Button variant="ghost" size="sm" onClick={downloadConversation} className="flex items-center gap-2">
               <Download className="h-4 w-4" />
               {t('buttons.downloadConversation')}

@@ -70,6 +70,7 @@ export type ChatHistoryResult = {
   messages: Array<ChatMessageResult>;
   resolvedSystemPrompt?: Maybe<Scalars['String']['output']>;
   systemPrompt?: Maybe<Scalars['String']['output']>;
+  title?: Maybe<Scalars['String']['output']>;
 };
 
 export type ChatManyRelationFilter = {
@@ -2033,7 +2034,7 @@ export type ChatProjectHistoryQueryVariables = Exact<{
 }>;
 
 
-export type ChatProjectHistoryQuery = { __typename?: 'Query', chatProjectHistory: { __typename?: 'ChatHistoryResult', chatId?: string | null, systemPrompt?: string | null, resolvedSystemPrompt?: string | null, messages: Array<{ __typename?: 'ChatMessageResult', id: string, role: string, content: string, createdAt?: string | null, segments: Array<{ __typename?: 'ChatSegmentReference', id: string, text: string, startMs?: number | null, endMs?: number | null, speaker?: string | null, transcriptTitle?: string | null }> }> } };
+export type ChatProjectHistoryQuery = { __typename?: 'Query', chatProjectHistory: { __typename?: 'ChatHistoryResult', chatId?: string | null, title?: string | null, systemPrompt?: string | null, resolvedSystemPrompt?: string | null, messages: Array<{ __typename?: 'ChatMessageResult', id: string, role: string, content: string, createdAt?: string | null, segments: Array<{ __typename?: 'ChatSegmentReference', id: string, text: string, startMs?: number | null, endMs?: number | null, speaker?: string | null, transcriptTitle?: string | null }> }> } };
 
 export type ChatSystemPromptsQueryVariables = Exact<{ [key: string]: never; }>;
 
@@ -2159,6 +2160,14 @@ export type TranscriptsQueryVariables = Exact<{
 
 
 export type TranscriptsQuery = { __typename?: 'Query', transcripts?: Array<{ __typename?: 'Transcript', id: string, title?: string | null, intervieweeName?: string | null, notes?: string | null, createdAt?: any | null, segmentsCount?: number | null, importStatus?: TranscriptImportStatusType | null, embeddingStatus?: TranscriptEmbeddingStatusType | null, segmentEmbeddingProgress?: { __typename?: 'SegmentEmbeddingProgress', total: number, embedded: number, notEmbedded: number, embeddedPercentage: number, notEmbeddedPercentage: number } | null, source?: { __typename?: 'Source', id: string, name?: string | null } | null }> | null };
+
+export type UpdateChatMutationVariables = Exact<{
+  id: Scalars['ID']['input'];
+  data: ChatUpdateInput;
+}>;
+
+
+export type UpdateChatMutation = { __typename?: 'Mutation', updateChat?: { __typename?: 'Chat', id: string, title?: string | null } | null };
 
 export type UpdateProjectMutationVariables = Exact<{
   id: Scalars['ID']['input'];
@@ -2300,6 +2309,7 @@ export const ChatProjectHistoryDocument = gql`
     query ChatProjectHistory($projectId: ID!) {
   chatProjectHistory(projectId: $projectId) {
     chatId
+    title
     systemPrompt
     resolvedSystemPrompt
     messages {
@@ -3260,6 +3270,41 @@ export type TranscriptsQueryHookResult = ReturnType<typeof useTranscriptsQuery>;
 export type TranscriptsLazyQueryHookResult = ReturnType<typeof useTranscriptsLazyQuery>;
 export type TranscriptsSuspenseQueryHookResult = ReturnType<typeof useTranscriptsSuspenseQuery>;
 export type TranscriptsQueryResult = Apollo.QueryResult<TranscriptsQuery, TranscriptsQueryVariables>;
+export const UpdateChatDocument = gql`
+    mutation UpdateChat($id: ID!, $data: ChatUpdateInput!) {
+  updateChat(where: {id: $id}, data: $data) {
+    id
+    title
+  }
+}
+    `;
+export type UpdateChatMutationFn = Apollo.MutationFunction<UpdateChatMutation, UpdateChatMutationVariables>;
+
+/**
+ * __useUpdateChatMutation__
+ *
+ * To run a mutation, you first call `useUpdateChatMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `useUpdateChatMutation` returns a tuple that includes:
+ * - A mutate function that you can call at any time to execute the mutation
+ * - An object with fields that represent the current status of the mutation's execution
+ *
+ * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
+ *
+ * @example
+ * const [updateChatMutation, { data, loading, error }] = useUpdateChatMutation({
+ *   variables: {
+ *      id: // value for 'id'
+ *      data: // value for 'data'
+ *   },
+ * });
+ */
+export function useUpdateChatMutation(baseOptions?: Apollo.MutationHookOptions<UpdateChatMutation, UpdateChatMutationVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useMutation<UpdateChatMutation, UpdateChatMutationVariables>(UpdateChatDocument, options);
+      }
+export type UpdateChatMutationHookResult = ReturnType<typeof useUpdateChatMutation>;
+export type UpdateChatMutationResult = Apollo.MutationResult<UpdateChatMutation>;
+export type UpdateChatMutationOptions = Apollo.BaseMutationOptions<UpdateChatMutation, UpdateChatMutationVariables>;
 export const UpdateProjectDocument = gql`
     mutation UpdateProject($id: ID!, $data: ProjectUpdateInput!) {
   updateProject(where: {id: $id}, data: $data) {

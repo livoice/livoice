@@ -35,6 +35,7 @@ const ChatMessageResult = g.object<ChatHistoryItem>()({
 
 const ChatHistoryResult = g.object<{
   chatId: string | null;
+  title?: string | null;
   messages: ChatHistoryItem[];
   systemPrompt?: string | null;
   resolvedSystemPrompt?: string | null;
@@ -42,6 +43,7 @@ const ChatHistoryResult = g.object<{
   name: 'ChatHistoryResult',
   fields: {
     chatId: g.field({ type: g.ID }),
+    title: g.field({ type: g.String }),
     messages: g.field({ type: g.nonNull(g.list(g.nonNull(ChatMessageResult))) }),
     systemPrompt: g.field({ type: g.String }),
     resolvedSystemPrompt: g.field({ type: g.String })
@@ -104,7 +106,7 @@ const findLatestChat = async ({
     where,
     orderBy: [{ createdAt: 'desc' }],
     take: 1,
-    query: 'id systemPrompt'
+    query: 'id title systemPrompt'
   });
   const record = chats?.[0];
   if (!record?.id) return null;
@@ -125,6 +127,7 @@ const findLatestChat = async ({
 
   return {
     chatId: record.id,
+    title: record.title,
     messages: history,
     systemPrompt: record.systemPrompt,
     resolvedSystemPrompt

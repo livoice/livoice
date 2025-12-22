@@ -1,6 +1,7 @@
 query ChatProjectHistory($projectId: ID!) {
   chatProjectHistory(projectId: $projectId) {
     chatId
+    title
     systemPrompt
     resolvedSystemPrompt
     messages {

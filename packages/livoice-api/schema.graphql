@@ -1215,6 +1215,7 @@ type Query {
 
 type ChatHistoryResult {
   chatId: ID
+  title: String
   messages: [ChatMessageResult!]!
   systemPrompt: String
   resolvedSystemPrompt: String
