@@ -20,6 +20,7 @@ export interface TextFieldProps extends InputHTMLAttributes<HTMLInputElement> {
   inputProps?: InputHTMLAttributes<HTMLInputElement>;
   multiline?: boolean;
   rows?: number;
+  dir?: 'ltr' | 'rtl';
 }
 
 const baseInputStyles =
@@ -44,6 +45,7 @@ const TextField = forwardRef<HTMLInputElement | HTMLSelectElement, TextFieldProp
       inputProps,
       multiline = false,
       rows,
+      dir,
       ...props
     },
     ref
@@ -62,6 +64,7 @@ const TextField = forwardRef<HTMLInputElement | HTMLSelectElement, TextFieldProp
       <select
         ref={ref as ForwardedRef<HTMLSelectElement>}
         className={cn(selectClasses, fullWidth ? 'w-full' : '')}
+        dir={dir}
         {...selectProps}
         {...(props as SelectHTMLAttributes<HTMLSelectElement>)}
         {...(inputProps as SelectHTMLAttributes<HTMLSelectElement>)}
@@ -74,6 +77,7 @@ const TextField = forwardRef<HTMLInputElement | HTMLSelectElement, TextFieldProp
         rows={rows}
         className={cn(textareaClasses, fullWidth ? 'w-full' : '')}
         aria-invalid={error ? 'true' : undefined}
+        dir={dir}
         {...(props as TextareaHTMLAttributes<HTMLTextAreaElement>)}
         {...(inputProps as TextareaHTMLAttributes<HTMLTextAreaElement>)}
       />
@@ -83,6 +87,7 @@ const TextField = forwardRef<HTMLInputElement | HTMLSelectElement, TextFieldProp
         type={type}
         className={cn(sharedClasses, fullWidth ? 'w-full' : '')}
         aria-invalid={error ? 'true' : undefined}
+        dir={dir}
         {...props}
         {...inputProps}
       />

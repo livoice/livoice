@@ -1,5 +1,6 @@
 import { useChatSystemPromptsQuery } from '@/gql/generated';
 import { useApolloClient } from '@apollo/client';
+import { direction } from 'direction';
 import { Download } from 'lucide-react';
 import { useEffect, useMemo, useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
@@ -77,6 +78,7 @@ const Chat = () => {
   const [draft, setDraft] = useState('');
   const [systemPrompt, setSystemPrompt] = useState('');
   const [systemPromptExpanded, setSystemPromptExpanded] = useState({ raw: false, resolved: false });
+  const [inputDirection, setInputDirection] = useState<'ltr' | 'rtl'>('ltr');
   const canSend = Boolean(draft.trim());
   const messagesEndRef = useRef<HTMLDivElement | null>(null);
 
@@ -389,40 +391,44 @@ const Chat = () => {
 
           {messages.length ? (
             <div className="space-y-3">
-              {messages.map(message => (
-                <div
-                  key={message.id}
-                  className={cn(
-                    'rounded-2xl border px-4 py-3 text-sm shadow-sm transition',
-                    message.role === 'user'
-                      ? 'border-violet-100 bg-violet-50 text-violet-900'
-                      : 'border-slate-100 bg-white/80 text-slate-800'
-                  )}
-                >
-                  <div className="flex items-center justify-between text-xs uppercase tracking-[0.3em] text-slate-500">
-                    <span>{message.role === 'user' ? t('chat.roles.you') : t('chat.roles.assistant')}</span>
-                    {message.createdAt ? <span>{new Date(message.createdAt).toLocaleTimeString()}</span> : null}
-                  </div>
-                  <div className="mt-2 space-y-2 whitespace-pre-wrap font-normal leading-relaxed break-words">
-                    <ReactMarkdown components={markdownComponents} remarkPlugins={[remarkGfm, remarkBreaks]} skipHtml>
-                      {message.content}
-                    </ReactMarkdown>
-                  </div>
-                  {message.segments.length ? (
-                    <div className="mt-3 flex flex-wrap gap-2">
-                      {message.segments.map(segment => (
-                        <span
-                          key={segment.id}
-                          className="rounded-full border border-slate-200 bg-slate-50 px-3 py-1 text-xs text-slate-600"
-                        >
-                          {segment.transcriptTitle ? `${segment.transcriptTitle}: ` : ''}
-                          {formatRange(segment)}
-                        </span>
-                      ))}
+              {messages.map(message => {
+                const messageDirection = direction(message.content);
+                return (
+                  <div
+                    key={message.id}
+                    dir={messageDirection === 'rtl' ? 'rtl' : 'ltr'}
+                    className={cn(
+                      'rounded-2xl border px-4 py-3 text-sm shadow-sm transition',
+                      message.role === 'user'
+                        ? 'border-violet-100 bg-violet-50 text-violet-900'
+                        : 'border-slate-100 bg-white/80 text-slate-800'
+                    )}
+                  >
+                    <div className="flex items-center justify-between text-xs uppercase tracking-[0.3em] text-slate-500">
+                      <span>{message.role === 'user' ? t('chat.roles.you') : t('chat.roles.assistant')}</span>
+                      {message.createdAt ? <span>{new Date(message.createdAt).toLocaleTimeString()}</span> : null}
                     </div>
-                  ) : null}
-                </div>
-              ))}
+                    <div className="mt-2 space-y-2 whitespace-pre-wrap font-normal leading-relaxed break-words">
+                      <ReactMarkdown components={markdownComponents} remarkPlugins={[remarkGfm, remarkBreaks]} skipHtml>
+                        {message.content}
+                      </ReactMarkdown>
+                    </div>
+                    {message.segments.length ? (
+                      <div className="mt-3 flex flex-wrap gap-2">
+                        {message.segments.map(segment => (
+                          <span
+                            key={segment.id}
+                            className="rounded-full border border-slate-200 bg-slate-50 px-3 py-1 text-xs text-slate-600"
+                          >
+                            {segment.transcriptTitle ? `${segment.transcriptTitle}: ` : ''}
+                            {formatRange(segment)}
+                          </span>
+                        ))}
+                      </div>
+                    ) : null}
+                  </div>
+                );
+              })}
               <div ref={messagesEndRef} />
             </div>
           ) : (
@@ -436,7 +442,12 @@ const Chat = () => {
             rows={3}
             placeholder={inputPlaceholder}
             value={draft}
-            onChange={event => setDraft(event.target.value)}
+            dir={inputDirection === 'rtl' ? 'rtl' : 'ltr'}
+            onChange={event => {
+              setDraft(event.target.value);
+              const detectedDirection = direction(event.target.value);
+              setInputDirection(detectedDirection === 'rtl' ? 'rtl' : 'ltr');
+            }}
             onKeyDown={event => {
               if (event.key === 'Enter' && !event.shiftKey) {
                 event.preventDefault();

@@ -30,6 +30,7 @@
     "clsx": "^2.1.1",
     "conditional-wrap": "^1.0.3",
     "date-fns": "^4.1.0",
+    "direction": "^2.0.1",
     "envalid": "^8.0.0",
     "i18next": "^25.6.0",
     "i18next-http-backend": "^3.0.2",
