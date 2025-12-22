@@ -2035,6 +2035,11 @@ export type ChatProjectHistoryQueryVariables = Exact<{
 
 export type ChatProjectHistoryQuery = { __typename?: 'Query', chatProjectHistory: { __typename?: 'ChatHistoryResult', chatId?: string | null, systemPrompt?: string | null, resolvedSystemPrompt?: string | null, messages: Array<{ __typename?: 'ChatMessageResult', id: string, role: string, content: string, createdAt?: string | null, segments: Array<{ __typename?: 'ChatSegmentReference', id: string, text: string, startMs?: number | null, endMs?: number | null, speaker?: string | null, transcriptTitle?: string | null }> }> } };
 
+export type ChatSystemPromptsQueryVariables = Exact<{ [key: string]: never; }>;
+
+
+export type ChatSystemPromptsQuery = { __typename?: 'Query', chats?: Array<{ __typename?: 'Chat', id: string, systemPrompt?: string | null, title?: string | null, createdAt?: any | null, project?: { __typename?: 'Project', id: string, name?: string | null } | null }> | null };
+
 export type ChatTranscriptMutationVariables = Exact<{
   input: ChatTranscriptInput;
 }>;
@@ -2347,6 +2352,52 @@ export type ChatProjectHistoryQueryHookResult = ReturnType<typeof useChatProject
 export type ChatProjectHistoryLazyQueryHookResult = ReturnType<typeof useChatProjectHistoryLazyQuery>;
 export type ChatProjectHistorySuspenseQueryHookResult = ReturnType<typeof useChatProjectHistorySuspenseQuery>;
 export type ChatProjectHistoryQueryResult = Apollo.QueryResult<ChatProjectHistoryQuery, ChatProjectHistoryQueryVariables>;
+export const ChatSystemPromptsDocument = gql`
+    query ChatSystemPrompts {
+  chats(where: {systemPrompt: {not: {equals: ""}}}, orderBy: {createdAt: desc}) {
+    id
+    systemPrompt
+    title
+    createdAt
+    project {
+      id
+      name
+    }
+  }
+}
+    `;
+
+/**
+ * __useChatSystemPromptsQuery__
+ *
+ * To run a query within a React component, call `useChatSystemPromptsQuery` and pass it any options that fit your needs.
+ * When your component renders, `useChatSystemPromptsQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * you can use to render your UI.
+ *
+ * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ *
+ * @example
+ * const { data, loading, error } = useChatSystemPromptsQuery({
+ *   variables: {
+ *   },
+ * });
+ */
+export function useChatSystemPromptsQuery(baseOptions?: Apollo.QueryHookOptions<ChatSystemPromptsQuery, ChatSystemPromptsQueryVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useQuery<ChatSystemPromptsQuery, ChatSystemPromptsQueryVariables>(ChatSystemPromptsDocument, options);
+      }
+export function useChatSystemPromptsLazyQuery(baseOptions?: Apollo.LazyQueryHookOptions<ChatSystemPromptsQuery, ChatSystemPromptsQueryVariables>) {
+          const options = {...defaultOptions, ...baseOptions}
+          return Apollo.useLazyQuery<ChatSystemPromptsQuery, ChatSystemPromptsQueryVariables>(ChatSystemPromptsDocument, options);
+        }
+export function useChatSystemPromptsSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<ChatSystemPromptsQuery, ChatSystemPromptsQueryVariables>) {
+          const options = baseOptions === Apollo.skipToken ? baseOptions : {...defaultOptions, ...baseOptions}
+          return Apollo.useSuspenseQuery<ChatSystemPromptsQuery, ChatSystemPromptsQueryVariables>(ChatSystemPromptsDocument, options);
+        }
+export type ChatSystemPromptsQueryHookResult = ReturnType<typeof useChatSystemPromptsQuery>;
+export type ChatSystemPromptsLazyQueryHookResult = ReturnType<typeof useChatSystemPromptsLazyQuery>;
+export type ChatSystemPromptsSuspenseQueryHookResult = ReturnType<typeof useChatSystemPromptsSuspenseQuery>;
+export type ChatSystemPromptsQueryResult = Apollo.QueryResult<ChatSystemPromptsQuery, ChatSystemPromptsQueryVariables>;
 export const ChatTranscriptDocument = gql`
     mutation ChatTranscript($input: ChatTranscriptInput!) {
   chatTranscript(input: $input) {

@@ -1,3 +1,4 @@
+import { useChatSystemPromptsQuery } from '@/gql/generated';
 import { useApolloClient } from '@apollo/client';
 import { Download } from 'lucide-react';
 import { useEffect, useMemo, useRef, useState } from 'react';
@@ -57,183 +58,6 @@ const formatTime = (value?: number | null) => {
   return [hours, minutes, seconds].map(unit => unit.toString().padStart(2, '0')).join(':');
 };
 
-const getSystemPrompt = () => `
-   You are a "Project Chat" - a friendly, first-person chat based ONLY on video transcripts.
-
-Your job: let the user feel like they are chatting directly with the main speaker(s) from the project.
-
-You will receive:
-- One project at a time, with multiple transcripts/subtitles from talks, lectures, podcasts or interviews.
-- Optionally, a structured speakers list (JSON) identifying the main speaker.
-- Retrieved text chunks from those transcripts (this is your ONLY knowledge).
-
-------------------------------------------------
-1. WHO YOU ARE
-------------------------------------------------
-
-- By default, you speak AS the MAIN SPEAKER of this project in FIRST PERSON.
-- If the system provides a main speaker, use that:
-  - main_speaker.full_name
-  - main_speaker.job_title
-  - main_speaker.organization
-- If no main speaker is given, infer it from the transcripts:
-  - The person who speaks the most and is clearly the focus of the videos.
-
-Important:
-- You are a chat version of this person, based only on what appears in the transcripts.
-- If the user asks “who are you?” answer in first person, e.g.:
-  - “I'm Yonatan Stern, founder of ZoomInfo and a few other companies. In these talks I share how I think about starting startups…”
-- Do NOT claim to know things that are not in the transcripts, even if they are true in real life.
-
-------------------------------------------------
-2. STYLE & TONE
-------------------------------------------------
-
-Overall tone:
-- Very conversational, warm and down-to-earth.
-- Sound like a real human, not a corporate bot.
-- Use everyday language. Short sentences are great.
-- It should feel “fun to talk to you”, not formal or academic.
-
-Guidelines:
-- Use FIRST PERSON: “I”, “my experience”, “what I've seen”.
-- Talk directly to the user: “you”, “your situation”.
-- It's okay to be a bit playful and informal, as long as you stay respectful.
-- Match the user's language: 
-  - If they write in Hebrew - answer in Hebrew.
-  - If they write in English - answer in English.
-  - If they switch languages, follow their lead.
-
-Examples:
-- Instead of: “Yonatan Stern emphasizes that founders should…”
-- Say: “I really believe founders should…”
-- Instead of: “The speaker recommends…”
-- Say: “What I usually recommend is…”
-
-------------------------------------------------
-3. USE ONLY THE TRANSCRIPTS
-------------------------------------------------
-
-Your ONLY knowledge source is the provided transcripts and context.
-
-- Use examples, stories, arguments and frameworks ONLY if they appear in the transcripts.
-- You may combine ideas from different clips in the same project, but NEVER invent new facts.
-- If you are not sure about something or it is not covered in the videos, say so honestly:
-  - “In these talks I didn't really get into that topic, but what I did talk about is…”
-  - “From what I say in these lectures, the main points are…”
-
-Absolutely NO:
-- Googling or outside world knowledge.
-- Guessing things that are not supported by the text.
-- Inventing new biographical details, companies, dates, metrics, etc.
-
-------------------------------------------------
-4. ANSWER SHAPE & QUOTES
-------------------------------------------------
-
-When you answer:
-
-1) Start with a clear, direct answer in your own words (first person).
-2) Then, when helpful, weave in 1-3 SHORT quotes or near-quotes from the transcripts.
-
-- Quotes should feel natural, not academic. 
-- You can slightly clean them for clarity, but keep the original meaning and style.
-- If the user's language is different from the transcript language:
-  - You may translate the quote, but keep the tone.
-
-Examples of how to mix quotes:
-- "I'll be honest - I think most startups fail because they don't solve a real problem. In one of my talks I said, 'if you don't make someone's life meaningfully better, they won't care about your product,' and I still stand by that."
-- "When people ask me about fundraising, my answer is pretty consistent: focus on customers first. I even say in the lecture, 'revenue is the best investor pitch you can have.'"
-
-If your context includes timestamps or clip references, you can optionally mention them briefly:
-- “I talk about this in more detail around the beginning of the first lecture.”
-
-------------------------------------------------
-5. QUESTIONS YOU CAN & CAN'T ANSWER
-------------------------------------------------
-
-You CAN:
-- Explain your frameworks, stories and opinions from the talks.
-- Give advice that is clearly based on what you say in the transcripts.
-- Rephrase, summarize or expand on ideas that appear there.
-- Adapt your explanations to the user's situation, as long as the core ideas stay faithful to the text.
-
-You CANNOT:
-- Invent new strategies, beliefs or stories that never appear in the transcripts.
-- Answer detailed biographical or factual questions that are not mentioned there.
-- Pretend you said something if there is no support for it.
-
-If a user asks something outside the scope:
-- Acknowledge it and gently move back to what DOES exist in the material.
-- Example:
-  - “In these talks I don't really discuss my personal life or finances, so I can't answer that. What I do talk a lot about is how I think about building companies – want to go there?”
-
-------------------------------------------------
-6. MULTIPLE SPEAKERS (IF APPLICABLE)
-------------------------------------------------
-
-Most projects will have one main speaker. But if this project has multiple clear speakers:
-
-- By default, stay as the MAIN SPEAKER in first person.
-- If the user explicitly addresses another speaker by name:
-  - Switch and answer as that person, in first person, based only on what that speaker says in the transcripts.
-  - You can say at the beginning: “Speaking now as {{speaker_name}}…”
-- Do not mix personas in one answer unless the user clearly wants a comparison.
-  - In comparisons, you can say:
-    - “If you ask me personally, I'd say X. In the same project, {{other_speaker_name}} tends to say Y.”
-
-------------------------------------------------
-7. SAFETY & HONESTY
-------------------------------------------------
-
-- If a question touches on legal, medical, financial or other high-risk advice, be extra careful and keep it high-level.
-- Make it clear you are sharing perspective from talks, not professional or personal services.
-- When in doubt, be honest about the limits of what you know from these videos.
-
-------------------------------------------------
-8. ASKING CLARIFYING QUESTIONS
-------------------------------------------------
-
-Sometimes the user will ask something that is too vague or missing key details.
-In those cases, you are allowed - and encouraged - to ask a SHORT follow-up question
-so you can give a more useful answer.
-
-Guidelines:
-
-- Only ask a question when you really NEED it to give a concrete, helpful answer.
-- Prefer 1-2 very focused questions, not a long list.
-- Make it feel natural and friendly, not like a form.
-
-Good patterns:
-- “I can share how I think about this in general, but to make it really useful for you -
-  can you tell me [X]?”
-- “Before I answer, one quick question: [X]?”
-
-If the user does not answer your question and continues anyway:
-- Give the best general answer you can based on the transcripts.
-- You may briefly note what would change with more context, e.g.:
-  "If I knew more about your target customer, I could be more specific, but in general I'd say…"
-
-Never:
-- Ask questions just to keep the conversation going.
-- End every message with a question.
-- Use questions instead of giving an answer.
-
-Your priority is always:
-1) Give the most helpful answer you can from the transcripts.
-2) Only when really needed – ask a short, focused question to sharpen it.
-
---------------------
-
-You have access to the following context:
-
-Available transcripts:
-{transcriptTitles}
-
-Available Sources:
-{sourceNames}
-`;
-
 const formatRange = (segment: SegmentReference) => {
   const start = formatTime(segment.startMs);
   const end = formatTime(segment.endMs);
@@ -251,7 +75,7 @@ const Chat = () => {
   const client = useApolloClient();
 
   const [draft, setDraft] = useState('');
-  const [systemPrompt, setSystemPrompt] = useState(() => getSystemPrompt());
+  const [systemPrompt, setSystemPrompt] = useState('');
   const [systemPromptExpanded, setSystemPromptExpanded] = useState({ raw: false, resolved: false });
   const canSend = Boolean(draft.trim());
   const messagesEndRef = useRef<HTMLDivElement | null>(null);
@@ -263,6 +87,14 @@ const Chat = () => {
   } = useChatProjectHistoryQuery({
     variables: { projectId },
     skip: !projectId
+  });
+
+  const {
+    data: systemPromptsData,
+    loading: systemPromptsLoading,
+    refetch: refetchSystemPrompts
+  } = useChatSystemPromptsQuery({
+    skip: !isNewChat
   });
 
   const [chatProject, { loading: sendingProject }] = useChatProjectMutation({
@@ -298,7 +130,51 @@ const Chat = () => {
     }));
   }, [isNewChat, projectHistory?.chatProjectHistory?.messages]);
 
-  const isBusy = sendingProject || projectLoading;
+  const uniquePrompts = useMemo(() => {
+    if (!systemPromptsData?.chats) return [];
+
+    // Create a Map to deduplicate by prompt text
+    const promptMap = new Map<
+      string,
+      {
+        prompt: string;
+        chatTitle: string;
+        projectName: string | null;
+        createdAt: string;
+      }
+    >();
+
+    systemPromptsData.chats
+      .filter(chat => chat?.systemPrompt?.trim())
+      .forEach(chat => {
+        const promptText = chat.systemPrompt!;
+        const existing = promptMap.get(promptText);
+
+        // Keep the most recent chat for each unique prompt
+        if (!existing || new Date(chat.createdAt!) > new Date(existing.createdAt)) {
+          promptMap.set(promptText, {
+            prompt: promptText,
+            chatTitle: chat.title || 'Untitled Chat',
+            projectName: chat.project?.name || null,
+            createdAt: chat.createdAt!
+          });
+        }
+      });
+
+    // Convert to array and sort by last used (most recent first)
+    return Array.from(promptMap.values()).sort(
+      (a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
+    );
+  }, [systemPromptsData]);
+
+  const formatPromptLabel = (item: (typeof uniquePrompts)[0]) => {
+    const date = new Date(item.createdAt);
+    const dateTimeStr = date.toLocaleString(); // e.g., "12/21/2024, 3:45:30 PM"
+    const projectPart = item.projectName ? ` - ${item.projectName}` : '';
+    return `${item.chatTitle}${projectPart} (${dateTimeStr})`;
+  };
+
+  const isLoading = sendingProject || projectLoading || systemPromptsLoading;
 
   const handleSubmit = async () => {
     const trimmed = draft.trim();
@@ -323,7 +199,7 @@ const Chat = () => {
   const placeholder = t('projects.chat.placeholder');
   const emptyPlaceholder = placeholder || t('chat.emptyPlaceholder');
   const inputPlaceholder = placeholder || t('chat.inputPlaceholder');
-  const buttonLabel = isBusy ? t('buttons.sending') : t('buttons.sendQuestion');
+  const buttonLabel = isLoading ? t('buttons.sending') : t('buttons.sendQuestion');
 
   const open = true;
   const onClose = () => navigate(-1);
@@ -331,6 +207,11 @@ const Chat = () => {
   useEffect(() => {
     if (messagesEndRef.current) messagesEndRef.current.scrollIntoView({ behavior: 'smooth', block: 'end' });
   }, [messages.length]);
+
+  useEffect(() => {
+    if (!isNewChat) return;
+    void refetchSystemPrompts();
+  }, [isNewChat, refetchSystemPrompts]);
 
   const downloadConversation = () => {
     const lines: string[] = [];
@@ -403,9 +284,37 @@ const Chat = () => {
                   System Prompt
                 </label>
                 <p className="text-xs text-slate-500 font-medium">
-                  You can set the system prompt for this conversation. After you set one, you can type at the bottom
+                  Select a previous prompt or enter a new one below. After setting a prompt, you can type at the bottom
                   into the chat input and start the conversation.
                 </p>
+
+                {uniquePrompts.length > 0 && (
+                  <div className="space-y-2">
+                    <label className="text-xs font-medium uppercase tracking-wide text-slate-600">
+                      Select a previous prompt
+                    </label>
+                    <select
+                      className="w-full rounded-xl border border-slate-200 bg-white px-4 py-3 text-sm text-slate-700 outline-none transition focus:border-violet-300 focus:ring-2 focus:ring-violet-100"
+                      onChange={event => {
+                        const selectedIndex = parseInt(event.target.value);
+                        if (!isNaN(selectedIndex) && selectedIndex >= 0) {
+                          setSystemPrompt(uniquePrompts[selectedIndex].prompt);
+                        }
+                      }}
+                      value=""
+                    >
+                      <option value="" disabled>
+                        Choose a prompt...
+                      </option>
+                      {uniquePrompts.map((item, index) => (
+                        <option key={index} value={index}>
+                          {formatPromptLabel(item)}
+                        </option>
+                      ))}
+                    </select>
+                  </div>
+                )}
+
                 <TextField
                   id="system-prompt"
                   multiline
@@ -535,7 +444,7 @@ const Chat = () => {
               }
             }}
           />
-          <Button type="button" className="w-full" disabled={!canSend || isBusy} onClick={handleSubmit}>
+          <Button type="button" className="w-full" disabled={!canSend || isLoading} onClick={handleSubmit}>
             {buttonLabel}
           </Button>
         </div>
