@@ -289,7 +289,8 @@
     "signInWithGoogle": "Sign in with Google",
     "close": "Close",
     "runImport": "Run import",
-    "running": "Running..."
+    "running": "Running...",
+    "downloadConversation": "Download"
   },
   "errors": {
     "noResultsFound": "No {{label}} available yet",

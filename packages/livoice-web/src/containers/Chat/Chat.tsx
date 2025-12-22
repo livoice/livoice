@@ -1,4 +1,5 @@
 import { useApolloClient } from '@apollo/client';
+import { Download } from 'lucide-react';
 import { useEffect, useMemo, useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import type { Components } from 'react-markdown';
@@ -331,12 +332,65 @@ const Chat = () => {
     if (messagesEndRef.current) messagesEndRef.current.scrollIntoView({ behavior: 'smooth', block: 'end' });
   }, [messages.length]);
 
+  const downloadConversation = () => {
+    const lines: string[] = [];
+
+    // Add system prompts
+    if (currentSystemPrompt) {
+      lines.push('=== SYSTEM PROMPT (RAW) ===');
+      lines.push('');
+      lines.push(currentSystemPrompt);
+      lines.push('');
+      lines.push('');
+    }
+
+    if (resolvedSystemPrompt) {
+      lines.push('=== SYSTEM PROMPT (RESOLVED) ===');
+      lines.push('');
+      lines.push(resolvedSystemPrompt);
+      lines.push('');
+      lines.push('');
+    }
+
+    lines.push('=== CONVERSATION ===');
+    lines.push('');
+
+    messages.forEach(message => {
+      const roleLabel = message.role === 'user' ? '[User]' : '[Assistant]';
+      const timestamp = message.createdAt ? ` - ${new Date(message.createdAt).toLocaleString()}` : '';
+      lines.push(`${roleLabel}${timestamp}`);
+      lines.push(message.content);
+      lines.push('');
+    });
+
+    const content = lines.join('\n');
+
+    // Generate filename
+    const date = new Date().toISOString().split('T')[0]; // YYYY-MM-DD
+    const filename = `chat-${chatId || 'new'}-${projectId}-${date}.txt`;
+
+    // Create and trigger download
+    const blob = new Blob([content], { type: 'text/plain' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = filename;
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    URL.revokeObjectURL(url);
+  };
+
   return (
     <FormDrawer open={open} title={title} onClose={onClose} onSubmit={() => {}}>
       <Card className="flex h-full flex-col space-y-4 border-0 shadow-none">
         <div className="sticky top-0 z-10 space-y-1 bg-white/90 px-1 pb-2 pt-1 backdrop-blur">
           <div className="flex items-center justify-between gap-2">
             <h2 className="text-lg font-semibold text-slate-900">{title}</h2>
+            <Button variant="ghost" size="sm" onClick={downloadConversation} className="flex items-center gap-2">
+              <Download className="h-4 w-4" />
+              {t('buttons.downloadConversation')}
+            </Button>
           </div>
           {subtitle ? <p className="text-sm text-slate-500">{subtitle}</p> : null}
         </div>
