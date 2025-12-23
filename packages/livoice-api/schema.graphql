@@ -190,8 +190,6 @@ type ChatMessage {
   chat: Chat
   role: String
   content: String
-  segments(where: TranscriptSegmentWhereInput! = {}, orderBy: [TranscriptSegmentOrderByInput!]! = [], take: Int, skip: Int! = 0, cursor: TranscriptSegmentWhereUniqueInput): [TranscriptSegment!]
-  segmentsCount(where: TranscriptSegmentWhereInput! = {}): Int
   debugData: JSON
   createdAt: DateTime
 }
@@ -208,14 +206,7 @@ input ChatMessageWhereInput {
   chat: ChatWhereInput
   role: StringFilter
   content: StringFilter
-  segments: TranscriptSegmentManyRelationFilter
   createdAt: DateTimeNullableFilter
-}
-
-input TranscriptSegmentManyRelationFilter {
-  every: TranscriptSegmentWhereInput
-  some: TranscriptSegmentWhereInput
-  none: TranscriptSegmentWhereInput
 }
 
 input ChatMessageOrderByInput {
@@ -229,7 +220,6 @@ input ChatMessageUpdateInput {
   chat: ChatRelateToOneForUpdateInput
   role: String
   content: String
-  segments: TranscriptSegmentRelateToManyForUpdateInput
   debugData: JSON
   createdAt: DateTime
 }
@@ -238,13 +228,6 @@ input ChatRelateToOneForUpdateInput {
   create: ChatCreateInput
   connect: ChatWhereUniqueInput
   disconnect: Boolean
-}
-
-input TranscriptSegmentRelateToManyForUpdateInput {
-  disconnect: [TranscriptSegmentWhereUniqueInput!]
-  set: [TranscriptSegmentWhereUniqueInput!]
-  create: [TranscriptSegmentCreateInput!]
-  connect: [TranscriptSegmentWhereUniqueInput!]
 }
 
 input ChatMessageUpdateArgs {
@@ -256,7 +239,6 @@ input ChatMessageCreateInput {
   chat: ChatRelateToOneForCreateInput
   role: String
   content: String
-  segments: TranscriptSegmentRelateToManyForCreateInput
   debugData: JSON
   createdAt: DateTime
 }
@@ -264,11 +246,6 @@ input ChatMessageCreateInput {
 input ChatRelateToOneForCreateInput {
   create: ChatCreateInput
   connect: ChatWhereUniqueInput
-}
-
-input TranscriptSegmentRelateToManyForCreateInput {
-  create: [TranscriptSegmentCreateInput!]
-  connect: [TranscriptSegmentWhereUniqueInput!]
 }
 
 type Organization {
@@ -748,6 +725,12 @@ input TranscriptImportStatusTypeNullableFilter {
   not: TranscriptImportStatusTypeNullableFilter
 }
 
+input TranscriptSegmentManyRelationFilter {
+  every: TranscriptSegmentWhereInput
+  some: TranscriptSegmentWhereInput
+  none: TranscriptSegmentWhereInput
+}
+
 input TranscriptOrderByInput {
   id: OrderDirection
   title: OrderDirection
@@ -802,6 +785,13 @@ input SourceRelateToOneForUpdateInput {
   disconnect: Boolean
 }
 
+input TranscriptSegmentRelateToManyForUpdateInput {
+  disconnect: [TranscriptSegmentWhereUniqueInput!]
+  set: [TranscriptSegmentWhereUniqueInput!]
+  create: [TranscriptSegmentCreateInput!]
+  connect: [TranscriptSegmentWhereUniqueInput!]
+}
+
 input TranscriptUpdateArgs {
   where: TranscriptWhereUniqueInput!
   data: TranscriptUpdateInput!
@@ -837,6 +827,11 @@ input SourceRelateToOneForCreateInput {
   connect: SourceWhereUniqueInput
 }
 
+input TranscriptSegmentRelateToManyForCreateInput {
+  create: [TranscriptSegmentCreateInput!]
+  connect: [TranscriptSegmentWhereUniqueInput!]
+}
+
 type TranscriptSegment {
   id: ID!
   transcript: Transcript
@@ -847,8 +842,6 @@ type TranscriptSegment {
   text: String
   speaker: String
   isMetadata: Boolean
-  chatMessages(where: ChatMessageWhereInput! = {}, orderBy: [ChatMessageOrderByInput!]! = [], take: Int, skip: Int! = 0, cursor: ChatMessageWhereUniqueInput): [ChatMessage!]
-  chatMessagesCount(where: ChatMessageWhereInput! = {}): Int
 }
 
 input TranscriptSegmentWhereUniqueInput {
@@ -868,7 +861,6 @@ input TranscriptSegmentWhereInput {
   text: StringFilter
   speaker: StringFilter
   isMetadata: BooleanFilter
-  chatMessages: ChatMessageManyRelationFilter
 }
 
 input BooleanFilter {
@@ -896,7 +888,6 @@ input TranscriptSegmentUpdateInput {
   text: String
   speaker: String
   isMetadata: Boolean
-  chatMessages: ChatMessageRelateToManyForUpdateInput
 }
 
 input TranscriptRelateToOneForUpdateInput {
@@ -919,7 +910,6 @@ input TranscriptSegmentCreateInput {
   text: String
   speaker: String
   isMetadata: Boolean
-  chatMessages: ChatMessageRelateToManyForCreateInput
 }
 
 input TranscriptRelateToOneForCreateInput {
@@ -1183,17 +1173,7 @@ type ChatMessageResult {
   role: String!
   content: String!
   createdAt: String
-  segments: [ChatSegmentReference!]!
   debugData: ChatMessageDebugData
-}
-
-type ChatSegmentReference {
-  id: ID!
-  text: String!
-  startMs: Int
-  endMs: Int
-  speaker: String
-  transcriptTitle: String
 }
 
 type ChatMessageDebugData {
@@ -1265,6 +1245,15 @@ type ChatMessageDebugOpenAIResponse {
 type ChatMessageDebugTiming {
   startedAt: String!
   completedAt: String!
+}
+
+type ChatSegmentReference {
+  id: ID!
+  text: String!
+  startMs: Int
+  endMs: Int
+  speaker: String
+  transcriptTitle: String
 }
 
 input ChatTranscriptInput {

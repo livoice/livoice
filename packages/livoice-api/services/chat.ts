@@ -1,17 +1,9 @@
-import type { TypeInfo } from '.keystone/types';
 import type { KeystoneContext } from '@keystone-6/core/types';
 import { Prisma } from '@prisma/client';
 import { intervalToDuration } from 'date-fns';
 import type { Session } from '../auth';
 import { createEmbeddings, getOpenAIClient, openAiModel } from '../lib/openai';
 import { formatVectorLiteral } from '../lib/pgvector';
-
-type TranscriptSegmentWithTranscript = Pick<
-  TypeInfo['lists']['TranscriptSegment']['item'],
-  'id' | 'text' | 'startMs' | 'endMs' | 'speaker'
-> & {
-  transcript: Pick<TypeInfo['lists']['Transcript']['item'], 'title'> | null;
-};
 
 type SegmentRecord = {
   id: string;
@@ -103,7 +95,6 @@ export type ChatHistoryItem = {
   role: 'user' | 'assistant';
   content: string;
   createdAt: string | null;
-  segments: SegmentReference[];
   debugData?: MessageDebugData | null;
 };
 
@@ -335,7 +326,7 @@ export const fetchChatHistory = async (context: KeystoneContext, chatId: string)
   const messages = await sudoContext.query.ChatMessage.findMany({
     where: { chat: { id: { equals: chatId } } },
     orderBy: [{ createdAt: 'asc' }],
-    query: 'id role content createdAt segments { id text startMs endMs speaker transcript { title } } debugData'
+    query: 'id role content createdAt debugData'
   });
 
   return messages.map(msg => ({
@@ -343,14 +334,6 @@ export const fetchChatHistory = async (context: KeystoneContext, chatId: string)
     role: msg.role as 'user' | 'assistant',
     content: msg.content,
     createdAt: msg.createdAt ?? null,
-    segments: (msg.segments ?? []).map((segment: TranscriptSegmentWithTranscript) => ({
-      id: segment.id,
-      text: segment.text,
-      startMs: typeof segment.startMs === 'number' ? segment.startMs : null,
-      endMs: typeof segment.endMs === 'number' ? segment.endMs : null,
-      speaker: segment.speaker ?? undefined,
-      transcriptTitle: segment.transcript?.title ?? undefined
-    })),
     debugData: msg.debugData ?? null
   }));
 };
@@ -775,9 +758,6 @@ export const runChatConversation = async ({
         chat: { connect: { id: chatId } },
         role: 'assistant',
         content: answer,
-        ...(referenceSegments.length && {
-          segments: { connect: referenceSegments.map((segment: SegmentRecord) => ({ id: segment.id })) }
-        }),
         debugData
       }
     })

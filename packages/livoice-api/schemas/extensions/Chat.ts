@@ -167,7 +167,6 @@ const ChatMessageResult = g.object<ChatHistoryItem>()({
     role: g.field({ type: g.nonNull(g.String) }),
     content: g.field({ type: g.nonNull(g.String) }),
     createdAt: g.field({ type: g.String }),
-    segments: g.field({ type: g.nonNull(g.list(g.nonNull(ChatSegmentReference))) }),
     debugData: g.field({ type: ChatMessageDebugData })
   }
 });

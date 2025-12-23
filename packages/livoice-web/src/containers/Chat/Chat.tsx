@@ -25,21 +25,11 @@ import { TextField } from '@/ui/text-field';
 import MessageDebugModal from './MessageDebugModal';
 import { CONFIG_RANGES, DEFAULT_CHAT_CONFIG, OPENAI_MODELS } from './constants';
 
-type SegmentReference = {
-  id: string;
-  startMs: number | null;
-  endMs: number | null;
-  text: string;
-  speaker?: string | null;
-  transcriptTitle?: string | null;
-};
-
 export type ChatMessageItem = {
   id: string;
   role: 'user' | 'assistant';
   content: string;
   createdAt?: string | null;
-  segments: SegmentReference[];
   debugData?: ChatMessageDebugData | null;
 };
 
@@ -56,21 +46,6 @@ const markdownComponents: Components = {
     void node;
     return <li className="ml-1" {...props} />;
   }
-};
-
-const formatTime = (value?: number | null) => {
-  if (typeof value !== 'number') return '00:00:00';
-  const totalSeconds = Math.floor(Math.max(0, value) / 1000);
-  const hours = Math.floor(totalSeconds / 3600);
-  const minutes = Math.floor((totalSeconds % 3600) / 60);
-  const seconds = totalSeconds % 60;
-  return [hours, minutes, seconds].map(unit => unit.toString().padStart(2, '0')).join(':');
-};
-
-const formatRange = (segment: SegmentReference) => {
-  const start = formatTime(segment.startMs);
-  const end = formatTime(segment.endMs);
-  return `${start}—${end}`;
 };
 
 type ChatConfigForm = {
@@ -190,14 +165,6 @@ const Chat = () => {
       role: msg.role as 'user' | 'assistant',
       content: msg.content,
       createdAt: msg.createdAt ?? undefined,
-      segments: msg.segments.map(seg => ({
-        id: seg.id,
-        startMs: seg.startMs ?? null,
-        endMs: seg.endMs ?? null,
-        text: seg.text,
-        speaker: seg.speaker ?? undefined,
-        transcriptTitle: seg.transcriptTitle ?? undefined
-      })),
       debugData: msg.debugData ?? null
     }));
   }, [isNewChat, projectHistory?.chatProjectHistory?.messages]);
@@ -807,19 +774,6 @@ const Chat = () => {
                           {message.content}
                         </ReactMarkdown>
                       </div>
-                      {message.segments.length ? (
-                        <div className="mt-3 flex flex-wrap gap-2">
-                          {message.segments.map(segment => (
-                            <span
-                              key={segment.id}
-                              className="rounded-full border border-slate-200 bg-slate-50 px-3 py-1 text-xs text-slate-600"
-                            >
-                              {segment.transcriptTitle ? `${segment.transcriptTitle}: ` : ''}
-                              {formatRange(segment)}
-                            </span>
-                          ))}
-                        </div>
-                      ) : null}
                     </div>
                   );
                 })}

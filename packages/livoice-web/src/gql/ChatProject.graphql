@@ -7,14 +7,6 @@ mutation ChatProject($input: ChatProjectInput!) {
       role
       content
       createdAt
-      segments {
-        id
-        text
-        startMs
-        endMs
-        speaker
-        transcriptTitle
-      }
       debugData {
         config {
           systemPrompt

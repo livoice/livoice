@@ -7,14 +7,6 @@ mutation ChatTranscript($input: ChatTranscriptInput!) {
       role
       content
       createdAt
-      segments {
-        id
-        text
-        startMs
-        endMs
-        speaker
-        transcriptTitle
-      }
     }
     references {
       id

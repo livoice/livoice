@@ -12,8 +12,7 @@ export default list({
     durationMs: integer(),
     text: text({ ui: { displayMode: 'textarea' } }),
     speaker: text(),
-    isMetadata: checkbox({ defaultValue: false }),
-    chatMessages: relationship({ ref: 'ChatMessage.segments', many: true })
+    isMetadata: checkbox({ defaultValue: false })
   },
   db: {
     extendPrismaSchema: schema => {

@@ -26,14 +26,6 @@ query ChatProjectHistory($projectId: ID!, $chatId: ID) {
       role
       content
       createdAt
-      segments {
-        id
-        text
-        startMs
-        endMs
-        speaker
-        transcriptTitle
-      }
       debugData {
         config {
           systemPrompt

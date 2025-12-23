@@ -32,14 +32,13 @@ model Chat {
 }
 
 model ChatMessage {
-  id        String              @id @default(cuid())
-  chat      Chat?               @relation("ChatMessage_chat", fields: [chatId], references: [id])
-  chatId    String?             @map("chat")
-  role      String              @default("user")
-  content   String              @default("")
-  segments  TranscriptSegment[] @relation("ChatMessage_segments")
+  id        String    @id @default(cuid())
+  chat      Chat?     @relation("ChatMessage_chat", fields: [chatId], references: [id])
+  chatId    String?   @map("chat")
+  role      String    @default("user")
+  content   String    @default("")
   debugData Json?
-  createdAt DateTime?           @default(now())
+  createdAt DateTime? @default(now())
 
   @@index([chatId])
 }
@@ -128,7 +127,6 @@ model TranscriptSegment {
   text         String                       @default("")
   speaker      String                       @default("")
   isMetadata   Boolean                      @default(false)
-  chatMessages ChatMessage[]                @relation("ChatMessage_segments")
   embedding    Unsupported("vector(1536)")?
 
   @@index([transcriptId])

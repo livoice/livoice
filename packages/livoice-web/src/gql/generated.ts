@@ -144,22 +144,6 @@ export type ChatMessage = {
   debugData?: Maybe<Scalars['JSON']['output']>;
   id: Scalars['ID']['output'];
   role?: Maybe<Scalars['String']['output']>;
-  segments?: Maybe<Array<TranscriptSegment>>;
-  segmentsCount?: Maybe<Scalars['Int']['output']>;
-};
-
-
-export type ChatMessageSegmentsArgs = {
-  cursor?: InputMaybe<TranscriptSegmentWhereUniqueInput>;
-  orderBy?: Array<TranscriptSegmentOrderByInput>;
-  skip?: Scalars['Int']['input'];
-  take?: InputMaybe<Scalars['Int']['input']>;
-  where?: TranscriptSegmentWhereInput;
-};
-
-
-export type ChatMessageSegmentsCountArgs = {
-  where?: TranscriptSegmentWhereInput;
 };
 
 export type ChatMessageCreateInput = {
@@ -168,7 +152,6 @@ export type ChatMessageCreateInput = {
   createdAt?: InputMaybe<Scalars['DateTime']['input']>;
   debugData?: InputMaybe<Scalars['JSON']['input']>;
   role?: InputMaybe<Scalars['String']['input']>;
-  segments?: InputMaybe<TranscriptSegmentRelateToManyForCreateInput>;
 };
 
 export type ChatMessageDebugData = {
@@ -256,7 +239,6 @@ export type ChatMessageResult = {
   debugData?: Maybe<ChatMessageDebugData>;
   id: Scalars['ID']['output'];
   role: Scalars['String']['output'];
-  segments: Array<ChatSegmentReference>;
 };
 
 export type ChatMessageUpdateArgs = {
@@ -270,7 +252,6 @@ export type ChatMessageUpdateInput = {
   createdAt?: InputMaybe<Scalars['DateTime']['input']>;
   debugData?: InputMaybe<Scalars['JSON']['input']>;
   role?: InputMaybe<Scalars['String']['input']>;
-  segments?: InputMaybe<TranscriptSegmentRelateToManyForUpdateInput>;
 };
 
 export type ChatMessageWhereInput = {
@@ -282,7 +263,6 @@ export type ChatMessageWhereInput = {
   createdAt?: InputMaybe<DateTimeNullableFilter>;
   id?: InputMaybe<IdFilter>;
   role?: InputMaybe<StringFilter>;
-  segments?: InputMaybe<TranscriptSegmentManyRelationFilter>;
 };
 
 export type ChatMessageWhereUniqueInput = {
@@ -676,7 +656,6 @@ export type Mutation = {
   deleteUser?: Maybe<User>;
   deleteUsers?: Maybe<Array<Maybe<User>>>;
   endSession: Scalars['Boolean']['output'];
-  resetFailedTranscript: Transcript;
   triggerSourceImport: Source;
   updateChat?: Maybe<Chat>;
   updateChatMessage?: Maybe<ChatMessage>;
@@ -864,11 +843,6 @@ export type MutationDeleteUserArgs = {
 
 export type MutationDeleteUsersArgs = {
   where: Array<UserWhereUniqueInput>;
-};
-
-
-export type MutationResetFailedTranscriptArgs = {
-  transcriptId: Scalars['ID']['input'];
 };
 
 
@@ -1667,7 +1641,6 @@ export type Transcript = {
   notes?: Maybe<Scalars['String']['output']>;
   org?: Maybe<Organization>;
   publishedAt?: Maybe<Scalars['DateTime']['output']>;
-  resetButton?: Maybe<Scalars['String']['output']>;
   segmentEmbeddingProgress?: Maybe<SegmentEmbeddingProgress>;
   segments?: Maybe<Array<TranscriptSegment>>;
   segmentsCount?: Maybe<Scalars['Int']['output']>;
@@ -1828,8 +1801,6 @@ export type TranscriptRelateToOneForUpdateInput = {
 
 export type TranscriptSegment = {
   __typename?: 'TranscriptSegment';
-  chatMessages?: Maybe<Array<ChatMessage>>;
-  chatMessagesCount?: Maybe<Scalars['Int']['output']>;
   durationMs?: Maybe<Scalars['Int']['output']>;
   endMs?: Maybe<Scalars['Int']['output']>;
   id: Scalars['ID']['output'];
@@ -1841,22 +1812,7 @@ export type TranscriptSegment = {
   transcript?: Maybe<Transcript>;
 };
 
-
-export type TranscriptSegmentChatMessagesArgs = {
-  cursor?: InputMaybe<ChatMessageWhereUniqueInput>;
-  orderBy?: Array<ChatMessageOrderByInput>;
-  skip?: Scalars['Int']['input'];
-  take?: InputMaybe<Scalars['Int']['input']>;
-  where?: ChatMessageWhereInput;
-};
-
-
-export type TranscriptSegmentChatMessagesCountArgs = {
-  where?: ChatMessageWhereInput;
-};
-
 export type TranscriptSegmentCreateInput = {
-  chatMessages?: InputMaybe<ChatMessageRelateToManyForCreateInput>;
   durationMs?: InputMaybe<Scalars['Int']['input']>;
   endMs?: InputMaybe<Scalars['Int']['input']>;
   index?: InputMaybe<Scalars['Int']['input']>;
@@ -1902,7 +1858,6 @@ export type TranscriptSegmentUpdateArgs = {
 };
 
 export type TranscriptSegmentUpdateInput = {
-  chatMessages?: InputMaybe<ChatMessageRelateToManyForUpdateInput>;
   durationMs?: InputMaybe<Scalars['Int']['input']>;
   endMs?: InputMaybe<Scalars['Int']['input']>;
   index?: InputMaybe<Scalars['Int']['input']>;
@@ -1917,7 +1872,6 @@ export type TranscriptSegmentWhereInput = {
   AND?: InputMaybe<Array<TranscriptSegmentWhereInput>>;
   NOT?: InputMaybe<Array<TranscriptSegmentWhereInput>>;
   OR?: InputMaybe<Array<TranscriptSegmentWhereInput>>;
-  chatMessages?: InputMaybe<ChatMessageManyRelationFilter>;
   durationMs?: InputMaybe<IntNullableFilter>;
   endMs?: InputMaybe<IntNullableFilter>;
   id?: InputMaybe<IdFilter>;
@@ -2188,7 +2142,7 @@ export type ChatProjectMutationVariables = Exact<{
 }>;
 
 
-export type ChatProjectMutation = { __typename?: 'Mutation', chatProject: { __typename?: 'ChatMutationResult', chatId: string, answer: string, messages: Array<{ __typename?: 'ChatMessageResult', id: string, role: string, content: string, createdAt?: string | null, segments: Array<{ __typename?: 'ChatSegmentReference', id: string, text: string, startMs?: number | null, endMs?: number | null, speaker?: string | null, transcriptTitle?: string | null }>, debugData?: { __typename?: 'ChatMessageDebugData', resolvedSystemPrompt: string, userMessageWithContext: string, segmentTokensUsed: number, config: { __typename?: 'ChatConfig', systemPrompt: string, openai: { __typename?: 'ChatConfigOpenAI', model: string, temperature: number, maxOutputTokens: number }, context: { __typename?: 'ChatConfigContext', maxInputTokens: number, reservedTokens: number, historyTokenBudget: number }, segments: { __typename?: 'ChatConfigSegments', tokenBudget: number, maxCount: number } }, history: { __typename?: 'ChatMessageDebugHistory', messagesIncluded: number, tokensUsed: number, tokenBudget: number, messages: Array<{ __typename?: 'ChatMessageDebugHistoryMessage', role: string, content: string, tokens: number }> }, segments?: Array<{ __typename?: 'ChatMessageDebugSegment', id: string, text: string, transcriptTitle?: string | null, speaker?: string | null, startMs?: number | null, endMs?: number | null, similarityScore?: number | null, estimatedTokens: number }> | null, openaiResponse: { __typename?: 'ChatMessageDebugOpenAIResponse', model: string, promptTokens?: number | null, completionTokens?: number | null, totalTokens?: number | null }, timing: { __typename?: 'ChatMessageDebugTiming', startedAt: string, completedAt: string } } | null }>, references: Array<{ __typename?: 'ChatSegmentReference', id: string, text: string, startMs?: number | null, endMs?: number | null, speaker?: string | null, transcriptTitle?: string | null }> } };
+export type ChatProjectMutation = { __typename?: 'Mutation', chatProject: { __typename?: 'ChatMutationResult', chatId: string, answer: string, messages: Array<{ __typename?: 'ChatMessageResult', id: string, role: string, content: string, createdAt?: string | null, debugData?: { __typename?: 'ChatMessageDebugData', resolvedSystemPrompt: string, userMessageWithContext: string, segmentTokensUsed: number, config: { __typename?: 'ChatConfig', systemPrompt: string, openai: { __typename?: 'ChatConfigOpenAI', model: string, temperature: number, maxOutputTokens: number }, context: { __typename?: 'ChatConfigContext', maxInputTokens: number, reservedTokens: number, historyTokenBudget: number }, segments: { __typename?: 'ChatConfigSegments', tokenBudget: number, maxCount: number } }, history: { __typename?: 'ChatMessageDebugHistory', messagesIncluded: number, tokensUsed: number, tokenBudget: number, messages: Array<{ __typename?: 'ChatMessageDebugHistoryMessage', role: string, content: string, tokens: number }> }, segments?: Array<{ __typename?: 'ChatMessageDebugSegment', id: string, text: string, transcriptTitle?: string | null, speaker?: string | null, startMs?: number | null, endMs?: number | null, similarityScore?: number | null, estimatedTokens: number }> | null, openaiResponse: { __typename?: 'ChatMessageDebugOpenAIResponse', model: string, promptTokens?: number | null, completionTokens?: number | null, totalTokens?: number | null }, timing: { __typename?: 'ChatMessageDebugTiming', startedAt: string, completedAt: string } } | null }>, references: Array<{ __typename?: 'ChatSegmentReference', id: string, text: string, startMs?: number | null, endMs?: number | null, speaker?: string | null, transcriptTitle?: string | null }> } };
 
 export type ChatProjectHistoryQueryVariables = Exact<{
   projectId: Scalars['ID']['input'];
@@ -2196,21 +2150,21 @@ export type ChatProjectHistoryQueryVariables = Exact<{
 }>;
 
 
-export type ChatProjectHistoryQuery = { __typename?: 'Query', chatProjectHistory: { __typename?: 'ChatHistoryResult', chatId?: string | null, title?: string | null, systemPrompt?: string | null, resolvedSystemPrompt?: string | null, config?: { __typename?: 'ChatConfig', systemPrompt: string, openai: { __typename?: 'ChatConfigOpenAI', model: string, temperature: number, maxOutputTokens: number }, context: { __typename?: 'ChatConfigContext', maxInputTokens: number, reservedTokens: number, historyTokenBudget: number }, segments: { __typename?: 'ChatConfigSegments', tokenBudget: number, maxCount: number } } | null, messages: Array<{ __typename?: 'ChatMessageResult', id: string, role: string, content: string, createdAt?: string | null, segments: Array<{ __typename?: 'ChatSegmentReference', id: string, text: string, startMs?: number | null, endMs?: number | null, speaker?: string | null, transcriptTitle?: string | null }>, debugData?: { __typename?: 'ChatMessageDebugData', resolvedSystemPrompt: string, userMessageWithContext: string, segmentTokensUsed: number, config: { __typename?: 'ChatConfig', systemPrompt: string, openai: { __typename?: 'ChatConfigOpenAI', model: string, temperature: number, maxOutputTokens: number }, context: { __typename?: 'ChatConfigContext', maxInputTokens: number, reservedTokens: number, historyTokenBudget: number }, segments: { __typename?: 'ChatConfigSegments', tokenBudget: number, maxCount: number } }, history: { __typename?: 'ChatMessageDebugHistory', messagesIncluded: number, tokensUsed: number, tokenBudget: number, messages: Array<{ __typename?: 'ChatMessageDebugHistoryMessage', role: string, content: string, tokens: number }> }, segments?: Array<{ __typename?: 'ChatMessageDebugSegment', id: string, text: string, transcriptTitle?: string | null, speaker?: string | null, startMs?: number | null, endMs?: number | null, similarityScore?: number | null, estimatedTokens: number }> | null, openaiResponse: { __typename?: 'ChatMessageDebugOpenAIResponse', model: string, promptTokens?: number | null, completionTokens?: number | null, totalTokens?: number | null }, timing: { __typename?: 'ChatMessageDebugTiming', startedAt: string, completedAt: string } } | null }> } };
+export type ChatProjectHistoryQuery = { __typename?: 'Query', chatProjectHistory: { __typename?: 'ChatHistoryResult', chatId?: string | null, title?: string | null, systemPrompt?: string | null, resolvedSystemPrompt?: string | null, config?: { __typename?: 'ChatConfig', systemPrompt: string, openai: { __typename?: 'ChatConfigOpenAI', model: string, temperature: number, maxOutputTokens: number }, context: { __typename?: 'ChatConfigContext', maxInputTokens: number, reservedTokens: number, historyTokenBudget: number }, segments: { __typename?: 'ChatConfigSegments', tokenBudget: number, maxCount: number } } | null, messages: Array<{ __typename?: 'ChatMessageResult', id: string, role: string, content: string, createdAt?: string | null, debugData?: { __typename?: 'ChatMessageDebugData', resolvedSystemPrompt: string, userMessageWithContext: string, segmentTokensUsed: number, config: { __typename?: 'ChatConfig', systemPrompt: string, openai: { __typename?: 'ChatConfigOpenAI', model: string, temperature: number, maxOutputTokens: number }, context: { __typename?: 'ChatConfigContext', maxInputTokens: number, reservedTokens: number, historyTokenBudget: number }, segments: { __typename?: 'ChatConfigSegments', tokenBudget: number, maxCount: number } }, history: { __typename?: 'ChatMessageDebugHistory', messagesIncluded: number, tokensUsed: number, tokenBudget: number, messages: Array<{ __typename?: 'ChatMessageDebugHistoryMessage', role: string, content: string, tokens: number }> }, segments?: Array<{ __typename?: 'ChatMessageDebugSegment', id: string, text: string, transcriptTitle?: string | null, speaker?: string | null, startMs?: number | null, endMs?: number | null, similarityScore?: number | null, estimatedTokens: number }> | null, openaiResponse: { __typename?: 'ChatMessageDebugOpenAIResponse', model: string, promptTokens?: number | null, completionTokens?: number | null, totalTokens?: number | null }, timing: { __typename?: 'ChatMessageDebugTiming', startedAt: string, completedAt: string } } | null }> } };
 
 export type ChatTranscriptMutationVariables = Exact<{
   input: ChatTranscriptInput;
 }>;
 
 
-export type ChatTranscriptMutation = { __typename?: 'Mutation', chatTranscript: { __typename?: 'ChatMutationResult', chatId: string, answer: string, messages: Array<{ __typename?: 'ChatMessageResult', id: string, role: string, content: string, createdAt?: string | null, segments: Array<{ __typename?: 'ChatSegmentReference', id: string, text: string, startMs?: number | null, endMs?: number | null, speaker?: string | null, transcriptTitle?: string | null }> }>, references: Array<{ __typename?: 'ChatSegmentReference', id: string, text: string, startMs?: number | null, endMs?: number | null, speaker?: string | null, transcriptTitle?: string | null }> } };
+export type ChatTranscriptMutation = { __typename?: 'Mutation', chatTranscript: { __typename?: 'ChatMutationResult', chatId: string, answer: string, messages: Array<{ __typename?: 'ChatMessageResult', id: string, role: string, content: string, createdAt?: string | null }>, references: Array<{ __typename?: 'ChatSegmentReference', id: string, text: string, startMs?: number | null, endMs?: number | null, speaker?: string | null, transcriptTitle?: string | null }> } };
 
 export type ChatTranscriptHistoryQueryVariables = Exact<{
   transcriptId: Scalars['ID']['input'];
 }>;
 
 
-export type ChatTranscriptHistoryQuery = { __typename?: 'Query', chatTranscriptHistory: { __typename?: 'ChatHistoryResult', chatId?: string | null, systemPrompt?: string | null, resolvedSystemPrompt?: string | null, messages: Array<{ __typename?: 'ChatMessageResult', id: string, role: string, content: string, createdAt?: string | null, segments: Array<{ __typename?: 'ChatSegmentReference', id: string, text: string, startMs?: number | null, endMs?: number | null, speaker?: string | null, transcriptTitle?: string | null }> }> } };
+export type ChatTranscriptHistoryQuery = { __typename?: 'Query', chatTranscriptHistory: { __typename?: 'ChatHistoryResult', chatId?: string | null, systemPrompt?: string | null, resolvedSystemPrompt?: string | null, messages: Array<{ __typename?: 'ChatMessageResult', id: string, role: string, content: string, createdAt?: string | null }> } };
 
 export type CreateProjectMutationVariables = Exact<{
   data: ProjectCreateInput;
@@ -2462,14 +2416,6 @@ export const ChatProjectDocument = gql`
       role
       content
       createdAt
-      segments {
-        id
-        text
-        startMs
-        endMs
-        speaker
-        transcriptTitle
-      }
       debugData {
         config {
           systemPrompt
@@ -2589,14 +2535,6 @@ export const ChatProjectHistoryDocument = gql`
       role
       content
       createdAt
-      segments {
-        id
-        text
-        startMs
-        endMs
-        speaker
-        transcriptTitle
-      }
       debugData {
         config {
           systemPrompt
@@ -2697,14 +2635,6 @@ export const ChatTranscriptDocument = gql`
       role
       content
       createdAt
-      segments {
-        id
-        text
-        startMs
-        endMs
-        speaker
-        transcriptTitle
-      }
     }
     references {
       id
@@ -2754,14 +2684,6 @@ export const ChatTranscriptHistoryDocument = gql`
       role
       content
       createdAt
-      segments {
-        id
-        text
-        startMs
-        endMs
-        speaker
-        transcriptTitle
-      }
     }
   }
 }

@@ -15,7 +15,6 @@ export default list({
       defaultValue: 'user'
     }),
     content: text({ ui: { displayMode: 'textarea' }, validation: { isRequired: true } }),
-    segments: relationship({ ref: 'TranscriptSegment.chatMessages', many: true }),
     debugData: json(),
     createdAt: timestamp({ defaultValue: { kind: 'now' }, ui: { createView: { fieldMode: 'hidden' } } })
   },
@@ -35,4 +34,3 @@ export default list({
     }
   }
 }) satisfies Lists['ChatMessage'];
-
