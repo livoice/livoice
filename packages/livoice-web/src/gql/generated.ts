@@ -10,16 +10,16 @@ export type Incremental<T> = T | { [P in keyof T]?: P extends ' $fragmentName' |
 const defaultOptions = {} as const;
 /** All built-in and custom scalars, mapped to their actual values */
 export type Scalars = {
-  ID: { input: string; output: string; }
-  String: { input: string; output: string; }
-  Boolean: { input: boolean; output: boolean; }
-  Int: { input: number; output: number; }
-  Float: { input: number; output: number; }
-  DateTime: { input: any; output: any; }
+  ID: { input: string; output: string };
+  String: { input: string; output: string };
+  Boolean: { input: boolean; output: boolean };
+  Int: { input: number; output: number };
+  Float: { input: number; output: number };
+  DateTime: { input: any; output: any };
   /** The `JSON` scalar type represents JSON values as specified by [ECMA-404](http://www.ecma-international.org/publications/files/ECMA-ST/ECMA-404.pdf). */
-  JSON: { input: any; output: any; }
+  JSON: { input: any; output: any };
   /** The `Upload` scalar type represents a file upload. */
-  Upload: { input: any; output: any; }
+  Upload: { input: any; output: any };
 };
 
 export type BooleanFilter = {
@@ -29,6 +29,7 @@ export type BooleanFilter = {
 
 export type Chat = {
   __typename?: 'Chat';
+  config?: Maybe<Scalars['JSON']['output']>;
   createdAt?: Maybe<Scalars['DateTime']['output']>;
   id: Scalars['ID']['output'];
   messages?: Maybe<Array<ChatMessage>>;
@@ -41,7 +42,6 @@ export type Chat = {
   user?: Maybe<User>;
 };
 
-
 export type ChatMessagesArgs = {
   cursor?: InputMaybe<ChatMessageWhereUniqueInput>;
   orderBy?: Array<ChatMessageOrderByInput>;
@@ -50,12 +50,64 @@ export type ChatMessagesArgs = {
   where?: ChatMessageWhereInput;
 };
 
-
 export type ChatMessagesCountArgs = {
   where?: ChatMessageWhereInput;
 };
 
+export type ChatConfig = {
+  __typename?: 'ChatConfig';
+  context: ChatConfigContext;
+  openai: ChatConfigOpenAi;
+  segments: ChatConfigSegments;
+  systemPrompt: Scalars['String']['output'];
+};
+
+export type ChatConfigContext = {
+  __typename?: 'ChatConfigContext';
+  historyTokenBudget: Scalars['Int']['output'];
+  maxInputTokens: Scalars['Int']['output'];
+  reservedTokens: Scalars['Int']['output'];
+};
+
+export type ChatConfigContextInput = {
+  historyTokenBudget?: InputMaybe<Scalars['Int']['input']>;
+  maxInputTokens?: InputMaybe<Scalars['Int']['input']>;
+  reservedTokens?: InputMaybe<Scalars['Int']['input']>;
+};
+
+export type ChatConfigInput = {
+  context?: InputMaybe<ChatConfigContextInput>;
+  openai?: InputMaybe<ChatConfigOpenAiInput>;
+  segments?: InputMaybe<ChatConfigSegmentsInput>;
+  systemPrompt?: InputMaybe<Scalars['String']['input']>;
+};
+
+export type ChatConfigOpenAi = {
+  __typename?: 'ChatConfigOpenAI';
+  maxOutputTokens: Scalars['Int']['output'];
+  model: Scalars['String']['output'];
+  temperature: Scalars['Float']['output'];
+};
+
+export type ChatConfigOpenAiInput = {
+  maxOutputTokens?: InputMaybe<Scalars['Int']['input']>;
+  model?: InputMaybe<Scalars['String']['input']>;
+  temperature?: InputMaybe<Scalars['Float']['input']>;
+};
+
+export type ChatConfigSegments = {
+  __typename?: 'ChatConfigSegments';
+  maxCount: Scalars['Int']['output'];
+  tokenBudget: Scalars['Int']['output'];
+};
+
+export type ChatConfigSegmentsInput = {
+  maxCount?: InputMaybe<Scalars['Int']['input']>;
+  tokenBudget?: InputMaybe<Scalars['Int']['input']>;
+};
+
 export type ChatCreateInput = {
+  config?: InputMaybe<Scalars['JSON']['input']>;
   createdAt?: InputMaybe<Scalars['DateTime']['input']>;
   messages?: InputMaybe<ChatMessageRelateToManyForCreateInput>;
   org?: InputMaybe<OrganizationRelateToOneForCreateInput>;
@@ -69,6 +121,7 @@ export type ChatCreateInput = {
 export type ChatHistoryResult = {
   __typename?: 'ChatHistoryResult';
   chatId?: Maybe<Scalars['ID']['output']>;
+  config?: Maybe<ChatConfig>;
   messages: Array<ChatMessageResult>;
   resolvedSystemPrompt?: Maybe<Scalars['String']['output']>;
   systemPrompt?: Maybe<Scalars['String']['output']>;
@@ -86,12 +139,12 @@ export type ChatMessage = {
   chat?: Maybe<Chat>;
   content?: Maybe<Scalars['String']['output']>;
   createdAt?: Maybe<Scalars['DateTime']['output']>;
+  debugData?: Maybe<Scalars['JSON']['output']>;
   id: Scalars['ID']['output'];
   role?: Maybe<Scalars['String']['output']>;
   segments?: Maybe<Array<TranscriptSegment>>;
   segmentsCount?: Maybe<Scalars['Int']['output']>;
 };
-
 
 export type ChatMessageSegmentsArgs = {
   cursor?: InputMaybe<TranscriptSegmentWhereUniqueInput>;
@@ -101,7 +154,6 @@ export type ChatMessageSegmentsArgs = {
   where?: TranscriptSegmentWhereInput;
 };
 
-
 export type ChatMessageSegmentsCountArgs = {
   where?: TranscriptSegmentWhereInput;
 };
@@ -110,8 +162,62 @@ export type ChatMessageCreateInput = {
   chat?: InputMaybe<ChatRelateToOneForCreateInput>;
   content?: InputMaybe<Scalars['String']['input']>;
   createdAt?: InputMaybe<Scalars['DateTime']['input']>;
+  debugData?: InputMaybe<Scalars['JSON']['input']>;
   role?: InputMaybe<Scalars['String']['input']>;
   segments?: InputMaybe<TranscriptSegmentRelateToManyForCreateInput>;
+};
+
+export type ChatMessageDebugData = {
+  __typename?: 'ChatMessageDebugData';
+  config: ChatConfig;
+  history: ChatMessageDebugHistory;
+  openaiResponse: ChatMessageDebugOpenAiResponse;
+  resolvedSystemPrompt: Scalars['String']['output'];
+  segmentTokensUsed: Scalars['Int']['output'];
+  segments?: Maybe<Array<ChatMessageDebugSegment>>;
+  timing: ChatMessageDebugTiming;
+  userMessageWithContext: Scalars['String']['output'];
+};
+
+export type ChatMessageDebugHistory = {
+  __typename?: 'ChatMessageDebugHistory';
+  messages: Array<ChatMessageDebugHistoryMessage>;
+  messagesIncluded: Scalars['Int']['output'];
+  tokenBudget: Scalars['Int']['output'];
+  tokensUsed: Scalars['Int']['output'];
+};
+
+export type ChatMessageDebugHistoryMessage = {
+  __typename?: 'ChatMessageDebugHistoryMessage';
+  content: Scalars['String']['output'];
+  role: Scalars['String']['output'];
+  tokens: Scalars['Int']['output'];
+};
+
+export type ChatMessageDebugOpenAiResponse = {
+  __typename?: 'ChatMessageDebugOpenAIResponse';
+  completionTokens?: Maybe<Scalars['Int']['output']>;
+  model: Scalars['String']['output'];
+  promptTokens?: Maybe<Scalars['Int']['output']>;
+  totalTokens?: Maybe<Scalars['Int']['output']>;
+};
+
+export type ChatMessageDebugSegment = {
+  __typename?: 'ChatMessageDebugSegment';
+  endMs?: Maybe<Scalars['Int']['output']>;
+  estimatedTokens: Scalars['Int']['output'];
+  id: Scalars['ID']['output'];
+  similarityScore?: Maybe<Scalars['Float']['output']>;
+  speaker?: Maybe<Scalars['String']['output']>;
+  startMs?: Maybe<Scalars['Int']['output']>;
+  text: Scalars['String']['output'];
+  transcriptTitle?: Maybe<Scalars['String']['output']>;
+};
+
+export type ChatMessageDebugTiming = {
+  __typename?: 'ChatMessageDebugTiming';
+  completedAt: Scalars['String']['output'];
+  startedAt: Scalars['String']['output'];
 };
 
 export type ChatMessageManyRelationFilter = {
@@ -143,6 +249,7 @@ export type ChatMessageResult = {
   __typename?: 'ChatMessageResult';
   content: Scalars['String']['output'];
   createdAt?: Maybe<Scalars['String']['output']>;
+  debugData?: Maybe<ChatMessageDebugData>;
   id: Scalars['ID']['output'];
   role: Scalars['String']['output'];
   segments: Array<ChatSegmentReference>;
@@ -157,6 +264,7 @@ export type ChatMessageUpdateInput = {
   chat?: InputMaybe<ChatRelateToOneForUpdateInput>;
   content?: InputMaybe<Scalars['String']['input']>;
   createdAt?: InputMaybe<Scalars['DateTime']['input']>;
+  debugData?: InputMaybe<Scalars['JSON']['input']>;
   role?: InputMaybe<Scalars['String']['input']>;
   segments?: InputMaybe<TranscriptSegmentRelateToManyForUpdateInput>;
 };
@@ -195,6 +303,7 @@ export type ChatOrderByInput = {
 
 export type ChatProjectInput = {
   chatId?: InputMaybe<Scalars['ID']['input']>;
+  config?: InputMaybe<ChatConfigInput>;
   message: Scalars['String']['input'];
   projectId: Scalars['ID']['input'];
   systemPrompt: Scalars['String']['input'];
@@ -235,6 +344,7 @@ export type ChatSegmentReference = {
 
 export type ChatTranscriptInput = {
   chatId?: InputMaybe<Scalars['ID']['input']>;
+  config?: InputMaybe<ChatConfigInput>;
   message: Scalars['String']['input'];
   systemPrompt: Scalars['String']['input'];
   transcriptId: Scalars['ID']['input'];
@@ -246,6 +356,7 @@ export type ChatUpdateArgs = {
 };
 
 export type ChatUpdateInput = {
+  config?: InputMaybe<Scalars['JSON']['input']>;
   createdAt?: InputMaybe<Scalars['DateTime']['input']>;
   messages?: InputMaybe<ChatMessageRelateToManyForUpdateInput>;
   org?: InputMaybe<OrganizationRelateToOneForUpdateInput>;
@@ -323,7 +434,6 @@ export type CloudinaryImage_File = {
   publicUrlTransformed?: Maybe<Scalars['String']['output']>;
 };
 
-
 export type CloudinaryImage_FilePublicUrlTransformedArgs = {
   transformation?: InputMaybe<CloudinaryImageFormat>;
 };
@@ -378,7 +488,6 @@ export type KeystoneAdminMeta = {
   lists: Array<KeystoneAdminUiListMeta>;
 };
 
-
 export type KeystoneAdminMetaListArgs = {
   key: Scalars['String']['input'];
 };
@@ -406,7 +515,6 @@ export type KeystoneAdminUiFieldMeta = {
   search?: Maybe<QueryMode>;
   viewsIndex: Scalars['Int']['output'];
 };
-
 
 export type KeystoneAdminUiFieldMetaItemViewArgs = {
   id?: InputMaybe<Scalars['ID']['input']>;
@@ -580,264 +688,213 @@ export type Mutation = {
   updateUsers?: Maybe<Array<Maybe<User>>>;
 };
 
-
 export type MutationChatProjectArgs = {
   input: ChatProjectInput;
 };
-
 
 export type MutationChatTranscriptArgs = {
   input: ChatTranscriptInput;
 };
 
-
 export type MutationCreateChatArgs = {
   data: ChatCreateInput;
 };
-
 
 export type MutationCreateChatMessageArgs = {
   data: ChatMessageCreateInput;
 };
 
-
 export type MutationCreateChatMessagesArgs = {
   data: Array<ChatMessageCreateInput>;
 };
-
 
 export type MutationCreateChatsArgs = {
   data: Array<ChatCreateInput>;
 };
 
-
 export type MutationCreateOrganizationArgs = {
   data: OrganizationCreateInput;
 };
-
 
 export type MutationCreateOrganizationsArgs = {
   data: Array<OrganizationCreateInput>;
 };
 
-
 export type MutationCreateProjectArgs = {
   data: ProjectCreateInput;
 };
-
 
 export type MutationCreateProjectsArgs = {
   data: Array<ProjectCreateInput>;
 };
 
-
 export type MutationCreateSourceArgs = {
   data: SourceCreateInput;
 };
-
 
 export type MutationCreateSourcesArgs = {
   data: Array<SourceCreateInput>;
 };
 
-
 export type MutationCreateTranscriptArgs = {
   data: TranscriptCreateInput;
 };
-
 
 export type MutationCreateTranscriptSegmentArgs = {
   data: TranscriptSegmentCreateInput;
 };
 
-
 export type MutationCreateTranscriptSegmentsArgs = {
   data: Array<TranscriptSegmentCreateInput>;
 };
-
 
 export type MutationCreateTranscriptsArgs = {
   data: Array<TranscriptCreateInput>;
 };
 
-
 export type MutationCreateUserArgs = {
   data: UserCreateInput;
 };
-
 
 export type MutationCreateUsersArgs = {
   data: Array<UserCreateInput>;
 };
 
-
 export type MutationDeleteChatArgs = {
   where: ChatWhereUniqueInput;
 };
-
 
 export type MutationDeleteChatMessageArgs = {
   where: ChatMessageWhereUniqueInput;
 };
 
-
 export type MutationDeleteChatMessagesArgs = {
   where: Array<ChatMessageWhereUniqueInput>;
 };
-
 
 export type MutationDeleteChatsArgs = {
   where: Array<ChatWhereUniqueInput>;
 };
 
-
 export type MutationDeleteOrganizationArgs = {
   where: OrganizationWhereUniqueInput;
 };
-
 
 export type MutationDeleteOrganizationsArgs = {
   where: Array<OrganizationWhereUniqueInput>;
 };
 
-
 export type MutationDeleteProjectArgs = {
   where: ProjectWhereUniqueInput;
 };
-
 
 export type MutationDeleteProjectsArgs = {
   where: Array<ProjectWhereUniqueInput>;
 };
 
-
 export type MutationDeleteSourceArgs = {
   where: SourceWhereUniqueInput;
 };
-
 
 export type MutationDeleteSourcesArgs = {
   where: Array<SourceWhereUniqueInput>;
 };
 
-
 export type MutationDeleteTranscriptArgs = {
   where: TranscriptWhereUniqueInput;
 };
-
 
 export type MutationDeleteTranscriptSegmentArgs = {
   where: TranscriptSegmentWhereUniqueInput;
 };
 
-
 export type MutationDeleteTranscriptSegmentsArgs = {
   where: Array<TranscriptSegmentWhereUniqueInput>;
 };
-
 
 export type MutationDeleteTranscriptsArgs = {
   where: Array<TranscriptWhereUniqueInput>;
 };
 
-
 export type MutationDeleteUserArgs = {
   where: UserWhereUniqueInput;
 };
-
 
 export type MutationDeleteUsersArgs = {
   where: Array<UserWhereUniqueInput>;
 };
 
-
 export type MutationTriggerSourceImportArgs = {
   sourceId: Scalars['ID']['input'];
 };
-
 
 export type MutationUpdateChatArgs = {
   data: ChatUpdateInput;
   where: ChatWhereUniqueInput;
 };
 
-
 export type MutationUpdateChatMessageArgs = {
   data: ChatMessageUpdateInput;
   where: ChatMessageWhereUniqueInput;
 };
 
-
 export type MutationUpdateChatMessagesArgs = {
   data: Array<ChatMessageUpdateArgs>;
 };
 
-
 export type MutationUpdateChatsArgs = {
   data: Array<ChatUpdateArgs>;
 };
-
 
 export type MutationUpdateOrganizationArgs = {
   data: OrganizationUpdateInput;
   where: OrganizationWhereUniqueInput;
 };
 
-
 export type MutationUpdateOrganizationsArgs = {
   data: Array<OrganizationUpdateArgs>;
 };
-
 
 export type MutationUpdateProjectArgs = {
   data: ProjectUpdateInput;
   where: ProjectWhereUniqueInput;
 };
 
-
 export type MutationUpdateProjectsArgs = {
   data: Array<ProjectUpdateArgs>;
 };
-
 
 export type MutationUpdateSourceArgs = {
   data: SourceUpdateInput;
   where: SourceWhereUniqueInput;
 };
 
-
 export type MutationUpdateSourcesArgs = {
   data: Array<SourceUpdateArgs>;
 };
-
 
 export type MutationUpdateTranscriptArgs = {
   data: TranscriptUpdateInput;
   where: TranscriptWhereUniqueInput;
 };
 
-
 export type MutationUpdateTranscriptSegmentArgs = {
   data: TranscriptSegmentUpdateInput;
   where: TranscriptSegmentWhereUniqueInput;
 };
 
-
 export type MutationUpdateTranscriptSegmentsArgs = {
   data: Array<TranscriptSegmentUpdateArgs>;
 };
-
 
 export type MutationUpdateTranscriptsArgs = {
   data: Array<TranscriptUpdateArgs>;
 };
 
-
 export type MutationUpdateUserArgs = {
   data: UserUpdateInput;
   where: UserWhereUniqueInput;
 };
-
 
 export type MutationUpdateUsersArgs = {
   data: Array<UserUpdateArgs>;
@@ -879,7 +936,6 @@ export type Organization = {
   usersCount?: Maybe<Scalars['Int']['output']>;
 };
 
-
 export type OrganizationChatsArgs = {
   cursor?: InputMaybe<ChatWhereUniqueInput>;
   orderBy?: Array<ChatOrderByInput>;
@@ -888,11 +944,9 @@ export type OrganizationChatsArgs = {
   where?: ChatWhereInput;
 };
 
-
 export type OrganizationChatsCountArgs = {
   where?: ChatWhereInput;
 };
-
 
 export type OrganizationProjectsArgs = {
   cursor?: InputMaybe<ProjectWhereUniqueInput>;
@@ -902,11 +956,9 @@ export type OrganizationProjectsArgs = {
   where?: ProjectWhereInput;
 };
 
-
 export type OrganizationProjectsCountArgs = {
   where?: ProjectWhereInput;
 };
-
 
 export type OrganizationSourcesArgs = {
   cursor?: InputMaybe<SourceWhereUniqueInput>;
@@ -916,11 +968,9 @@ export type OrganizationSourcesArgs = {
   where?: SourceWhereInput;
 };
 
-
 export type OrganizationSourcesCountArgs = {
   where?: SourceWhereInput;
 };
-
 
 export type OrganizationTranscriptsArgs = {
   cursor?: InputMaybe<TranscriptWhereUniqueInput>;
@@ -930,11 +980,9 @@ export type OrganizationTranscriptsArgs = {
   where?: TranscriptWhereInput;
 };
 
-
 export type OrganizationTranscriptsCountArgs = {
   where?: TranscriptWhereInput;
 };
-
 
 export type OrganizationUsersArgs = {
   cursor?: InputMaybe<UserWhereUniqueInput>;
@@ -943,7 +991,6 @@ export type OrganizationUsersArgs = {
   take?: InputMaybe<Scalars['Int']['input']>;
   where?: UserWhereInput;
 };
-
 
 export type OrganizationUsersCountArgs = {
   where?: UserWhereInput;
@@ -1026,7 +1073,6 @@ export type Project = {
   sourcesCount?: Maybe<Scalars['Int']['output']>;
 };
 
-
 export type ProjectChatsArgs = {
   cursor?: InputMaybe<ChatWhereUniqueInput>;
   orderBy?: Array<ChatOrderByInput>;
@@ -1035,11 +1081,9 @@ export type ProjectChatsArgs = {
   where?: ChatWhereInput;
 };
 
-
 export type ProjectChatsCountArgs = {
   where?: ChatWhereInput;
 };
-
 
 export type ProjectSourcesArgs = {
   cursor?: InputMaybe<SourceWhereUniqueInput>;
@@ -1048,7 +1092,6 @@ export type ProjectSourcesArgs = {
   take?: InputMaybe<Scalars['Int']['input']>;
   where?: SourceWhereInput;
 };
-
 
 export type ProjectSourcesCountArgs = {
   where?: SourceWhereInput;
@@ -1157,16 +1200,13 @@ export type Query = {
   usersCount?: Maybe<Scalars['Int']['output']>;
 };
 
-
 export type QueryChatArgs = {
   where: ChatWhereUniqueInput;
 };
 
-
 export type QueryChatMessageArgs = {
   where: ChatMessageWhereUniqueInput;
 };
-
 
 export type QueryChatMessagesArgs = {
   cursor?: InputMaybe<ChatMessageWhereUniqueInput>;
@@ -1176,23 +1216,19 @@ export type QueryChatMessagesArgs = {
   where?: ChatMessageWhereInput;
 };
 
-
 export type QueryChatMessagesCountArgs = {
   where?: ChatMessageWhereInput;
 };
-
 
 export type QueryChatProjectHistoryArgs = {
   chatId?: InputMaybe<Scalars['ID']['input']>;
   projectId: Scalars['ID']['input'];
 };
 
-
 export type QueryChatTranscriptHistoryArgs = {
   chatId?: InputMaybe<Scalars['ID']['input']>;
   transcriptId: Scalars['ID']['input'];
 };
-
 
 export type QueryChatsArgs = {
   cursor?: InputMaybe<ChatWhereUniqueInput>;
@@ -1202,16 +1238,13 @@ export type QueryChatsArgs = {
   where?: ChatWhereInput;
 };
 
-
 export type QueryChatsCountArgs = {
   where?: ChatWhereInput;
 };
 
-
 export type QueryOrganizationArgs = {
   where: OrganizationWhereUniqueInput;
 };
-
 
 export type QueryOrganizationsArgs = {
   cursor?: InputMaybe<OrganizationWhereUniqueInput>;
@@ -1221,16 +1254,13 @@ export type QueryOrganizationsArgs = {
   where?: OrganizationWhereInput;
 };
 
-
 export type QueryOrganizationsCountArgs = {
   where?: OrganizationWhereInput;
 };
 
-
 export type QueryProjectArgs = {
   where: ProjectWhereUniqueInput;
 };
-
 
 export type QueryProjectsArgs = {
   cursor?: InputMaybe<ProjectWhereUniqueInput>;
@@ -1240,16 +1270,13 @@ export type QueryProjectsArgs = {
   where?: ProjectWhereInput;
 };
 
-
 export type QueryProjectsCountArgs = {
   where?: ProjectWhereInput;
 };
 
-
 export type QuerySourceArgs = {
   where: SourceWhereUniqueInput;
 };
-
 
 export type QuerySourcesArgs = {
   cursor?: InputMaybe<SourceWhereUniqueInput>;
@@ -1259,21 +1286,17 @@ export type QuerySourcesArgs = {
   where?: SourceWhereInput;
 };
 
-
 export type QuerySourcesCountArgs = {
   where?: SourceWhereInput;
 };
-
 
 export type QueryTranscriptArgs = {
   where: TranscriptWhereUniqueInput;
 };
 
-
 export type QueryTranscriptSegmentArgs = {
   where: TranscriptSegmentWhereUniqueInput;
 };
-
 
 export type QueryTranscriptSegmentsArgs = {
   cursor?: InputMaybe<TranscriptSegmentWhereUniqueInput>;
@@ -1283,11 +1306,9 @@ export type QueryTranscriptSegmentsArgs = {
   where?: TranscriptSegmentWhereInput;
 };
 
-
 export type QueryTranscriptSegmentsCountArgs = {
   where?: TranscriptSegmentWhereInput;
 };
-
 
 export type QueryTranscriptsArgs = {
   cursor?: InputMaybe<TranscriptWhereUniqueInput>;
@@ -1297,16 +1318,13 @@ export type QueryTranscriptsArgs = {
   where?: TranscriptWhereInput;
 };
 
-
 export type QueryTranscriptsCountArgs = {
   where?: TranscriptWhereInput;
 };
 
-
 export type QueryUserArgs = {
   where: UserWhereUniqueInput;
 };
-
 
 export type QueryUsersArgs = {
   cursor?: InputMaybe<UserWhereUniqueInput>;
@@ -1315,7 +1333,6 @@ export type QueryUsersArgs = {
   take?: InputMaybe<Scalars['Int']['input']>;
   where?: UserWhereInput;
 };
-
 
 export type QueryUsersCountArgs = {
   where?: UserWhereInput;
@@ -1360,7 +1377,6 @@ export type Source = {
   url?: Maybe<Scalars['String']['output']>;
 };
 
-
 export type SourceProjectsArgs = {
   cursor?: InputMaybe<ProjectWhereUniqueInput>;
   orderBy?: Array<ProjectOrderByInput>;
@@ -1369,11 +1385,9 @@ export type SourceProjectsArgs = {
   where?: ProjectWhereInput;
 };
 
-
 export type SourceProjectsCountArgs = {
   where?: ProjectWhereInput;
 };
-
 
 export type SourceTranscriptsArgs = {
   cursor?: InputMaybe<TranscriptWhereUniqueInput>;
@@ -1382,7 +1396,6 @@ export type SourceTranscriptsArgs = {
   take?: InputMaybe<Scalars['Int']['input']>;
   where?: TranscriptWhereInput;
 };
-
 
 export type SourceTranscriptsCountArgs = {
   where?: TranscriptWhereInput;
@@ -1556,7 +1569,6 @@ export type Transcript = {
   updatedAt?: Maybe<Scalars['DateTime']['output']>;
 };
 
-
 export type TranscriptSegmentsArgs = {
   cursor?: InputMaybe<TranscriptSegmentWhereUniqueInput>;
   orderBy?: Array<TranscriptSegmentOrderByInput>;
@@ -1564,7 +1576,6 @@ export type TranscriptSegmentsArgs = {
   take?: InputMaybe<Scalars['Int']['input']>;
   where?: TranscriptSegmentWhereInput;
 };
-
 
 export type TranscriptSegmentsCountArgs = {
   where?: TranscriptSegmentWhereInput;
@@ -1719,7 +1730,6 @@ export type TranscriptSegment = {
   transcript?: Maybe<Transcript>;
 };
 
-
 export type TranscriptSegmentChatMessagesArgs = {
   cursor?: InputMaybe<ChatMessageWhereUniqueInput>;
   orderBy?: Array<ChatMessageOrderByInput>;
@@ -1727,7 +1737,6 @@ export type TranscriptSegmentChatMessagesArgs = {
   take?: InputMaybe<Scalars['Int']['input']>;
   where?: ChatMessageWhereInput;
 };
-
 
 export type TranscriptSegmentChatMessagesCountArgs = {
   where?: ChatMessageWhereInput;
@@ -1898,7 +1907,6 @@ export type User = {
   updatedAt?: Maybe<Scalars['DateTime']['output']>;
 };
 
-
 export type UserChatsArgs = {
   cursor?: InputMaybe<ChatWhereUniqueInput>;
   orderBy?: Array<ChatOrderByInput>;
@@ -1906,7 +1914,6 @@ export type UserChatsArgs = {
   take?: InputMaybe<Scalars['Int']['input']>;
   where?: ChatWhereInput;
 };
-
 
 export type UserChatsCountArgs = {
   where?: ChatWhereInput;
@@ -2051,207 +2058,676 @@ export type UserWhereUniqueInput = {
   providerAccountId?: InputMaybe<Scalars['String']['input']>;
 };
 
-export type GetAllUsersQueryVariables = Exact<{ [key: string]: never; }>;
+export type GetAllUsersQueryVariables = Exact<{ [key: string]: never }>;
 
+export type GetAllUsersQuery = {
+  __typename?: 'Query';
+  users?: Array<{
+    __typename?: 'User';
+    id: string;
+    firstName?: string | null;
+    lastName?: string | null;
+    email?: string | null;
+    displayName?: string | null;
+    role?: UserRoleType | null;
+    avatarUrl?: string | null;
+    provisionedAt?: any | null;
+    seenAt?: any | null;
+    isActive?: boolean | null;
+  }> | null;
+};
 
-export type GetAllUsersQuery = { __typename?: 'Query', users?: Array<{ __typename?: 'User', id: string, firstName?: string | null, lastName?: string | null, email?: string | null, displayName?: string | null, role?: UserRoleType | null, avatarUrl?: string | null, provisionedAt?: any | null, seenAt?: any | null, isActive?: boolean | null }> | null };
+export type ChatConfigsQueryVariables = Exact<{ [key: string]: never }>;
+
+export type ChatConfigsQuery = {
+  __typename?: 'Query';
+  chats?: Array<{
+    __typename?: 'Chat';
+    id: string;
+    title?: string | null;
+    createdAt?: any | null;
+    config?: any | null;
+    project?: { __typename?: 'Project'; id: string; name?: string | null } | null;
+  }> | null;
+};
 
 export type ChatProjectMutationVariables = Exact<{
   input: ChatProjectInput;
 }>;
 
-
-export type ChatProjectMutation = { __typename?: 'Mutation', chatProject: { __typename?: 'ChatMutationResult', chatId: string, answer: string, messages: Array<{ __typename?: 'ChatMessageResult', id: string, role: string, content: string, createdAt?: string | null, segments: Array<{ __typename?: 'ChatSegmentReference', id: string, text: string, startMs?: number | null, endMs?: number | null, speaker?: string | null, transcriptTitle?: string | null }> }>, references: Array<{ __typename?: 'ChatSegmentReference', id: string, text: string, startMs?: number | null, endMs?: number | null, speaker?: string | null, transcriptTitle?: string | null }> } };
+export type ChatProjectMutation = {
+  __typename?: 'Mutation';
+  chatProject: {
+    __typename?: 'ChatMutationResult';
+    chatId: string;
+    answer: string;
+    messages: Array<{
+      __typename?: 'ChatMessageResult';
+      id: string;
+      role: string;
+      content: string;
+      createdAt?: string | null;
+      segments: Array<{
+        __typename?: 'ChatSegmentReference';
+        id: string;
+        text: string;
+        startMs?: number | null;
+        endMs?: number | null;
+        speaker?: string | null;
+        transcriptTitle?: string | null;
+      }>;
+      debugData?: {
+        __typename?: 'ChatMessageDebugData';
+        resolvedSystemPrompt: string;
+        userMessageWithContext: string;
+        segmentTokensUsed: number;
+        config: {
+          __typename?: 'ChatConfig';
+          systemPrompt: string;
+          openai: { __typename?: 'ChatConfigOpenAI'; model: string; temperature: number; maxOutputTokens: number };
+          context: {
+            __typename?: 'ChatConfigContext';
+            maxInputTokens: number;
+            reservedTokens: number;
+            historyTokenBudget: number;
+          };
+          segments: { __typename?: 'ChatConfigSegments'; tokenBudget: number; maxCount: number };
+        };
+        history: {
+          __typename?: 'ChatMessageDebugHistory';
+          messagesIncluded: number;
+          tokensUsed: number;
+          tokenBudget: number;
+          messages: Array<{
+            __typename?: 'ChatMessageDebugHistoryMessage';
+            role: string;
+            content: string;
+            tokens: number;
+          }>;
+        };
+        segments?: Array<{
+          __typename?: 'ChatMessageDebugSegment';
+          id: string;
+          text: string;
+          transcriptTitle?: string | null;
+          speaker?: string | null;
+          startMs?: number | null;
+          endMs?: number | null;
+          similarityScore?: number | null;
+          estimatedTokens: number;
+        }> | null;
+        openaiResponse: {
+          __typename?: 'ChatMessageDebugOpenAIResponse';
+          model: string;
+          promptTokens?: number | null;
+          completionTokens?: number | null;
+          totalTokens?: number | null;
+        };
+        timing: { __typename?: 'ChatMessageDebugTiming'; startedAt: string; completedAt: string };
+      } | null;
+    }>;
+    references: Array<{
+      __typename?: 'ChatSegmentReference';
+      id: string;
+      text: string;
+      startMs?: number | null;
+      endMs?: number | null;
+      speaker?: string | null;
+      transcriptTitle?: string | null;
+    }>;
+  };
+};
 
 export type ChatProjectHistoryQueryVariables = Exact<{
   projectId: Scalars['ID']['input'];
   chatId?: InputMaybe<Scalars['ID']['input']>;
 }>;
 
-
-export type ChatProjectHistoryQuery = { __typename?: 'Query', chatProjectHistory: { __typename?: 'ChatHistoryResult', chatId?: string | null, title?: string | null, systemPrompt?: string | null, resolvedSystemPrompt?: string | null, messages: Array<{ __typename?: 'ChatMessageResult', id: string, role: string, content: string, createdAt?: string | null, segments: Array<{ __typename?: 'ChatSegmentReference', id: string, text: string, startMs?: number | null, endMs?: number | null, speaker?: string | null, transcriptTitle?: string | null }> }> } };
-
-export type ChatSystemPromptsQueryVariables = Exact<{ [key: string]: never; }>;
-
-
-export type ChatSystemPromptsQuery = { __typename?: 'Query', chats?: Array<{ __typename?: 'Chat', id: string, systemPrompt?: string | null, title?: string | null, createdAt?: any | null, project?: { __typename?: 'Project', id: string, name?: string | null } | null }> | null };
+export type ChatProjectHistoryQuery = {
+  __typename?: 'Query';
+  chatProjectHistory: {
+    __typename?: 'ChatHistoryResult';
+    chatId?: string | null;
+    title?: string | null;
+    systemPrompt?: string | null;
+    resolvedSystemPrompt?: string | null;
+    config?: {
+      __typename?: 'ChatConfig';
+      systemPrompt: string;
+      openai: { __typename?: 'ChatConfigOpenAI'; model: string; temperature: number; maxOutputTokens: number };
+      context: {
+        __typename?: 'ChatConfigContext';
+        maxInputTokens: number;
+        reservedTokens: number;
+        historyTokenBudget: number;
+      };
+      segments: { __typename?: 'ChatConfigSegments'; tokenBudget: number; maxCount: number };
+    } | null;
+    messages: Array<{
+      __typename?: 'ChatMessageResult';
+      id: string;
+      role: string;
+      content: string;
+      createdAt?: string | null;
+      segments: Array<{
+        __typename?: 'ChatSegmentReference';
+        id: string;
+        text: string;
+        startMs?: number | null;
+        endMs?: number | null;
+        speaker?: string | null;
+        transcriptTitle?: string | null;
+      }>;
+      debugData?: {
+        __typename?: 'ChatMessageDebugData';
+        resolvedSystemPrompt: string;
+        userMessageWithContext: string;
+        segmentTokensUsed: number;
+        config: {
+          __typename?: 'ChatConfig';
+          systemPrompt: string;
+          openai: { __typename?: 'ChatConfigOpenAI'; model: string; temperature: number; maxOutputTokens: number };
+          context: {
+            __typename?: 'ChatConfigContext';
+            maxInputTokens: number;
+            reservedTokens: number;
+            historyTokenBudget: number;
+          };
+          segments: { __typename?: 'ChatConfigSegments'; tokenBudget: number; maxCount: number };
+        };
+        history: {
+          __typename?: 'ChatMessageDebugHistory';
+          messagesIncluded: number;
+          tokensUsed: number;
+          tokenBudget: number;
+          messages: Array<{
+            __typename?: 'ChatMessageDebugHistoryMessage';
+            role: string;
+            content: string;
+            tokens: number;
+          }>;
+        };
+        segments?: Array<{
+          __typename?: 'ChatMessageDebugSegment';
+          id: string;
+          text: string;
+          transcriptTitle?: string | null;
+          speaker?: string | null;
+          startMs?: number | null;
+          endMs?: number | null;
+          similarityScore?: number | null;
+          estimatedTokens: number;
+        }> | null;
+        openaiResponse: {
+          __typename?: 'ChatMessageDebugOpenAIResponse';
+          model: string;
+          promptTokens?: number | null;
+          completionTokens?: number | null;
+          totalTokens?: number | null;
+        };
+        timing: { __typename?: 'ChatMessageDebugTiming'; startedAt: string; completedAt: string };
+      } | null;
+    }>;
+  };
+};
 
 export type ChatTranscriptMutationVariables = Exact<{
   input: ChatTranscriptInput;
 }>;
 
-
-export type ChatTranscriptMutation = { __typename?: 'Mutation', chatTranscript: { __typename?: 'ChatMutationResult', chatId: string, answer: string, messages: Array<{ __typename?: 'ChatMessageResult', id: string, role: string, content: string, createdAt?: string | null, segments: Array<{ __typename?: 'ChatSegmentReference', id: string, text: string, startMs?: number | null, endMs?: number | null, speaker?: string | null, transcriptTitle?: string | null }> }>, references: Array<{ __typename?: 'ChatSegmentReference', id: string, text: string, startMs?: number | null, endMs?: number | null, speaker?: string | null, transcriptTitle?: string | null }> } };
+export type ChatTranscriptMutation = {
+  __typename?: 'Mutation';
+  chatTranscript: {
+    __typename?: 'ChatMutationResult';
+    chatId: string;
+    answer: string;
+    messages: Array<{
+      __typename?: 'ChatMessageResult';
+      id: string;
+      role: string;
+      content: string;
+      createdAt?: string | null;
+      segments: Array<{
+        __typename?: 'ChatSegmentReference';
+        id: string;
+        text: string;
+        startMs?: number | null;
+        endMs?: number | null;
+        speaker?: string | null;
+        transcriptTitle?: string | null;
+      }>;
+    }>;
+    references: Array<{
+      __typename?: 'ChatSegmentReference';
+      id: string;
+      text: string;
+      startMs?: number | null;
+      endMs?: number | null;
+      speaker?: string | null;
+      transcriptTitle?: string | null;
+    }>;
+  };
+};
 
 export type ChatTranscriptHistoryQueryVariables = Exact<{
   transcriptId: Scalars['ID']['input'];
 }>;
 
-
-export type ChatTranscriptHistoryQuery = { __typename?: 'Query', chatTranscriptHistory: { __typename?: 'ChatHistoryResult', chatId?: string | null, systemPrompt?: string | null, resolvedSystemPrompt?: string | null, messages: Array<{ __typename?: 'ChatMessageResult', id: string, role: string, content: string, createdAt?: string | null, segments: Array<{ __typename?: 'ChatSegmentReference', id: string, text: string, startMs?: number | null, endMs?: number | null, speaker?: string | null, transcriptTitle?: string | null }> }> } };
+export type ChatTranscriptHistoryQuery = {
+  __typename?: 'Query';
+  chatTranscriptHistory: {
+    __typename?: 'ChatHistoryResult';
+    chatId?: string | null;
+    systemPrompt?: string | null;
+    resolvedSystemPrompt?: string | null;
+    messages: Array<{
+      __typename?: 'ChatMessageResult';
+      id: string;
+      role: string;
+      content: string;
+      createdAt?: string | null;
+      segments: Array<{
+        __typename?: 'ChatSegmentReference';
+        id: string;
+        text: string;
+        startMs?: number | null;
+        endMs?: number | null;
+        speaker?: string | null;
+        transcriptTitle?: string | null;
+      }>;
+    }>;
+  };
+};
 
 export type CreateProjectMutationVariables = Exact<{
   data: ProjectCreateInput;
 }>;
 
-
-export type CreateProjectMutation = { __typename?: 'Mutation', createProject?: { __typename?: 'Project', id: string } | null };
+export type CreateProjectMutation = {
+  __typename?: 'Mutation';
+  createProject?: { __typename?: 'Project'; id: string } | null;
+};
 
 export type CreateSourceMutationVariables = Exact<{
   data: SourceCreateInput;
 }>;
 
-
-export type CreateSourceMutation = { __typename?: 'Mutation', createSource?: { __typename?: 'Source', id: string } | null };
+export type CreateSourceMutation = {
+  __typename?: 'Mutation';
+  createSource?: { __typename?: 'Source'; id: string } | null;
+};
 
 export type CreateUserMutationVariables = Exact<{
   data: UserCreateInput;
 }>;
 
-
-export type CreateUserMutation = { __typename?: 'Mutation', createUser?: { __typename?: 'User', id: string, email?: string | null, role?: UserRoleType | null, isActive?: boolean | null } | null };
+export type CreateUserMutation = {
+  __typename?: 'Mutation';
+  createUser?: {
+    __typename?: 'User';
+    id: string;
+    email?: string | null;
+    role?: UserRoleType | null;
+    isActive?: boolean | null;
+  } | null;
+};
 
 export type DeleteProjectMutationVariables = Exact<{
   id: Scalars['ID']['input'];
 }>;
 
-
-export type DeleteProjectMutation = { __typename?: 'Mutation', deleteProject?: { __typename?: 'Project', id: string } | null };
+export type DeleteProjectMutation = {
+  __typename?: 'Mutation';
+  deleteProject?: { __typename?: 'Project'; id: string } | null;
+};
 
 export type DeleteSourceMutationVariables = Exact<{
   id: Scalars['ID']['input'];
 }>;
 
-
-export type DeleteSourceMutation = { __typename?: 'Mutation', deleteSource?: { __typename?: 'Source', id: string } | null };
+export type DeleteSourceMutation = {
+  __typename?: 'Mutation';
+  deleteSource?: { __typename?: 'Source'; id: string } | null;
+};
 
 export type TriggerSourceImportMutationVariables = Exact<{
   sourceId: Scalars['ID']['input'];
 }>;
 
+export type TriggerSourceImportMutation = {
+  __typename?: 'Mutation';
+  triggerSourceImport: {
+    __typename?: 'Source';
+    id: string;
+    importStatus?: SourceImportStatusType | null;
+    importStartedAt?: any | null;
+    importCompletedAt?: any | null;
+  };
+};
 
-export type TriggerSourceImportMutation = { __typename?: 'Mutation', triggerSourceImport: { __typename?: 'Source', id: string, importStatus?: SourceImportStatusType | null, importStartedAt?: any | null, importCompletedAt?: any | null } };
+export type OrganizationsQueryVariables = Exact<{ [key: string]: never }>;
 
-export type OrganizationsQueryVariables = Exact<{ [key: string]: never; }>;
-
-
-export type OrganizationsQuery = { __typename?: 'Query', organizations?: Array<{ __typename?: 'Organization', id: string, name?: string | null, autojoinDomains?: any | null }> | null };
+export type OrganizationsQuery = {
+  __typename?: 'Query';
+  organizations?: Array<{
+    __typename?: 'Organization';
+    id: string;
+    name?: string | null;
+    autojoinDomains?: any | null;
+  }> | null;
+};
 
 export type ProjectQueryVariables = Exact<{
   id: Scalars['ID']['input'];
 }>;
 
-
-export type ProjectQuery = { __typename?: 'Query', project?: { __typename?: 'Project', id: string, name?: string | null, description?: string | null, org?: { __typename?: 'Organization', id: string, name?: string | null } | null, sources?: Array<{ __typename?: 'Source', id: string, name?: string | null }> | null } | null };
+export type ProjectQuery = {
+  __typename?: 'Query';
+  project?: {
+    __typename?: 'Project';
+    id: string;
+    name?: string | null;
+    description?: string | null;
+    org?: { __typename?: 'Organization'; id: string; name?: string | null } | null;
+    sources?: Array<{ __typename?: 'Source'; id: string; name?: string | null }> | null;
+  } | null;
+};
 
 export type ProjectChatsQueryVariables = Exact<{
   projectId: Scalars['ID']['input'];
 }>;
 
-
-export type ProjectChatsQuery = { __typename?: 'Query', chats?: Array<{ __typename?: 'Chat', id: string, title?: string | null, createdAt?: any | null }> | null };
+export type ProjectChatsQuery = {
+  __typename?: 'Query';
+  chats?: Array<{ __typename?: 'Chat'; id: string; title?: string | null; createdAt?: any | null }> | null;
+};
 
 export type ProjectDetailQueryVariables = Exact<{
   projectId: Scalars['ID']['input'];
 }>;
 
-
-export type ProjectDetailQuery = { __typename?: 'Query', project?: { __typename?: 'Project', id: string, name?: string | null, description?: string | null, org?: { __typename?: 'Organization', id: string, name?: string | null } | null, sources?: Array<{ __typename?: 'Source', id: string, name?: string | null, type?: SourceTypeType | null, importStatus?: SourceImportStatusType | null, transcriptsCount?: number | null }> | null } | null };
+export type ProjectDetailQuery = {
+  __typename?: 'Query';
+  project?: {
+    __typename?: 'Project';
+    id: string;
+    name?: string | null;
+    description?: string | null;
+    org?: { __typename?: 'Organization'; id: string; name?: string | null } | null;
+    sources?: Array<{
+      __typename?: 'Source';
+      id: string;
+      name?: string | null;
+      type?: SourceTypeType | null;
+      importStatus?: SourceImportStatusType | null;
+      transcriptsCount?: number | null;
+    }> | null;
+  } | null;
+};
 
 export type ProjectTranscriptsQueryVariables = Exact<{
   projectId: Scalars['ID']['input'];
 }>;
 
+export type ProjectTranscriptsQuery = {
+  __typename?: 'Query';
+  project?: {
+    __typename?: 'Project';
+    id: string;
+    sources?: Array<{
+      __typename?: 'Source';
+      id: string;
+      name?: string | null;
+      transcripts?: Array<{
+        __typename?: 'Transcript';
+        id: string;
+        title?: string | null;
+        intervieweeName?: string | null;
+        createdAt?: any | null;
+      }> | null;
+    }> | null;
+  } | null;
+};
 
-export type ProjectTranscriptsQuery = { __typename?: 'Query', project?: { __typename?: 'Project', id: string, sources?: Array<{ __typename?: 'Source', id: string, name?: string | null, transcripts?: Array<{ __typename?: 'Transcript', id: string, title?: string | null, intervieweeName?: string | null, createdAt?: any | null }> | null }> | null } | null };
+export type ProjectsQueryVariables = Exact<{ [key: string]: never }>;
 
-export type ProjectsQueryVariables = Exact<{ [key: string]: never; }>;
-
-
-export type ProjectsQuery = { __typename?: 'Query', projects?: Array<{ __typename?: 'Project', id: string, name?: string | null, description?: string | null, sourcesCount?: number | null, org?: { __typename?: 'Organization', id: string, name?: string | null } | null }> | null };
+export type ProjectsQuery = {
+  __typename?: 'Query';
+  projects?: Array<{
+    __typename?: 'Project';
+    id: string;
+    name?: string | null;
+    description?: string | null;
+    sourcesCount?: number | null;
+    org?: { __typename?: 'Organization'; id: string; name?: string | null } | null;
+  }> | null;
+};
 
 export type SourceQueryVariables = Exact<{
   id: Scalars['ID']['input'];
 }>;
 
+export type SourceQuery = {
+  __typename?: 'Query';
+  source?: {
+    __typename?: 'Source';
+    id: string;
+    type?: SourceTypeType | null;
+    name?: string | null;
+    url?: string | null;
+    externalId?: string | null;
+    importStatus?: SourceImportStatusType | null;
+    importCronExpression?: string | null;
+    importStartedAt?: any | null;
+    importCompletedAt?: any | null;
+    importHistory?: any | null;
+    transcriptsCount?: number | null;
+    transcriptImportProgress?: {
+      __typename?: 'TranscriptImportProgress';
+      total: number;
+      pending: number;
+      fetching: number;
+      completed: number;
+      failed: number;
+      skipped: number;
+      pendingPercentage: number;
+      fetchingPercentage: number;
+      completedPercentage: number;
+      failedPercentage: number;
+      skippedPercentage: number;
+    } | null;
+    transcriptEmbeddingProgress?: {
+      __typename?: 'TranscriptEmbeddingProgress';
+      total: number;
+      pending: number;
+      processing: number;
+      completed: number;
+      failed: number;
+      pendingPercentage: number;
+      processingPercentage: number;
+      completedPercentage: number;
+      failedPercentage: number;
+    } | null;
+    overallProgress?: {
+      __typename?: 'OverallProgress';
+      importCompletedPercentage: number;
+      embeddingCompletedPercentage: number;
+      overallPercentage: number;
+    } | null;
+    transcripts?: Array<{
+      __typename?: 'Transcript';
+      id: string;
+      title?: string | null;
+      intervieweeName?: string | null;
+      createdAt?: any | null;
+      segmentsCount?: number | null;
+    }> | null;
+    projects?: Array<{ __typename?: 'Project'; id: string; name?: string | null }> | null;
+  } | null;
+};
 
-export type SourceQuery = { __typename?: 'Query', source?: { __typename?: 'Source', id: string, type?: SourceTypeType | null, name?: string | null, url?: string | null, externalId?: string | null, importStatus?: SourceImportStatusType | null, importCronExpression?: string | null, importStartedAt?: any | null, importCompletedAt?: any | null, importHistory?: any | null, transcriptsCount?: number | null, transcriptImportProgress?: { __typename?: 'TranscriptImportProgress', total: number, pending: number, fetching: number, completed: number, failed: number, skipped: number, pendingPercentage: number, fetchingPercentage: number, completedPercentage: number, failedPercentage: number, skippedPercentage: number } | null, transcriptEmbeddingProgress?: { __typename?: 'TranscriptEmbeddingProgress', total: number, pending: number, processing: number, completed: number, failed: number, pendingPercentage: number, processingPercentage: number, completedPercentage: number, failedPercentage: number } | null, overallProgress?: { __typename?: 'OverallProgress', importCompletedPercentage: number, embeddingCompletedPercentage: number, overallPercentage: number } | null, transcripts?: Array<{ __typename?: 'Transcript', id: string, title?: string | null, intervieweeName?: string | null, createdAt?: any | null, segmentsCount?: number | null }> | null, projects?: Array<{ __typename?: 'Project', id: string, name?: string | null }> | null } | null };
+export type SourcesQueryVariables = Exact<{ [key: string]: never }>;
 
-export type SourcesQueryVariables = Exact<{ [key: string]: never; }>;
-
-
-export type SourcesQuery = { __typename?: 'Query', sources?: Array<{ __typename?: 'Source', id: string, type?: SourceTypeType | null, name?: string | null, url?: string | null, externalId?: string | null, importStatus?: SourceImportStatusType | null, importCronExpression?: string | null, importStartedAt?: any | null, importCompletedAt?: any | null, transcriptsCount?: number | null, overallProgress?: { __typename?: 'OverallProgress', importCompletedPercentage: number, embeddingCompletedPercentage: number, overallPercentage: number } | null, projects?: Array<{ __typename?: 'Project', id: string, name?: string | null }> | null }> | null };
+export type SourcesQuery = {
+  __typename?: 'Query';
+  sources?: Array<{
+    __typename?: 'Source';
+    id: string;
+    type?: SourceTypeType | null;
+    name?: string | null;
+    url?: string | null;
+    externalId?: string | null;
+    importStatus?: SourceImportStatusType | null;
+    importCronExpression?: string | null;
+    importStartedAt?: any | null;
+    importCompletedAt?: any | null;
+    transcriptsCount?: number | null;
+    overallProgress?: {
+      __typename?: 'OverallProgress';
+      importCompletedPercentage: number;
+      embeddingCompletedPercentage: number;
+      overallPercentage: number;
+    } | null;
+    projects?: Array<{ __typename?: 'Project'; id: string; name?: string | null }> | null;
+  }> | null;
+};
 
 export type TranscriptQueryVariables = Exact<{
   id: Scalars['ID']['input'];
 }>;
 
-
-export type TranscriptQuery = { __typename?: 'Query', transcript?: { __typename?: 'Transcript', id: string, title?: string | null, intervieweeName?: string | null, notes?: string | null, createdAt?: any | null, segmentEmbeddingProgress?: { __typename?: 'SegmentEmbeddingProgress', total: number, embedded: number, notEmbedded: number, embeddedPercentage: number, notEmbeddedPercentage: number } | null, segments?: Array<{ __typename?: 'TranscriptSegment', id: string, text?: string | null, speaker?: string | null, startMs?: number | null, endMs?: number | null, durationMs?: number | null }> | null } | null };
+export type TranscriptQuery = {
+  __typename?: 'Query';
+  transcript?: {
+    __typename?: 'Transcript';
+    id: string;
+    title?: string | null;
+    intervieweeName?: string | null;
+    notes?: string | null;
+    createdAt?: any | null;
+    segmentEmbeddingProgress?: {
+      __typename?: 'SegmentEmbeddingProgress';
+      total: number;
+      embedded: number;
+      notEmbedded: number;
+      embeddedPercentage: number;
+      notEmbeddedPercentage: number;
+    } | null;
+    segments?: Array<{
+      __typename?: 'TranscriptSegment';
+      id: string;
+      text?: string | null;
+      speaker?: string | null;
+      startMs?: number | null;
+      endMs?: number | null;
+      durationMs?: number | null;
+    }> | null;
+  } | null;
+};
 
 export type TranscriptsQueryVariables = Exact<{
   sourceId?: InputMaybe<Scalars['ID']['input']>;
 }>;
 
-
-export type TranscriptsQuery = { __typename?: 'Query', transcripts?: Array<{ __typename?: 'Transcript', id: string, title?: string | null, intervieweeName?: string | null, notes?: string | null, createdAt?: any | null, segmentsCount?: number | null, importStatus?: TranscriptImportStatusType | null, embeddingStatus?: TranscriptEmbeddingStatusType | null, segmentEmbeddingProgress?: { __typename?: 'SegmentEmbeddingProgress', total: number, embedded: number, notEmbedded: number, embeddedPercentage: number, notEmbeddedPercentage: number } | null, source?: { __typename?: 'Source', id: string, name?: string | null } | null }> | null };
+export type TranscriptsQuery = {
+  __typename?: 'Query';
+  transcripts?: Array<{
+    __typename?: 'Transcript';
+    id: string;
+    title?: string | null;
+    intervieweeName?: string | null;
+    notes?: string | null;
+    createdAt?: any | null;
+    segmentsCount?: number | null;
+    importStatus?: TranscriptImportStatusType | null;
+    embeddingStatus?: TranscriptEmbeddingStatusType | null;
+    segmentEmbeddingProgress?: {
+      __typename?: 'SegmentEmbeddingProgress';
+      total: number;
+      embedded: number;
+      notEmbedded: number;
+      embeddedPercentage: number;
+      notEmbeddedPercentage: number;
+    } | null;
+    source?: { __typename?: 'Source'; id: string; name?: string | null } | null;
+  }> | null;
+};
 
 export type UpdateChatMutationVariables = Exact<{
   id: Scalars['ID']['input'];
   data: ChatUpdateInput;
 }>;
 
-
-export type UpdateChatMutation = { __typename?: 'Mutation', updateChat?: { __typename?: 'Chat', id: string, title?: string | null } | null };
+export type UpdateChatMutation = {
+  __typename?: 'Mutation';
+  updateChat?: { __typename?: 'Chat'; id: string; title?: string | null } | null;
+};
 
 export type UpdateProjectMutationVariables = Exact<{
   id: Scalars['ID']['input'];
   data: ProjectUpdateInput;
 }>;
 
-
-export type UpdateProjectMutation = { __typename?: 'Mutation', updateProject?: { __typename?: 'Project', id: string } | null };
+export type UpdateProjectMutation = {
+  __typename?: 'Mutation';
+  updateProject?: { __typename?: 'Project'; id: string } | null;
+};
 
 export type UpdateSourceMutationVariables = Exact<{
   id: Scalars['ID']['input'];
   data: SourceUpdateInput;
 }>;
 
-
-export type UpdateSourceMutation = { __typename?: 'Mutation', updateSource?: { __typename?: 'Source', id: string } | null };
+export type UpdateSourceMutation = {
+  __typename?: 'Mutation';
+  updateSource?: { __typename?: 'Source'; id: string } | null;
+};
 
 export type GetUserQueryVariables = Exact<{
   id: Scalars['ID']['input'];
 }>;
 
-
-export type GetUserQuery = { __typename?: 'Query', user?: { __typename?: 'User', id: string, isActive?: boolean | null, avatarUrl?: string | null, email?: string | null, firstName?: string | null, lastName?: string | null, displayName?: string | null, role?: UserRoleType | null } | null };
+export type GetUserQuery = {
+  __typename?: 'Query';
+  user?: {
+    __typename?: 'User';
+    id: string;
+    isActive?: boolean | null;
+    avatarUrl?: string | null;
+    email?: string | null;
+    firstName?: string | null;
+    lastName?: string | null;
+    displayName?: string | null;
+    role?: UserRoleType | null;
+  } | null;
+};
 
 export type UpdateUserMutationVariables = Exact<{
   id: Scalars['ID']['input'];
   data: UserUpdateInput;
 }>;
 
-
-export type UpdateUserMutation = { __typename?: 'Mutation', updateUser?: { __typename?: 'User', id: string, role?: UserRoleType | null, isActive?: boolean | null } | null };
-
+export type UpdateUserMutation = {
+  __typename?: 'Mutation';
+  updateUser?: { __typename?: 'User'; id: string; role?: UserRoleType | null; isActive?: boolean | null } | null;
+};
 
 export const GetAllUsersDocument = gql`
-    query GetAllUsers {
-  users {
-    id
-    firstName
-    lastName
-    email
-    displayName
-    role
-    avatarUrl
-    provisionedAt
-    seenAt
-    isActive
+  query GetAllUsers {
+    users {
+      id
+      firstName
+      lastName
+      email
+      displayName
+      role
+      avatarUrl
+      provisionedAt
+      seenAt
+      isActive
+    }
   }
-}
-    `;
+`;
 
 /**
  * __useGetAllUsersQuery__
@@ -2268,33 +2744,152 @@ export const GetAllUsersDocument = gql`
  *   },
  * });
  */
-export function useGetAllUsersQuery(baseOptions?: Apollo.QueryHookOptions<GetAllUsersQuery, GetAllUsersQueryVariables>) {
-        const options = {...defaultOptions, ...baseOptions}
-        return Apollo.useQuery<GetAllUsersQuery, GetAllUsersQueryVariables>(GetAllUsersDocument, options);
-      }
-export function useGetAllUsersLazyQuery(baseOptions?: Apollo.LazyQueryHookOptions<GetAllUsersQuery, GetAllUsersQueryVariables>) {
-          const options = {...defaultOptions, ...baseOptions}
-          return Apollo.useLazyQuery<GetAllUsersQuery, GetAllUsersQueryVariables>(GetAllUsersDocument, options);
-        }
-export function useGetAllUsersSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<GetAllUsersQuery, GetAllUsersQueryVariables>) {
-          const options = baseOptions === Apollo.skipToken ? baseOptions : {...defaultOptions, ...baseOptions}
-          return Apollo.useSuspenseQuery<GetAllUsersQuery, GetAllUsersQueryVariables>(GetAllUsersDocument, options);
-        }
+export function useGetAllUsersQuery(
+  baseOptions?: Apollo.QueryHookOptions<GetAllUsersQuery, GetAllUsersQueryVariables>
+) {
+  const options = { ...defaultOptions, ...baseOptions };
+  return Apollo.useQuery<GetAllUsersQuery, GetAllUsersQueryVariables>(GetAllUsersDocument, options);
+}
+export function useGetAllUsersLazyQuery(
+  baseOptions?: Apollo.LazyQueryHookOptions<GetAllUsersQuery, GetAllUsersQueryVariables>
+) {
+  const options = { ...defaultOptions, ...baseOptions };
+  return Apollo.useLazyQuery<GetAllUsersQuery, GetAllUsersQueryVariables>(GetAllUsersDocument, options);
+}
+export function useGetAllUsersSuspenseQuery(
+  baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<GetAllUsersQuery, GetAllUsersQueryVariables>
+) {
+  const options = baseOptions === Apollo.skipToken ? baseOptions : { ...defaultOptions, ...baseOptions };
+  return Apollo.useSuspenseQuery<GetAllUsersQuery, GetAllUsersQueryVariables>(GetAllUsersDocument, options);
+}
 export type GetAllUsersQueryHookResult = ReturnType<typeof useGetAllUsersQuery>;
 export type GetAllUsersLazyQueryHookResult = ReturnType<typeof useGetAllUsersLazyQuery>;
 export type GetAllUsersSuspenseQueryHookResult = ReturnType<typeof useGetAllUsersSuspenseQuery>;
 export type GetAllUsersQueryResult = Apollo.QueryResult<GetAllUsersQuery, GetAllUsersQueryVariables>;
-export const ChatProjectDocument = gql`
-    mutation ChatProject($input: ChatProjectInput!) {
-  chatProject(input: $input) {
-    chatId
-    answer
-    messages {
+export const ChatConfigsDocument = gql`
+  query ChatConfigs {
+    chats(orderBy: { createdAt: desc }) {
       id
-      role
-      content
+      title
       createdAt
-      segments {
+      project {
+        id
+        name
+      }
+      config
+    }
+  }
+`;
+
+/**
+ * __useChatConfigsQuery__
+ *
+ * To run a query within a React component, call `useChatConfigsQuery` and pass it any options that fit your needs.
+ * When your component renders, `useChatConfigsQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * you can use to render your UI.
+ *
+ * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ *
+ * @example
+ * const { data, loading, error } = useChatConfigsQuery({
+ *   variables: {
+ *   },
+ * });
+ */
+export function useChatConfigsQuery(
+  baseOptions?: Apollo.QueryHookOptions<ChatConfigsQuery, ChatConfigsQueryVariables>
+) {
+  const options = { ...defaultOptions, ...baseOptions };
+  return Apollo.useQuery<ChatConfigsQuery, ChatConfigsQueryVariables>(ChatConfigsDocument, options);
+}
+export function useChatConfigsLazyQuery(
+  baseOptions?: Apollo.LazyQueryHookOptions<ChatConfigsQuery, ChatConfigsQueryVariables>
+) {
+  const options = { ...defaultOptions, ...baseOptions };
+  return Apollo.useLazyQuery<ChatConfigsQuery, ChatConfigsQueryVariables>(ChatConfigsDocument, options);
+}
+export function useChatConfigsSuspenseQuery(
+  baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<ChatConfigsQuery, ChatConfigsQueryVariables>
+) {
+  const options = baseOptions === Apollo.skipToken ? baseOptions : { ...defaultOptions, ...baseOptions };
+  return Apollo.useSuspenseQuery<ChatConfigsQuery, ChatConfigsQueryVariables>(ChatConfigsDocument, options);
+}
+export type ChatConfigsQueryHookResult = ReturnType<typeof useChatConfigsQuery>;
+export type ChatConfigsLazyQueryHookResult = ReturnType<typeof useChatConfigsLazyQuery>;
+export type ChatConfigsSuspenseQueryHookResult = ReturnType<typeof useChatConfigsSuspenseQuery>;
+export type ChatConfigsQueryResult = Apollo.QueryResult<ChatConfigsQuery, ChatConfigsQueryVariables>;
+export const ChatProjectDocument = gql`
+  mutation ChatProject($input: ChatProjectInput!) {
+    chatProject(input: $input) {
+      chatId
+      answer
+      messages {
+        id
+        role
+        content
+        createdAt
+        segments {
+          id
+          text
+          startMs
+          endMs
+          speaker
+          transcriptTitle
+        }
+        debugData {
+          config {
+            systemPrompt
+            openai {
+              model
+              temperature
+              maxOutputTokens
+            }
+            context {
+              maxInputTokens
+              reservedTokens
+              historyTokenBudget
+            }
+            segments {
+              tokenBudget
+              maxCount
+            }
+          }
+          resolvedSystemPrompt
+          userMessageWithContext
+          history {
+            messagesIncluded
+            tokensUsed
+            tokenBudget
+            messages {
+              role
+              content
+              tokens
+            }
+          }
+          segments {
+            id
+            text
+            transcriptTitle
+            speaker
+            startMs
+            endMs
+            similarityScore
+            estimatedTokens
+          }
+          segmentTokensUsed
+          openaiResponse {
+            model
+            promptTokens
+            completionTokens
+            totalTokens
+          }
+          timing {
+            startedAt
+            completedAt
+          }
+        }
+      }
+      references {
         id
         text
         startMs
@@ -2303,17 +2898,8 @@ export const ChatProjectDocument = gql`
         transcriptTitle
       }
     }
-    references {
-      id
-      text
-      startMs
-      endMs
-      speaker
-      transcriptTitle
-    }
   }
-}
-    `;
+`;
 export type ChatProjectMutationFn = Apollo.MutationFunction<ChatProjectMutation, ChatProjectMutationVariables>;
 
 /**
@@ -2333,37 +2919,108 @@ export type ChatProjectMutationFn = Apollo.MutationFunction<ChatProjectMutation,
  *   },
  * });
  */
-export function useChatProjectMutation(baseOptions?: Apollo.MutationHookOptions<ChatProjectMutation, ChatProjectMutationVariables>) {
-        const options = {...defaultOptions, ...baseOptions}
-        return Apollo.useMutation<ChatProjectMutation, ChatProjectMutationVariables>(ChatProjectDocument, options);
-      }
+export function useChatProjectMutation(
+  baseOptions?: Apollo.MutationHookOptions<ChatProjectMutation, ChatProjectMutationVariables>
+) {
+  const options = { ...defaultOptions, ...baseOptions };
+  return Apollo.useMutation<ChatProjectMutation, ChatProjectMutationVariables>(ChatProjectDocument, options);
+}
 export type ChatProjectMutationHookResult = ReturnType<typeof useChatProjectMutation>;
 export type ChatProjectMutationResult = Apollo.MutationResult<ChatProjectMutation>;
 export type ChatProjectMutationOptions = Apollo.BaseMutationOptions<ChatProjectMutation, ChatProjectMutationVariables>;
 export const ChatProjectHistoryDocument = gql`
-    query ChatProjectHistory($projectId: ID!, $chatId: ID) {
-  chatProjectHistory(projectId: $projectId, chatId: $chatId) {
-    chatId
-    title
-    systemPrompt
-    resolvedSystemPrompt
-    messages {
-      id
-      role
-      content
-      createdAt
-      segments {
+  query ChatProjectHistory($projectId: ID!, $chatId: ID) {
+    chatProjectHistory(projectId: $projectId, chatId: $chatId) {
+      chatId
+      title
+      systemPrompt
+      resolvedSystemPrompt
+      config {
+        systemPrompt
+        openai {
+          model
+          temperature
+          maxOutputTokens
+        }
+        context {
+          maxInputTokens
+          reservedTokens
+          historyTokenBudget
+        }
+        segments {
+          tokenBudget
+          maxCount
+        }
+      }
+      messages {
         id
-        text
-        startMs
-        endMs
-        speaker
-        transcriptTitle
+        role
+        content
+        createdAt
+        segments {
+          id
+          text
+          startMs
+          endMs
+          speaker
+          transcriptTitle
+        }
+        debugData {
+          config {
+            systemPrompt
+            openai {
+              model
+              temperature
+              maxOutputTokens
+            }
+            context {
+              maxInputTokens
+              reservedTokens
+              historyTokenBudget
+            }
+            segments {
+              tokenBudget
+              maxCount
+            }
+          }
+          resolvedSystemPrompt
+          userMessageWithContext
+          history {
+            messagesIncluded
+            tokensUsed
+            tokenBudget
+            messages {
+              role
+              content
+              tokens
+            }
+          }
+          segments {
+            id
+            text
+            transcriptTitle
+            speaker
+            startMs
+            endMs
+            similarityScore
+            estimatedTokens
+          }
+          segmentTokensUsed
+          openaiResponse {
+            model
+            promptTokens
+            completionTokens
+            totalTokens
+          }
+          timing {
+            startedAt
+            completedAt
+          }
+        }
       }
     }
   }
-}
-    `;
+`;
 
 /**
  * __useChatProjectHistoryQuery__
@@ -2382,79 +3039,63 @@ export const ChatProjectHistoryDocument = gql`
  *   },
  * });
  */
-export function useChatProjectHistoryQuery(baseOptions: Apollo.QueryHookOptions<ChatProjectHistoryQuery, ChatProjectHistoryQueryVariables> & ({ variables: ChatProjectHistoryQueryVariables; skip?: boolean; } | { skip: boolean; }) ) {
-        const options = {...defaultOptions, ...baseOptions}
-        return Apollo.useQuery<ChatProjectHistoryQuery, ChatProjectHistoryQueryVariables>(ChatProjectHistoryDocument, options);
-      }
-export function useChatProjectHistoryLazyQuery(baseOptions?: Apollo.LazyQueryHookOptions<ChatProjectHistoryQuery, ChatProjectHistoryQueryVariables>) {
-          const options = {...defaultOptions, ...baseOptions}
-          return Apollo.useLazyQuery<ChatProjectHistoryQuery, ChatProjectHistoryQueryVariables>(ChatProjectHistoryDocument, options);
-        }
-export function useChatProjectHistorySuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<ChatProjectHistoryQuery, ChatProjectHistoryQueryVariables>) {
-          const options = baseOptions === Apollo.skipToken ? baseOptions : {...defaultOptions, ...baseOptions}
-          return Apollo.useSuspenseQuery<ChatProjectHistoryQuery, ChatProjectHistoryQueryVariables>(ChatProjectHistoryDocument, options);
-        }
+export function useChatProjectHistoryQuery(
+  baseOptions: Apollo.QueryHookOptions<ChatProjectHistoryQuery, ChatProjectHistoryQueryVariables> &
+    ({ variables: ChatProjectHistoryQueryVariables; skip?: boolean } | { skip: boolean })
+) {
+  const options = { ...defaultOptions, ...baseOptions };
+  return Apollo.useQuery<ChatProjectHistoryQuery, ChatProjectHistoryQueryVariables>(
+    ChatProjectHistoryDocument,
+    options
+  );
+}
+export function useChatProjectHistoryLazyQuery(
+  baseOptions?: Apollo.LazyQueryHookOptions<ChatProjectHistoryQuery, ChatProjectHistoryQueryVariables>
+) {
+  const options = { ...defaultOptions, ...baseOptions };
+  return Apollo.useLazyQuery<ChatProjectHistoryQuery, ChatProjectHistoryQueryVariables>(
+    ChatProjectHistoryDocument,
+    options
+  );
+}
+export function useChatProjectHistorySuspenseQuery(
+  baseOptions?:
+    | Apollo.SkipToken
+    | Apollo.SuspenseQueryHookOptions<ChatProjectHistoryQuery, ChatProjectHistoryQueryVariables>
+) {
+  const options = baseOptions === Apollo.skipToken ? baseOptions : { ...defaultOptions, ...baseOptions };
+  return Apollo.useSuspenseQuery<ChatProjectHistoryQuery, ChatProjectHistoryQueryVariables>(
+    ChatProjectHistoryDocument,
+    options
+  );
+}
 export type ChatProjectHistoryQueryHookResult = ReturnType<typeof useChatProjectHistoryQuery>;
 export type ChatProjectHistoryLazyQueryHookResult = ReturnType<typeof useChatProjectHistoryLazyQuery>;
 export type ChatProjectHistorySuspenseQueryHookResult = ReturnType<typeof useChatProjectHistorySuspenseQuery>;
-export type ChatProjectHistoryQueryResult = Apollo.QueryResult<ChatProjectHistoryQuery, ChatProjectHistoryQueryVariables>;
-export const ChatSystemPromptsDocument = gql`
-    query ChatSystemPrompts {
-  chats(where: {systemPrompt: {not: {equals: ""}}}, orderBy: {createdAt: desc}) {
-    id
-    systemPrompt
-    title
-    createdAt
-    project {
-      id
-      name
-    }
-  }
-}
-    `;
-
-/**
- * __useChatSystemPromptsQuery__
- *
- * To run a query within a React component, call `useChatSystemPromptsQuery` and pass it any options that fit your needs.
- * When your component renders, `useChatSystemPromptsQuery` returns an object from Apollo Client that contains loading, error, and data properties
- * you can use to render your UI.
- *
- * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
- *
- * @example
- * const { data, loading, error } = useChatSystemPromptsQuery({
- *   variables: {
- *   },
- * });
- */
-export function useChatSystemPromptsQuery(baseOptions?: Apollo.QueryHookOptions<ChatSystemPromptsQuery, ChatSystemPromptsQueryVariables>) {
-        const options = {...defaultOptions, ...baseOptions}
-        return Apollo.useQuery<ChatSystemPromptsQuery, ChatSystemPromptsQueryVariables>(ChatSystemPromptsDocument, options);
-      }
-export function useChatSystemPromptsLazyQuery(baseOptions?: Apollo.LazyQueryHookOptions<ChatSystemPromptsQuery, ChatSystemPromptsQueryVariables>) {
-          const options = {...defaultOptions, ...baseOptions}
-          return Apollo.useLazyQuery<ChatSystemPromptsQuery, ChatSystemPromptsQueryVariables>(ChatSystemPromptsDocument, options);
-        }
-export function useChatSystemPromptsSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<ChatSystemPromptsQuery, ChatSystemPromptsQueryVariables>) {
-          const options = baseOptions === Apollo.skipToken ? baseOptions : {...defaultOptions, ...baseOptions}
-          return Apollo.useSuspenseQuery<ChatSystemPromptsQuery, ChatSystemPromptsQueryVariables>(ChatSystemPromptsDocument, options);
-        }
-export type ChatSystemPromptsQueryHookResult = ReturnType<typeof useChatSystemPromptsQuery>;
-export type ChatSystemPromptsLazyQueryHookResult = ReturnType<typeof useChatSystemPromptsLazyQuery>;
-export type ChatSystemPromptsSuspenseQueryHookResult = ReturnType<typeof useChatSystemPromptsSuspenseQuery>;
-export type ChatSystemPromptsQueryResult = Apollo.QueryResult<ChatSystemPromptsQuery, ChatSystemPromptsQueryVariables>;
+export type ChatProjectHistoryQueryResult = Apollo.QueryResult<
+  ChatProjectHistoryQuery,
+  ChatProjectHistoryQueryVariables
+>;
 export const ChatTranscriptDocument = gql`
-    mutation ChatTranscript($input: ChatTranscriptInput!) {
-  chatTranscript(input: $input) {
-    chatId
-    answer
-    messages {
-      id
-      role
-      content
-      createdAt
-      segments {
+  mutation ChatTranscript($input: ChatTranscriptInput!) {
+    chatTranscript(input: $input) {
+      chatId
+      answer
+      messages {
+        id
+        role
+        content
+        createdAt
+        segments {
+          id
+          text
+          startMs
+          endMs
+          speaker
+          transcriptTitle
+        }
+      }
+      references {
         id
         text
         startMs
@@ -2463,17 +3104,8 @@ export const ChatTranscriptDocument = gql`
         transcriptTitle
       }
     }
-    references {
-      id
-      text
-      startMs
-      endMs
-      speaker
-      transcriptTitle
-    }
   }
-}
-    `;
+`;
 export type ChatTranscriptMutationFn = Apollo.MutationFunction<ChatTranscriptMutation, ChatTranscriptMutationVariables>;
 
 /**
@@ -2493,36 +3125,41 @@ export type ChatTranscriptMutationFn = Apollo.MutationFunction<ChatTranscriptMut
  *   },
  * });
  */
-export function useChatTranscriptMutation(baseOptions?: Apollo.MutationHookOptions<ChatTranscriptMutation, ChatTranscriptMutationVariables>) {
-        const options = {...defaultOptions, ...baseOptions}
-        return Apollo.useMutation<ChatTranscriptMutation, ChatTranscriptMutationVariables>(ChatTranscriptDocument, options);
-      }
+export function useChatTranscriptMutation(
+  baseOptions?: Apollo.MutationHookOptions<ChatTranscriptMutation, ChatTranscriptMutationVariables>
+) {
+  const options = { ...defaultOptions, ...baseOptions };
+  return Apollo.useMutation<ChatTranscriptMutation, ChatTranscriptMutationVariables>(ChatTranscriptDocument, options);
+}
 export type ChatTranscriptMutationHookResult = ReturnType<typeof useChatTranscriptMutation>;
 export type ChatTranscriptMutationResult = Apollo.MutationResult<ChatTranscriptMutation>;
-export type ChatTranscriptMutationOptions = Apollo.BaseMutationOptions<ChatTranscriptMutation, ChatTranscriptMutationVariables>;
+export type ChatTranscriptMutationOptions = Apollo.BaseMutationOptions<
+  ChatTranscriptMutation,
+  ChatTranscriptMutationVariables
+>;
 export const ChatTranscriptHistoryDocument = gql`
-    query ChatTranscriptHistory($transcriptId: ID!) {
-  chatTranscriptHistory(transcriptId: $transcriptId) {
-    chatId
-    systemPrompt
-    resolvedSystemPrompt
-    messages {
-      id
-      role
-      content
-      createdAt
-      segments {
+  query ChatTranscriptHistory($transcriptId: ID!) {
+    chatTranscriptHistory(transcriptId: $transcriptId) {
+      chatId
+      systemPrompt
+      resolvedSystemPrompt
+      messages {
         id
-        text
-        startMs
-        endMs
-        speaker
-        transcriptTitle
+        role
+        content
+        createdAt
+        segments {
+          id
+          text
+          startMs
+          endMs
+          speaker
+          transcriptTitle
+        }
       }
     }
   }
-}
-    `;
+`;
 
 /**
  * __useChatTranscriptHistoryQuery__
@@ -2540,29 +3177,50 @@ export const ChatTranscriptHistoryDocument = gql`
  *   },
  * });
  */
-export function useChatTranscriptHistoryQuery(baseOptions: Apollo.QueryHookOptions<ChatTranscriptHistoryQuery, ChatTranscriptHistoryQueryVariables> & ({ variables: ChatTranscriptHistoryQueryVariables; skip?: boolean; } | { skip: boolean; }) ) {
-        const options = {...defaultOptions, ...baseOptions}
-        return Apollo.useQuery<ChatTranscriptHistoryQuery, ChatTranscriptHistoryQueryVariables>(ChatTranscriptHistoryDocument, options);
-      }
-export function useChatTranscriptHistoryLazyQuery(baseOptions?: Apollo.LazyQueryHookOptions<ChatTranscriptHistoryQuery, ChatTranscriptHistoryQueryVariables>) {
-          const options = {...defaultOptions, ...baseOptions}
-          return Apollo.useLazyQuery<ChatTranscriptHistoryQuery, ChatTranscriptHistoryQueryVariables>(ChatTranscriptHistoryDocument, options);
-        }
-export function useChatTranscriptHistorySuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<ChatTranscriptHistoryQuery, ChatTranscriptHistoryQueryVariables>) {
-          const options = baseOptions === Apollo.skipToken ? baseOptions : {...defaultOptions, ...baseOptions}
-          return Apollo.useSuspenseQuery<ChatTranscriptHistoryQuery, ChatTranscriptHistoryQueryVariables>(ChatTranscriptHistoryDocument, options);
-        }
+export function useChatTranscriptHistoryQuery(
+  baseOptions: Apollo.QueryHookOptions<ChatTranscriptHistoryQuery, ChatTranscriptHistoryQueryVariables> &
+    ({ variables: ChatTranscriptHistoryQueryVariables; skip?: boolean } | { skip: boolean })
+) {
+  const options = { ...defaultOptions, ...baseOptions };
+  return Apollo.useQuery<ChatTranscriptHistoryQuery, ChatTranscriptHistoryQueryVariables>(
+    ChatTranscriptHistoryDocument,
+    options
+  );
+}
+export function useChatTranscriptHistoryLazyQuery(
+  baseOptions?: Apollo.LazyQueryHookOptions<ChatTranscriptHistoryQuery, ChatTranscriptHistoryQueryVariables>
+) {
+  const options = { ...defaultOptions, ...baseOptions };
+  return Apollo.useLazyQuery<ChatTranscriptHistoryQuery, ChatTranscriptHistoryQueryVariables>(
+    ChatTranscriptHistoryDocument,
+    options
+  );
+}
+export function useChatTranscriptHistorySuspenseQuery(
+  baseOptions?:
+    | Apollo.SkipToken
+    | Apollo.SuspenseQueryHookOptions<ChatTranscriptHistoryQuery, ChatTranscriptHistoryQueryVariables>
+) {
+  const options = baseOptions === Apollo.skipToken ? baseOptions : { ...defaultOptions, ...baseOptions };
+  return Apollo.useSuspenseQuery<ChatTranscriptHistoryQuery, ChatTranscriptHistoryQueryVariables>(
+    ChatTranscriptHistoryDocument,
+    options
+  );
+}
 export type ChatTranscriptHistoryQueryHookResult = ReturnType<typeof useChatTranscriptHistoryQuery>;
 export type ChatTranscriptHistoryLazyQueryHookResult = ReturnType<typeof useChatTranscriptHistoryLazyQuery>;
 export type ChatTranscriptHistorySuspenseQueryHookResult = ReturnType<typeof useChatTranscriptHistorySuspenseQuery>;
-export type ChatTranscriptHistoryQueryResult = Apollo.QueryResult<ChatTranscriptHistoryQuery, ChatTranscriptHistoryQueryVariables>;
+export type ChatTranscriptHistoryQueryResult = Apollo.QueryResult<
+  ChatTranscriptHistoryQuery,
+  ChatTranscriptHistoryQueryVariables
+>;
 export const CreateProjectDocument = gql`
-    mutation CreateProject($data: ProjectCreateInput!) {
-  createProject(data: $data) {
-    id
+  mutation CreateProject($data: ProjectCreateInput!) {
+    createProject(data: $data) {
+      id
+    }
   }
-}
-    `;
+`;
 export type CreateProjectMutationFn = Apollo.MutationFunction<CreateProjectMutation, CreateProjectMutationVariables>;
 
 /**
@@ -2582,20 +3240,25 @@ export type CreateProjectMutationFn = Apollo.MutationFunction<CreateProjectMutat
  *   },
  * });
  */
-export function useCreateProjectMutation(baseOptions?: Apollo.MutationHookOptions<CreateProjectMutation, CreateProjectMutationVariables>) {
-        const options = {...defaultOptions, ...baseOptions}
-        return Apollo.useMutation<CreateProjectMutation, CreateProjectMutationVariables>(CreateProjectDocument, options);
-      }
+export function useCreateProjectMutation(
+  baseOptions?: Apollo.MutationHookOptions<CreateProjectMutation, CreateProjectMutationVariables>
+) {
+  const options = { ...defaultOptions, ...baseOptions };
+  return Apollo.useMutation<CreateProjectMutation, CreateProjectMutationVariables>(CreateProjectDocument, options);
+}
 export type CreateProjectMutationHookResult = ReturnType<typeof useCreateProjectMutation>;
 export type CreateProjectMutationResult = Apollo.MutationResult<CreateProjectMutation>;
-export type CreateProjectMutationOptions = Apollo.BaseMutationOptions<CreateProjectMutation, CreateProjectMutationVariables>;
+export type CreateProjectMutationOptions = Apollo.BaseMutationOptions<
+  CreateProjectMutation,
+  CreateProjectMutationVariables
+>;
 export const CreateSourceDocument = gql`
-    mutation CreateSource($data: SourceCreateInput!) {
-  createSource(data: $data) {
-    id
+  mutation CreateSource($data: SourceCreateInput!) {
+    createSource(data: $data) {
+      id
+    }
   }
-}
-    `;
+`;
 export type CreateSourceMutationFn = Apollo.MutationFunction<CreateSourceMutation, CreateSourceMutationVariables>;
 
 /**
@@ -2615,23 +3278,28 @@ export type CreateSourceMutationFn = Apollo.MutationFunction<CreateSourceMutatio
  *   },
  * });
  */
-export function useCreateSourceMutation(baseOptions?: Apollo.MutationHookOptions<CreateSourceMutation, CreateSourceMutationVariables>) {
-        const options = {...defaultOptions, ...baseOptions}
-        return Apollo.useMutation<CreateSourceMutation, CreateSourceMutationVariables>(CreateSourceDocument, options);
-      }
+export function useCreateSourceMutation(
+  baseOptions?: Apollo.MutationHookOptions<CreateSourceMutation, CreateSourceMutationVariables>
+) {
+  const options = { ...defaultOptions, ...baseOptions };
+  return Apollo.useMutation<CreateSourceMutation, CreateSourceMutationVariables>(CreateSourceDocument, options);
+}
 export type CreateSourceMutationHookResult = ReturnType<typeof useCreateSourceMutation>;
 export type CreateSourceMutationResult = Apollo.MutationResult<CreateSourceMutation>;
-export type CreateSourceMutationOptions = Apollo.BaseMutationOptions<CreateSourceMutation, CreateSourceMutationVariables>;
+export type CreateSourceMutationOptions = Apollo.BaseMutationOptions<
+  CreateSourceMutation,
+  CreateSourceMutationVariables
+>;
 export const CreateUserDocument = gql`
-    mutation CreateUser($data: UserCreateInput!) {
-  createUser(data: $data) {
-    id
-    email
-    role
-    isActive
+  mutation CreateUser($data: UserCreateInput!) {
+    createUser(data: $data) {
+      id
+      email
+      role
+      isActive
+    }
   }
-}
-    `;
+`;
 export type CreateUserMutationFn = Apollo.MutationFunction<CreateUserMutation, CreateUserMutationVariables>;
 
 /**
@@ -2651,20 +3319,22 @@ export type CreateUserMutationFn = Apollo.MutationFunction<CreateUserMutation, C
  *   },
  * });
  */
-export function useCreateUserMutation(baseOptions?: Apollo.MutationHookOptions<CreateUserMutation, CreateUserMutationVariables>) {
-        const options = {...defaultOptions, ...baseOptions}
-        return Apollo.useMutation<CreateUserMutation, CreateUserMutationVariables>(CreateUserDocument, options);
-      }
+export function useCreateUserMutation(
+  baseOptions?: Apollo.MutationHookOptions<CreateUserMutation, CreateUserMutationVariables>
+) {
+  const options = { ...defaultOptions, ...baseOptions };
+  return Apollo.useMutation<CreateUserMutation, CreateUserMutationVariables>(CreateUserDocument, options);
+}
 export type CreateUserMutationHookResult = ReturnType<typeof useCreateUserMutation>;
 export type CreateUserMutationResult = Apollo.MutationResult<CreateUserMutation>;
 export type CreateUserMutationOptions = Apollo.BaseMutationOptions<CreateUserMutation, CreateUserMutationVariables>;
 export const DeleteProjectDocument = gql`
-    mutation DeleteProject($id: ID!) {
-  deleteProject(where: {id: $id}) {
-    id
+  mutation DeleteProject($id: ID!) {
+    deleteProject(where: { id: $id }) {
+      id
+    }
   }
-}
-    `;
+`;
 export type DeleteProjectMutationFn = Apollo.MutationFunction<DeleteProjectMutation, DeleteProjectMutationVariables>;
 
 /**
@@ -2684,20 +3354,25 @@ export type DeleteProjectMutationFn = Apollo.MutationFunction<DeleteProjectMutat
  *   },
  * });
  */
-export function useDeleteProjectMutation(baseOptions?: Apollo.MutationHookOptions<DeleteProjectMutation, DeleteProjectMutationVariables>) {
-        const options = {...defaultOptions, ...baseOptions}
-        return Apollo.useMutation<DeleteProjectMutation, DeleteProjectMutationVariables>(DeleteProjectDocument, options);
-      }
+export function useDeleteProjectMutation(
+  baseOptions?: Apollo.MutationHookOptions<DeleteProjectMutation, DeleteProjectMutationVariables>
+) {
+  const options = { ...defaultOptions, ...baseOptions };
+  return Apollo.useMutation<DeleteProjectMutation, DeleteProjectMutationVariables>(DeleteProjectDocument, options);
+}
 export type DeleteProjectMutationHookResult = ReturnType<typeof useDeleteProjectMutation>;
 export type DeleteProjectMutationResult = Apollo.MutationResult<DeleteProjectMutation>;
-export type DeleteProjectMutationOptions = Apollo.BaseMutationOptions<DeleteProjectMutation, DeleteProjectMutationVariables>;
+export type DeleteProjectMutationOptions = Apollo.BaseMutationOptions<
+  DeleteProjectMutation,
+  DeleteProjectMutationVariables
+>;
 export const DeleteSourceDocument = gql`
-    mutation DeleteSource($id: ID!) {
-  deleteSource(where: {id: $id}) {
-    id
+  mutation DeleteSource($id: ID!) {
+    deleteSource(where: { id: $id }) {
+      id
+    }
   }
-}
-    `;
+`;
 export type DeleteSourceMutationFn = Apollo.MutationFunction<DeleteSourceMutation, DeleteSourceMutationVariables>;
 
 /**
@@ -2717,24 +3392,32 @@ export type DeleteSourceMutationFn = Apollo.MutationFunction<DeleteSourceMutatio
  *   },
  * });
  */
-export function useDeleteSourceMutation(baseOptions?: Apollo.MutationHookOptions<DeleteSourceMutation, DeleteSourceMutationVariables>) {
-        const options = {...defaultOptions, ...baseOptions}
-        return Apollo.useMutation<DeleteSourceMutation, DeleteSourceMutationVariables>(DeleteSourceDocument, options);
-      }
+export function useDeleteSourceMutation(
+  baseOptions?: Apollo.MutationHookOptions<DeleteSourceMutation, DeleteSourceMutationVariables>
+) {
+  const options = { ...defaultOptions, ...baseOptions };
+  return Apollo.useMutation<DeleteSourceMutation, DeleteSourceMutationVariables>(DeleteSourceDocument, options);
+}
 export type DeleteSourceMutationHookResult = ReturnType<typeof useDeleteSourceMutation>;
 export type DeleteSourceMutationResult = Apollo.MutationResult<DeleteSourceMutation>;
-export type DeleteSourceMutationOptions = Apollo.BaseMutationOptions<DeleteSourceMutation, DeleteSourceMutationVariables>;
+export type DeleteSourceMutationOptions = Apollo.BaseMutationOptions<
+  DeleteSourceMutation,
+  DeleteSourceMutationVariables
+>;
 export const TriggerSourceImportDocument = gql`
-    mutation TriggerSourceImport($sourceId: ID!) {
-  triggerSourceImport(sourceId: $sourceId) {
-    id
-    importStatus
-    importStartedAt
-    importCompletedAt
+  mutation TriggerSourceImport($sourceId: ID!) {
+    triggerSourceImport(sourceId: $sourceId) {
+      id
+      importStatus
+      importStartedAt
+      importCompletedAt
+    }
   }
-}
-    `;
-export type TriggerSourceImportMutationFn = Apollo.MutationFunction<TriggerSourceImportMutation, TriggerSourceImportMutationVariables>;
+`;
+export type TriggerSourceImportMutationFn = Apollo.MutationFunction<
+  TriggerSourceImportMutation,
+  TriggerSourceImportMutationVariables
+>;
 
 /**
  * __useTriggerSourceImportMutation__
@@ -2753,22 +3436,30 @@ export type TriggerSourceImportMutationFn = Apollo.MutationFunction<TriggerSourc
  *   },
  * });
  */
-export function useTriggerSourceImportMutation(baseOptions?: Apollo.MutationHookOptions<TriggerSourceImportMutation, TriggerSourceImportMutationVariables>) {
-        const options = {...defaultOptions, ...baseOptions}
-        return Apollo.useMutation<TriggerSourceImportMutation, TriggerSourceImportMutationVariables>(TriggerSourceImportDocument, options);
-      }
+export function useTriggerSourceImportMutation(
+  baseOptions?: Apollo.MutationHookOptions<TriggerSourceImportMutation, TriggerSourceImportMutationVariables>
+) {
+  const options = { ...defaultOptions, ...baseOptions };
+  return Apollo.useMutation<TriggerSourceImportMutation, TriggerSourceImportMutationVariables>(
+    TriggerSourceImportDocument,
+    options
+  );
+}
 export type TriggerSourceImportMutationHookResult = ReturnType<typeof useTriggerSourceImportMutation>;
 export type TriggerSourceImportMutationResult = Apollo.MutationResult<TriggerSourceImportMutation>;
-export type TriggerSourceImportMutationOptions = Apollo.BaseMutationOptions<TriggerSourceImportMutation, TriggerSourceImportMutationVariables>;
+export type TriggerSourceImportMutationOptions = Apollo.BaseMutationOptions<
+  TriggerSourceImportMutation,
+  TriggerSourceImportMutationVariables
+>;
 export const OrganizationsDocument = gql`
-    query Organizations {
-  organizations {
-    id
-    name
-    autojoinDomains
+  query Organizations {
+    organizations {
+      id
+      name
+      autojoinDomains
+    }
   }
-}
-    `;
+`;
 
 /**
  * __useOrganizationsQuery__
@@ -2785,39 +3476,45 @@ export const OrganizationsDocument = gql`
  *   },
  * });
  */
-export function useOrganizationsQuery(baseOptions?: Apollo.QueryHookOptions<OrganizationsQuery, OrganizationsQueryVariables>) {
-        const options = {...defaultOptions, ...baseOptions}
-        return Apollo.useQuery<OrganizationsQuery, OrganizationsQueryVariables>(OrganizationsDocument, options);
-      }
-export function useOrganizationsLazyQuery(baseOptions?: Apollo.LazyQueryHookOptions<OrganizationsQuery, OrganizationsQueryVariables>) {
-          const options = {...defaultOptions, ...baseOptions}
-          return Apollo.useLazyQuery<OrganizationsQuery, OrganizationsQueryVariables>(OrganizationsDocument, options);
-        }
-export function useOrganizationsSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<OrganizationsQuery, OrganizationsQueryVariables>) {
-          const options = baseOptions === Apollo.skipToken ? baseOptions : {...defaultOptions, ...baseOptions}
-          return Apollo.useSuspenseQuery<OrganizationsQuery, OrganizationsQueryVariables>(OrganizationsDocument, options);
-        }
+export function useOrganizationsQuery(
+  baseOptions?: Apollo.QueryHookOptions<OrganizationsQuery, OrganizationsQueryVariables>
+) {
+  const options = { ...defaultOptions, ...baseOptions };
+  return Apollo.useQuery<OrganizationsQuery, OrganizationsQueryVariables>(OrganizationsDocument, options);
+}
+export function useOrganizationsLazyQuery(
+  baseOptions?: Apollo.LazyQueryHookOptions<OrganizationsQuery, OrganizationsQueryVariables>
+) {
+  const options = { ...defaultOptions, ...baseOptions };
+  return Apollo.useLazyQuery<OrganizationsQuery, OrganizationsQueryVariables>(OrganizationsDocument, options);
+}
+export function useOrganizationsSuspenseQuery(
+  baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<OrganizationsQuery, OrganizationsQueryVariables>
+) {
+  const options = baseOptions === Apollo.skipToken ? baseOptions : { ...defaultOptions, ...baseOptions };
+  return Apollo.useSuspenseQuery<OrganizationsQuery, OrganizationsQueryVariables>(OrganizationsDocument, options);
+}
 export type OrganizationsQueryHookResult = ReturnType<typeof useOrganizationsQuery>;
 export type OrganizationsLazyQueryHookResult = ReturnType<typeof useOrganizationsLazyQuery>;
 export type OrganizationsSuspenseQueryHookResult = ReturnType<typeof useOrganizationsSuspenseQuery>;
 export type OrganizationsQueryResult = Apollo.QueryResult<OrganizationsQuery, OrganizationsQueryVariables>;
 export const ProjectDocument = gql`
-    query Project($id: ID!) {
-  project(where: {id: $id}) {
-    id
-    name
-    description
-    org {
+  query Project($id: ID!) {
+    project(where: { id: $id }) {
       id
       name
-    }
-    sources {
-      id
-      name
+      description
+      org {
+        id
+        name
+      }
+      sources {
+        id
+        name
+      }
     }
   }
-}
-    `;
+`;
 
 /**
  * __useProjectQuery__
@@ -2835,31 +3532,36 @@ export const ProjectDocument = gql`
  *   },
  * });
  */
-export function useProjectQuery(baseOptions: Apollo.QueryHookOptions<ProjectQuery, ProjectQueryVariables> & ({ variables: ProjectQueryVariables; skip?: boolean; } | { skip: boolean; }) ) {
-        const options = {...defaultOptions, ...baseOptions}
-        return Apollo.useQuery<ProjectQuery, ProjectQueryVariables>(ProjectDocument, options);
-      }
+export function useProjectQuery(
+  baseOptions: Apollo.QueryHookOptions<ProjectQuery, ProjectQueryVariables> &
+    ({ variables: ProjectQueryVariables; skip?: boolean } | { skip: boolean })
+) {
+  const options = { ...defaultOptions, ...baseOptions };
+  return Apollo.useQuery<ProjectQuery, ProjectQueryVariables>(ProjectDocument, options);
+}
 export function useProjectLazyQuery(baseOptions?: Apollo.LazyQueryHookOptions<ProjectQuery, ProjectQueryVariables>) {
-          const options = {...defaultOptions, ...baseOptions}
-          return Apollo.useLazyQuery<ProjectQuery, ProjectQueryVariables>(ProjectDocument, options);
-        }
-export function useProjectSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<ProjectQuery, ProjectQueryVariables>) {
-          const options = baseOptions === Apollo.skipToken ? baseOptions : {...defaultOptions, ...baseOptions}
-          return Apollo.useSuspenseQuery<ProjectQuery, ProjectQueryVariables>(ProjectDocument, options);
-        }
+  const options = { ...defaultOptions, ...baseOptions };
+  return Apollo.useLazyQuery<ProjectQuery, ProjectQueryVariables>(ProjectDocument, options);
+}
+export function useProjectSuspenseQuery(
+  baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<ProjectQuery, ProjectQueryVariables>
+) {
+  const options = baseOptions === Apollo.skipToken ? baseOptions : { ...defaultOptions, ...baseOptions };
+  return Apollo.useSuspenseQuery<ProjectQuery, ProjectQueryVariables>(ProjectDocument, options);
+}
 export type ProjectQueryHookResult = ReturnType<typeof useProjectQuery>;
 export type ProjectLazyQueryHookResult = ReturnType<typeof useProjectLazyQuery>;
 export type ProjectSuspenseQueryHookResult = ReturnType<typeof useProjectSuspenseQuery>;
 export type ProjectQueryResult = Apollo.QueryResult<ProjectQuery, ProjectQueryVariables>;
 export const ProjectChatsDocument = gql`
-    query ProjectChats($projectId: ID!) {
-  chats(where: {project: {id: {equals: $projectId}}}, orderBy: {createdAt: desc}) {
-    id
-    title
-    createdAt
+  query ProjectChats($projectId: ID!) {
+    chats(where: { project: { id: { equals: $projectId } } }, orderBy: { createdAt: desc }) {
+      id
+      title
+      createdAt
+    }
   }
-}
-    `;
+`;
 
 /**
  * __useProjectChatsQuery__
@@ -2877,42 +3579,49 @@ export const ProjectChatsDocument = gql`
  *   },
  * });
  */
-export function useProjectChatsQuery(baseOptions: Apollo.QueryHookOptions<ProjectChatsQuery, ProjectChatsQueryVariables> & ({ variables: ProjectChatsQueryVariables; skip?: boolean; } | { skip: boolean; }) ) {
-        const options = {...defaultOptions, ...baseOptions}
-        return Apollo.useQuery<ProjectChatsQuery, ProjectChatsQueryVariables>(ProjectChatsDocument, options);
-      }
-export function useProjectChatsLazyQuery(baseOptions?: Apollo.LazyQueryHookOptions<ProjectChatsQuery, ProjectChatsQueryVariables>) {
-          const options = {...defaultOptions, ...baseOptions}
-          return Apollo.useLazyQuery<ProjectChatsQuery, ProjectChatsQueryVariables>(ProjectChatsDocument, options);
-        }
-export function useProjectChatsSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<ProjectChatsQuery, ProjectChatsQueryVariables>) {
-          const options = baseOptions === Apollo.skipToken ? baseOptions : {...defaultOptions, ...baseOptions}
-          return Apollo.useSuspenseQuery<ProjectChatsQuery, ProjectChatsQueryVariables>(ProjectChatsDocument, options);
-        }
+export function useProjectChatsQuery(
+  baseOptions: Apollo.QueryHookOptions<ProjectChatsQuery, ProjectChatsQueryVariables> &
+    ({ variables: ProjectChatsQueryVariables; skip?: boolean } | { skip: boolean })
+) {
+  const options = { ...defaultOptions, ...baseOptions };
+  return Apollo.useQuery<ProjectChatsQuery, ProjectChatsQueryVariables>(ProjectChatsDocument, options);
+}
+export function useProjectChatsLazyQuery(
+  baseOptions?: Apollo.LazyQueryHookOptions<ProjectChatsQuery, ProjectChatsQueryVariables>
+) {
+  const options = { ...defaultOptions, ...baseOptions };
+  return Apollo.useLazyQuery<ProjectChatsQuery, ProjectChatsQueryVariables>(ProjectChatsDocument, options);
+}
+export function useProjectChatsSuspenseQuery(
+  baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<ProjectChatsQuery, ProjectChatsQueryVariables>
+) {
+  const options = baseOptions === Apollo.skipToken ? baseOptions : { ...defaultOptions, ...baseOptions };
+  return Apollo.useSuspenseQuery<ProjectChatsQuery, ProjectChatsQueryVariables>(ProjectChatsDocument, options);
+}
 export type ProjectChatsQueryHookResult = ReturnType<typeof useProjectChatsQuery>;
 export type ProjectChatsLazyQueryHookResult = ReturnType<typeof useProjectChatsLazyQuery>;
 export type ProjectChatsSuspenseQueryHookResult = ReturnType<typeof useProjectChatsSuspenseQuery>;
 export type ProjectChatsQueryResult = Apollo.QueryResult<ProjectChatsQuery, ProjectChatsQueryVariables>;
 export const ProjectDetailDocument = gql`
-    query ProjectDetail($projectId: ID!) {
-  project(where: {id: $projectId}) {
-    id
-    name
-    description
-    org {
+  query ProjectDetail($projectId: ID!) {
+    project(where: { id: $projectId }) {
       id
       name
-    }
-    sources {
-      id
-      name
-      type
-      importStatus
-      transcriptsCount
+      description
+      org {
+        id
+        name
+      }
+      sources {
+        id
+        name
+        type
+        importStatus
+        transcriptsCount
+      }
     }
   }
-}
-    `;
+`;
 
 /**
  * __useProjectDetailQuery__
@@ -2930,39 +3639,46 @@ export const ProjectDetailDocument = gql`
  *   },
  * });
  */
-export function useProjectDetailQuery(baseOptions: Apollo.QueryHookOptions<ProjectDetailQuery, ProjectDetailQueryVariables> & ({ variables: ProjectDetailQueryVariables; skip?: boolean; } | { skip: boolean; }) ) {
-        const options = {...defaultOptions, ...baseOptions}
-        return Apollo.useQuery<ProjectDetailQuery, ProjectDetailQueryVariables>(ProjectDetailDocument, options);
-      }
-export function useProjectDetailLazyQuery(baseOptions?: Apollo.LazyQueryHookOptions<ProjectDetailQuery, ProjectDetailQueryVariables>) {
-          const options = {...defaultOptions, ...baseOptions}
-          return Apollo.useLazyQuery<ProjectDetailQuery, ProjectDetailQueryVariables>(ProjectDetailDocument, options);
-        }
-export function useProjectDetailSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<ProjectDetailQuery, ProjectDetailQueryVariables>) {
-          const options = baseOptions === Apollo.skipToken ? baseOptions : {...defaultOptions, ...baseOptions}
-          return Apollo.useSuspenseQuery<ProjectDetailQuery, ProjectDetailQueryVariables>(ProjectDetailDocument, options);
-        }
+export function useProjectDetailQuery(
+  baseOptions: Apollo.QueryHookOptions<ProjectDetailQuery, ProjectDetailQueryVariables> &
+    ({ variables: ProjectDetailQueryVariables; skip?: boolean } | { skip: boolean })
+) {
+  const options = { ...defaultOptions, ...baseOptions };
+  return Apollo.useQuery<ProjectDetailQuery, ProjectDetailQueryVariables>(ProjectDetailDocument, options);
+}
+export function useProjectDetailLazyQuery(
+  baseOptions?: Apollo.LazyQueryHookOptions<ProjectDetailQuery, ProjectDetailQueryVariables>
+) {
+  const options = { ...defaultOptions, ...baseOptions };
+  return Apollo.useLazyQuery<ProjectDetailQuery, ProjectDetailQueryVariables>(ProjectDetailDocument, options);
+}
+export function useProjectDetailSuspenseQuery(
+  baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<ProjectDetailQuery, ProjectDetailQueryVariables>
+) {
+  const options = baseOptions === Apollo.skipToken ? baseOptions : { ...defaultOptions, ...baseOptions };
+  return Apollo.useSuspenseQuery<ProjectDetailQuery, ProjectDetailQueryVariables>(ProjectDetailDocument, options);
+}
 export type ProjectDetailQueryHookResult = ReturnType<typeof useProjectDetailQuery>;
 export type ProjectDetailLazyQueryHookResult = ReturnType<typeof useProjectDetailLazyQuery>;
 export type ProjectDetailSuspenseQueryHookResult = ReturnType<typeof useProjectDetailSuspenseQuery>;
 export type ProjectDetailQueryResult = Apollo.QueryResult<ProjectDetailQuery, ProjectDetailQueryVariables>;
 export const ProjectTranscriptsDocument = gql`
-    query ProjectTranscripts($projectId: ID!) {
-  project(where: {id: $projectId}) {
-    id
-    sources {
+  query ProjectTranscripts($projectId: ID!) {
+    project(where: { id: $projectId }) {
       id
-      name
-      transcripts {
+      sources {
         id
-        title
-        intervieweeName
-        createdAt
+        name
+        transcripts {
+          id
+          title
+          intervieweeName
+          createdAt
+        }
       }
     }
   }
-}
-    `;
+`;
 
 /**
  * __useProjectTranscriptsQuery__
@@ -2980,36 +3696,57 @@ export const ProjectTranscriptsDocument = gql`
  *   },
  * });
  */
-export function useProjectTranscriptsQuery(baseOptions: Apollo.QueryHookOptions<ProjectTranscriptsQuery, ProjectTranscriptsQueryVariables> & ({ variables: ProjectTranscriptsQueryVariables; skip?: boolean; } | { skip: boolean; }) ) {
-        const options = {...defaultOptions, ...baseOptions}
-        return Apollo.useQuery<ProjectTranscriptsQuery, ProjectTranscriptsQueryVariables>(ProjectTranscriptsDocument, options);
-      }
-export function useProjectTranscriptsLazyQuery(baseOptions?: Apollo.LazyQueryHookOptions<ProjectTranscriptsQuery, ProjectTranscriptsQueryVariables>) {
-          const options = {...defaultOptions, ...baseOptions}
-          return Apollo.useLazyQuery<ProjectTranscriptsQuery, ProjectTranscriptsQueryVariables>(ProjectTranscriptsDocument, options);
-        }
-export function useProjectTranscriptsSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<ProjectTranscriptsQuery, ProjectTranscriptsQueryVariables>) {
-          const options = baseOptions === Apollo.skipToken ? baseOptions : {...defaultOptions, ...baseOptions}
-          return Apollo.useSuspenseQuery<ProjectTranscriptsQuery, ProjectTranscriptsQueryVariables>(ProjectTranscriptsDocument, options);
-        }
+export function useProjectTranscriptsQuery(
+  baseOptions: Apollo.QueryHookOptions<ProjectTranscriptsQuery, ProjectTranscriptsQueryVariables> &
+    ({ variables: ProjectTranscriptsQueryVariables; skip?: boolean } | { skip: boolean })
+) {
+  const options = { ...defaultOptions, ...baseOptions };
+  return Apollo.useQuery<ProjectTranscriptsQuery, ProjectTranscriptsQueryVariables>(
+    ProjectTranscriptsDocument,
+    options
+  );
+}
+export function useProjectTranscriptsLazyQuery(
+  baseOptions?: Apollo.LazyQueryHookOptions<ProjectTranscriptsQuery, ProjectTranscriptsQueryVariables>
+) {
+  const options = { ...defaultOptions, ...baseOptions };
+  return Apollo.useLazyQuery<ProjectTranscriptsQuery, ProjectTranscriptsQueryVariables>(
+    ProjectTranscriptsDocument,
+    options
+  );
+}
+export function useProjectTranscriptsSuspenseQuery(
+  baseOptions?:
+    | Apollo.SkipToken
+    | Apollo.SuspenseQueryHookOptions<ProjectTranscriptsQuery, ProjectTranscriptsQueryVariables>
+) {
+  const options = baseOptions === Apollo.skipToken ? baseOptions : { ...defaultOptions, ...baseOptions };
+  return Apollo.useSuspenseQuery<ProjectTranscriptsQuery, ProjectTranscriptsQueryVariables>(
+    ProjectTranscriptsDocument,
+    options
+  );
+}
 export type ProjectTranscriptsQueryHookResult = ReturnType<typeof useProjectTranscriptsQuery>;
 export type ProjectTranscriptsLazyQueryHookResult = ReturnType<typeof useProjectTranscriptsLazyQuery>;
 export type ProjectTranscriptsSuspenseQueryHookResult = ReturnType<typeof useProjectTranscriptsSuspenseQuery>;
-export type ProjectTranscriptsQueryResult = Apollo.QueryResult<ProjectTranscriptsQuery, ProjectTranscriptsQueryVariables>;
+export type ProjectTranscriptsQueryResult = Apollo.QueryResult<
+  ProjectTranscriptsQuery,
+  ProjectTranscriptsQueryVariables
+>;
 export const ProjectsDocument = gql`
-    query Projects {
-  projects {
-    id
-    name
-    description
-    sourcesCount
-    org {
+  query Projects {
+    projects {
       id
       name
+      description
+      sourcesCount
+      org {
+        id
+        name
+      }
     }
   }
-}
-    `;
+`;
 
 /**
  * __useProjectsQuery__
@@ -3027,78 +3764,80 @@ export const ProjectsDocument = gql`
  * });
  */
 export function useProjectsQuery(baseOptions?: Apollo.QueryHookOptions<ProjectsQuery, ProjectsQueryVariables>) {
-        const options = {...defaultOptions, ...baseOptions}
-        return Apollo.useQuery<ProjectsQuery, ProjectsQueryVariables>(ProjectsDocument, options);
-      }
+  const options = { ...defaultOptions, ...baseOptions };
+  return Apollo.useQuery<ProjectsQuery, ProjectsQueryVariables>(ProjectsDocument, options);
+}
 export function useProjectsLazyQuery(baseOptions?: Apollo.LazyQueryHookOptions<ProjectsQuery, ProjectsQueryVariables>) {
-          const options = {...defaultOptions, ...baseOptions}
-          return Apollo.useLazyQuery<ProjectsQuery, ProjectsQueryVariables>(ProjectsDocument, options);
-        }
-export function useProjectsSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<ProjectsQuery, ProjectsQueryVariables>) {
-          const options = baseOptions === Apollo.skipToken ? baseOptions : {...defaultOptions, ...baseOptions}
-          return Apollo.useSuspenseQuery<ProjectsQuery, ProjectsQueryVariables>(ProjectsDocument, options);
-        }
+  const options = { ...defaultOptions, ...baseOptions };
+  return Apollo.useLazyQuery<ProjectsQuery, ProjectsQueryVariables>(ProjectsDocument, options);
+}
+export function useProjectsSuspenseQuery(
+  baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<ProjectsQuery, ProjectsQueryVariables>
+) {
+  const options = baseOptions === Apollo.skipToken ? baseOptions : { ...defaultOptions, ...baseOptions };
+  return Apollo.useSuspenseQuery<ProjectsQuery, ProjectsQueryVariables>(ProjectsDocument, options);
+}
 export type ProjectsQueryHookResult = ReturnType<typeof useProjectsQuery>;
 export type ProjectsLazyQueryHookResult = ReturnType<typeof useProjectsLazyQuery>;
 export type ProjectsSuspenseQueryHookResult = ReturnType<typeof useProjectsSuspenseQuery>;
 export type ProjectsQueryResult = Apollo.QueryResult<ProjectsQuery, ProjectsQueryVariables>;
 export const SourceDocument = gql`
-    query Source($id: ID!) {
-  source(where: {id: $id}) {
-    id
-    type
-    name
-    url
-    externalId
-    importStatus
-    importCronExpression
-    importStartedAt
-    importCompletedAt
-    importHistory
-    transcriptsCount
-    transcriptImportProgress {
-      total
-      pending
-      fetching
-      completed
-      failed
-      skipped
-      pendingPercentage
-      fetchingPercentage
-      completedPercentage
-      failedPercentage
-      skippedPercentage
-    }
-    transcriptEmbeddingProgress {
-      total
-      pending
-      processing
-      completed
-      failed
-      pendingPercentage
-      processingPercentage
-      completedPercentage
-      failedPercentage
-    }
-    overallProgress {
-      importCompletedPercentage
-      embeddingCompletedPercentage
-      overallPercentage
-    }
-    transcripts {
+  query Source($id: ID!) {
+    source(where: { id: $id }) {
       id
-      title
-      intervieweeName
-      createdAt
-      segmentsCount
-    }
-    projects {
-      id
+      type
       name
+      url
+      externalId
+      importStatus
+      importCronExpression
+      importStartedAt
+      importCompletedAt
+      importHistory
+      transcriptsCount
+      transcriptImportProgress {
+        total
+        pending
+        fetching
+        completed
+        failed
+        skipped
+        pendingPercentage
+        fetchingPercentage
+        completedPercentage
+        failedPercentage
+        skippedPercentage
+      }
+      transcriptEmbeddingProgress {
+        total
+        pending
+        processing
+        completed
+        failed
+        pendingPercentage
+        processingPercentage
+        completedPercentage
+        failedPercentage
+      }
+      overallProgress {
+        importCompletedPercentage
+        embeddingCompletedPercentage
+        overallPercentage
+      }
+      transcripts {
+        id
+        title
+        intervieweeName
+        createdAt
+        segmentsCount
+      }
+      projects {
+        id
+        name
+      }
     }
   }
-}
-    `;
+`;
 
 /**
  * __useSourceQuery__
@@ -3116,47 +3855,52 @@ export const SourceDocument = gql`
  *   },
  * });
  */
-export function useSourceQuery(baseOptions: Apollo.QueryHookOptions<SourceQuery, SourceQueryVariables> & ({ variables: SourceQueryVariables; skip?: boolean; } | { skip: boolean; }) ) {
-        const options = {...defaultOptions, ...baseOptions}
-        return Apollo.useQuery<SourceQuery, SourceQueryVariables>(SourceDocument, options);
-      }
+export function useSourceQuery(
+  baseOptions: Apollo.QueryHookOptions<SourceQuery, SourceQueryVariables> &
+    ({ variables: SourceQueryVariables; skip?: boolean } | { skip: boolean })
+) {
+  const options = { ...defaultOptions, ...baseOptions };
+  return Apollo.useQuery<SourceQuery, SourceQueryVariables>(SourceDocument, options);
+}
 export function useSourceLazyQuery(baseOptions?: Apollo.LazyQueryHookOptions<SourceQuery, SourceQueryVariables>) {
-          const options = {...defaultOptions, ...baseOptions}
-          return Apollo.useLazyQuery<SourceQuery, SourceQueryVariables>(SourceDocument, options);
-        }
-export function useSourceSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<SourceQuery, SourceQueryVariables>) {
-          const options = baseOptions === Apollo.skipToken ? baseOptions : {...defaultOptions, ...baseOptions}
-          return Apollo.useSuspenseQuery<SourceQuery, SourceQueryVariables>(SourceDocument, options);
-        }
+  const options = { ...defaultOptions, ...baseOptions };
+  return Apollo.useLazyQuery<SourceQuery, SourceQueryVariables>(SourceDocument, options);
+}
+export function useSourceSuspenseQuery(
+  baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<SourceQuery, SourceQueryVariables>
+) {
+  const options = baseOptions === Apollo.skipToken ? baseOptions : { ...defaultOptions, ...baseOptions };
+  return Apollo.useSuspenseQuery<SourceQuery, SourceQueryVariables>(SourceDocument, options);
+}
 export type SourceQueryHookResult = ReturnType<typeof useSourceQuery>;
 export type SourceLazyQueryHookResult = ReturnType<typeof useSourceLazyQuery>;
 export type SourceSuspenseQueryHookResult = ReturnType<typeof useSourceSuspenseQuery>;
 export type SourceQueryResult = Apollo.QueryResult<SourceQuery, SourceQueryVariables>;
 export const SourcesDocument = gql`
-    query Sources {
-  sources {
-    id
-    type
-    name
-    url
-    externalId
-    importStatus
-    importCronExpression
-    importStartedAt
-    importCompletedAt
-    transcriptsCount
-    overallProgress {
-      importCompletedPercentage
-      embeddingCompletedPercentage
-      overallPercentage
-    }
-    projects {
+  query Sources {
+    sources {
       id
+      type
       name
+      url
+      externalId
+      importStatus
+      importCronExpression
+      importStartedAt
+      importCompletedAt
+      transcriptsCount
+      overallProgress {
+        importCompletedPercentage
+        embeddingCompletedPercentage
+        overallPercentage
+      }
+      projects {
+        id
+        name
+      }
     }
   }
-}
-    `;
+`;
 
 /**
  * __useSourcesQuery__
@@ -3174,47 +3918,49 @@ export const SourcesDocument = gql`
  * });
  */
 export function useSourcesQuery(baseOptions?: Apollo.QueryHookOptions<SourcesQuery, SourcesQueryVariables>) {
-        const options = {...defaultOptions, ...baseOptions}
-        return Apollo.useQuery<SourcesQuery, SourcesQueryVariables>(SourcesDocument, options);
-      }
+  const options = { ...defaultOptions, ...baseOptions };
+  return Apollo.useQuery<SourcesQuery, SourcesQueryVariables>(SourcesDocument, options);
+}
 export function useSourcesLazyQuery(baseOptions?: Apollo.LazyQueryHookOptions<SourcesQuery, SourcesQueryVariables>) {
-          const options = {...defaultOptions, ...baseOptions}
-          return Apollo.useLazyQuery<SourcesQuery, SourcesQueryVariables>(SourcesDocument, options);
-        }
-export function useSourcesSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<SourcesQuery, SourcesQueryVariables>) {
-          const options = baseOptions === Apollo.skipToken ? baseOptions : {...defaultOptions, ...baseOptions}
-          return Apollo.useSuspenseQuery<SourcesQuery, SourcesQueryVariables>(SourcesDocument, options);
-        }
+  const options = { ...defaultOptions, ...baseOptions };
+  return Apollo.useLazyQuery<SourcesQuery, SourcesQueryVariables>(SourcesDocument, options);
+}
+export function useSourcesSuspenseQuery(
+  baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<SourcesQuery, SourcesQueryVariables>
+) {
+  const options = baseOptions === Apollo.skipToken ? baseOptions : { ...defaultOptions, ...baseOptions };
+  return Apollo.useSuspenseQuery<SourcesQuery, SourcesQueryVariables>(SourcesDocument, options);
+}
 export type SourcesQueryHookResult = ReturnType<typeof useSourcesQuery>;
 export type SourcesLazyQueryHookResult = ReturnType<typeof useSourcesLazyQuery>;
 export type SourcesSuspenseQueryHookResult = ReturnType<typeof useSourcesSuspenseQuery>;
 export type SourcesQueryResult = Apollo.QueryResult<SourcesQuery, SourcesQueryVariables>;
 export const TranscriptDocument = gql`
-    query Transcript($id: ID!) {
-  transcript(where: {id: $id}) {
-    id
-    title
-    intervieweeName
-    notes
-    createdAt
-    segmentEmbeddingProgress {
-      total
-      embedded
-      notEmbedded
-      embeddedPercentage
-      notEmbeddedPercentage
-    }
-    segments {
+  query Transcript($id: ID!) {
+    transcript(where: { id: $id }) {
       id
-      text
-      speaker
-      startMs
-      endMs
-      durationMs
+      title
+      intervieweeName
+      notes
+      createdAt
+      segmentEmbeddingProgress {
+        total
+        embedded
+        notEmbedded
+        embeddedPercentage
+        notEmbeddedPercentage
+      }
+      segments {
+        id
+        text
+        speaker
+        startMs
+        endMs
+        durationMs
+      }
     }
   }
-}
-    `;
+`;
 
 /**
  * __useTranscriptQuery__
@@ -3232,47 +3978,54 @@ export const TranscriptDocument = gql`
  *   },
  * });
  */
-export function useTranscriptQuery(baseOptions: Apollo.QueryHookOptions<TranscriptQuery, TranscriptQueryVariables> & ({ variables: TranscriptQueryVariables; skip?: boolean; } | { skip: boolean; }) ) {
-        const options = {...defaultOptions, ...baseOptions}
-        return Apollo.useQuery<TranscriptQuery, TranscriptQueryVariables>(TranscriptDocument, options);
-      }
-export function useTranscriptLazyQuery(baseOptions?: Apollo.LazyQueryHookOptions<TranscriptQuery, TranscriptQueryVariables>) {
-          const options = {...defaultOptions, ...baseOptions}
-          return Apollo.useLazyQuery<TranscriptQuery, TranscriptQueryVariables>(TranscriptDocument, options);
-        }
-export function useTranscriptSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<TranscriptQuery, TranscriptQueryVariables>) {
-          const options = baseOptions === Apollo.skipToken ? baseOptions : {...defaultOptions, ...baseOptions}
-          return Apollo.useSuspenseQuery<TranscriptQuery, TranscriptQueryVariables>(TranscriptDocument, options);
-        }
+export function useTranscriptQuery(
+  baseOptions: Apollo.QueryHookOptions<TranscriptQuery, TranscriptQueryVariables> &
+    ({ variables: TranscriptQueryVariables; skip?: boolean } | { skip: boolean })
+) {
+  const options = { ...defaultOptions, ...baseOptions };
+  return Apollo.useQuery<TranscriptQuery, TranscriptQueryVariables>(TranscriptDocument, options);
+}
+export function useTranscriptLazyQuery(
+  baseOptions?: Apollo.LazyQueryHookOptions<TranscriptQuery, TranscriptQueryVariables>
+) {
+  const options = { ...defaultOptions, ...baseOptions };
+  return Apollo.useLazyQuery<TranscriptQuery, TranscriptQueryVariables>(TranscriptDocument, options);
+}
+export function useTranscriptSuspenseQuery(
+  baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<TranscriptQuery, TranscriptQueryVariables>
+) {
+  const options = baseOptions === Apollo.skipToken ? baseOptions : { ...defaultOptions, ...baseOptions };
+  return Apollo.useSuspenseQuery<TranscriptQuery, TranscriptQueryVariables>(TranscriptDocument, options);
+}
 export type TranscriptQueryHookResult = ReturnType<typeof useTranscriptQuery>;
 export type TranscriptLazyQueryHookResult = ReturnType<typeof useTranscriptLazyQuery>;
 export type TranscriptSuspenseQueryHookResult = ReturnType<typeof useTranscriptSuspenseQuery>;
 export type TranscriptQueryResult = Apollo.QueryResult<TranscriptQuery, TranscriptQueryVariables>;
 export const TranscriptsDocument = gql`
-    query Transcripts($sourceId: ID) {
-  transcripts(where: {source: {id: {equals: $sourceId}}}) {
-    id
-    title
-    intervieweeName
-    notes
-    createdAt
-    segmentsCount
-    importStatus
-    embeddingStatus
-    segmentEmbeddingProgress {
-      total
-      embedded
-      notEmbedded
-      embeddedPercentage
-      notEmbeddedPercentage
-    }
-    source {
+  query Transcripts($sourceId: ID) {
+    transcripts(where: { source: { id: { equals: $sourceId } } }) {
       id
-      name
+      title
+      intervieweeName
+      notes
+      createdAt
+      segmentsCount
+      importStatus
+      embeddingStatus
+      segmentEmbeddingProgress {
+        total
+        embedded
+        notEmbedded
+        embeddedPercentage
+        notEmbeddedPercentage
+      }
+      source {
+        id
+        name
+      }
     }
   }
-}
-    `;
+`;
 
 /**
  * __useTranscriptsQuery__
@@ -3290,30 +4043,36 @@ export const TranscriptsDocument = gql`
  *   },
  * });
  */
-export function useTranscriptsQuery(baseOptions?: Apollo.QueryHookOptions<TranscriptsQuery, TranscriptsQueryVariables>) {
-        const options = {...defaultOptions, ...baseOptions}
-        return Apollo.useQuery<TranscriptsQuery, TranscriptsQueryVariables>(TranscriptsDocument, options);
-      }
-export function useTranscriptsLazyQuery(baseOptions?: Apollo.LazyQueryHookOptions<TranscriptsQuery, TranscriptsQueryVariables>) {
-          const options = {...defaultOptions, ...baseOptions}
-          return Apollo.useLazyQuery<TranscriptsQuery, TranscriptsQueryVariables>(TranscriptsDocument, options);
-        }
-export function useTranscriptsSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<TranscriptsQuery, TranscriptsQueryVariables>) {
-          const options = baseOptions === Apollo.skipToken ? baseOptions : {...defaultOptions, ...baseOptions}
-          return Apollo.useSuspenseQuery<TranscriptsQuery, TranscriptsQueryVariables>(TranscriptsDocument, options);
-        }
+export function useTranscriptsQuery(
+  baseOptions?: Apollo.QueryHookOptions<TranscriptsQuery, TranscriptsQueryVariables>
+) {
+  const options = { ...defaultOptions, ...baseOptions };
+  return Apollo.useQuery<TranscriptsQuery, TranscriptsQueryVariables>(TranscriptsDocument, options);
+}
+export function useTranscriptsLazyQuery(
+  baseOptions?: Apollo.LazyQueryHookOptions<TranscriptsQuery, TranscriptsQueryVariables>
+) {
+  const options = { ...defaultOptions, ...baseOptions };
+  return Apollo.useLazyQuery<TranscriptsQuery, TranscriptsQueryVariables>(TranscriptsDocument, options);
+}
+export function useTranscriptsSuspenseQuery(
+  baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<TranscriptsQuery, TranscriptsQueryVariables>
+) {
+  const options = baseOptions === Apollo.skipToken ? baseOptions : { ...defaultOptions, ...baseOptions };
+  return Apollo.useSuspenseQuery<TranscriptsQuery, TranscriptsQueryVariables>(TranscriptsDocument, options);
+}
 export type TranscriptsQueryHookResult = ReturnType<typeof useTranscriptsQuery>;
 export type TranscriptsLazyQueryHookResult = ReturnType<typeof useTranscriptsLazyQuery>;
 export type TranscriptsSuspenseQueryHookResult = ReturnType<typeof useTranscriptsSuspenseQuery>;
 export type TranscriptsQueryResult = Apollo.QueryResult<TranscriptsQuery, TranscriptsQueryVariables>;
 export const UpdateChatDocument = gql`
-    mutation UpdateChat($id: ID!, $data: ChatUpdateInput!) {
-  updateChat(where: {id: $id}, data: $data) {
-    id
-    title
+  mutation UpdateChat($id: ID!, $data: ChatUpdateInput!) {
+    updateChat(where: { id: $id }, data: $data) {
+      id
+      title
+    }
   }
-}
-    `;
+`;
 export type UpdateChatMutationFn = Apollo.MutationFunction<UpdateChatMutation, UpdateChatMutationVariables>;
 
 /**
@@ -3334,20 +4093,22 @@ export type UpdateChatMutationFn = Apollo.MutationFunction<UpdateChatMutation, U
  *   },
  * });
  */
-export function useUpdateChatMutation(baseOptions?: Apollo.MutationHookOptions<UpdateChatMutation, UpdateChatMutationVariables>) {
-        const options = {...defaultOptions, ...baseOptions}
-        return Apollo.useMutation<UpdateChatMutation, UpdateChatMutationVariables>(UpdateChatDocument, options);
-      }
+export function useUpdateChatMutation(
+  baseOptions?: Apollo.MutationHookOptions<UpdateChatMutation, UpdateChatMutationVariables>
+) {
+  const options = { ...defaultOptions, ...baseOptions };
+  return Apollo.useMutation<UpdateChatMutation, UpdateChatMutationVariables>(UpdateChatDocument, options);
+}
 export type UpdateChatMutationHookResult = ReturnType<typeof useUpdateChatMutation>;
 export type UpdateChatMutationResult = Apollo.MutationResult<UpdateChatMutation>;
 export type UpdateChatMutationOptions = Apollo.BaseMutationOptions<UpdateChatMutation, UpdateChatMutationVariables>;
 export const UpdateProjectDocument = gql`
-    mutation UpdateProject($id: ID!, $data: ProjectUpdateInput!) {
-  updateProject(where: {id: $id}, data: $data) {
-    id
+  mutation UpdateProject($id: ID!, $data: ProjectUpdateInput!) {
+    updateProject(where: { id: $id }, data: $data) {
+      id
+    }
   }
-}
-    `;
+`;
 export type UpdateProjectMutationFn = Apollo.MutationFunction<UpdateProjectMutation, UpdateProjectMutationVariables>;
 
 /**
@@ -3368,20 +4129,25 @@ export type UpdateProjectMutationFn = Apollo.MutationFunction<UpdateProjectMutat
  *   },
  * });
  */
-export function useUpdateProjectMutation(baseOptions?: Apollo.MutationHookOptions<UpdateProjectMutation, UpdateProjectMutationVariables>) {
-        const options = {...defaultOptions, ...baseOptions}
-        return Apollo.useMutation<UpdateProjectMutation, UpdateProjectMutationVariables>(UpdateProjectDocument, options);
-      }
+export function useUpdateProjectMutation(
+  baseOptions?: Apollo.MutationHookOptions<UpdateProjectMutation, UpdateProjectMutationVariables>
+) {
+  const options = { ...defaultOptions, ...baseOptions };
+  return Apollo.useMutation<UpdateProjectMutation, UpdateProjectMutationVariables>(UpdateProjectDocument, options);
+}
 export type UpdateProjectMutationHookResult = ReturnType<typeof useUpdateProjectMutation>;
 export type UpdateProjectMutationResult = Apollo.MutationResult<UpdateProjectMutation>;
-export type UpdateProjectMutationOptions = Apollo.BaseMutationOptions<UpdateProjectMutation, UpdateProjectMutationVariables>;
+export type UpdateProjectMutationOptions = Apollo.BaseMutationOptions<
+  UpdateProjectMutation,
+  UpdateProjectMutationVariables
+>;
 export const UpdateSourceDocument = gql`
-    mutation UpdateSource($id: ID!, $data: SourceUpdateInput!) {
-  updateSource(where: {id: $id}, data: $data) {
-    id
+  mutation UpdateSource($id: ID!, $data: SourceUpdateInput!) {
+    updateSource(where: { id: $id }, data: $data) {
+      id
+    }
   }
-}
-    `;
+`;
 export type UpdateSourceMutationFn = Apollo.MutationFunction<UpdateSourceMutation, UpdateSourceMutationVariables>;
 
 /**
@@ -3402,27 +4168,32 @@ export type UpdateSourceMutationFn = Apollo.MutationFunction<UpdateSourceMutatio
  *   },
  * });
  */
-export function useUpdateSourceMutation(baseOptions?: Apollo.MutationHookOptions<UpdateSourceMutation, UpdateSourceMutationVariables>) {
-        const options = {...defaultOptions, ...baseOptions}
-        return Apollo.useMutation<UpdateSourceMutation, UpdateSourceMutationVariables>(UpdateSourceDocument, options);
-      }
+export function useUpdateSourceMutation(
+  baseOptions?: Apollo.MutationHookOptions<UpdateSourceMutation, UpdateSourceMutationVariables>
+) {
+  const options = { ...defaultOptions, ...baseOptions };
+  return Apollo.useMutation<UpdateSourceMutation, UpdateSourceMutationVariables>(UpdateSourceDocument, options);
+}
 export type UpdateSourceMutationHookResult = ReturnType<typeof useUpdateSourceMutation>;
 export type UpdateSourceMutationResult = Apollo.MutationResult<UpdateSourceMutation>;
-export type UpdateSourceMutationOptions = Apollo.BaseMutationOptions<UpdateSourceMutation, UpdateSourceMutationVariables>;
+export type UpdateSourceMutationOptions = Apollo.BaseMutationOptions<
+  UpdateSourceMutation,
+  UpdateSourceMutationVariables
+>;
 export const GetUserDocument = gql`
-    query GetUser($id: ID!) {
-  user(where: {id: $id}) {
-    id
-    isActive
-    avatarUrl
-    email
-    firstName
-    lastName
-    displayName
-    role
+  query GetUser($id: ID!) {
+    user(where: { id: $id }) {
+      id
+      isActive
+      avatarUrl
+      email
+      firstName
+      lastName
+      displayName
+      role
+    }
   }
-}
-    `;
+`;
 
 /**
  * __useGetUserQuery__
@@ -3440,31 +4211,36 @@ export const GetUserDocument = gql`
  *   },
  * });
  */
-export function useGetUserQuery(baseOptions: Apollo.QueryHookOptions<GetUserQuery, GetUserQueryVariables> & ({ variables: GetUserQueryVariables; skip?: boolean; } | { skip: boolean; }) ) {
-        const options = {...defaultOptions, ...baseOptions}
-        return Apollo.useQuery<GetUserQuery, GetUserQueryVariables>(GetUserDocument, options);
-      }
+export function useGetUserQuery(
+  baseOptions: Apollo.QueryHookOptions<GetUserQuery, GetUserQueryVariables> &
+    ({ variables: GetUserQueryVariables; skip?: boolean } | { skip: boolean })
+) {
+  const options = { ...defaultOptions, ...baseOptions };
+  return Apollo.useQuery<GetUserQuery, GetUserQueryVariables>(GetUserDocument, options);
+}
 export function useGetUserLazyQuery(baseOptions?: Apollo.LazyQueryHookOptions<GetUserQuery, GetUserQueryVariables>) {
-          const options = {...defaultOptions, ...baseOptions}
-          return Apollo.useLazyQuery<GetUserQuery, GetUserQueryVariables>(GetUserDocument, options);
-        }
-export function useGetUserSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<GetUserQuery, GetUserQueryVariables>) {
-          const options = baseOptions === Apollo.skipToken ? baseOptions : {...defaultOptions, ...baseOptions}
-          return Apollo.useSuspenseQuery<GetUserQuery, GetUserQueryVariables>(GetUserDocument, options);
-        }
+  const options = { ...defaultOptions, ...baseOptions };
+  return Apollo.useLazyQuery<GetUserQuery, GetUserQueryVariables>(GetUserDocument, options);
+}
+export function useGetUserSuspenseQuery(
+  baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<GetUserQuery, GetUserQueryVariables>
+) {
+  const options = baseOptions === Apollo.skipToken ? baseOptions : { ...defaultOptions, ...baseOptions };
+  return Apollo.useSuspenseQuery<GetUserQuery, GetUserQueryVariables>(GetUserDocument, options);
+}
 export type GetUserQueryHookResult = ReturnType<typeof useGetUserQuery>;
 export type GetUserLazyQueryHookResult = ReturnType<typeof useGetUserLazyQuery>;
 export type GetUserSuspenseQueryHookResult = ReturnType<typeof useGetUserSuspenseQuery>;
 export type GetUserQueryResult = Apollo.QueryResult<GetUserQuery, GetUserQueryVariables>;
 export const UpdateUserDocument = gql`
-    mutation UpdateUser($id: ID!, $data: UserUpdateInput!) {
-  updateUser(where: {id: $id}, data: $data) {
-    id
-    role
-    isActive
+  mutation UpdateUser($id: ID!, $data: UserUpdateInput!) {
+    updateUser(where: { id: $id }, data: $data) {
+      id
+      role
+      isActive
+    }
   }
-}
-    `;
+`;
 export type UpdateUserMutationFn = Apollo.MutationFunction<UpdateUserMutation, UpdateUserMutationVariables>;
 
 /**
@@ -3485,21 +4261,22 @@ export type UpdateUserMutationFn = Apollo.MutationFunction<UpdateUserMutation, U
  *   },
  * });
  */
-export function useUpdateUserMutation(baseOptions?: Apollo.MutationHookOptions<UpdateUserMutation, UpdateUserMutationVariables>) {
-        const options = {...defaultOptions, ...baseOptions}
-        return Apollo.useMutation<UpdateUserMutation, UpdateUserMutationVariables>(UpdateUserDocument, options);
-      }
+export function useUpdateUserMutation(
+  baseOptions?: Apollo.MutationHookOptions<UpdateUserMutation, UpdateUserMutationVariables>
+) {
+  const options = { ...defaultOptions, ...baseOptions };
+  return Apollo.useMutation<UpdateUserMutation, UpdateUserMutationVariables>(UpdateUserDocument, options);
+}
 export type UpdateUserMutationHookResult = ReturnType<typeof useUpdateUserMutation>;
 export type UpdateUserMutationResult = Apollo.MutationResult<UpdateUserMutation>;
 export type UpdateUserMutationOptions = Apollo.BaseMutationOptions<UpdateUserMutation, UpdateUserMutationVariables>;
 
-      export interface PossibleTypesResultData {
-        possibleTypes: {
-          [key: string]: string[]
-        }
-      }
-      const result: PossibleTypesResultData = {
-  "possibleTypes": {}
+export interface PossibleTypesResultData {
+  possibleTypes: {
+    [key: string]: string[];
+  };
+}
+const result: PossibleTypesResultData = {
+  possibleTypes: {}
 };
-      export default result;
-    
+export default result;

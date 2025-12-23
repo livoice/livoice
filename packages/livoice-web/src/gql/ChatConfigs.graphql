@@ -1,0 +1,13 @@
+query ChatConfigs {
+  chats(orderBy: { createdAt: desc }) {
+    id
+    title
+    createdAt
+    project {
+      id
+      name
+    }
+    config
+  }
+}
+

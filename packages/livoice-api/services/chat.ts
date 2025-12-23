@@ -24,6 +24,18 @@ type SegmentRecord = {
     id: string;
     title?: string | null;
   } | null;
+  similarityScore?: number | null;
+  estimatedTokens?: number;
+};
+
+type ProjectWithOrg = {
+  id: string;
+  name?: string | null;
+  org?: { id?: string | null } | null;
+};
+
+type SegmentWithMeta = SegmentRecord & {
+  estimatedTokens: number;
 };
 
 export type SegmentReference = {
@@ -35,13 +47,101 @@ export type SegmentReference = {
   transcriptTitle?: string | null;
 };
 
+export type ChatConfig = {
+  systemPrompt: string;
+  openai: {
+    model: string;
+    temperature: number;
+    maxOutputTokens: number;
+  };
+  context: {
+    maxInputTokens: number;
+    reservedTokens: number;
+    historyTokenBudget: number;
+  };
+  segments: {
+    tokenBudget: number;
+    maxCount: number;
+  };
+};
+
+export type MessageDebugData = {
+  config: ChatConfig;
+  resolvedSystemPrompt: string;
+  userMessageWithContext: string;
+  history: {
+    messagesIncluded: number;
+    tokensUsed: number;
+    tokenBudget: number;
+    messages: Array<{ role: 'user' | 'assistant'; content: string; tokens: number }>;
+  };
+  segments: Array<{
+    id: string;
+    text: string;
+    transcriptTitle: string | null;
+    speaker: string | null;
+    startMs: number | null;
+    endMs: number | null;
+    similarityScore: number | null;
+    estimatedTokens: number;
+  }>;
+  segmentTokensUsed: number;
+  openaiResponse: {
+    model: string;
+    promptTokens: number | null;
+    completionTokens: number | null;
+    totalTokens: number | null;
+  };
+  timing: {
+    startedAt: string;
+    completedAt: string;
+  };
+};
+
 export type ChatHistoryItem = {
   id: string;
   role: 'user' | 'assistant';
   content: string;
   createdAt: string | null;
   segments: SegmentReference[];
+  debugData?: MessageDebugData | null;
 };
+
+export const DEFAULT_CHAT_CONFIG: ChatConfig = {
+  systemPrompt: '',
+  openai: {
+    model: 'gpt-4o-mini',
+    temperature: 0.25,
+    maxOutputTokens: 700
+  },
+  context: {
+    maxInputTokens: 8000,
+    reservedTokens: 1500,
+    historyTokenBudget: 4000
+  },
+  segments: {
+    tokenBudget: 2000,
+    maxCount: 20
+  }
+};
+
+export const normalizeChatConfig = (config?: Partial<ChatConfig>, systemPromptOverride?: string): ChatConfig => ({
+  systemPrompt: config?.systemPrompt ?? systemPromptOverride ?? DEFAULT_CHAT_CONFIG.systemPrompt,
+  openai: {
+    model: config?.openai?.model ?? DEFAULT_CHAT_CONFIG.openai.model,
+    temperature: config?.openai?.temperature ?? DEFAULT_CHAT_CONFIG.openai.temperature,
+    maxOutputTokens: config?.openai?.maxOutputTokens ?? DEFAULT_CHAT_CONFIG.openai.maxOutputTokens
+  },
+  context: {
+    maxInputTokens: config?.context?.maxInputTokens ?? DEFAULT_CHAT_CONFIG.context.maxInputTokens,
+    reservedTokens: config?.context?.reservedTokens ?? DEFAULT_CHAT_CONFIG.context.reservedTokens,
+    historyTokenBudget: config?.context?.historyTokenBudget ?? DEFAULT_CHAT_CONFIG.context.historyTokenBudget
+  },
+  segments: {
+    tokenBudget: config?.segments?.tokenBudget ?? DEFAULT_CHAT_CONFIG.segments.tokenBudget,
+    maxCount: config?.segments?.maxCount ?? DEFAULT_CHAT_CONFIG.segments.maxCount
+  }
+});
 
 const formatMs = (value?: number | null) => {
   if (typeof value !== 'number') return '00:00:00';
@@ -66,6 +166,7 @@ type FetchSegmentsParams = {
   projectId?: string;
   transcriptId?: string;
   queryText?: string;
+  maxSegments: number;
 };
 
 type RawSegment = {
@@ -77,9 +178,8 @@ type RawSegment = {
   isMetadata: boolean | null;
   transcriptId?: string | null;
   transcriptTitle?: string | null;
+  similarityScore?: number | null;
 };
-
-const VECTOR_LIMIT = 20;
 
 const mapRawToSegment = (row: RawSegment): SegmentRecord => ({
   id: row.id,
@@ -93,14 +193,16 @@ const mapRawToSegment = (row: RawSegment): SegmentRecord => ({
         id: row.transcriptId,
         title: row.transcriptTitle ?? null
       }
-    : null
+    : null,
+  similarityScore: row.similarityScore ?? null
 });
 
 const fetchSegments = async ({
   context,
   projectId,
   transcriptId,
-  queryText
+  queryText,
+  maxSegments
 }: FetchSegmentsParams): Promise<SegmentRecord[]> => {
   const sudoContext = context.sudo();
 
@@ -127,7 +229,7 @@ const fetchSegments = async ({
     const segments = await sudoContext.query.TranscriptSegment.findMany({
       ...baseArgs,
       orderBy: [{ startMs: 'asc' }],
-      take: VECTOR_LIMIT,
+      take: maxSegments,
       query: 'id text startMs endMs speaker isMetadata transcript { id title source { id name projects { id name } } }'
     });
 
@@ -171,7 +273,8 @@ const fetchSegments = async ({
             "TranscriptSegment"."speaker",
             "TranscriptSegment"."isMetadata",
             t."id" AS "transcriptId",
-            t."title" AS "transcriptTitle"
+            t."title" AS "transcriptTitle",
+            ("TranscriptSegment"."embedding" <-> ${literal}) AS "similarityScore"
           FROM "TranscriptSegment"
           INNER JOIN "Transcript" t ON t.id = "TranscriptSegment"."transcript"
           INNER JOIN "Source" s ON s.id = t."source"
@@ -181,7 +284,7 @@ const fetchSegments = async ({
             AND "TranscriptSegment"."embedding" IS NOT NULL
             AND ${whereClause}
           ORDER BY "TranscriptSegment"."embedding" <-> ${literal}
-          LIMIT ${VECTOR_LIMIT}
+          LIMIT ${maxSegments}
         `) ?? [];
 
       return rows.map(mapRawToSegment);
@@ -199,26 +302,32 @@ const fetchSegments = async ({
   return fallback();
 };
 
-const selectSegmentsWithinBudget = (segments: SegmentRecord[], maxTokens: number): SegmentRecord[] => {
-  const segmentWithTokens = segments.map(segment => ({
-    segment,
-    tokens: estimateTokens(buildSegmentDescription(segment))
+const selectSegmentsWithinBudget = (
+  segments: SegmentRecord[],
+  maxTokens: number
+): { selected: SegmentWithMeta[]; totalTokens: number } => {
+  const segmentWithTokens: SegmentWithMeta[] = segments.map(segment => ({
+    ...segment,
+    estimatedTokens: estimateTokens(buildSegmentDescription(segment))
   }));
 
-  const { selected } = segmentWithTokens.reduce(
-    (acc, { segment, tokens }) => {
-      const exceeded = acc.exceeded || acc.totalTokens + tokens > maxTokens;
+  const { selected, totalTokens } = segmentWithTokens.reduce(
+    (acc, segment) => {
+      const exceeded = acc.exceeded || acc.totalTokens + segment.estimatedTokens > maxTokens;
 
       return {
         ...acc,
-        ...(!exceeded && { selected: [...acc.selected, segment], totalTokens: acc.totalTokens + tokens }),
+        ...(!exceeded && {
+          selected: [...acc.selected, segment],
+          totalTokens: acc.totalTokens + segment.estimatedTokens
+        }),
         exceeded
       };
     },
-    { selected: [] as SegmentRecord[], totalTokens: 0, exceeded: false }
+    { selected: [] as SegmentWithMeta[], totalTokens: 0, exceeded: false }
   );
 
-  return selected;
+  return { selected, totalTokens };
 };
 
 export const fetchChatHistory = async (context: KeystoneContext, chatId: string): Promise<ChatHistoryItem[]> => {
@@ -226,7 +335,7 @@ export const fetchChatHistory = async (context: KeystoneContext, chatId: string)
   const messages = await sudoContext.query.ChatMessage.findMany({
     where: { chat: { id: { equals: chatId } } },
     orderBy: [{ createdAt: 'asc' }],
-    query: 'id role content createdAt segments { id text startMs endMs speaker transcript { title } }'
+    query: 'id role content createdAt segments { id text startMs endMs speaker transcript { title } } debugData'
   });
 
   return messages.map(msg => ({
@@ -241,7 +350,8 @@ export const fetchChatHistory = async (context: KeystoneContext, chatId: string)
       endMs: typeof segment.endMs === 'number' ? segment.endMs : null,
       speaker: segment.speaker ?? undefined,
       transcriptTitle: segment.transcript?.title ?? undefined
-    }))
+    })),
+    debugData: msg.debugData ?? null
   }));
 };
 
@@ -252,10 +362,10 @@ const estimateTokens = (text: string): number => Math.ceil(text.length / 4);
 const takeMessagesWithinLimit = (
   messages: Array<{ role: 'user' | 'assistant'; content: string }>,
   tokenLimit: number
-): Array<{ role: 'user' | 'assistant'; content: string }> => {
+): { included: Array<{ role: 'user' | 'assistant'; content: string }>; currentTokens: number } => {
   const reversed = [...messages].reverse();
 
-  const { included } = reversed.reduce(
+  const { included, currentTokens } = reversed.reduce(
     (acc, msg) => {
       if (acc.exceeded) return acc;
 
@@ -273,7 +383,7 @@ const takeMessagesWithinLimit = (
     { included: [] as typeof messages, currentTokens: 0, exceeded: false }
   );
 
-  return included;
+  return { included, currentTokens };
 };
 
 const getOpenAiMessages = ({
@@ -288,16 +398,30 @@ const getOpenAiMessages = ({
   userMessage: string;
   maxContextTokens?: number;
   reservedTokens?: number;
-}): Array<{ role: 'system' | 'user' | 'assistant'; content: string }> => {
+}): {
+  messages: Array<{ role: 'system' | 'user' | 'assistant'; content: string }>;
+  historyTokens: number;
+  historyCount: number;
+  historyMessages: Array<{ role: 'user' | 'assistant'; content: string; tokens: number }>;
+} => {
   const fixedTokens = estimateTokens(systemPrompt) + estimateTokens(userMessage) + reservedTokens;
   const availableTokens = maxContextTokens - fixedTokens;
-  const includedHistory = takeMessagesWithinLimit(history, availableTokens);
+  const { included: includedHistory, currentTokens: historyTokens } = takeMessagesWithinLimit(history, availableTokens);
+  const historyMessages = includedHistory.map(msg => ({
+    ...msg,
+    tokens: estimateTokens(msg.content)
+  }));
 
-  return [
-    { role: 'system' as const, content: systemPrompt },
-    ...includedHistory,
-    { role: 'user' as const, content: userMessage }
-  ];
+  return {
+    historyTokens,
+    historyCount: includedHistory.length,
+    historyMessages,
+    messages: [
+      { role: 'system' as const, content: systemPrompt },
+      ...includedHistory,
+      { role: 'user' as const, content: userMessage }
+    ]
+  };
 };
 
 export const getSystemPromptReplacements = async ({
@@ -342,12 +466,16 @@ export const getSystemPromptReplacements = async ({
       projectName = project.name;
 
       // Get all source names
-      sourceNames = project.sources?.map(source => source.name).filter(Boolean) ?? [];
+      sourceNames =
+        project.sources?.map((source: { name?: string | null } | null) => source?.name).filter(Boolean) ?? [];
 
       // Get all transcript titles
       transcriptTitles =
         project.sources?.flatMap(
-          source => source.transcripts?.map(transcript => transcript.title).filter(Boolean) ?? []
+          (source: { transcripts?: Array<{ title?: string | null } | null> | null } | null) =>
+            source?.transcripts
+              ?.map((transcript: { title?: string | null } | null) => transcript?.title)
+              .filter(Boolean) ?? []
         ) ?? [];
     }
   }
@@ -359,14 +487,12 @@ const replaceSystemPromptPlaceholders = async ({
   systemPrompt,
   context,
   projectId,
-  transcriptId,
-  session
+  transcriptId
 }: {
   systemPrompt: string;
   context: KeystoneContext;
   projectId?: string;
   transcriptId?: string;
-  session: Session;
 }): Promise<string> => {
   const { projectName, transcriptTitles, sourceNames } = await getSystemPromptReplacements({
     context,
@@ -458,7 +584,8 @@ export const runChatConversation = async ({
     transcriptId?: string;
     projectId?: string;
     message: string;
-    systemPrompt: string;
+    systemPrompt?: string | null;
+    config?: Partial<ChatConfig> | null;
   };
 }) => {
   if (!session?.id) throw new Error('Unauthorized');
@@ -503,24 +630,40 @@ export const runChatConversation = async ({
   const projectId = targetProject?.id;
   const transcriptId = targetTranscript?.id;
 
+  const existingChatRecord = input.chatId
+    ? await sudoContext.query.Chat.findOne({
+        where: { id: input.chatId },
+        query: 'config systemPrompt'
+      })
+    : null;
+
+  const chatConfig = normalizeChatConfig(
+    input.config ?? (existingChatRecord?.config as Partial<ChatConfig> | undefined),
+    input.systemPrompt ?? existingChatRecord?.systemPrompt ?? undefined
+  );
+
   const segments = await fetchSegments({
     context,
     projectId,
     transcriptId,
-    queryText: messageText
+    queryText: messageText,
+    maxSegments: chatConfig.segments.maxCount
   });
   if (!segments.length) throw new Error('No transcript segments found for this context yet');
 
   const referenceSegments = segments.slice(0, 3);
-  const segmentsForPrompt = selectSegmentsWithinBudget(segments, 2_000);
+  const { selected: segmentsForPrompt, totalTokens: segmentsTokensUsed } = selectSegmentsWithinBudget(
+    segments,
+    chatConfig.segments.tokenBudget
+  );
   const segmentsText = segmentsForPrompt.map(buildSegmentDescription).join('\n');
+  const userMessageWithContext = `${segmentsText}\n\nQuestion: ${messageText}`;
 
   const finalSystemPrompt = await replaceSystemPromptPlaceholders({
-    systemPrompt: input.systemPrompt,
+    systemPrompt: chatConfig.systemPrompt,
     context,
     projectId,
-    transcriptId,
-    session
+    transcriptId
   });
 
   const title = input.chatId
@@ -533,44 +676,91 @@ export const runChatConversation = async ({
         ? `Transcript chat • ${targetTranscript?.title ?? 'untitled'}`
         : `Project chat • ${targetProject?.name ?? 'untitled'}`));
 
-  const chatId = String(
-    input.chatId ??
-      (
-        await sudoContext.db.Chat.createOne({
-          data: {
-            title,
-            systemPrompt: input.systemPrompt,
-            user: { connect: { id: session.id } },
-            org: { connect: { id: session.orgId } },
-            ...(projectId ? { project: { connect: { id: projectId } } } : {}),
-            ...(transcriptId ? { transcript: { connect: { id: transcriptId } } } : {})
-          }
-        })
-      )?.id
-  );
+  let chatId = input.chatId ?? null;
+
+  if (!chatId) {
+    const createdChat = await sudoContext.db.Chat.createOne({
+      data: {
+        title,
+        systemPrompt: chatConfig.systemPrompt,
+        config: chatConfig,
+        user: { connect: { id: session.id } },
+        org: { connect: { id: session.orgId } },
+        ...(projectId ? { project: { connect: { id: projectId } } } : {}),
+        ...(transcriptId ? { transcript: { connect: { id: transcriptId } } } : {})
+      }
+    });
+    chatId = createdChat?.id ? String(createdChat.id) : null;
+  } else {
+    const updated = await sudoContext.db.Chat.updateOne({
+      where: { id: chatId },
+      data: { systemPrompt: chatConfig.systemPrompt, config: chatConfig }
+    });
+    if (!updated) throw new Error('Chat not found');
+  }
 
   if (!chatId) throw new Error('Failed to create chat session');
 
   const history = await fetchChatHistory(context, chatId);
 
-  const messages = getOpenAiMessages({
+  const {
+    messages: openAiMessages,
+    historyTokens,
+    historyCount,
+    historyMessages
+  } = getOpenAiMessages({
     history: history.map(item => ({ role: item.role, content: item.content })),
     systemPrompt: finalSystemPrompt,
-    userMessage: `${segmentsText}\n\nQuestion: ${messageText}`,
-    maxContextTokens: 8_000, // Input limit (what we SEND)
-    reservedTokens: 1_500 // Reserved within maxContextTokens
+    userMessage: userMessageWithContext,
+    maxContextTokens: chatConfig.context.maxInputTokens,
+    reservedTokens: chatConfig.context.reservedTokens
   });
 
   const openai = getOpenAIClient();
+  const startedAt = new Date().toISOString();
   const completion = await openai.chat.completions.create({
-    model: openAiModel,
-    messages,
-    temperature: 0.25,
-    max_tokens: 700 // This is the OUTPUT token limit
+    model: chatConfig.openai.model,
+    messages: openAiMessages,
+    temperature: chatConfig.openai.temperature,
+    max_tokens: chatConfig.openai.maxOutputTokens
   });
+  const completedAt = new Date().toISOString();
 
   const answer = completion.choices?.[0]?.message?.content?.trim();
   if (!answer) throw new Error('OpenAI did not return an answer');
+
+  const debugData: MessageDebugData = {
+    config: chatConfig,
+    resolvedSystemPrompt: finalSystemPrompt,
+    userMessageWithContext,
+    history: {
+      messagesIncluded: historyCount,
+      tokensUsed: historyTokens,
+      tokenBudget: chatConfig.context.historyTokenBudget,
+      messages: historyMessages
+    },
+    segments: segmentsForPrompt.map(segment => ({
+      id: segment.id,
+      text: segment.text,
+      transcriptTitle: segment.transcript?.title ?? null,
+      speaker: segment.speaker ?? null,
+      startMs: typeof segment.startMs === 'number' ? segment.startMs : null,
+      endMs: typeof segment.endMs === 'number' ? segment.endMs : null,
+      similarityScore: segment.similarityScore ?? null,
+      estimatedTokens: segment.estimatedTokens
+    })),
+    segmentTokensUsed: segmentsTokensUsed,
+    openaiResponse: {
+      model: chatConfig.openai.model,
+      promptTokens: completion.usage?.prompt_tokens ?? null,
+      completionTokens: completion.usage?.completion_tokens ?? null,
+      totalTokens: completion.usage?.total_tokens ?? null
+    },
+    timing: {
+      startedAt,
+      completedAt
+    }
+  };
 
   await Promise.all([
     sudoContext.db.ChatMessage.createOne({
@@ -587,7 +777,8 @@ export const runChatConversation = async ({
         content: answer,
         ...(referenceSegments.length && {
           segments: { connect: referenceSegments.map((segment: SegmentRecord) => ({ id: segment.id })) }
-        })
+        }),
+        debugData
       }
     })
   ]);

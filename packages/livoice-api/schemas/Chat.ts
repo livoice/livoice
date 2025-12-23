@@ -1,12 +1,13 @@
 import { type Lists } from '.keystone/types';
 import { list } from '@keystone-6/core';
-import { relationship, text, timestamp } from '@keystone-6/core/fields';
+import { json, relationship, text, timestamp } from '@keystone-6/core/fields';
 import { filterByUserOrg, isAuthenticated, isGod, isOrgAdmin } from '../domains/auth/userRole';
 
 export default list({
   fields: {
     title: text({ validation: { isRequired: true }, defaultValue: 'AI chat' }),
     systemPrompt: text({ ui: { displayMode: 'textarea' } }),
+    config: json(),
     user: relationship({ ref: 'User.chats', many: false }),
     org: relationship({ ref: 'Organization.chats', many: false }),
     project: relationship({ ref: 'Project.chats', many: false }),

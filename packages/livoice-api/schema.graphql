@@ -5,6 +5,7 @@ type Chat {
   id: ID!
   title: String
   systemPrompt: String
+  config: JSON
   user: User
   org: Organization
   project: Project
@@ -113,6 +114,7 @@ enum OrderDirection {
 input ChatUpdateInput {
   title: String
   systemPrompt: String
+  config: JSON
   user: UserRelateToOneForUpdateInput
   org: OrganizationRelateToOneForUpdateInput
   project: ProjectRelateToOneForUpdateInput
@@ -154,6 +156,7 @@ input ChatUpdateArgs {
 input ChatCreateInput {
   title: String
   systemPrompt: String
+  config: JSON
   user: UserRelateToOneForCreateInput
   org: OrganizationRelateToOneForCreateInput
   project: ProjectRelateToOneForCreateInput
@@ -189,6 +192,7 @@ type ChatMessage {
   content: String
   segments(where: TranscriptSegmentWhereInput! = {}, orderBy: [TranscriptSegmentOrderByInput!]! = [], take: Int, skip: Int! = 0, cursor: TranscriptSegmentWhereUniqueInput): [TranscriptSegment!]
   segmentsCount(where: TranscriptSegmentWhereInput! = {}): Int
+  debugData: JSON
   createdAt: DateTime
 }
 
@@ -226,6 +230,7 @@ input ChatMessageUpdateInput {
   role: String
   content: String
   segments: TranscriptSegmentRelateToManyForUpdateInput
+  debugData: JSON
   createdAt: DateTime
 }
 
@@ -252,6 +257,7 @@ input ChatMessageCreateInput {
   role: String
   content: String
   segments: TranscriptSegmentRelateToManyForCreateInput
+  debugData: JSON
   createdAt: DateTime
 }
 
@@ -1178,6 +1184,7 @@ type ChatMessageResult {
   content: String!
   createdAt: String
   segments: [ChatSegmentReference!]!
+  debugData: ChatMessageDebugData
 }
 
 type ChatSegmentReference {
@@ -1189,11 +1196,107 @@ type ChatSegmentReference {
   transcriptTitle: String
 }
 
+type ChatMessageDebugData {
+  config: ChatConfig!
+  resolvedSystemPrompt: String!
+  userMessageWithContext: String!
+  history: ChatMessageDebugHistory!
+  segments: [ChatMessageDebugSegment!]
+  segmentTokensUsed: Int!
+  openaiResponse: ChatMessageDebugOpenAIResponse!
+  timing: ChatMessageDebugTiming!
+}
+
+type ChatConfig {
+  systemPrompt: String!
+  openai: ChatConfigOpenAI!
+  context: ChatConfigContext!
+  segments: ChatConfigSegments!
+}
+
+type ChatConfigOpenAI {
+  model: String!
+  temperature: Float!
+  maxOutputTokens: Int!
+}
+
+type ChatConfigContext {
+  maxInputTokens: Int!
+  reservedTokens: Int!
+  historyTokenBudget: Int!
+}
+
+type ChatConfigSegments {
+  tokenBudget: Int!
+  maxCount: Int!
+}
+
+type ChatMessageDebugHistory {
+  messagesIncluded: Int!
+  tokensUsed: Int!
+  tokenBudget: Int!
+  messages: [ChatMessageDebugHistoryMessage!]!
+}
+
+type ChatMessageDebugHistoryMessage {
+  role: String!
+  content: String!
+  tokens: Int!
+}
+
+type ChatMessageDebugSegment {
+  id: ID!
+  text: String!
+  transcriptTitle: String
+  speaker: String
+  startMs: Int
+  endMs: Int
+  similarityScore: Float
+  estimatedTokens: Int!
+}
+
+type ChatMessageDebugOpenAIResponse {
+  model: String!
+  promptTokens: Int
+  completionTokens: Int
+  totalTokens: Int
+}
+
+type ChatMessageDebugTiming {
+  startedAt: String!
+  completedAt: String!
+}
+
 input ChatTranscriptInput {
   chatId: ID
   transcriptId: ID!
   message: String!
   systemPrompt: String!
+  config: ChatConfigInput
+}
+
+input ChatConfigInput {
+  systemPrompt: String
+  openai: ChatConfigOpenAIInput
+  context: ChatConfigContextInput
+  segments: ChatConfigSegmentsInput
+}
+
+input ChatConfigOpenAIInput {
+  model: String
+  temperature: Float
+  maxOutputTokens: Int
+}
+
+input ChatConfigContextInput {
+  maxInputTokens: Int
+  reservedTokens: Int
+  historyTokenBudget: Int
+}
+
+input ChatConfigSegmentsInput {
+  tokenBudget: Int
+  maxCount: Int
 }
 
 input ChatProjectInput {
@@ -1201,6 +1304,7 @@ input ChatProjectInput {
   projectId: ID!
   message: String!
   systemPrompt: String!
+  config: ChatConfigInput
 }
 
 type Query {
@@ -1239,6 +1343,7 @@ type ChatHistoryResult {
   messages: [ChatMessageResult!]!
   systemPrompt: String
   resolvedSystemPrompt: String
+  config: ChatConfig
 }
 
 type KeystoneMeta {

@@ -1,6 +1,6 @@
 import { type Lists } from '.keystone/types';
 import { list } from '@keystone-6/core';
-import { relationship, select, text, timestamp } from '@keystone-6/core/fields';
+import { json, relationship, select, text, timestamp } from '@keystone-6/core/fields';
 import { filterByUserOrg, isAuthenticated, isGod, isOrgAdmin } from '../domains/auth/userRole';
 
 export default list({
@@ -16,6 +16,7 @@ export default list({
     }),
     content: text({ ui: { displayMode: 'textarea' }, validation: { isRequired: true } }),
     segments: relationship({ ref: 'TranscriptSegment.chatMessages', many: true }),
+    debugData: json(),
     createdAt: timestamp({ defaultValue: { kind: 'now' }, ui: { createView: { fieldMode: 'hidden' } } })
   },
   access: {

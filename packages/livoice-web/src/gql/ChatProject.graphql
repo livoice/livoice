@@ -15,6 +15,58 @@ mutation ChatProject($input: ChatProjectInput!) {
         speaker
         transcriptTitle
       }
+      debugData {
+        config {
+          systemPrompt
+          openai {
+            model
+            temperature
+            maxOutputTokens
+          }
+          context {
+            maxInputTokens
+            reservedTokens
+            historyTokenBudget
+          }
+          segments {
+            tokenBudget
+            maxCount
+          }
+        }
+        resolvedSystemPrompt
+        userMessageWithContext
+        history {
+          messagesIncluded
+          tokensUsed
+          tokenBudget
+          messages {
+            role
+            content
+            tokens
+          }
+        }
+        segments {
+          id
+          text
+          transcriptTitle
+          speaker
+          startMs
+          endMs
+          similarityScore
+          estimatedTokens
+        }
+        segmentTokensUsed
+        openaiResponse {
+          model
+          promptTokens
+          completionTokens
+          totalTokens
+        }
+        timing {
+          startedAt
+          completedAt
+        }
+      }
     }
     references {
       id

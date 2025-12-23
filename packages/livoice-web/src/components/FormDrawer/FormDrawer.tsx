@@ -9,11 +9,20 @@ interface FormDrawerProps {
   children: ReactNode;
   actions?: ReactNode;
   onSubmit: FormEventHandler<HTMLFormElement>;
+  closeDisabled?: boolean;
 }
 
-export default function FormDrawer({ open, onClose, title, children, actions = null, onSubmit }: FormDrawerProps) {
+export default function FormDrawer({
+  open,
+  onClose,
+  title,
+  children,
+  actions = null,
+  onSubmit,
+  closeDisabled = false
+}: FormDrawerProps) {
   return (
-    <Sheet open={open} onOpenChange={value => (!value ? onClose() : null)}>
+    <Sheet open={open} onOpenChange={value => (!value && !closeDisabled ? onClose() : null)}>
       <SheetContent side="right" className="w-full sm:max-w-lg h-full overflow-y-auto p-0">
         <form onSubmit={onSubmit} className="flex min-h-full flex-col">
           <SheetHeader className="sticky top-0 z-20 w-full bg-white/20 backdrop-blur-lg px-6 py-5 mb-0">

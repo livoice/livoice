@@ -4,6 +4,23 @@ query ChatProjectHistory($projectId: ID!, $chatId: ID) {
     title
     systemPrompt
     resolvedSystemPrompt
+    config {
+      systemPrompt
+      openai {
+        model
+        temperature
+        maxOutputTokens
+      }
+      context {
+        maxInputTokens
+        reservedTokens
+        historyTokenBudget
+      }
+      segments {
+        tokenBudget
+        maxCount
+      }
+    }
     messages {
       id
       role
@@ -16,6 +33,58 @@ query ChatProjectHistory($projectId: ID!, $chatId: ID) {
         endMs
         speaker
         transcriptTitle
+      }
+      debugData {
+        config {
+          systemPrompt
+          openai {
+            model
+            temperature
+            maxOutputTokens
+          }
+          context {
+            maxInputTokens
+            reservedTokens
+            historyTokenBudget
+          }
+          segments {
+            tokenBudget
+            maxCount
+          }
+        }
+        resolvedSystemPrompt
+        userMessageWithContext
+        history {
+          messagesIncluded
+          tokensUsed
+          tokenBudget
+          messages {
+            role
+            content
+            tokens
+          }
+        }
+        segments {
+          id
+          text
+          transcriptTitle
+          speaker
+          startMs
+          endMs
+          similarityScore
+          estimatedTokens
+        }
+        segmentTokensUsed
+        openaiResponse {
+          model
+          promptTokens
+          completionTokens
+          totalTokens
+        }
+        timing {
+          startedAt
+          completedAt
+        }
       }
     }
   }
