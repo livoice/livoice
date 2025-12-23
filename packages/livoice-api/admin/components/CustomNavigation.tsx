@@ -6,6 +6,7 @@ export function CustomNavigation({ lists, authenticatedItem }: NavigationProps) 
     <NavigationContainer authenticatedItem={authenticatedItem}>
       <NavItem href="/">Dashboard</NavItem>
       <NavItem href="/queues">Queue Monitor</NavItem>
+      <NavItem href="/failed-transcripts">Failed Transcripts</NavItem>
       <ListNavItems lists={lists} />
     </NavigationContainer>
   );

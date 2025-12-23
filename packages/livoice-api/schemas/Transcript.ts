@@ -60,7 +60,10 @@ export default list({
     updatedAt: timestamp({ db: { updatedAt: true }, ui: { createView: { fieldMode: 'hidden' } } })
   },
   ui: {
-    labelField: 'title'
+    labelField: 'title',
+    listView: {
+      initialColumns: ['title', 'importStatus', 'embeddingStatus', 'importAttempts', 'embeddingAttempts']
+    }
   },
   access: {
     operation: {

@@ -676,6 +676,7 @@ export type Mutation = {
   deleteUser?: Maybe<User>;
   deleteUsers?: Maybe<Array<Maybe<User>>>;
   endSession: Scalars['Boolean']['output'];
+  resetFailedTranscript: Transcript;
   triggerSourceImport: Source;
   updateChat?: Maybe<Chat>;
   updateChatMessage?: Maybe<ChatMessage>;
@@ -863,6 +864,11 @@ export type MutationDeleteUserArgs = {
 
 export type MutationDeleteUsersArgs = {
   where: Array<UserWhereUniqueInput>;
+};
+
+
+export type MutationResetFailedTranscriptArgs = {
+  transcriptId: Scalars['ID']['input'];
 };
 
 
@@ -1661,6 +1667,7 @@ export type Transcript = {
   notes?: Maybe<Scalars['String']['output']>;
   org?: Maybe<Organization>;
   publishedAt?: Maybe<Scalars['DateTime']['output']>;
+  resetButton?: Maybe<Scalars['String']['output']>;
   segmentEmbeddingProgress?: Maybe<SegmentEmbeddingProgress>;
   segments?: Maybe<Array<TranscriptSegment>>;
   segmentsCount?: Maybe<Scalars['Int']['output']>;
