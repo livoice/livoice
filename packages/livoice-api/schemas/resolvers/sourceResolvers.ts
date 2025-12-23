@@ -26,6 +26,9 @@ type SourceItemWithId = {
   id?: string | { toString(): string } | null;
 };
 
+type ImportStatusCountRow = { importStatus: string | null; _count: { id: number } };
+type EmbeddingStatusCountRow = { embeddingStatus: string | null; _count: { id: number } };
+
 export const resolveTranscriptImportProgress = async (
   item: SourceItemWithId,
   _args: unknown,
@@ -48,12 +51,15 @@ export const resolveTranscriptImportProgress = async (
   }
 
   const sudo = context.sudo();
-  const transcripts = (await sudo.query.Transcript.findMany({
-    where: { source: { id: { equals: String(item.id) } } },
-    query: 'importStatus'
-  })) as Array<{ importStatus?: string | null }>;
+  const sourceId = String(item.id);
 
-  const total = transcripts.length;
+  // Use database-level aggregation instead of loading all transcripts into memory
+  const statusCounts = (await sudo.prisma.transcript.groupBy({
+    by: ['importStatus'],
+    where: { sourceId },
+    _count: { id: true }
+  })) as ImportStatusCountRow[];
+
   const counts = {
     pending: 0,
     fetching: 0,
@@ -62,11 +68,12 @@ export const resolveTranscriptImportProgress = async (
     skipped: 0
   };
 
-  transcripts.forEach(transcript => {
-    const status = transcript.importStatus || 'pending';
-    if (status in counts) counts[status as keyof typeof counts]++;
+  statusCounts.forEach(row => {
+    const status = row.importStatus || 'pending';
+    if (status in counts) counts[status as keyof typeof counts] = row._count.id;
   });
 
+  const total = statusCounts.reduce((sum, row) => sum + row._count.id, 0);
   const calculatePercentage = (count: number) => (total > 0 ? (count / total) * 100 : 0);
 
   return {
@@ -104,12 +111,15 @@ export const resolveTranscriptEmbeddingProgress = async (
   }
 
   const sudo = context.sudo();
-  const transcripts = (await sudo.query.Transcript.findMany({
-    where: { source: { id: { equals: String(item.id) } } },
-    query: 'embeddingStatus'
-  })) as Array<{ embeddingStatus?: string | null }>;
+  const sourceId = String(item.id);
 
-  const total = transcripts.length;
+  // Use database-level aggregation instead of loading all transcripts into memory
+  const statusCounts = (await sudo.prisma.transcript.groupBy({
+    by: ['embeddingStatus'],
+    where: { sourceId },
+    _count: { id: true }
+  })) as EmbeddingStatusCountRow[];
+
   const counts = {
     pending: 0,
     processing: 0,
@@ -117,11 +127,12 @@ export const resolveTranscriptEmbeddingProgress = async (
     failed: 0
   };
 
-  transcripts.forEach(transcript => {
-    const status = transcript.embeddingStatus || 'pending';
-    if (status in counts) counts[status as keyof typeof counts]++;
+  statusCounts.forEach(row => {
+    const status = row.embeddingStatus || 'pending';
+    if (status in counts) counts[status as keyof typeof counts] = row._count.id;
   });
 
+  const total = statusCounts.reduce((sum, row) => sum + row._count.id, 0);
   const calculatePercentage = (count: number) => (total > 0 ? (count / total) * 100 : 0);
 
   return {
@@ -151,12 +162,24 @@ export const resolveOverallProgress = async (
   }
 
   const sudo = context.sudo();
-  const transcripts = (await sudo.query.Transcript.findMany({
-    where: { source: { id: { equals: String(item.id) } } },
-    query: 'importStatus embeddingStatus'
-  })) as Array<{ importStatus?: string | null; embeddingStatus?: string | null }>;
+  const sourceId = String(item.id);
 
-  const total = transcripts.length;
+  // Use database-level aggregation instead of loading all transcripts into memory
+  const [importCounts, embeddingCounts] = (await Promise.all([
+    sudo.prisma.transcript.groupBy({
+      by: ['importStatus'],
+      where: { sourceId },
+      _count: { id: true }
+    }),
+    sudo.prisma.transcript.groupBy({
+      by: ['embeddingStatus'],
+      where: { sourceId },
+      _count: { id: true }
+    })
+  ])) as [ImportStatusCountRow[], EmbeddingStatusCountRow[]];
+
+  const total = importCounts.reduce((sum, row) => sum + row._count.id, 0);
+
   if (total === 0) {
     return {
       importCompletedPercentage: 0,
@@ -165,10 +188,12 @@ export const resolveOverallProgress = async (
     };
   }
 
-  const importCompleted = transcripts.filter(
-    t => t.importStatus === 'completed' || t.importStatus === 'skipped'
-  ).length;
-  const embeddingCompleted = transcripts.filter(t => t.embeddingStatus === 'completed').length;
+  const importCompleted = importCounts
+    .filter(row => row.importStatus === 'completed' || row.importStatus === 'skipped')
+    .reduce((sum, row) => sum + row._count.id, 0);
+  const embeddingCompleted = embeddingCounts
+    .filter(row => row.embeddingStatus === 'completed')
+    .reduce((sum, row) => sum + row._count.id, 0);
 
   const importCompletedPercentage = (importCompleted / total) * 100;
   const embeddingCompletedPercentage = (embeddingCompleted / total) * 100;
