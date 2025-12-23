@@ -1,5 +1,6 @@
 import path from 'path';
 import youtubeDlExec from 'youtube-dl-exec';
+import env from '../../../config/env';
 import { TempFile } from '../../TempFile';
 import { SourceAdapter, SourceItem } from '../types';
 import { proxyFetch } from './utils/proxyFetch';
@@ -135,7 +136,11 @@ export const youtubeAdapter: SourceAdapter = {
         subFormat: SUB_FORMAT,
         output: tempFile.path,
         jsRuntimes: 'node' as const,
-        cookies: path.resolve(__dirname, 'assets', 'youtube-cookies.txt'),
+        cookies: path.resolve(
+          __dirname,
+          'assets',
+          `youtube-cookies${env.NODE_ENV === 'development' ? '-local' : ''}.txt`
+        ),
         sleepRequests: Math.random() * 2 + 0.5,
         sleepSubtitles: Math.floor(Math.random() * 5) + 1
       } as Parameters<typeof youtubeDlExec>[1] & {
