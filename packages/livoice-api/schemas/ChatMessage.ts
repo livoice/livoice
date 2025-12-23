@@ -1,7 +1,7 @@
 import { type Lists } from '.keystone/types';
 import { list } from '@keystone-6/core';
 import { json, relationship, select, text, timestamp } from '@keystone-6/core/fields';
-import { filterByUserOrg, isAuthenticated, isGod, isOrgAdmin } from '../domains/auth/userRole';
+import { isAuthenticated, isGod, isOrgAdmin } from '../domains/auth/userRole';
 
 export default list({
   fields: {
@@ -29,7 +29,8 @@ export default list({
       query: async ({ session }) => {
         if (!isAuthenticated({ session })) return false;
         if (isGod({ session })) return true;
-        return filterByUserOrg({ session });
+        if (!session?.orgId) return false;
+        return { chat: { org: { id: { equals: session.orgId } } } };
       }
     }
   }

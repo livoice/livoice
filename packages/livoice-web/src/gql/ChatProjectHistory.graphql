@@ -81,4 +81,3 @@ query ChatProjectHistory($projectId: ID!, $chatId: ID) {
     }
   }
 }
-

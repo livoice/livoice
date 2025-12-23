@@ -36,11 +36,11 @@ export type ChatMessageItem = {
 const markdownComponents: Components = {
   ol: ({ node, ...props }) => {
     void node;
-    return <ol className="list-decimal space-y-1 pl-5" {...props} />;
+    return <ol className="list-decimal space-y-1 pl-5 whitespace-normal" {...props} />;
   },
   ul: ({ node, ...props }) => {
     void node;
-    return <ul className="list-disc space-y-1 pl-5" {...props} />;
+    return <ul className="list-disc space-y-1 pl-5 whitespace-normal" {...props} />;
   },
   li: ({ node, ...props }) => {
     void node;
