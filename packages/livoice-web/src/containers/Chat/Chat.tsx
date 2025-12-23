@@ -482,15 +482,16 @@ const Chat = () => {
                         className="w-full rounded-xl border border-slate-200 bg-white px-4 py-3 text-sm text-slate-700 outline-none transition focus:border-violet-300 focus:ring-2 focus:ring-violet-100"
                         onChange={event => {
                           const value = event.target.value;
-                          if (selectedConfigKey !== value) {
-                            setSelectedConfigKey(value);
+                          if (selectedConfigKey === value) return;
+                          setSelectedConfigKey(value);
+                          const preset = uniqueConfigs.find(entry => entry.key === value);
+                          if (preset) {
+                            setChatConfig(preset.config);
                           }
                         }}
                         value={selectedConfigKey || ''}
                       >
-                        <option value="" disabled>
-                          Choose a configuration...
-                        </option>
+                        <option value="">Choose a configuration...</option>
                         {uniqueConfigs.map(item => (
                           <option key={item.key} value={item.key}>
                             {formatConfigLabel(item)}
