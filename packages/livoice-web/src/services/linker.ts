@@ -23,8 +23,10 @@ export enum ROUTER_PATHS {
   SOURCES_EDIT = '/sources/:sourceId/edit',
   SOURCE = '/sources/:sourceId',
   TRANSCRIPT = '/sources/:sourceId/transcripts/:transcriptId',
-  PROJECT_CHAT = '/projects/:projectId/chat/:chatId',
+  PROJECT_CHAT_ID = '/projects/:projectId/chat/:chatId',
+  PROJECT_CHAT_ID_MESSAGE_DEBUG = '/projects/:projectId/chat/:chatId/:chatMessageId/debug',
   PROJECT_CHAT_NEW = '/projects/:projectId/chat/new',
+  PROJECT_CHAT_NEW_CONFIG = '/projects/:projectId/chat/new/config',
   NOT_FOUND = '*'
 }
 
@@ -54,11 +56,22 @@ export const toProject = ({ projectId }: { projectId: string }) => asPath(ROUTER
 export const toProjectEdit = ({ projectId }: { projectId: string }) =>
   asPath(ROUTER_PATHS.PROJECTS_EDIT, { projectId });
 export const toProjectChat = ({ projectId, chatId }: { projectId: string; chatId: string }) =>
-  asPath(ROUTER_PATHS.PROJECT_CHAT, { projectId, chatId });
+  asPath(ROUTER_PATHS.PROJECT_CHAT_ID, { projectId, chatId });
+export const toProjectChatIdMessageDebug = ({
+  projectId,
+  chatId,
+  chatMessageId
+}: {
+  projectId: string;
+  chatId: string;
+  chatMessageId: string;
+}) => asPath(ROUTER_PATHS.PROJECT_CHAT_ID_MESSAGE_DEBUG, { projectId, chatId, chatMessageId });
 export const toProjectChatNew = ({ projectId }: { projectId: string }) =>
   asPath(ROUTER_PATHS.PROJECT_CHAT_NEW, { projectId });
-export const toChat = ({ projectId, chatId }: { projectId: string; chatId: string }) =>
-  asPath(ROUTER_PATHS.PROJECT_CHAT, { projectId, chatId });
+export const toProjectChatNewConfig = ({ projectId }: { projectId: string }) =>
+  asPath(ROUTER_PATHS.PROJECT_CHAT_NEW_CONFIG, { projectId });
+export const toChatId = ({ projectId, chatId }: { projectId: string; chatId: string }) =>
+  asPath(ROUTER_PATHS.PROJECT_CHAT_ID, { projectId, chatId });
 export const toChatNew = ({ projectId, transcriptId }: { projectId: string; transcriptId: string }) =>
   asPath(ROUTER_PATHS.PROJECT_CHAT_NEW, { projectId, transcriptId });
 export const toSources = () => asPath(ROUTER_PATHS.SOURCES);

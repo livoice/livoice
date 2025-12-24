@@ -5,33 +5,25 @@ import { useEffect, useMemo, useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import type { Components } from 'react-markdown';
 import ReactMarkdown from 'react-markdown';
-import { useNavigate, useParams } from 'react-router-dom';
+import { Link, Outlet, useMatch, useNavigate, useParams } from 'react-router-dom';
 import remarkBreaks from 'remark-breaks';
 import remarkGfm from 'remark-gfm';
 
 import FormDrawer from '@/components/FormDrawer/FormDrawer';
-import type { ChatMessageDebugData } from '@/gql/generated';
-import {
-  useChatConfigsQuery,
-  useChatProjectHistoryQuery,
-  useChatProjectMutation,
-  useUpdateChatMutation
-} from '@/gql/generated';
+import { useChatProjectHistoryQuery, useChatProjectMutation, useUpdateChatMutation } from '@/gql/generated';
 import { cn } from '@/lib/cn';
-import { toProjectChat } from '@/services/linker';
+import {
+  ROUTER_PATHS,
+  toProject,
+  toProjectChat,
+  toProjectChatIdMessageDebug,
+  toProjectChatNewConfig
+} from '@/services/linker';
 import { Button } from '@/ui/button';
 import { Card } from '@/ui/card';
 import { TextField } from '@/ui/text-field';
-import MessageDebugModal from './MessageDebugModal';
-import { CONFIG_RANGES, DEFAULT_CHAT_CONFIG, OPENAI_MODELS } from './constants';
-
-export type ChatMessageItem = {
-  id: string;
-  role: 'user' | 'assistant';
-  content: string;
-  createdAt?: string | null;
-  debugData?: ChatMessageDebugData | null;
-};
+import type { ChatDebugOutletContext, ChatMessageItem } from './types';
+import { useChatContext } from './useChatContext';
 
 const markdownComponents: Components = {
   ol: ({ node, ...props }) => {
@@ -48,50 +40,6 @@ const markdownComponents: Components = {
   }
 };
 
-type ChatConfigForm = {
-  systemPrompt: string;
-  openai: {
-    model: string;
-    temperature: number;
-    maxOutputTokens: number;
-  };
-  context: {
-    maxInputTokens: number;
-    reservedTokens: number;
-    historyTokenBudget: number;
-  };
-  segments: {
-    tokenBudget: number;
-    maxCount: number;
-  };
-};
-
-type UniqueConfigEntry = {
-  key: string;
-  config: ChatConfigForm;
-  chatTitle: string;
-  projectName: string | null;
-  createdAt: string;
-};
-
-const normalizeConfig = (config?: ChatConfigForm | null): ChatConfigForm => ({
-  systemPrompt: config?.systemPrompt ?? DEFAULT_CHAT_CONFIG.systemPrompt,
-  openai: {
-    model: config?.openai?.model ?? DEFAULT_CHAT_CONFIG.openai.model,
-    temperature: config?.openai?.temperature ?? DEFAULT_CHAT_CONFIG.openai.temperature,
-    maxOutputTokens: config?.openai?.maxOutputTokens ?? DEFAULT_CHAT_CONFIG.openai.maxOutputTokens
-  },
-  context: {
-    maxInputTokens: config?.context?.maxInputTokens ?? DEFAULT_CHAT_CONFIG.context.maxInputTokens,
-    reservedTokens: config?.context?.reservedTokens ?? DEFAULT_CHAT_CONFIG.context.reservedTokens,
-    historyTokenBudget: config?.context?.historyTokenBudget ?? DEFAULT_CHAT_CONFIG.context.historyTokenBudget
-  },
-  segments: {
-    tokenBudget: config?.segments?.tokenBudget ?? DEFAULT_CHAT_CONFIG.segments.tokenBudget,
-    maxCount: config?.segments?.maxCount ?? DEFAULT_CHAT_CONFIG.segments.maxCount
-  }
-});
-
 const Chat = () => {
   const { t } = useTranslation('common');
   const { projectId = '', chatId = '' } = useParams<{
@@ -102,20 +50,19 @@ const Chat = () => {
   const navigate = useNavigate();
   const client = useApolloClient();
 
+  const { chatConfig, configsLoading } = useChatContext();
+
   const [draft, setDraft] = useState('');
-  const [chatConfig, setChatConfig] = useState<ChatConfigForm>(DEFAULT_CHAT_CONFIG);
-  const [selectedConfigKey, setSelectedConfigKey] = useState('');
-  const [showAdvancedSettings, setShowAdvancedSettings] = useState(false);
   const [systemPromptExpanded, setSystemPromptExpanded] = useState({ raw: false, resolved: false });
   const [inputDirection, setInputDirection] = useState<'ltr' | 'rtl'>('ltr');
   const [isEditingTitle, setIsEditingTitle] = useState(false);
   const [editedTitle, setEditedTitle] = useState('');
-  const [debugModalState, setDebugModalState] = useState<{
-    message: ChatMessageItem;
-    debugData: NonNullable<ChatMessageItem['debugData']>;
-  } | null>(null);
   const canSend = Boolean(draft.trim());
   const messagesEndRef = useRef<HTMLDivElement | null>(null);
+
+  const debugMatch = useMatch(ROUTER_PATHS.PROJECT_CHAT_ID_MESSAGE_DEBUG);
+  const isConfigRoute = Boolean(useMatch(ROUTER_PATHS.PROJECT_CHAT_NEW_CONFIG));
+  const isDebugRoute = Boolean(debugMatch);
 
   const {
     data: projectHistory,
@@ -124,14 +71,6 @@ const Chat = () => {
   } = useChatProjectHistoryQuery({
     variables: { projectId, chatId: isNewChat ? null : chatId },
     skip: !projectId
-  });
-
-  const {
-    data: configsData,
-    loading: configsLoading,
-    refetch: refetchConfigs
-  } = useChatConfigsQuery({
-    skip: !isNewChat
   });
 
   const [chatProject, { loading: sendingProject }] = useChatProjectMutation({
@@ -153,6 +92,8 @@ const Chat = () => {
     }
   });
 
+  const isLoading = sendingProject || projectLoading || configsLoading;
+
   const currentSystemPrompt = projectHistory?.chatProjectHistory?.systemPrompt ?? '';
   const resolvedSystemPrompt =
     (projectHistory?.chatProjectHistory as { resolvedSystemPrompt?: string })?.resolvedSystemPrompt ?? '';
@@ -169,39 +110,16 @@ const Chat = () => {
     }));
   }, [isNewChat, projectHistory?.chatProjectHistory?.messages]);
 
-  const uniqueConfigs = useMemo(() => {
-    const chats = configsData?.chats ?? [];
-    const configMap = new Map<string, UniqueConfigEntry>();
+  const debugModalState = useMemo(() => {
+    if (!isDebugRoute) return null;
+    const chatMessageId = debugMatch?.params.chatMessageId;
+    if (!chatMessageId) return null;
+    const foundMessage = messages.find(message => message.id === chatMessageId);
+    if (!foundMessage?.debugData) return null;
+    return { message: foundMessage, debugData: foundMessage.debugData };
+  }, [debugMatch?.params.chatMessageId, isDebugRoute, messages]);
 
-    chats.forEach(chat => {
-      const rawConfig = chat?.config;
-      if (!rawConfig) return;
-      const normalizedConfig = normalizeConfig(rawConfig);
-      const key = JSON.stringify(normalizedConfig);
-      if (configMap.has(key)) return;
-      const createdAt = chat.createdAt ?? new Date().toISOString();
-      configMap.set(key, {
-        key,
-        config: normalizedConfig,
-        chatTitle: chat?.title || 'Untitled Chat',
-        projectName: chat.project?.name || null,
-        createdAt
-      });
-    });
-
-    return Array.from(configMap.values()).sort(
-      (a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
-    );
-  }, [configsData]);
-
-  const formatConfigLabel = (item: UniqueConfigEntry) => {
-    const date = new Date(item.createdAt);
-    const dateTimeStr = date.toLocaleString(); // e.g., "12/21/2024, 3:45:30 PM"
-    const projectPart = item.projectName ? ` - ${item.projectName}` : '';
-    return `${item.chatTitle}${projectPart} (${dateTimeStr})`;
-  };
-
-  const isLoading = sendingProject || projectLoading || configsLoading;
+  const closeDebugModal = () => navigate(toProjectChat({ projectId, chatId }), { replace: true });
 
   const handleSubmit = async () => {
     const trimmed = draft.trim();
@@ -230,18 +148,19 @@ const Chat = () => {
   const emptyPlaceholder = placeholder || t('chat.emptyPlaceholder');
   const inputPlaceholder = placeholder || t('chat.inputPlaceholder');
   const buttonLabel = isLoading ? t('buttons.sending') : t('buttons.sendQuestion');
+  const trimmedPrompt = chatConfig.systemPrompt.trim();
+  const promptPreview = trimmedPrompt.length > 0 ? trimmedPrompt.split('\n').slice(0, 2).join(' ') : '';
+  const promptDisplay = promptPreview.length > 180 ? `${promptPreview.slice(0, 180)}...` : promptPreview;
+  const configSummaryItems = [
+    { label: 'Model', value: chatConfig.openai.model },
+    { label: 'Temperature', value: chatConfig.openai.temperature.toFixed(2) },
+    { label: 'Max output tokens', value: chatConfig.openai.maxOutputTokens.toString() },
+    { label: 'Max input tokens', value: chatConfig.context.maxInputTokens.toString() },
+    { label: 'History token budget', value: chatConfig.context.historyTokenBudget.toString() },
+    { label: 'Segment token budget', value: chatConfig.segments.tokenBudget.toString() }
+  ];
 
-  const open = true;
-  const onClose = () => {
-    console.log('onClose');
-    if (debugModalState) {
-      console.log('debugModalState', debugModalState);
-      setDebugModalState(null);
-      return;
-    }
-    console.log('navigate(-1)');
-    navigate(-1);
-  };
+  const onClose = () => navigate(toProject({ projectId }));
 
   const handleStartEditing = () => {
     setEditedTitle(chatTitle || title);
@@ -265,6 +184,14 @@ const Chat = () => {
     setEditedTitle('');
     setIsEditingTitle(false);
   };
+
+  const debugOutletContext: ChatDebugOutletContext | null = debugModalState
+    ? {
+        message: debugModalState.message,
+        debugData: debugModalState.debugData,
+        onClose: closeDebugModal
+      }
+    : null;
 
   const handleTitleKeyDown = (event: React.KeyboardEvent<HTMLInputElement>) => {
     if (event.key === 'Enter') {
@@ -325,33 +252,11 @@ const Chat = () => {
   }, [messages.length]);
 
   useEffect(() => {
-    if (!isNewChat) return;
-    void refetchConfigs();
-  }, [isNewChat, refetchConfigs]);
-
-  useEffect(() => {
     if (isNewChat) {
       setIsEditingTitle(false);
       setEditedTitle('');
     }
   }, [isNewChat]);
-
-  useEffect(() => {
-    if (!isNewChat) {
-      setSelectedConfigKey('');
-      return;
-    }
-    if (selectedConfigKey) return;
-    if (!uniqueConfigs.length) return;
-    setSelectedConfigKey(uniqueConfigs[0].key);
-  }, [isNewChat, selectedConfigKey, uniqueConfigs]);
-
-  useEffect(() => {
-    if (!selectedConfigKey) return;
-    const preset = uniqueConfigs.find(entry => entry.key === selectedConfigKey);
-    if (!preset) return;
-    setChatConfig(preset.config);
-  }, [selectedConfigKey, uniqueConfigs]);
 
   const downloadConversation = () => {
     const lines: string[] = [];
@@ -405,10 +310,10 @@ const Chat = () => {
   return (
     <>
       <FormDrawer
-        open={open}
+        open={!isConfigRoute && !isDebugRoute}
         title={customTitle}
         onClose={onClose}
-        closeDisabled={Boolean(debugModalState)}
+        closeDisabled={isConfigRoute || isDebugRoute || Boolean(debugModalState)}
         onSubmit={event => {
           event.preventDefault();
           void handleSubmit();
@@ -428,259 +333,48 @@ const Chat = () => {
           <div className="flex-1 space-y-3 overflow-y-auto pr-1">
             {isNewChat ? (
               <div className="space-y-4 rounded-2xl border border-slate-200 bg-slate-50/50 p-4">
-                <div className="space-y-2">
-                  <label htmlFor="system-prompt" className="text-sm font-semibold text-slate-700">
-                    System Prompt
-                  </label>
-                  <p className="text-xs text-slate-500 font-medium">
-                    Select a previous configuration or enter a new prompt below. After setting a prompt, you can start
-                    the conversation from the input at the bottom.
-                  </p>
-
-                  {uniqueConfigs.length > 0 && (
-                    <div className="space-y-2">
-                      <label className="text-xs font-medium uppercase tracking-wide text-slate-600">
-                        Select a previous configuration
-                      </label>
-                      <select
-                        className="w-full rounded-xl border border-slate-200 bg-white px-4 py-3 text-sm text-slate-700 outline-none transition focus:border-violet-300 focus:ring-2 focus:ring-violet-100"
-                        onChange={event => {
-                          const value = event.target.value;
-                          if (selectedConfigKey === value) return;
-                          setSelectedConfigKey(value);
-                          const preset = uniqueConfigs.find(entry => entry.key === value);
-                          if (preset) {
-                            setChatConfig(preset.config);
-                          }
-                        }}
-                        value={selectedConfigKey || ''}
-                      >
-                        <option value="">Choose a configuration...</option>
-                        {uniqueConfigs.map(item => (
-                          <option key={item.key} value={item.key}>
-                            {formatConfigLabel(item)}
-                          </option>
-                        ))}
-                      </select>
-                    </div>
-                  )}
-
-                  <TextField
-                    id="system-prompt"
-                    multiline
-                    rows={14}
-                    placeholder="Enter system prompt..."
-                    value={chatConfig.systemPrompt}
-                    onChange={event => setChatConfig(prev => ({ ...prev, systemPrompt: event.target.value }))}
-                    className="w-full"
-                  />
-                  <div className="text-xs text-slate-500 space-y-1">
-                    <p className="font-medium">Available placeholders:</p>
-                    <ul className="list-disc list-inside space-y-0.5 ml-2">
-                      <li>
-                        <code className="bg-slate-100 px-1 rounded text-xs">{'{projectName}'}</code> - The name of the
-                        current project
-                      </li>
-                      <li>
-                        <code className="bg-slate-100 px-1 rounded text-xs">{'{transcriptTitles}'}</code> - All
-                        transcript titles in the project
-                      </li>
-                      <li>
-                        <code className="bg-slate-100 px-1 rounded text-xs">{'{sourceNames}'}</code> - All source names
-                        in the project
-                      </li>
-                    </ul>
+                <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
+                  <div className="space-y-1">
+                    <p className="text-sm font-semibold text-slate-700">System Prompt</p>
+                    <p className="text-xs text-slate-500 font-medium">
+                      Configure the system prompt, model, and context before sending your first question.
+                    </p>
+                    <p className="text-sm text-slate-500">{promptDisplay || 'No system prompt configured yet.'}</p>
                   </div>
-
-                  <div className="space-y-2 pt-3">
-                    <button
-                      type="button"
-                      onClick={() => setShowAdvancedSettings(prev => !prev)}
-                      className="flex w-full items-center justify-between rounded-xl border border-slate-200 bg-white px-3 py-2 text-left text-sm font-semibold text-slate-700 transition hover:border-violet-300 hover:text-slate-900"
+                  <Link
+                    to={toProjectChatNewConfig({ projectId })}
+                    className="inline-flex items-center justify-center rounded-xl border border-slate-200 bg-white px-4 py-2 text-sm font-semibold text-slate-700 transition hover:border-violet-300 hover:text-slate-900"
+                  >
+                    Configure chat
+                  </Link>
+                </div>
+                <div className="grid gap-3 sm:grid-cols-2">
+                  {configSummaryItems.map(item => (
+                    <div
+                      key={item.label}
+                      className="rounded-2xl border border-slate-200 bg-white/70 p-3 text-xs text-slate-500"
                     >
-                      <span>Advanced Settings</span>
-                      <span className="text-xs text-slate-500">{showAdvancedSettings ? '▼' : '▶'}</span>
-                    </button>
-                    {showAdvancedSettings && (
-                      <div className="space-y-4 rounded-2xl border border-slate-200 bg-white/90 p-4">
-                        <div className="space-y-3">
-                          <div className="flex items-center justify-between">
-                            <span className="text-sm font-medium text-slate-700">OpenAI Settings</span>
-                            <span className="text-xs text-slate-500">Model + response length</span>
-                          </div>
-                          <div className="space-y-2">
-                            <label className="text-xs font-semibold uppercase tracking-wide text-slate-600">
-                              Model
-                            </label>
-                            <select
-                              className="w-full rounded-xl border border-slate-200 bg-white px-4 py-2 text-sm text-slate-700 outline-none transition focus:border-violet-300 focus:ring-2 focus:ring-violet-100"
-                              value={chatConfig.openai.model}
-                              onChange={event =>
-                                setChatConfig(prev => ({
-                                  ...prev,
-                                  openai: { ...prev.openai, model: event.target.value }
-                                }))
-                              }
-                            >
-                              {OPENAI_MODELS.map(model => (
-                                <option key={model.value} value={model.value}>
-                                  {model.label}
-                                </option>
-                              ))}
-                            </select>
-                          </div>
-                          <div className="space-y-1">
-                            <div className="flex items-center justify-between text-xs font-medium text-slate-600">
-                              <span>Temperature</span>
-                              <span>{chatConfig.openai.temperature.toFixed(2)}</span>
-                            </div>
-                            <input
-                              type="range"
-                              min={CONFIG_RANGES.temperature.min}
-                              max={CONFIG_RANGES.temperature.max}
-                              step={CONFIG_RANGES.temperature.step}
-                              value={chatConfig.openai.temperature}
-                              onChange={event => {
-                                const next = Number(event.target.value);
-                                if (!Number.isNaN(next)) {
-                                  const bounded = Math.min(
-                                    CONFIG_RANGES.temperature.max,
-                                    Math.max(CONFIG_RANGES.temperature.min, next)
-                                  );
-                                  setChatConfig(prev => ({
-                                    ...prev,
-                                    openai: { ...prev.openai, temperature: bounded }
-                                  }));
-                                }
-                              }}
-                              className="w-full"
-                            />
-                          </div>
-                          <div className="space-y-1">
-                            <label className="text-xs font-semibold uppercase tracking-wide text-slate-600">
-                              Max Output Tokens
-                            </label>
-                            <input
-                              type="number"
-                              min={CONFIG_RANGES.maxOutputTokens.min}
-                              max={CONFIG_RANGES.maxOutputTokens.max}
-                              step={CONFIG_RANGES.maxOutputTokens.step}
-                              value={chatConfig.openai.maxOutputTokens}
-                              onChange={event => {
-                                const next = Number(event.target.value);
-                                if (!Number.isNaN(next)) {
-                                  const bounded = Math.min(
-                                    CONFIG_RANGES.maxOutputTokens.max,
-                                    Math.max(CONFIG_RANGES.maxOutputTokens.min, next)
-                                  );
-                                  setChatConfig(prev => ({
-                                    ...prev,
-                                    openai: { ...prev.openai, maxOutputTokens: bounded }
-                                  }));
-                                }
-                              }}
-                              className="w-full rounded-xl border border-slate-200 bg-white px-4 py-2 text-sm text-slate-700 outline-none transition focus:border-violet-300 focus:ring-2 focus:ring-violet-100"
-                            />
-                          </div>
-                        </div>
-
-                        <div className="space-y-3">
-                          <div className="flex items-center justify-between">
-                            <span className="text-sm font-medium text-slate-700">Context Budget</span>
-                            <span className="text-xs text-slate-500">Token limits for history and input</span>
-                          </div>
-                          <div className="grid gap-3 md:grid-cols-3">
-                            {(
-                              [
-                                ['Max Input Tokens', 'maxInputTokens', CONFIG_RANGES.maxInputTokens],
-                                ['Reserved Tokens', 'reservedTokens', CONFIG_RANGES.reservedTokens],
-                                ['History Token Budget', 'historyTokenBudget', CONFIG_RANGES.historyTokenBudget]
-                              ] as const
-                            ).map(([label, key, range]) => (
-                              <label
-                                key={key}
-                                className="space-y-1 text-xs font-semibold uppercase tracking-wide text-slate-600"
-                              >
-                                <span>{label}</span>
-                                <input
-                                  type="number"
-                                  min={range.min}
-                                  max={range.max}
-                                  step={range.step}
-                                  value={chatConfig.context[key]}
-                                  onChange={event => {
-                                    const next = Number(event.target.value);
-                                    if (Number.isNaN(next)) return;
-                                    const bounded = Math.min(range.max, Math.max(range.min, next));
-                                    setChatConfig(prev => ({
-                                      ...prev,
-                                      context: { ...prev.context, [key]: bounded }
-                                    }));
-                                  }}
-                                  className="w-full rounded-xl border border-slate-200 bg-white px-4 py-2 text-sm text-slate-700 outline-none transition focus:border-violet-300 focus:ring-2 focus:ring-violet-100"
-                                />
-                              </label>
-                            ))}
-                          </div>
-                        </div>
-
-                        <div className="space-y-3">
-                          <div className="flex items-center justify-between">
-                            <span className="text-sm font-medium text-slate-700">Segment Settings</span>
-                            <span className="text-xs text-slate-500">How much context we include</span>
-                          </div>
-                          <div className="grid gap-3 md:grid-cols-2">
-                            <label className="space-y-1 text-xs font-semibold uppercase tracking-wide text-slate-600">
-                              <span>Segment Token Budget</span>
-                              <input
-                                type="number"
-                                min={CONFIG_RANGES.segmentTokenBudget.min}
-                                max={CONFIG_RANGES.segmentTokenBudget.max}
-                                step={CONFIG_RANGES.segmentTokenBudget.step}
-                                value={chatConfig.segments.tokenBudget}
-                                onChange={event => {
-                                  const next = Number(event.target.value);
-                                  if (Number.isNaN(next)) return;
-                                  const bounded = Math.min(
-                                    CONFIG_RANGES.segmentTokenBudget.max,
-                                    Math.max(CONFIG_RANGES.segmentTokenBudget.min, next)
-                                  );
-                                  setChatConfig(prev => ({
-                                    ...prev,
-                                    segments: { ...prev.segments, tokenBudget: bounded }
-                                  }));
-                                }}
-                                className="w-full rounded-xl border border-slate-200 bg-white px-4 py-2 text-sm text-slate-700 outline-none transition focus:border-violet-300 focus:ring-2 focus:ring-violet-100"
-                              />
-                            </label>
-                            <label className="space-y-1 text-xs font-semibold uppercase tracking-wide text-slate-600">
-                              <span>Max Segments</span>
-                              <input
-                                type="number"
-                                min={CONFIG_RANGES.maxSegments.min}
-                                max={CONFIG_RANGES.maxSegments.max}
-                                step={CONFIG_RANGES.maxSegments.step}
-                                value={chatConfig.segments.maxCount}
-                                onChange={event => {
-                                  const next = Number(event.target.value);
-                                  if (Number.isNaN(next)) return;
-                                  const bounded = Math.min(
-                                    CONFIG_RANGES.maxSegments.max,
-                                    Math.max(CONFIG_RANGES.maxSegments.min, next)
-                                  );
-                                  setChatConfig(prev => ({
-                                    ...prev,
-                                    segments: { ...prev.segments, maxCount: bounded }
-                                  }));
-                                }}
-                                className="w-full rounded-xl border border-slate-200 bg-white px-4 py-2 text-sm text-slate-700 outline-none transition focus:border-violet-300 focus:ring-2 focus:ring-violet-100"
-                              />
-                            </label>
-                          </div>
-                        </div>
-                      </div>
-                    )}
-                  </div>
+                      <p className="font-semibold text-slate-700">{item.label}</p>
+                      <p>{item.value}</p>
+                    </div>
+                  ))}
+                </div>
+                <div className="text-xs text-slate-500 space-y-1">
+                  <p className="font-medium">Available placeholders:</p>
+                  <ul className="list-disc list-inside space-y-0.5 ml-2">
+                    <li>
+                      <code className="bg-slate-100 px-1 rounded text-xs">{'{projectName}'}</code> - The name of the
+                      current project
+                    </li>
+                    <li>
+                      <code className="bg-slate-100 px-1 rounded text-xs">{'{transcriptTitles}'}</code> - All transcript
+                      titles in the project
+                    </li>
+                    <li>
+                      <code className="bg-slate-100 px-1 rounded text-xs">{'{sourceNames}'}</code> - All source names in
+                      the project
+                    </li>
+                  </ul>
                 </div>
               </div>
             ) : (
@@ -746,19 +440,18 @@ const Chat = () => {
                         <span>{message.role === 'user' ? t('chat.roles.you') : t('chat.roles.assistant')}</span>
                         <div className="flex items-center gap-2">
                           {message.createdAt ? <span>{new Date(message.createdAt).toLocaleTimeString()}</span> : null}
-                          {message.role === 'assistant' && message.debugData ? (
-                            <button
-                              type="button"
-                              className="rounded-full border border-slate-200 bg-white/80 p-1 text-slate-500 transition hover:border-violet-300 hover:text-slate-700"
-                              onClick={() => {
-                                const debugData = message.debugData;
-                                if (!debugData) return;
-                                setDebugModalState({ message, debugData });
-                              }}
+                          {message.role === 'assistant' && message.debugData && chatId ? (
+                            <Link
+                              to={toProjectChatIdMessageDebug({
+                                projectId,
+                                chatId,
+                                chatMessageId: message.id
+                              })}
+                              className="rounded-full border border-slate-200 bg-white/80 p-1 text-slate-500 transition hover:border-violet-300 hover:text-violet-700"
                               title="View debug information"
                             >
                               <Info className="h-4 w-4" />
-                            </button>
+                            </Link>
                           ) : null}
                         </div>
                       </div>
@@ -806,12 +499,8 @@ const Chat = () => {
           </div>
         </Card>
       </FormDrawer>
-      <MessageDebugModal
-        open={Boolean(debugModalState)}
-        debugData={debugModalState?.debugData ?? null}
-        message={debugModalState?.message ?? null}
-        onClose={() => setDebugModalState(null)}
-      />
+      {isConfigRoute && <Outlet />}
+      {isDebugRoute && debugOutletContext && <Outlet context={debugOutletContext} />}
     </>
   );
 };

@@ -8,8 +8,18 @@ import type { AuthContextType } from '@/hooks/auth/authContext';
 import { ROUTER_PATHS, toDashboard, toLogin, toProjects, toUsers } from '@/services/linker';
 import { route } from './route';
 
+const Login = lazy(() => import('@/containers/Login/Login'));
+const Dashboard = lazy(() => import('@/containers/Dashboard/Dashboard'));
+const Users = lazy(() => import('@/containers/Users/Users'));
+const Projects = lazy(() => import('@/containers/Projects/Projects'));
+const ProjectUpsert = lazy(() => import('@/containers/Projects/containers/ProjectUpsert'));
+const Project = lazy(() => import('@/containers/Projects/Project'));
+const UserUpsert = lazy(() => import('@/containers/Users/containers/UserUpsert'));
+const Deactivated = lazy(() => import('@/containers/Deactivated/Deactivated'));
 const Transcript = lazy(() => import('@/containers/Transcript/Transcript'));
 const Chat = lazy(() => import('@/containers/Chat/Chat'));
+const ChatConfig = lazy(() => import('@/containers/Chat/ChatConfig'));
+const ChatMessageDebug = lazy(() => import('@/containers/Chat/ChatMessageDebug'));
 const Sources = lazy(() => import('@/containers/Sources/Sources'));
 const SourceUpsert = lazy(() => import('@/containers/Sources/containers/SourceUpsert'));
 const Source = lazy(() => import('@/containers/Sources/Source'));
@@ -25,15 +35,6 @@ export interface RouteConfig {
   };
   children?: RouteConfig[];
 }
-
-const Login = lazy(() => import('@/containers/Login/Login'));
-const Dashboard = lazy(() => import('@/containers/Dashboard/Dashboard'));
-const Users = lazy(() => import('@/containers/Users/Users'));
-const Projects = lazy(() => import('@/containers/Projects/Projects'));
-const ProjectUpsert = lazy(() => import('@/containers/Projects/containers/ProjectUpsert'));
-const Project = lazy(() => import('@/containers/Projects/Project'));
-const UserUpsert = lazy(() => import('@/containers/Users/containers/UserUpsert'));
-const Deactivated = lazy(() => import('@/containers/Deactivated/Deactivated'));
 
 const protectedRouteEnsuringUserAuthenticated: RouteConfig['protectedRoute'] = {
   permissions: auth => !!auth.user,
@@ -104,11 +105,23 @@ export const routes: RouteConfig[] = [
         children: [
           {
             path: ROUTER_PATHS.PROJECT_CHAT_NEW,
-            element: <Chat />
+            element: <Chat />,
+            children: [
+              {
+                path: ROUTER_PATHS.PROJECT_CHAT_NEW_CONFIG,
+                element: <ChatConfig />
+              }
+            ]
           },
           {
-            path: ROUTER_PATHS.PROJECT_CHAT,
-            element: <Chat />
+            path: ROUTER_PATHS.PROJECT_CHAT_ID,
+            element: <Chat />,
+            children: [
+              {
+                path: ROUTER_PATHS.PROJECT_CHAT_ID_MESSAGE_DEBUG,
+                element: <ChatMessageDebug />
+              }
+            ]
           }
         ]
       },

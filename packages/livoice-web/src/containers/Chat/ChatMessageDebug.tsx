@@ -1,10 +1,9 @@
 import { X } from 'lucide-react';
 import { type ReactNode, useMemo, useState } from 'react';
 import { createPortal } from 'react-dom';
+import { useOutletContext } from 'react-router-dom';
 
-import type { ChatMessageDebugData } from '@/gql/generated';
-
-type TabId = 'config' | 'context' | 'segments' | 'request';
+import type { ChatDebugOutletContext } from './types';
 
 const formatMs = (value?: number | null) => {
   if (typeof value !== 'number') return '00:00:00';
@@ -46,22 +45,16 @@ const getSimilarityLabel = (score: number | null | undefined) => {
   return { label: 'a little similar', range: '> 0.75' };
 };
 
-interface MessageDebugModalProps {
-  open: boolean;
-  onClose: () => void;
-  message: { role: 'user' | 'assistant'; content: string } | null;
-  debugData: ChatMessageDebugData | null;
-}
-
-const tabs: { id: TabId; label: string }[] = [
+const tabs: { id: 'config' | 'context' | 'segments' | 'request'; label: string }[] = [
   { id: 'config', label: 'Config' },
   { id: 'context', label: 'Context' },
   { id: 'segments', label: 'Segments' },
   { id: 'request', label: 'Sent to OpenAI' }
 ];
 
-export default function MessageDebugModal({ open, onClose, message, debugData }: MessageDebugModalProps) {
-  const [activeTab, setActiveTab] = useState<TabId>('config');
+export default function ChatMessageDebug() {
+  const { message, debugData, onClose } = useOutletContext<ChatDebugOutletContext>();
+  const [activeTab, setActiveTab] = useState<(typeof tabs)[number]['id']>('config');
 
   const questionText = useMemo(() => {
     if (!debugData?.userMessageWithContext) return '';
@@ -76,7 +69,7 @@ export default function MessageDebugModal({ open, onClose, message, debugData }:
     return [...debugData.segments].sort((a, b) => (a.similarityScore ?? 0) - (b.similarityScore ?? 0));
   }, [debugData?.segments]);
 
-  if (!open || !debugData) return null;
+  if (!debugData) return null;
 
   const modal = (
     <div
@@ -96,11 +89,23 @@ export default function MessageDebugModal({ open, onClose, message, debugData }:
             <h3 className="text-lg font-semibold text-slate-900">
               {message?.role === 'assistant' ? 'Assistant response' : 'Message'}
             </h3>
-            {message?.content ? <p className="mt-1 max-w-2xl text-sm text-slate-500">{message.content}</p> : null}
+            {message?.content ? (
+              <details className="mt-1 max-w-2xl text-sm text-slate-500" onClick={event => event.stopPropagation()}>
+                <summary className="cursor-pointer text-slate-500 underline decoration-dashed decoration-slate-200 decoration-1 underline-offset-4">
+                  {message.role === 'assistant' ? 'View assistant response' : 'View message'}
+                </summary>
+                <div className="mt-2 max-h-40 overflow-y-auto text-sm text-slate-500 whitespace-pre-wrap pr-2">
+                  {message.content}
+                </div>
+              </details>
+            ) : null}
           </div>
           <button
             type="button"
-            onClick={onClose}
+            onClick={event => {
+              event.stopPropagation();
+              onClose();
+            }}
             className="rounded-full p-2 text-slate-500 transition hover:text-slate-900"
           >
             <X className="h-4 w-4" />

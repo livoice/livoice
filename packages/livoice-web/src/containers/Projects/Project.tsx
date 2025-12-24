@@ -2,6 +2,7 @@ import { ArrowLeft } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 import { Link, Outlet, useParams } from 'react-router-dom';
 
+import { ChatProvider } from '@/containers/Chat/ChatContext';
 import ChatList from '@/containers/Chat/ChatList';
 import { useProjectQuery } from '@/gql/generated';
 import { toProjectEdit, toProjects, toSource } from '@/services/linker';
@@ -70,7 +71,9 @@ export default function Project() {
           </Card>
         </div>
 
-        <Outlet />
+        <ChatProvider>
+          <Outlet />
+        </ChatProvider>
       </div>
     </div>
   );
