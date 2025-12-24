@@ -178,18 +178,15 @@ const Chat = () => {
       if (!rawConfig) return;
       const normalizedConfig = normalizeConfig(rawConfig);
       const key = JSON.stringify(normalizedConfig);
-      const existing = configMap.get(key);
+      if (configMap.has(key)) return;
       const createdAt = chat.createdAt ?? new Date().toISOString();
-
-      if (!existing || new Date(createdAt).getTime() > new Date(existing.createdAt).getTime()) {
-        configMap.set(key, {
-          key,
-          config: normalizedConfig,
-          chatTitle: chat?.title || 'Untitled Chat',
-          projectName: chat.project?.name || null,
-          createdAt
-        });
-      }
+      configMap.set(key, {
+        key,
+        config: normalizedConfig,
+        chatTitle: chat?.title || 'Untitled Chat',
+        projectName: chat.project?.name || null,
+        createdAt
+      });
     });
 
     return Array.from(configMap.values()).sort(
