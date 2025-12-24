@@ -59,6 +59,7 @@ export type ChatMessagesCountArgs = {
 export type ChatConfig = {
   __typename?: 'ChatConfig';
   context: ChatConfigContext;
+  name?: Maybe<Scalars['String']['output']>;
   openai: ChatConfigOpenAi;
   segments: ChatConfigSegments;
   systemPrompt: Scalars['String']['output'];
@@ -79,6 +80,7 @@ export type ChatConfigContextInput = {
 
 export type ChatConfigInput = {
   context?: InputMaybe<ChatConfigContextInput>;
+  name?: InputMaybe<Scalars['String']['input']>;
   openai?: InputMaybe<ChatConfigOpenAiInput>;
   segments?: InputMaybe<ChatConfigSegmentsInput>;
   systemPrompt?: InputMaybe<Scalars['String']['input']>;
@@ -290,7 +292,7 @@ export type ChatProjectInput = {
   config?: InputMaybe<ChatConfigInput>;
   message: Scalars['String']['input'];
   projectId: Scalars['ID']['input'];
-  systemPrompt: Scalars['String']['input'];
+  systemPrompt?: InputMaybe<Scalars['String']['input']>;
 };
 
 export type ChatRelateToManyForCreateInput = {

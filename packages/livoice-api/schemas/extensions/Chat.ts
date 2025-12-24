@@ -213,7 +213,7 @@ const ProjectChatInput = g.inputObject({
     chatId: g.arg({ type: g.ID }),
     projectId: g.arg({ type: g.nonNull(g.ID) }),
     message: g.arg({ type: g.nonNull(g.String) }),
-    systemPrompt: g.arg({ type: g.nonNull(g.String) }),
+    systemPrompt: g.arg({ type: g.String }),
     config: g.arg({ type: ChatConfigInput })
   }
 });
@@ -350,6 +350,7 @@ export const ChatExtension = () => ({
       },
       resolve: async (_root, { input }, context) => {
         const session = getSession(context);
+        if (!input.chatId && !input.systemPrompt) throw new Error('System prompt is required when creating a new chat');
         return runChatConversation({
           context,
           session,

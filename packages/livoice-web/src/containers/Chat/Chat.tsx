@@ -10,7 +10,12 @@ import remarkBreaks from 'remark-breaks';
 import remarkGfm from 'remark-gfm';
 
 import FormDrawer from '@/components/FormDrawer/FormDrawer';
-import { useChatProjectHistoryQuery, useChatProjectMutation, useUpdateChatMutation } from '@/gql/generated';
+import {
+  useChatProjectHistoryQuery,
+  useChatProjectMutation,
+  useUpdateChatMutation,
+  type ChatProjectInput
+} from '@/gql/generated';
 import { cn } from '@/lib/cn';
 import {
   ROUTER_PATHS,
@@ -125,25 +130,27 @@ const Chat = () => {
     const trimmed = draft.trim();
     if (!trimmed) return;
 
-    const configPayload = chatConfig;
-
-    await chatProject({
-      variables: {
-        input: {
-          chatId: isNewChat ? null : chatId,
+    const input: ChatProjectInput = isNewChat
+      ? {
+          chatId: null,
           projectId,
           message: trimmed,
           systemPrompt: chatConfig.systemPrompt,
-          config: configPayload
+          config: chatConfig
         }
-      }
-    });
+      : {
+          chatId,
+          projectId,
+          message: trimmed,
+          systemPrompt: currentSystemPrompt
+        };
+
+    await chatProject({ variables: { input } });
 
     setDraft('');
   };
 
   const title = t('projects.chat.title');
-  const subtitle = t('projects.chat.subtitle', { project: projectId });
   const placeholder = t('projects.chat.placeholder');
   const emptyPlaceholder = placeholder || t('chat.emptyPlaceholder');
   const inputPlaceholder = placeholder || t('chat.inputPlaceholder');
