@@ -174,8 +174,7 @@ function ConfigModalWindow({ open, onClose, onApply, configs, currentConfig }: C
     wordWrapOverride1: 'on',
     wordWrapOverride2: 'on',
     wordWrapColumn: 0,
-    wrappingStrategy: 'advanced',
-    scrollbar: { horizontal: 'hidden' }
+    wrappingStrategy: 'advanced'
   };
 
   useEffect(() => {
