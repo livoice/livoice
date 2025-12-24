@@ -262,7 +262,9 @@ function ConfigModalWindow({ open, onClose, onApply, configs, currentConfig }: C
   const trimmedName = draftConfig.name?.trim() ?? '';
   const normalizedName = trimmedName.toLowerCase();
   const isNameDuplicate =
-    Boolean(normalizedName) && configs.some(({ config }) => config.name?.trim().toLowerCase() === normalizedName);
+    hasEdited &&
+    Boolean(normalizedName) &&
+    configs.some(({ config }) => config.name?.trim().toLowerCase() === normalizedName);
 
   useEffect(() => {
     if (!isEditMode) return;

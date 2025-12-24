@@ -1,4 +1,4 @@
-import { X } from 'lucide-react';
+import { Info, X } from 'lucide-react';
 import { type ReactNode, useMemo, useState } from 'react';
 import { createPortal } from 'react-dom';
 import { useOutletContext } from 'react-router-dom';
@@ -45,7 +45,8 @@ const getSimilarityLabel = (score: number | null | undefined) => {
   return { label: 'a little similar', range: '> 0.75' };
 };
 
-const tabs: { id: 'config' | 'context' | 'segments' | 'request'; label: string }[] = [
+const tabs: { id: 'insights' | 'config' | 'context' | 'segments' | 'request'; label: string }[] = [
+  { id: 'insights', label: 'Insights' },
   { id: 'config', label: 'Config' },
   { id: 'context', label: 'Context' },
   { id: 'segments', label: 'Segments' },
@@ -54,7 +55,7 @@ const tabs: { id: 'config' | 'context' | 'segments' | 'request'; label: string }
 
 export default function ChatMessageDebug() {
   const { message, debugData, onClose } = useOutletContext<ChatDebugOutletContext>();
-  const [activeTab, setActiveTab] = useState<(typeof tabs)[number]['id']>('config');
+  const [activeTab, setActiveTab] = useState<(typeof tabs)[number]['id']>('insights');
 
   const questionText = useMemo(() => {
     if (!debugData?.userMessageWithContext) return '';
@@ -68,6 +69,96 @@ export default function ChatMessageDebug() {
     if (!debugData?.segments) return [];
     return [...debugData.segments].sort((a, b) => (a.similarityScore ?? 0) - (b.similarityScore ?? 0));
   }, [debugData?.segments]);
+
+  const insightData = useMemo(() => {
+    if (!debugData) return null;
+
+    const model = debugData.openaiResponse.model || debugData.config.openai.model || 'gpt-4o-mini';
+    const pricingByModel: Record<string, { in: number; out: number }> = {
+      'gpt-4o-mini': { in: 0.00015, out: 0.0006 },
+      'gpt-4o': { in: 0.005, out: 0.015 },
+      'gpt-3.5-turbo': { in: 0.0005, out: 0.0015 }
+    };
+    const pricing = pricingByModel[model] ?? pricingByModel['gpt-4o-mini'];
+
+    const maxInput = debugData.config.context.maxInputTokens ?? 0;
+    const reserved = debugData.config.context.reservedTokens ?? 0;
+    const promptTokens = debugData.openaiResponse.promptTokens ?? 0;
+    const completionTokens = debugData.openaiResponse.completionTokens ?? 0;
+    const totalTokens = debugData.openaiResponse.totalTokens ?? promptTokens + completionTokens;
+    const availableContext = Math.max(0, maxInput - reserved);
+    const promptUtil = availableContext ? (promptTokens / availableContext) * 100 : 0;
+    const totalUtil = maxInput ? (totalTokens / maxInput) * 100 : 0;
+    const estimatedCost = (promptTokens / 1000) * pricing.in + (completionTokens / 1000) * pricing.out;
+
+    const segmentBudget = debugData.config.segments.tokenBudget ?? 0;
+    const segmentTokens = debugData.segmentTokensUsed ?? 0;
+    const segmentUtil = segmentBudget ? (segmentTokens / segmentBudget) * 100 : 0;
+    const segmentsUsed = debugData.segments?.length ?? 0;
+    const segmentsMax = debugData.config.segments.maxCount ?? 0;
+    const segmentsCountUtil = segmentsMax ? (segmentsUsed / segmentsMax) * 100 : 0;
+
+    const historyTokens = debugData.history.tokensUsed ?? 0;
+    const historyBudget = debugData.history.tokenBudget ?? 0;
+    const historyUtil = historyBudget ? (historyTokens / historyBudget) * 100 : 0;
+
+    const status = (value: number, high = 85, warn = 100) => {
+      if (value >= warn) return { badge: 'bg-red-100 text-red-700', label: 'maxed', value };
+      if (value >= high) return { badge: 'bg-amber-100 text-amber-700', label: 'high', value };
+      return { badge: 'bg-emerald-100 text-emerald-700', label: 'ok', value };
+    };
+
+    return {
+      prompt: { value: promptUtil, detail: `${promptTokens}/${availableContext} prompt tokens`, ...status(promptUtil) },
+      total: { value: totalUtil, detail: `${totalTokens}/${maxInput} total tokens`, ...status(totalUtil) },
+      segmentsTokens: {
+        value: segmentUtil,
+        detail: `${segmentTokens}/${segmentBudget} segment tokens`,
+        ...status(segmentUtil)
+      },
+      segmentsCount: {
+        value: segmentsCountUtil,
+        detail: `${segmentsUsed}/${segmentsMax} segments used`,
+        ...status(segmentsCountUtil)
+      },
+      history: {
+        value: historyUtil,
+        detail: `${historyTokens}/${historyBudget} history tokens`,
+        ...status(historyUtil, 70, 90)
+      },
+      estimatedCost: {
+        value: estimatedCost,
+        detail: (
+          <>
+            <span className="block">model: ${model}</span> in ${pricing.in}/1K, out ${pricing.out}/1K
+          </>
+        ),
+        type: 'currency' as const,
+        badge: 'bg-slate-100 text-slate-600',
+        label: ''
+      }
+    };
+  }, [debugData]);
+
+  const Tooltip = ({ label, children }: { label: string; children: ReactNode }) => {
+    const [open, setOpen] = useState(false);
+    return (
+      <div
+        className="relative inline-flex items-center"
+        onMouseEnter={() => setOpen(true)}
+        onMouseLeave={() => setOpen(false)}
+        onFocus={() => setOpen(true)}
+        onBlur={() => setOpen(false)}
+      >
+        {children}
+        {open ? (
+          <div className="absolute bottom-full right-0 z-10 mb-2 w-64 rounded-lg border border-slate-200 bg-white p-3 text-xs text-slate-600 shadow-lg whitespace-pre-wrap break-words">
+            {label}
+          </div>
+        ) : null}
+      </div>
+    );
+  };
 
   if (!debugData) return null;
 
@@ -130,6 +221,71 @@ export default function ChatMessageDebug() {
         </div>
 
         <div className="mt-5 space-y-4" onWheel={event => event.stopPropagation()}>
+          {activeTab === 'insights' && insightData && (
+            <section className="grid gap-3 md:grid-cols-2 lg:grid-cols-3">
+              {[
+                {
+                  title: 'Prompt tokens vs context',
+                  description:
+                    'Prompt tokens include system + user + segments sent to OpenAI. Context = maxInputTokens minus reservedTokens.',
+                  data: insightData.prompt
+                },
+                {
+                  title: 'Total tokens vs max input',
+                  description: 'Total = prompt + completion compared to the model maxInputTokens.',
+                  data: insightData.total
+                },
+                {
+                  title: 'Segment tokens vs budget',
+                  description: 'How many transcript tokens were included versus the segment token budget.',
+                  data: insightData.segmentsTokens
+                },
+                {
+                  title: 'Segments used vs max',
+                  description: 'Count of transcript segments included versus the configured maxCount.',
+                  data: insightData.segmentsCount
+                },
+                {
+                  title: 'History tokens vs budget',
+                  description: 'Conversation history tokens versus the history token budget.',
+                  data: insightData.history
+                },
+                {
+                  title: 'Estimated cost',
+                  description: 'Estimated OpenAI cost for this call based on the selected model’s pricing.',
+                  data: { ...insightData.estimatedCost, badge: 'bg-slate-100 text-slate-600', label: '' }
+                }
+              ].map(item => (
+                <div key={item.title} className="rounded-2xl border border-slate-100 bg-slate-50/70 p-4">
+                  <div className="flex items-center justify-between gap-2">
+                    <p className="text-xs uppercase text-slate-500">{item.title}</p>
+                    <div className="flex items-center gap-1">
+                      <button
+                        type="button"
+                        className="text-slate-400 hover:text-slate-600"
+                        aria-label={item.description}
+                      >
+                        <Tooltip label={item.description}>
+                          <Info className="h-4 w-4" />
+                        </Tooltip>
+                      </button>
+                      <span className={`rounded-full px-2 py-0.5 text-[11px] font-semibold ${item.data.badge}`}>
+                        {item.data.label}
+                      </span>
+                    </div>
+                  </div>
+                  <p className="mt-2 text-lg font-semibold text-slate-900">
+                    {item.data.type === 'currency'
+                      ? `$${item.data.value.toFixed(6)}`
+                      : `${item.data.value.toFixed(1)}%`}
+                  </p>
+                  <p className="text-sm text-slate-600">{item.data.detail}</p>
+                </div>
+              ))}
+              {!insightData && <p className="text-sm text-slate-500">No insight data available.</p>}
+            </section>
+          )}
+
           {activeTab === 'config' && (
             <section className="space-y-4">
               <div className="rounded-2xl border border-slate-100 bg-slate-50/60 p-4 text-sm text-slate-700">
