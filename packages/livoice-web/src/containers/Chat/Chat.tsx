@@ -55,7 +55,7 @@ const Chat = () => {
   const navigate = useNavigate();
   const client = useApolloClient();
 
-  const { chatConfig, configsLoading } = useChatContext();
+  const { chatConfig, configs, setChatConfig, configsLoading } = useChatContext();
 
   const [draft, setDraft] = useState('');
   const [systemPromptExpanded, setSystemPromptExpanded] = useState({ raw: false, resolved: false });
@@ -152,11 +152,11 @@ const Chat = () => {
 
   const title = t('projects.chat.title');
   const placeholder = t('projects.chat.placeholder');
+  const configTitle = chatConfig.name?.trim() || 'Untitled config';
   const emptyPlaceholder = placeholder || t('chat.emptyPlaceholder');
   const inputPlaceholder = placeholder || t('chat.inputPlaceholder');
   const buttonLabel = isLoading ? t('buttons.sending') : t('buttons.sendQuestion');
-  const trimmedPrompt = chatConfig.systemPrompt.trim();
-  const promptPreview = trimmedPrompt.length > 0 ? trimmedPrompt.split('\n').slice(0, 2).join(' ') : '';
+  const promptPreview = (chatConfig.systemPrompt.trim() ?? '').split('\n').slice(0, 5).join(' ');
   const promptDisplay = promptPreview.length > 180 ? `${promptPreview.slice(0, 180)}...` : promptPreview;
   const configSummaryItems = [
     { label: 'Model', value: chatConfig.openai.model },
@@ -259,6 +259,13 @@ const Chat = () => {
   }, [messages.length]);
 
   useEffect(() => {
+    if (!isNewChat) return;
+    if (configsLoading) return;
+    if (!configs.length) return;
+    setChatConfig(configs[0].config);
+  }, [configs, configsLoading, isNewChat, setChatConfig]);
+
+  useEffect(() => {
     if (isNewChat) {
       setIsEditingTitle(false);
       setEditedTitle('');
@@ -341,7 +348,7 @@ const Chat = () => {
               <div className="space-y-4 rounded-2xl border border-slate-200 bg-slate-50/50 p-4">
                 <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
                   <div className="space-y-1">
-                    <p className="text-sm font-semibold text-slate-700">System Prompt</p>
+                    <h3 className="text-sm font-semibold text-slate-700">Chat Config: {configTitle}</h3>
                     <p className="text-xs text-slate-500 font-medium">
                       Configure the system prompt, model, and context before sending your first question.
                     </p>
@@ -364,23 +371,6 @@ const Chat = () => {
                       <p>{item.value}</p>
                     </div>
                   ))}
-                </div>
-                <div className="text-xs text-slate-500 space-y-1">
-                  <p className="font-medium">Available placeholders:</p>
-                  <ul className="list-disc list-inside space-y-0.5 ml-2">
-                    <li>
-                      <code className="bg-slate-100 px-1 rounded text-xs">{'{projectName}'}</code> - The name of the
-                      current project
-                    </li>
-                    <li>
-                      <code className="bg-slate-100 px-1 rounded text-xs">{'{transcriptTitles}'}</code> - All transcript
-                      titles in the project
-                    </li>
-                    <li>
-                      <code className="bg-slate-100 px-1 rounded text-xs">{'{sourceNames}'}</code> - All source names in
-                      the project
-                    </li>
-                  </ul>
                 </div>
               </div>
             ) : (
