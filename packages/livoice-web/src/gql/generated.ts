@@ -1806,6 +1806,7 @@ export type TranscriptSegment = {
   id: Scalars['ID']['output'];
   index?: Maybe<Scalars['Int']['output']>;
   isMetadata?: Maybe<Scalars['Boolean']['output']>;
+  source?: Maybe<Source>;
   speaker?: Maybe<Scalars['String']['output']>;
   startMs?: Maybe<Scalars['Int']['output']>;
   text?: Maybe<Scalars['String']['output']>;
@@ -1817,6 +1818,7 @@ export type TranscriptSegmentCreateInput = {
   endMs?: InputMaybe<Scalars['Int']['input']>;
   index?: InputMaybe<Scalars['Int']['input']>;
   isMetadata?: InputMaybe<Scalars['Boolean']['input']>;
+  source?: InputMaybe<SourceRelateToOneForCreateInput>;
   speaker?: InputMaybe<Scalars['String']['input']>;
   startMs?: InputMaybe<Scalars['Int']['input']>;
   text?: InputMaybe<Scalars['String']['input']>;
@@ -1862,6 +1864,7 @@ export type TranscriptSegmentUpdateInput = {
   endMs?: InputMaybe<Scalars['Int']['input']>;
   index?: InputMaybe<Scalars['Int']['input']>;
   isMetadata?: InputMaybe<Scalars['Boolean']['input']>;
+  source?: InputMaybe<SourceRelateToOneForUpdateInput>;
   speaker?: InputMaybe<Scalars['String']['input']>;
   startMs?: InputMaybe<Scalars['Int']['input']>;
   text?: InputMaybe<Scalars['String']['input']>;
@@ -1877,6 +1880,7 @@ export type TranscriptSegmentWhereInput = {
   id?: InputMaybe<IdFilter>;
   index?: InputMaybe<IntNullableFilter>;
   isMetadata?: InputMaybe<BooleanFilter>;
+  source?: InputMaybe<SourceWhereInput>;
   speaker?: InputMaybe<StringFilter>;
   startMs?: InputMaybe<IntNullableFilter>;
   text?: InputMaybe<StringFilter>;

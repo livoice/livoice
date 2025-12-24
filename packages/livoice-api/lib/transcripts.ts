@@ -53,6 +53,7 @@ export const processTranscriptImport = async (transcript: TranscriptWithSource, 
       await prisma.transcriptSegment.createMany({
         data: transcriptSegments.map(segment => ({
           transcriptId: transcript.id,
+          sourceId: transcript.sourceId, // Denormalized for efficient vector search filtering
           index: segment.index,
           startMs: segment.startMs,
           endMs: segment.endMs,

@@ -835,6 +835,7 @@ input TranscriptSegmentRelateToManyForCreateInput {
 type TranscriptSegment {
   id: ID!
   transcript: Transcript
+  source: Source
   index: Int
   startMs: Int
   endMs: Int
@@ -854,6 +855,7 @@ input TranscriptSegmentWhereInput {
   NOT: [TranscriptSegmentWhereInput!]
   id: IDFilter
   transcript: TranscriptWhereInput
+  source: SourceWhereInput
   index: IntNullableFilter
   startMs: IntNullableFilter
   endMs: IntNullableFilter
@@ -881,6 +883,7 @@ input TranscriptSegmentOrderByInput {
 
 input TranscriptSegmentUpdateInput {
   transcript: TranscriptRelateToOneForUpdateInput
+  source: SourceRelateToOneForUpdateInput
   index: Int
   startMs: Int
   endMs: Int
@@ -903,6 +906,7 @@ input TranscriptSegmentUpdateArgs {
 
 input TranscriptSegmentCreateInput {
   transcript: TranscriptRelateToOneForCreateInput
+  source: SourceRelateToOneForCreateInput
   index: Int
   startMs: Int
   endMs: Int

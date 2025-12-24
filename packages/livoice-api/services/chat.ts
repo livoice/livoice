@@ -252,29 +252,55 @@ const fetchSegments = async ({
 
       const literal = Prisma.raw(formatVectorLiteral(embedding) ?? '');
 
-      const whereClause = Prisma.sql`p.id = ${projectId}`;
+      // Step 1: Get sourceIds for the project (fast indexed lookup)
+      const sourceIds = await sudoContext.prisma.$queryRaw<{ B: string }[]>`
+        SELECT "B" FROM "_Project_sources" WHERE "A" = ${projectId}
+      `;
+
+      if (!sourceIds.length) return [];
+
+      // Step 2: Two-stage vector search to ensure ivfflat index is used
+      // Stage A: Pure vector search on ALL segments (uses ivfflat index) - get many candidates
+      // Stage B: Filter candidates by source, return top N
+      const sourceIdList = sourceIds.map((s: { B: string }) => s.B);
+      const CANDIDATE_MULTIPLIER = 50; // Fetch more candidates to ensure enough after filtering
+      const candidateLimit = maxSegments * CANDIDATE_MULTIPLIER;
 
       const rows =
         (await sudoContext.prisma.$queryRaw<RawSegment[]>`
+          WITH vector_candidates AS MATERIALIZED (
+            -- Stage A: Pure vector search using ivfflat index (no WHERE except embedding IS NOT NULL)
+            SELECT 
+              ts."id",
+              ts."text",
+              ts."startMs",
+              ts."endMs",
+              ts."speaker",
+              ts."isMetadata",
+              ts."transcript",
+              ts."source",
+              (ts."embedding" <=> ${literal}) AS "similarityScore"
+            FROM "TranscriptSegment" ts
+            WHERE ts."embedding" IS NOT NULL
+              AND ts."isMetadata" = FALSE
+            ORDER BY ts."embedding" <=> ${literal}
+            LIMIT ${candidateLimit}
+          )
+          -- Stage B: Filter by source and add transcript info
           SELECT
-            "TranscriptSegment"."id",
-            "TranscriptSegment"."text",
-            "TranscriptSegment"."startMs",
-            "TranscriptSegment"."endMs",
-            "TranscriptSegment"."speaker",
-            "TranscriptSegment"."isMetadata",
+            vc."id",
+            vc."text",
+            vc."startMs",
+            vc."endMs",
+            vc."speaker",
+            vc."isMetadata",
             t."id" AS "transcriptId",
             t."title" AS "transcriptTitle",
-            ("TranscriptSegment"."embedding" <-> ${literal}) AS "similarityScore"
-          FROM "TranscriptSegment"
-          INNER JOIN "Transcript" t ON t.id = "TranscriptSegment"."transcript"
-          INNER JOIN "Source" s ON s.id = t."source"
-          INNER JOIN "_Project_sources" ps ON ps."B" = s.id
-          INNER JOIN "Project" p ON p.id = ps."A"
-          WHERE "TranscriptSegment"."isMetadata" = FALSE
-            AND "TranscriptSegment"."embedding" IS NOT NULL
-            AND ${whereClause}
-          ORDER BY "TranscriptSegment"."embedding" <-> ${literal}
+            vc."similarityScore"
+          FROM vector_candidates vc
+          INNER JOIN "Transcript" t ON t.id = vc."transcript"
+          WHERE vc."source" IN (${Prisma.join(sourceIdList)})
+          ORDER BY vc."similarityScore"
           LIMIT ${maxSegments}
         `) ?? [];
 
@@ -439,27 +465,33 @@ export const getSystemPromptReplacements = async ({
       }
     }
   } else if (projectId) {
-    // Project context: get all transcripts and sources for the project
+    // Project context: get project name and sources with limited transcripts for efficiency
     const project = await sudoContext.query.Project.findOne({
       where: { id: projectId },
-      query: 'name sources { name transcripts { title } }'
+      query: 'name sources { name }'
     });
 
     if (project) {
       projectName = project.name;
 
-      // Get all source names
+      // Get all source names (usually a small number)
       sourceNames =
         project.sources?.map((source: { name?: string | null } | null) => source?.name).filter(Boolean) ?? [];
 
-      // Get all transcript titles
-      transcriptTitles =
-        project.sources?.flatMap(
-          (source: { transcripts?: Array<{ title?: string | null } | null> | null } | null) =>
-            source?.transcripts
-              ?.map((transcript: { title?: string | null } | null) => transcript?.title)
-              .filter(Boolean) ?? []
-        ) ?? [];
+      // Get transcript titles efficiently with a limit (avoid fetching thousands)
+      const MAX_TRANSCRIPT_TITLES = 50;
+      const transcriptRows = await sudoContext.prisma.$queryRaw<{ title: string }[]>`
+        SELECT DISTINCT t."title"
+        FROM "Transcript" t
+        INNER JOIN "Source" s ON s.id = t."source"
+        INNER JOIN "_Project_sources" ps ON ps."B" = s.id
+        WHERE ps."A" = ${projectId}
+          AND t."title" IS NOT NULL
+          AND t."title" != ''
+        ORDER BY t."title"
+        LIMIT ${MAX_TRANSCRIPT_TITLES}
+      `;
+      transcriptTitles = transcriptRows.map((row: { title: string }) => row.title);
     }
   }
 
@@ -763,10 +795,12 @@ export const runChatConversation = async ({
     })
   ]);
 
+  const finalMessages = await fetchChatHistory(context, chatId);
+
   return {
     chatId,
     answer,
-    messages: await fetchChatHistory(context, chatId),
+    messages: finalMessages,
     references: referenceSegments.map(mapSegmentReference)
   };
 };

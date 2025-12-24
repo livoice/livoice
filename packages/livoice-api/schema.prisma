@@ -67,20 +67,21 @@ model Project {
 }
 
 model Source {
-  id                   String                  @id @default(cuid())
-  type                 SourceTypeType
-  name                 String                  @default("")
-  url                  String                  @default("")
-  externalId           String                  @unique @default("")
-  importStatus         SourceImportStatusType? @default(idle)
-  importStartedAt      DateTime?
-  importCompletedAt    DateTime?
-  importCronExpression String                  @default("")
-  importHistory        Json?
-  org                  Organization?           @relation("Source_org", fields: [orgId], references: [id])
-  orgId                String?                 @map("org")
-  transcripts          Transcript[]            @relation("Transcript_source")
-  projects             Project[]               @relation("Project_sources")
+  id                            String                  @id @default(cuid())
+  type                          SourceTypeType
+  name                          String                  @default("")
+  url                           String                  @default("")
+  externalId                    String                  @unique @default("")
+  importStatus                  SourceImportStatusType? @default(idle)
+  importStartedAt               DateTime?
+  importCompletedAt             DateTime?
+  importCronExpression          String                  @default("")
+  importHistory                 Json?
+  org                           Organization?           @relation("Source_org", fields: [orgId], references: [id])
+  orgId                         String?                 @map("org")
+  transcripts                   Transcript[]            @relation("Transcript_source")
+  projects                      Project[]               @relation("Project_sources")
+  from_TranscriptSegment_source TranscriptSegment[]     @relation("TranscriptSegment_source")
 
   @@index([orgId])
 }
@@ -120,6 +121,8 @@ model TranscriptSegment {
   id           String                       @id @default(cuid())
   transcript   Transcript?                  @relation("TranscriptSegment_transcript", fields: [transcriptId], references: [id])
   transcriptId String?                      @map("transcript")
+  source       Source?                      @relation("TranscriptSegment_source", fields: [sourceId], references: [id])
+  sourceId     String?                      @map("source")
   index        Int?
   startMs      Int?
   endMs        Int?
@@ -130,6 +133,7 @@ model TranscriptSegment {
   embedding    Unsupported("vector(1536)")?
 
   @@index([transcriptId])
+  @@index([sourceId])
   @@index([embedding], map: "TranscriptSegment_embedding_idx")
 }
 

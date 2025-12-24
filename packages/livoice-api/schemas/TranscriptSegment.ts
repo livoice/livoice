@@ -6,6 +6,9 @@ import { canEditOrgData, isAuthenticated, isGod, isOrgAdmin } from '../domains/a
 export default list({
   fields: {
     transcript: relationship({ ref: 'Transcript.segments', many: false }),
+    // Denormalized source reference for efficient vector search filtering
+    // This is populated from transcript.source and indexed for fast lookups
+    source: relationship({ ref: 'Source', many: false }),
     index: integer(),
     startMs: integer(),
     endMs: integer(),
