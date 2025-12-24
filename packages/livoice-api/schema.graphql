@@ -1191,6 +1191,7 @@ type ChatMessageDebugData {
 }
 
 type ChatConfig {
+  name: String
   systemPrompt: String!
   openai: ChatConfigOpenAI!
   context: ChatConfigContext!
@@ -1268,6 +1269,7 @@ input ChatProjectInput {
 }
 
 input ChatConfigInput {
+  name: String
   systemPrompt: String
   openai: ChatConfigOpenAIInput
   context: ChatConfigContextInput

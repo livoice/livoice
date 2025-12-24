@@ -40,6 +40,7 @@ export type SegmentReference = {
 };
 
 export type ChatConfig = {
+  name?: string;
   systemPrompt: string;
   openai: {
     model: string;
@@ -99,6 +100,7 @@ export type ChatHistoryItem = {
 };
 
 export const DEFAULT_CHAT_CONFIG: ChatConfig = {
+  name: '',
   systemPrompt: '',
   openai: {
     model: 'gpt-4o-mini',
@@ -117,6 +119,7 @@ export const DEFAULT_CHAT_CONFIG: ChatConfig = {
 };
 
 export const normalizeChatConfig = (config?: Partial<ChatConfig>, systemPromptOverride?: string): ChatConfig => ({
+  name: config?.name ?? DEFAULT_CHAT_CONFIG.name,
   systemPrompt: config?.systemPrompt ?? systemPromptOverride ?? DEFAULT_CHAT_CONFIG.systemPrompt,
   openai: {
     model: config?.openai?.model ?? DEFAULT_CHAT_CONFIG.openai.model,

@@ -327,7 +327,6 @@ const Chat = () => {
                 {t('buttons.downloadConversation')}
               </Button>
             </div>
-            {subtitle ? <p className="text-sm text-slate-500">{subtitle}</p> : null}
           </div>
 
           <div className="flex-1 space-y-3 overflow-y-auto pr-1">
@@ -343,9 +342,9 @@ const Chat = () => {
                   </div>
                   <Link
                     to={toProjectChatNewConfig({ projectId })}
-                    className="inline-flex items-center justify-center rounded-xl border border-slate-200 bg-white px-4 py-2 text-sm font-semibold text-slate-700 transition hover:border-violet-300 hover:text-slate-900"
+                    className="text-cv inline-flex items-center justify-center rounded-xl border border-slate-200 bg-white px-4 py-2 text-sm font-semibold text-slate-700 transition hover:border-violet-300 hover:text-slate-900"
                   >
-                    Configure chat
+                    Chat Config
                   </Link>
                 </div>
                 <div className="grid gap-3 sm:grid-cols-2">

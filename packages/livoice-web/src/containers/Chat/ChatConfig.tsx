@@ -1,6 +1,6 @@
 import { DiffEditor } from '@monaco-editor/react';
 import { X } from 'lucide-react';
-import type { editor as MonacoEditor } from 'monaco-editor/esm/vs/editor/editor.api';
+import type * as Monaco from 'monaco-editor';
 import { useEffect, useRef, useState } from 'react';
 import { createPortal } from 'react-dom';
 import { useNavigate, useParams } from 'react-router-dom';
@@ -13,7 +13,6 @@ import type { ChatConfigForm, UniqueConfigEntry } from './types';
 import { useChatContext } from './useChatContext';
 
 type TabId = 'edit' | 'compare';
-
 interface ConfigModalProps {
   open: boolean;
   onClose: () => void;
@@ -29,15 +28,17 @@ const TABS: { id: TabId; label: string }[] = [
 const DEFAULT_CONFIG_KEY = '__default__';
 
 const formatConfigLabel = (entry: UniqueConfigEntry) => {
+  const configName = entry.config.name?.trim();
   const date = new Date(entry.createdAt);
   const dateTimeStr = date.toLocaleString();
   const projectPart = entry.projectName ? ` - ${entry.projectName}` : '';
-  return `${entry.chatTitle}${projectPart} (${dateTimeStr})`;
+  const displayTitle = configName || entry.chatTitle || 'Untitled chat';
+  return `${displayTitle}${projectPart} (${dateTimeStr})`;
 };
 
 const resolveConfigByKey = (key: string, configs: UniqueConfigEntry[]): ChatConfigForm => {
-  if (!key || key === DEFAULT_CONFIG_KEY) return DEFAULT_CHAT_CONFIG;
-  return configs.find(entry => entry.key === key)?.config ?? DEFAULT_CHAT_CONFIG;
+  if (!key || key === DEFAULT_CONFIG_KEY) return DEFAULT_CHAT_CONFIG as ChatConfigForm;
+  return (configs.find(entry => entry.key === key)?.config ?? DEFAULT_CHAT_CONFIG) as ChatConfigForm;
 };
 
 const highlightClass = (isDifferent: boolean) =>
@@ -161,11 +162,11 @@ function ConfigModalWindow({ open, onClose, onApply, configs, currentConfig }: C
   const [compareRightKey, setCompareRightKey] = useState('');
   const [editBaseKey, setEditBaseKey] = useState('');
   const [hasEdited, setHasEdited] = useState(false);
-  const diffChangeDisposable = useRef<ReturnType<MonacoEditor.IStandaloneCodeEditor['onDidChangeModelContent']> | null>(
-    null
-  );
-  const keyDownDisposable = useRef<ReturnType<MonacoEditor.IStandaloneCodeEditor['onKeyDown']> | null>(null);
-  const diffEditorOptions: MonacoEditor.IDiffEditorConstructionOptions = {
+  const diffChangeDisposable = useRef<ReturnType<
+    Monaco.editor.IStandaloneCodeEditor['onDidChangeModelContent']
+  > | null>(null);
+  const keyDownDisposable = useRef<ReturnType<Monaco.editor.IStandaloneCodeEditor['onKeyDown']> | null>(null);
+  const diffEditorOptions: Monaco.editor.IDiffEditorConstructionOptions = {
     minimap: { enabled: false },
     renderSideBySide: true,
     enableSplitViewResizing: false,
@@ -196,14 +197,14 @@ function ConfigModalWindow({ open, onClose, onApply, configs, currentConfig }: C
     setEditBaseKey(prev => prev || configs[0].key);
   }, [open, configs]);
 
-  const handleEditableDiffMount = (editor: MonacoEditor.IStandaloneDiffEditor) => {
+  const handleEditableDiffMount = (editor: Monaco.editor.IStandaloneDiffEditor) => {
     diffChangeDisposable.current?.dispose();
     keyDownDisposable.current?.dispose();
 
     const modifiedEditor = editor.getModifiedEditor();
 
     // Force plain-text paste to avoid rich-text errors
-    keyDownDisposable.current = modifiedEditor.onKeyDown(event => {
+    keyDownDisposable.current = modifiedEditor.onKeyDown((event: Monaco.IKeyboardEvent) => {
       const isPaste = (event.metaKey || event.ctrlKey) && event.code === 'KeyV';
       if (!isPaste) return;
       event.preventDefault();
@@ -214,7 +215,7 @@ function ConfigModalWindow({ open, onClose, onApply, configs, currentConfig }: C
         const selections = modifiedEditor.getSelections();
         const fallbackRange = modifiedEditor.getSelection() ?? modifiedEditor.getModel()?.getFullModelRange();
         const edits =
-          selections?.map(selection => ({
+          selections?.map((selection: Monaco.Selection) => ({
             range: selection,
             text: sanitized,
             forceMoveMarkers: true
@@ -229,7 +230,7 @@ function ConfigModalWindow({ open, onClose, onApply, configs, currentConfig }: C
               ]
             : []);
 
-        modifiedEditor.executeEdits('plain-paste', edits as MonacoEditor.IIdentifiedSingleEditOperation[]);
+        modifiedEditor.executeEdits('plain-paste', edits as Monaco.editor.IIdentifiedSingleEditOperation[]);
         modifiedEditor.pushUndoStop();
       });
     });
@@ -258,6 +259,10 @@ function ConfigModalWindow({ open, onClose, onApply, configs, currentConfig }: C
 
   const leftConfig = isEditMode ? editBaseConfig : leftCompareConfig;
   const rightConfig = isEditMode ? draftConfig : rightCompareConfig;
+  const trimmedName = draftConfig.name?.trim() ?? '';
+  const normalizedName = trimmedName.toLowerCase();
+  const isNameDuplicate =
+    Boolean(normalizedName) && configs.some(({ config }) => config.name?.trim().toLowerCase() === normalizedName);
 
   useEffect(() => {
     if (!isEditMode) return;
@@ -282,6 +287,11 @@ function ConfigModalWindow({ open, onClose, onApply, configs, currentConfig }: C
       ...prev,
       [section]: { ...prev[section], [key]: value }
     }));
+    setHasEdited(true);
+  };
+
+  const updateConfigName = (value: string) => {
+    setDraftConfig(prev => ({ ...prev, name: value }));
     setHasEdited(true);
   };
 
@@ -352,12 +362,22 @@ function ConfigModalWindow({ open, onClose, onApply, configs, currentConfig }: C
                     ))}
                   </select>
                 </label>
-                <div className="space-y-1 text-xs font-semibold uppercase tracking-wide text-slate-600">
-                  <span>Your edits</span>
-                  <div className="rounded-xl border border-violet-200 bg-violet-50 px-4 py-2 text-sm text-violet-700">
-                    Editing...
-                  </div>
-                </div>
+                <label className="space-y-1 text-xs font-semibold uppercase tracking-wide text-slate-600">
+                  <span>New Config name</span>
+                  <input
+                    type="text"
+                    value={draftConfig.name ?? ''}
+                    onChange={event => updateConfigName(event.target.value)}
+                    placeholder="Enter a name for this configuration"
+                    className="w-full rounded-xl border border-violet-200 bg-white px-4 py-2 text-sm text-slate-700 outline-none focus:border-violet-300 focus:ring-2 focus:ring-violet-100"
+                    required
+                  />
+                  {!trimmedName ? (
+                    <p className="text-[10px] font-medium normal-case text-violet-600">Name is required</p>
+                  ) : isNameDuplicate ? (
+                    <p className="text-[10px] font-medium normal-case text-amber-700">Name is already in use</p>
+                  ) : null}
+                </label>
               </>
             ) : (
               <>
@@ -571,6 +591,7 @@ function ConfigModalWindow({ open, onClose, onApply, configs, currentConfig }: C
                   onApply(draftConfig);
                 }}
                 type="button"
+                disabled={!trimmedName || isNameDuplicate}
               >
                 Apply configuration
               </Button>

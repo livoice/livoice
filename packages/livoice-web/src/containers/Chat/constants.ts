@@ -5,7 +5,10 @@ export const OPENAI_MODELS = [
   { value: 'gpt-3.5-turbo', label: 'GPT-3.5 Turbo (Legacy, fastest)' }
 ] as const;
 
-export const DEFAULT_CHAT_CONFIG = {
+import type { ChatConfigForm } from './types';
+
+export const DEFAULT_CHAT_CONFIG: ChatConfigForm = {
+  name: '',
   systemPrompt: '',
   openai: {
     model: 'gpt-4o-mini',

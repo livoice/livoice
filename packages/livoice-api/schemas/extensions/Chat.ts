@@ -52,6 +52,7 @@ const ChatConfigSegments = g.object<ChatConfig['segments']>()({
 const ChatConfigType = g.object<ChatConfig>()({
   name: 'ChatConfig',
   fields: {
+    name: g.field({ type: g.String }),
     systemPrompt: g.field({ type: g.nonNull(g.String) }),
     openai: g.field({ type: g.nonNull(ChatConfigOpenAI) }),
     context: g.field({ type: g.nonNull(ChatConfigContext) }),
@@ -88,6 +89,7 @@ const ChatConfigSegmentsInput = g.inputObject({
 const ChatConfigInput = g.inputObject({
   name: 'ChatConfigInput',
   fields: {
+    name: g.arg({ type: g.String }),
     systemPrompt: g.arg({ type: g.String }),
     openai: g.arg({ type: ChatConfigOpenAIInput }),
     context: g.arg({ type: ChatConfigContextInput }),
@@ -217,6 +219,7 @@ const ProjectChatInput = g.inputObject({
 });
 
 type ChatConfigInputMaybe = {
+  name?: string | null;
   systemPrompt?: string | null;
   openai?: {
     model?: string | null;
@@ -257,6 +260,7 @@ const normalizeChatConfigInput = (config?: ChatConfigInputMaybe | null): Partial
   }
 
   const payload: Partial<ChatConfig> = {};
+  if (config.name != null) payload.name = config.name;
   if (config.systemPrompt != null) payload.systemPrompt = config.systemPrompt;
   if (openai) payload.openai = openai as ChatConfig['openai'];
   if (context) payload.context = context as ChatConfig['context'];

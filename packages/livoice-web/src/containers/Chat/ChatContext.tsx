@@ -7,6 +7,7 @@ import { DEFAULT_CHAT_CONFIG } from './constants';
 import type { ChatConfigForm, UniqueConfigEntry } from './types';
 
 const normalizeConfig = (raw: Record<string, unknown>): ChatConfigForm => ({
+  name: typeof raw.name === 'string' ? raw.name : DEFAULT_CHAT_CONFIG.name,
   systemPrompt: typeof raw.systemPrompt === 'string' ? raw.systemPrompt : DEFAULT_CHAT_CONFIG.systemPrompt,
   openai: {
     model:
@@ -71,7 +72,8 @@ export function ChatProvider({ children }: { children: ReactNode }) {
       const rawConfig = chat?.config;
       if (!rawConfig) return;
       const normalizedConfig = normalizeConfig(rawConfig);
-      const key = JSON.stringify(normalizedConfig);
+      const { name: configName, ...configWithoutName } = normalizedConfig;
+      const key = JSON.stringify(configWithoutName);
       if (configMap.has(key)) return;
       const createdAt = chat.createdAt ?? new Date().toISOString();
       configMap.set(key, {

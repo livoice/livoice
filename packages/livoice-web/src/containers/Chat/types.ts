@@ -8,7 +8,8 @@ export type ChatMessageItem = {
   debugData?: ChatMessageDebugData | null;
 };
 
-export type ChatConfigForm = {
+export interface ChatConfigForm {
+  name: string;
   systemPrompt: string;
   openai: {
     model: string;
@@ -24,7 +25,7 @@ export type ChatConfigForm = {
     tokenBudget: number;
     maxCount: number;
   };
-};
+}
 
 export type UniqueConfigEntry = {
   key: string;
@@ -46,4 +47,3 @@ export type ChatDebugOutletContext = {
   debugData: NonNullable<ChatMessageItem['debugData']>;
   onClose: () => void;
 };
-
