@@ -395,6 +395,20 @@ const takeMessagesWithinLimit = (
   return { included, currentTokens };
 };
 
+const parseJsonArray = <T>(value: string | T[] | null | undefined): T[] => {
+  if (!value) return [];
+  if (typeof value === 'string') {
+    try {
+      const parsed = JSON.parse(value);
+      return Array.isArray(parsed) ? parsed : [];
+    } catch (error) {
+      console.error('Failed to parse JSON array', error);
+      return [];
+    }
+  }
+  return Array.isArray(value) ? value : [];
+};
+
 const getOpenAiMessages = ({
   history,
   systemPrompt,
@@ -474,24 +488,32 @@ export const getSystemPromptReplacements = async ({
     if (project) {
       projectName = project.name;
 
-      // Get all source names (usually a small number)
-      sourceNames =
-        project.sources?.map((source: { name?: string | null } | null) => source?.name).filter(Boolean) ?? [];
+      // Get source names via aggregation to avoid fetching large relation trees
+      const sourceRow = (
+        await sudoContext.prisma.$queryRaw<{ names: string | null }[]>`
+          SELECT json_agg(DISTINCT s."name") AS "names"
+          FROM "Source" s
+          INNER JOIN "_Project_sources" ps ON ps."B" = s.id
+          WHERE ps."A" = ${projectId}
+            AND s."name" IS NOT NULL
+            AND s."name" != ''
+        `
+      )?.[0];
+      sourceNames = parseJsonArray<string>(sourceRow?.names);
 
       // Get transcript titles efficiently with a limit (avoid fetching thousands)
-      const MAX_TRANSCRIPT_TITLES = 50;
-      const transcriptRows = await sudoContext.prisma.$queryRaw<{ title: string }[]>`
-        SELECT DISTINCT t."title"
-        FROM "Transcript" t
-        INNER JOIN "Source" s ON s.id = t."source"
-        INNER JOIN "_Project_sources" ps ON ps."B" = s.id
-        WHERE ps."A" = ${projectId}
-          AND t."title" IS NOT NULL
-          AND t."title" != ''
-        ORDER BY t."title"
-        LIMIT ${MAX_TRANSCRIPT_TITLES}
-      `;
-      transcriptTitles = transcriptRows.map((row: { title: string }) => row.title);
+      const transcriptRow = (
+        await sudoContext.prisma.$queryRaw<{ titles: string | string[] | null }[]>`
+          SELECT json_agg(DISTINCT t."title") AS "titles"
+          FROM "Transcript" t
+          INNER JOIN "Source" s ON s.id = t."source"
+          INNER JOIN "_Project_sources" ps ON ps."B" = s.id
+          WHERE ps."A" = ${projectId}
+            AND t."title" IS NOT NULL
+            AND t."title" != ''
+        `
+      )?.[0];
+      transcriptTitles = parseJsonArray<string>(transcriptRow?.titles);
     }
   }
 
