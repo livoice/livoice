@@ -669,6 +669,14 @@ export const runChatConversation = async ({
   const chatId = await persistChat();
   if (!chatId) throw new Error('Failed to create chat session');
 
+  await sudoContext.db.ChatMessage.createOne({
+    data: {
+      chat: { connect: { id: chatId } },
+      role: 'user',
+      content: messageText
+    }
+  });
+
   const history = await fetchChatHistory(context, chatId);
 
   const {
@@ -730,23 +738,14 @@ export const runChatConversation = async ({
     }
   };
 
-  await Promise.all([
-    sudoContext.db.ChatMessage.createOne({
-      data: {
-        chat: { connect: { id: chatId } },
-        role: 'user',
-        content: messageText
-      }
-    }),
-    sudoContext.db.ChatMessage.createOne({
-      data: {
-        chat: { connect: { id: chatId } },
-        role: 'assistant',
-        content: answer,
-        debugData
-      }
-    })
-  ]);
+  await sudoContext.db.ChatMessage.createOne({
+    data: {
+      chat: { connect: { id: chatId } },
+      role: 'assistant',
+      content: answer,
+      debugData
+    }
+  });
 
   const finalMessages = await fetchChatHistory(context, chatId);
 
