@@ -165,6 +165,18 @@ function ConfigModalWindow({ open, onClose, onApply, configs, currentConfig }: C
     null
   );
   const keyDownDisposable = useRef<ReturnType<MonacoEditor.IStandaloneCodeEditor['onKeyDown']> | null>(null);
+  const diffEditorOptions: MonacoEditor.IDiffEditorConstructionOptions = {
+    minimap: { enabled: false },
+    renderSideBySide: true,
+    enableSplitViewResizing: false,
+    diffWordWrap: 'on',
+    wordWrap: 'on',
+    wordWrapOverride1: 'on',
+    wordWrapOverride2: 'on',
+    wordWrapColumn: 0,
+    wrappingStrategy: 'advanced',
+    scrollbar: { horizontal: 'hidden' }
+  };
 
   useEffect(() => {
     if (!open) return;
@@ -411,13 +423,7 @@ function ConfigModalWindow({ open, onClose, onApply, configs, currentConfig }: C
                   modified={draftConfig.systemPrompt}
                   height="400px"
                   onMount={handleEditableDiffMount}
-                  options={{
-                    minimap: { enabled: false },
-                    renderSideBySide: true,
-                    enableSplitViewResizing: false,
-                    wordWrap: 'on',
-                    readOnly: false
-                  }}
+                  options={{ ...diffEditorOptions, readOnly: false }}
                 />
               ) : hasCompareOptions ? (
                 <DiffEditor
@@ -426,13 +432,7 @@ function ConfigModalWindow({ open, onClose, onApply, configs, currentConfig }: C
                   original={leftConfig.systemPrompt}
                   modified={rightConfig.systemPrompt}
                   height="400px"
-                  options={{
-                    minimap: { enabled: false },
-                    renderSideBySide: true,
-                    enableSplitViewResizing: false,
-                    readOnly: true,
-                    wordWrap: 'on'
-                  }}
+                  options={{ ...diffEditorOptions, readOnly: true }}
                 />
               ) : (
                 <p className="p-4 text-sm text-slate-500">
