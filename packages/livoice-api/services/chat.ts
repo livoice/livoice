@@ -106,13 +106,13 @@ export const DEFAULT_CHAT_CONFIG: ChatConfig = {
     maxOutputTokens: 700
   },
   context: {
-    maxInputTokens: 8000,
+    maxInputTokens: 16000,
     reservedTokens: 1500,
     historyTokenBudget: 4000
   },
   segments: {
-    tokenBudget: 2000,
-    maxCount: 20
+    tokenBudget: 4000,
+    maxCount: 30
   }
 };
 
@@ -154,8 +154,7 @@ const mapSegmentReference = (segment: SegmentRecord): SegmentReference => ({
 
 type FetchSegmentsParams = {
   context: KeystoneContext;
-  projectId?: string;
-  transcriptId?: string;
+  projectId: string;
   queryText?: string;
   maxSegments: number;
 };
@@ -191,7 +190,6 @@ const mapRawToSegment = (row: RawSegment): SegmentRecord => ({
 const fetchSegments = async ({
   context,
   projectId,
-  transcriptId,
   queryText,
   maxSegments
 }: FetchSegmentsParams): Promise<SegmentRecord[]> => {
@@ -199,23 +197,17 @@ const fetchSegments = async ({
 
   const fallback = async () => {
     const baseArgs = {
-      where: transcriptId
-        ? {
-            transcript: {
-              id: { equals: transcriptId }
-            }
-          }
-        : {
-            transcript: {
-              source: {
-                projects: {
-                  some: {
-                    id: { equals: projectId }
-                  }
-                }
+      where: {
+        transcript: {
+          source: {
+            projects: {
+              some: {
+                id: { equals: projectId }
               }
             }
           }
+        }
+      }
     };
     const segments = await sudoContext.query.TranscriptSegment.findMany({
       ...baseArgs,
@@ -252,55 +244,32 @@ const fetchSegments = async ({
 
       const literal = Prisma.raw(formatVectorLiteral(embedding) ?? '');
 
-      // Step 1: Get sourceIds for the project (fast indexed lookup)
       const sourceIds = await sudoContext.prisma.$queryRaw<{ B: string }[]>`
         SELECT "B" FROM "_Project_sources" WHERE "A" = ${projectId}
       `;
 
       if (!sourceIds.length) return [];
 
-      // Step 2: Two-stage vector search to ensure ivfflat index is used
-      // Stage A: Pure vector search on ALL segments (uses ivfflat index) - get many candidates
-      // Stage B: Filter candidates by source, return top N
       const sourceIdList = sourceIds.map((s: { B: string }) => s.B);
-      const CANDIDATE_MULTIPLIER = 50; // Fetch more candidates to ensure enough after filtering
-      const candidateLimit = maxSegments * CANDIDATE_MULTIPLIER;
 
       const rows =
         (await sudoContext.prisma.$queryRaw<RawSegment[]>`
-          WITH vector_candidates AS MATERIALIZED (
-            -- Stage A: Pure vector search using ivfflat index (no WHERE except embedding IS NOT NULL)
-            SELECT 
-              ts."id",
-              ts."text",
-              ts."startMs",
-              ts."endMs",
-              ts."speaker",
-              ts."isMetadata",
-              ts."transcript",
-              ts."source",
-              (ts."embedding" <=> ${literal}) AS "similarityScore"
-            FROM "TranscriptSegment" ts
-            WHERE ts."embedding" IS NOT NULL
-              AND ts."isMetadata" = FALSE
-            ORDER BY ts."embedding" <=> ${literal}
-            LIMIT ${candidateLimit}
-          )
-          -- Stage B: Filter by source and add transcript info
           SELECT
-            vc."id",
-            vc."text",
-            vc."startMs",
-            vc."endMs",
-            vc."speaker",
-            vc."isMetadata",
+            ts."id",
+            ts."text",
+            ts."startMs",
+            ts."endMs",
+            ts."speaker",
+            ts."isMetadata",
             t."id" AS "transcriptId",
             t."title" AS "transcriptTitle",
-            vc."similarityScore"
-          FROM vector_candidates vc
-          INNER JOIN "Transcript" t ON t.id = vc."transcript"
-          WHERE vc."source" IN (${Prisma.join(sourceIdList)})
-          ORDER BY vc."similarityScore"
+            (ts."embedding" <=> ${literal}) AS "similarityScore"
+          FROM "TranscriptSegment" ts
+          INNER JOIN "Transcript" t ON t.id = ts."transcript"
+          WHERE ts."embedding" IS NOT NULL
+            AND ts."isMetadata" = FALSE
+            AND ts."source" IN (${Prisma.join(sourceIdList)})
+          ORDER BY ts."embedding" <=> ${literal}
           LIMIT ${maxSegments}
         `) ?? [];
 
@@ -450,60 +419,39 @@ const getOpenAiMessages = ({
 export const getSystemPromptReplacements = async ({
   context,
   projectId,
-  transcriptId
+  systemPrompt
 }: {
   context: KeystoneContext;
   projectId?: string | null;
-  transcriptId?: string | null;
+  systemPrompt?: string;
 }): Promise<{ projectName: string; transcriptTitles: string[]; sourceNames: string[] }> => {
+  const defaults = { projectName: 'project', transcriptTitles: [] as string[], sourceNames: [] as string[] };
+  if (!projectId) return defaults;
+
+  // Check which placeholders are actually used in the prompt
+  const needsProjectName = !systemPrompt || systemPrompt.includes('{projectName}');
+  const needsSourceNames = systemPrompt?.includes('{sourceNames}') ?? false;
+  const needsTranscriptTitles = systemPrompt?.includes('{transcriptTitles}') ?? false;
+
+  if (!needsProjectName && !needsSourceNames && !needsTranscriptTitles) return defaults;
+
   const sudoContext = context.sudo();
 
-  let projectName = 'project';
-  let transcriptTitles: string[] = [];
-  let sourceNames: string[] = [];
-
-  if (transcriptId) {
-    // Transcript context: get the single transcript and its source
-    const transcript = await sudoContext.query.Transcript.findOne({
-      where: { id: transcriptId },
-      query: 'title source { name } project { name }'
-    });
-
-    if (transcript) {
-      transcriptTitles = [transcript.title];
-      if (transcript.source?.name) {
-        sourceNames = [transcript.source.name];
-      }
-      if (transcript.project?.name) {
-        projectName = transcript.project.name;
-      }
-    }
-  } else if (projectId) {
-    // Project context: get project name and sources with limited transcripts for efficiency
-    const project = await sudoContext.query.Project.findOne({
-      where: { id: projectId },
-      query: 'name sources { name }'
-    });
-
-    if (project) {
-      projectName = project.name;
-
-      // Get source names via aggregation to avoid fetching large relation trees
-      const sourceRow = (
-        await sudoContext.prisma.$queryRaw<{ names: string | null }[]>`
+  // Fetch all needed data in parallel
+  const [project, sourceRow, transcriptRow] = await Promise.all([
+    needsProjectName ? sudoContext.query.Project.findOne({ where: { id: projectId }, query: 'name' }) : null,
+    needsSourceNames
+      ? sudoContext.prisma.$queryRaw<{ names: string | null }[]>`
           SELECT json_agg(DISTINCT s."name") AS "names"
           FROM "Source" s
           INNER JOIN "_Project_sources" ps ON ps."B" = s.id
           WHERE ps."A" = ${projectId}
             AND s."name" IS NOT NULL
             AND s."name" != ''
-        `
-      )?.[0];
-      sourceNames = parseJsonArray<string>(sourceRow?.names);
-
-      // Get transcript titles efficiently with a limit (avoid fetching thousands)
-      const transcriptRow = (
-        await sudoContext.prisma.$queryRaw<{ titles: string | string[] | null }[]>`
+        `.then((rows: { names: string | null }[]) => rows?.[0])
+      : null,
+    needsTranscriptTitles
+      ? sudoContext.prisma.$queryRaw<{ titles: string | string[] | null }[]>`
           SELECT json_agg(DISTINCT t."title") AS "titles"
           FROM "Transcript" t
           INNER JOIN "Source" s ON s.id = t."source"
@@ -511,30 +459,32 @@ export const getSystemPromptReplacements = async ({
           WHERE ps."A" = ${projectId}
             AND t."title" IS NOT NULL
             AND t."title" != ''
-        `
-      )?.[0];
-      transcriptTitles = parseJsonArray<string>(transcriptRow?.titles);
-    }
-  }
+        `.then((rows: { titles: string | string[] | null }[]) => rows?.[0])
+      : null
+  ]);
 
-  return { projectName, transcriptTitles, sourceNames };
+  if (needsProjectName && !project) return defaults;
+
+  return {
+    projectName: project?.name ?? 'project',
+    sourceNames: parseJsonArray<string>(sourceRow?.names),
+    transcriptTitles: parseJsonArray<string>(transcriptRow?.titles)
+  };
 };
 
 const replaceSystemPromptPlaceholders = async ({
   systemPrompt,
   context,
-  projectId,
-  transcriptId
+  projectId
 }: {
   systemPrompt: string;
   context: KeystoneContext;
   projectId?: string;
-  transcriptId?: string;
 }): Promise<string> => {
   const { projectName, transcriptTitles, sourceNames } = await getSystemPromptReplacements({
     context,
     projectId,
-    transcriptId
+    systemPrompt
   });
 
   return systemPrompt
@@ -618,7 +568,6 @@ export const runChatConversation = async ({
   session: Session;
   input: {
     chatId?: string | null;
-    transcriptId?: string;
     projectId?: string;
     message: string;
     systemPrompt?: string | null;
@@ -631,41 +580,23 @@ export const runChatConversation = async ({
   const messageText = input.message.trim();
   if (!messageText) throw new Error('Message cannot be empty');
 
-  const fetchTranscriptContext = async () => {
-    if (!input.transcriptId) throw new Error('Transcript ID is required');
-    const transcript = await sudoContext.query.Transcript.findOne({
-      where: { id: input.transcriptId },
-      query: 'id title source { projects { id name org { id } } org { id } } org { id }'
-    });
-    if (!transcript) throw new Error('Transcript not found');
-    const project =
-      transcript.source?.projects?.find((project: ProjectWithOrg) => project.org?.id === session.orgId) ??
-      transcript.source?.projects?.[0];
-    if (!project?.id) throw new Error('Transcript is missing project reference');
-    return { targetTranscript: transcript, targetProject: project };
-  };
-
-  const fetchProjectContext = async () => {
+  const fetchProjectContext = async (): Promise<ProjectWithOrg> => {
     if (!input.projectId) throw new Error('Project ID is required');
-    const project = await sudoContext.query.Project.findOne({
+    const project = (await sudoContext.query.Project.findOne({
       where: { id: input.projectId },
       query: 'id name org { id }'
-    });
+    })) as ProjectWithOrg | null;
     if (!project) throw new Error('Project not found');
-    return { targetProject: project, targetTranscript: null };
+    return project;
   };
 
-  const isTranscriptContext = Boolean(input.transcriptId);
-  const { targetProject, targetTranscript } = isTranscriptContext
-    ? await fetchTranscriptContext()
-    : await fetchProjectContext();
+  const targetProject = await fetchProjectContext();
 
   if (!targetProject?.org?.id) {
     throw new Error('Missing organization context for chat target');
   }
 
-  const projectId = targetProject?.id;
-  const transcriptId = targetTranscript?.id;
+  const projectId = targetProject.id;
 
   const existingChatRecord = input.chatId
     ? await sudoContext.query.Chat.findOne({
@@ -682,7 +613,6 @@ export const runChatConversation = async ({
   const segments = await fetchSegments({
     context,
     projectId,
-    transcriptId,
     queryText: messageText,
     maxSegments: chatConfig.segments.maxCount
   });
@@ -699,23 +629,27 @@ export const runChatConversation = async ({
   const finalSystemPrompt = await replaceSystemPromptPlaceholders({
     systemPrompt: chatConfig.systemPrompt,
     context,
-    projectId,
-    transcriptId
+    projectId
   });
 
+  const defaultTitle = `Project chat • ${targetProject?.name ?? 'untitled'}`;
   const title = input.chatId
     ? ''
     : ((await generateChatTitle({
         firstMessage: messageText,
-        contextName: isTranscriptContext ? targetTranscript?.title : targetProject?.name
-      })) ??
-      (isTranscriptContext
-        ? `Transcript chat • ${targetTranscript?.title ?? 'untitled'}`
-        : `Project chat • ${targetProject?.name ?? 'untitled'}`));
+        contextName: targetProject?.name
+      })) ?? defaultTitle);
 
-  let chatId = input.chatId ?? null;
+  const persistChat = async (): Promise<string | null> => {
+    if (input.chatId) {
+      const updated = await sudoContext.db.Chat.updateOne({
+        where: { id: input.chatId },
+        data: { systemPrompt: chatConfig.systemPrompt, config: chatConfig }
+      });
+      if (!updated) throw new Error('Chat not found');
+      return input.chatId;
+    }
 
-  if (!chatId) {
     const createdChat = await sudoContext.db.Chat.createOne({
       data: {
         title,
@@ -723,19 +657,13 @@ export const runChatConversation = async ({
         config: chatConfig,
         user: { connect: { id: session.id } },
         org: { connect: { id: session.orgId } },
-        ...(projectId ? { project: { connect: { id: projectId } } } : {}),
-        ...(transcriptId ? { transcript: { connect: { id: transcriptId } } } : {})
+        project: { connect: { id: projectId } }
       }
     });
-    chatId = createdChat?.id ? String(createdChat.id) : null;
-  } else {
-    const updated = await sudoContext.db.Chat.updateOne({
-      where: { id: chatId },
-      data: { systemPrompt: chatConfig.systemPrompt, config: chatConfig }
-    });
-    if (!updated) throw new Error('Chat not found');
-  }
+    return createdChat?.id ? String(createdChat.id) : null;
+  };
 
+  const chatId = await persistChat();
   if (!chatId) throw new Error('Failed to create chat session');
 
   const history = await fetchChatHistory(context, chatId);

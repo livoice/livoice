@@ -1161,7 +1161,6 @@ type Mutation {
   deleteUsers(where: [UserWhereUniqueInput!]!): [User]
   endSession: Boolean!
   triggerSourceImport(sourceId: ID!): Source!
-  chatTranscript(input: ChatTranscriptInput!): ChatMutationResult!
   chatProject(input: ChatProjectInput!): ChatMutationResult!
 }
 
@@ -1260,9 +1259,9 @@ type ChatSegmentReference {
   transcriptTitle: String
 }
 
-input ChatTranscriptInput {
+input ChatProjectInput {
   chatId: ID
-  transcriptId: ID!
+  projectId: ID!
   message: String!
   systemPrompt: String!
   config: ChatConfigInput
@@ -1292,14 +1291,6 @@ input ChatConfigSegmentsInput {
   maxCount: Int
 }
 
-input ChatProjectInput {
-  chatId: ID
-  projectId: ID!
-  message: String!
-  systemPrompt: String!
-  config: ChatConfigInput
-}
-
 type Query {
   chat(where: ChatWhereUniqueInput!): Chat
   chats(where: ChatWhereInput! = {}, orderBy: [ChatOrderByInput!]! = [], take: Int, skip: Int! = 0, cursor: ChatWhereUniqueInput): [Chat!]
@@ -1326,7 +1317,6 @@ type Query {
   users(where: UserWhereInput! = {}, orderBy: [UserOrderByInput!]! = [], take: Int, skip: Int! = 0, cursor: UserWhereUniqueInput): [User!]
   usersCount(where: UserWhereInput! = {}): Int
   keystone: KeystoneMeta!
-  chatTranscriptHistory(transcriptId: ID!, chatId: ID): ChatHistoryResult!
   chatProjectHistory(projectId: ID!, chatId: ID): ChatHistoryResult!
 }
 

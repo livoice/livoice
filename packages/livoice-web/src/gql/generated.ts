@@ -326,14 +326,6 @@ export type ChatSegmentReference = {
   transcriptTitle?: Maybe<Scalars['String']['output']>;
 };
 
-export type ChatTranscriptInput = {
-  chatId?: InputMaybe<Scalars['ID']['input']>;
-  config?: InputMaybe<ChatConfigInput>;
-  message: Scalars['String']['input'];
-  systemPrompt: Scalars['String']['input'];
-  transcriptId: Scalars['ID']['input'];
-};
-
 export type ChatUpdateArgs = {
   data: ChatUpdateInput;
   where: ChatWhereUniqueInput;
@@ -622,7 +614,6 @@ export type KeystoneMeta = {
 export type Mutation = {
   __typename?: 'Mutation';
   chatProject: ChatMutationResult;
-  chatTranscript: ChatMutationResult;
   createChat?: Maybe<Chat>;
   createChatMessage?: Maybe<ChatMessage>;
   createChatMessages?: Maybe<Array<Maybe<ChatMessage>>>;
@@ -678,11 +669,6 @@ export type Mutation = {
 
 export type MutationChatProjectArgs = {
   input: ChatProjectInput;
-};
-
-
-export type MutationChatTranscriptArgs = {
-  input: ChatTranscriptInput;
 };
 
 
@@ -1228,7 +1214,6 @@ export type Query = {
   chatMessages?: Maybe<Array<ChatMessage>>;
   chatMessagesCount?: Maybe<Scalars['Int']['output']>;
   chatProjectHistory: ChatHistoryResult;
-  chatTranscriptHistory: ChatHistoryResult;
   chats?: Maybe<Array<Chat>>;
   chatsCount?: Maybe<Scalars['Int']['output']>;
   keystone: KeystoneMeta;
@@ -1280,12 +1265,6 @@ export type QueryChatMessagesCountArgs = {
 export type QueryChatProjectHistoryArgs = {
   chatId?: InputMaybe<Scalars['ID']['input']>;
   projectId: Scalars['ID']['input'];
-};
-
-
-export type QueryChatTranscriptHistoryArgs = {
-  chatId?: InputMaybe<Scalars['ID']['input']>;
-  transcriptId: Scalars['ID']['input'];
 };
 
 
@@ -2156,20 +2135,6 @@ export type ChatProjectHistoryQueryVariables = Exact<{
 
 export type ChatProjectHistoryQuery = { __typename?: 'Query', chatProjectHistory: { __typename?: 'ChatHistoryResult', chatId?: string | null, title?: string | null, systemPrompt?: string | null, resolvedSystemPrompt?: string | null, config?: { __typename?: 'ChatConfig', systemPrompt: string, openai: { __typename?: 'ChatConfigOpenAI', model: string, temperature: number, maxOutputTokens: number }, context: { __typename?: 'ChatConfigContext', maxInputTokens: number, reservedTokens: number, historyTokenBudget: number }, segments: { __typename?: 'ChatConfigSegments', tokenBudget: number, maxCount: number } } | null, messages: Array<{ __typename?: 'ChatMessageResult', id: string, role: string, content: string, createdAt?: string | null, debugData?: { __typename?: 'ChatMessageDebugData', resolvedSystemPrompt: string, userMessageWithContext: string, segmentTokensUsed: number, config: { __typename?: 'ChatConfig', systemPrompt: string, openai: { __typename?: 'ChatConfigOpenAI', model: string, temperature: number, maxOutputTokens: number }, context: { __typename?: 'ChatConfigContext', maxInputTokens: number, reservedTokens: number, historyTokenBudget: number }, segments: { __typename?: 'ChatConfigSegments', tokenBudget: number, maxCount: number } }, history: { __typename?: 'ChatMessageDebugHistory', messagesIncluded: number, tokensUsed: number, tokenBudget: number, messages: Array<{ __typename?: 'ChatMessageDebugHistoryMessage', role: string, content: string, tokens: number }> }, segments?: Array<{ __typename?: 'ChatMessageDebugSegment', id: string, text: string, transcriptTitle?: string | null, speaker?: string | null, startMs?: number | null, endMs?: number | null, similarityScore?: number | null, estimatedTokens: number }> | null, openaiResponse: { __typename?: 'ChatMessageDebugOpenAIResponse', model: string, promptTokens?: number | null, completionTokens?: number | null, totalTokens?: number | null }, timing: { __typename?: 'ChatMessageDebugTiming', startedAt: string, completedAt: string } } | null }> } };
 
-export type ChatTranscriptMutationVariables = Exact<{
-  input: ChatTranscriptInput;
-}>;
-
-
-export type ChatTranscriptMutation = { __typename?: 'Mutation', chatTranscript: { __typename?: 'ChatMutationResult', chatId: string, answer: string, messages: Array<{ __typename?: 'ChatMessageResult', id: string, role: string, content: string, createdAt?: string | null }>, references: Array<{ __typename?: 'ChatSegmentReference', id: string, text: string, startMs?: number | null, endMs?: number | null, speaker?: string | null, transcriptTitle?: string | null }> } };
-
-export type ChatTranscriptHistoryQueryVariables = Exact<{
-  transcriptId: Scalars['ID']['input'];
-}>;
-
-
-export type ChatTranscriptHistoryQuery = { __typename?: 'Query', chatTranscriptHistory: { __typename?: 'ChatHistoryResult', chatId?: string | null, systemPrompt?: string | null, resolvedSystemPrompt?: string | null, messages: Array<{ __typename?: 'ChatMessageResult', id: string, role: string, content: string, createdAt?: string | null }> } };
-
 export type CreateProjectMutationVariables = Exact<{
   data: ProjectCreateInput;
 }>;
@@ -2629,102 +2594,6 @@ export type ChatProjectHistoryQueryHookResult = ReturnType<typeof useChatProject
 export type ChatProjectHistoryLazyQueryHookResult = ReturnType<typeof useChatProjectHistoryLazyQuery>;
 export type ChatProjectHistorySuspenseQueryHookResult = ReturnType<typeof useChatProjectHistorySuspenseQuery>;
 export type ChatProjectHistoryQueryResult = Apollo.QueryResult<ChatProjectHistoryQuery, ChatProjectHistoryQueryVariables>;
-export const ChatTranscriptDocument = gql`
-    mutation ChatTranscript($input: ChatTranscriptInput!) {
-  chatTranscript(input: $input) {
-    chatId
-    answer
-    messages {
-      id
-      role
-      content
-      createdAt
-    }
-    references {
-      id
-      text
-      startMs
-      endMs
-      speaker
-      transcriptTitle
-    }
-  }
-}
-    `;
-export type ChatTranscriptMutationFn = Apollo.MutationFunction<ChatTranscriptMutation, ChatTranscriptMutationVariables>;
-
-/**
- * __useChatTranscriptMutation__
- *
- * To run a mutation, you first call `useChatTranscriptMutation` within a React component and pass it any options that fit your needs.
- * When your component renders, `useChatTranscriptMutation` returns a tuple that includes:
- * - A mutate function that you can call at any time to execute the mutation
- * - An object with fields that represent the current status of the mutation's execution
- *
- * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
- *
- * @example
- * const [chatTranscriptMutation, { data, loading, error }] = useChatTranscriptMutation({
- *   variables: {
- *      input: // value for 'input'
- *   },
- * });
- */
-export function useChatTranscriptMutation(baseOptions?: Apollo.MutationHookOptions<ChatTranscriptMutation, ChatTranscriptMutationVariables>) {
-        const options = {...defaultOptions, ...baseOptions}
-        return Apollo.useMutation<ChatTranscriptMutation, ChatTranscriptMutationVariables>(ChatTranscriptDocument, options);
-      }
-export type ChatTranscriptMutationHookResult = ReturnType<typeof useChatTranscriptMutation>;
-export type ChatTranscriptMutationResult = Apollo.MutationResult<ChatTranscriptMutation>;
-export type ChatTranscriptMutationOptions = Apollo.BaseMutationOptions<ChatTranscriptMutation, ChatTranscriptMutationVariables>;
-export const ChatTranscriptHistoryDocument = gql`
-    query ChatTranscriptHistory($transcriptId: ID!) {
-  chatTranscriptHistory(transcriptId: $transcriptId) {
-    chatId
-    systemPrompt
-    resolvedSystemPrompt
-    messages {
-      id
-      role
-      content
-      createdAt
-    }
-  }
-}
-    `;
-
-/**
- * __useChatTranscriptHistoryQuery__
- *
- * To run a query within a React component, call `useChatTranscriptHistoryQuery` and pass it any options that fit your needs.
- * When your component renders, `useChatTranscriptHistoryQuery` returns an object from Apollo Client that contains loading, error, and data properties
- * you can use to render your UI.
- *
- * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
- *
- * @example
- * const { data, loading, error } = useChatTranscriptHistoryQuery({
- *   variables: {
- *      transcriptId: // value for 'transcriptId'
- *   },
- * });
- */
-export function useChatTranscriptHistoryQuery(baseOptions: Apollo.QueryHookOptions<ChatTranscriptHistoryQuery, ChatTranscriptHistoryQueryVariables> & ({ variables: ChatTranscriptHistoryQueryVariables; skip?: boolean; } | { skip: boolean; }) ) {
-        const options = {...defaultOptions, ...baseOptions}
-        return Apollo.useQuery<ChatTranscriptHistoryQuery, ChatTranscriptHistoryQueryVariables>(ChatTranscriptHistoryDocument, options);
-      }
-export function useChatTranscriptHistoryLazyQuery(baseOptions?: Apollo.LazyQueryHookOptions<ChatTranscriptHistoryQuery, ChatTranscriptHistoryQueryVariables>) {
-          const options = {...defaultOptions, ...baseOptions}
-          return Apollo.useLazyQuery<ChatTranscriptHistoryQuery, ChatTranscriptHistoryQueryVariables>(ChatTranscriptHistoryDocument, options);
-        }
-export function useChatTranscriptHistorySuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<ChatTranscriptHistoryQuery, ChatTranscriptHistoryQueryVariables>) {
-          const options = baseOptions === Apollo.skipToken ? baseOptions : {...defaultOptions, ...baseOptions}
-          return Apollo.useSuspenseQuery<ChatTranscriptHistoryQuery, ChatTranscriptHistoryQueryVariables>(ChatTranscriptHistoryDocument, options);
-        }
-export type ChatTranscriptHistoryQueryHookResult = ReturnType<typeof useChatTranscriptHistoryQuery>;
-export type ChatTranscriptHistoryLazyQueryHookResult = ReturnType<typeof useChatTranscriptHistoryLazyQuery>;
-export type ChatTranscriptHistorySuspenseQueryHookResult = ReturnType<typeof useChatTranscriptHistorySuspenseQuery>;
-export type ChatTranscriptHistoryQueryResult = Apollo.QueryResult<ChatTranscriptHistoryQuery, ChatTranscriptHistoryQueryVariables>;
 export const CreateProjectDocument = gql`
     mutation CreateProject($data: ProjectCreateInput!) {
   createProject(data: $data) {
