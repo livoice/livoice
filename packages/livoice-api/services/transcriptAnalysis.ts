@@ -88,6 +88,44 @@ const storeSegments = async (
   return prisma.transcriptSegment.findMany({ where: { transcriptId }, select: { id: true, index: true } });
 };
 
+type SpeakerActorsResult = { speakerActors?: { id: string }[] | null } | null;
+
+const mergeActorIds = (newIds: string[], existing: SpeakerActorsResult) =>
+  Array.from(new Set([...newIds, ...(existing?.speakerActors ?? []).map(({ id }) => id)]));
+
+const updateSpeakerActorsAtSourceAndTranscript = async (
+  transcriptId: string,
+  sourceId: string,
+  speakerActorIds: string[]
+) => {
+  const prisma = await getPrismaSudo();
+
+  const [currentSourceSpeakers, currentTranscriptSpeakers] = (await Promise.all([
+    prisma.source.findUnique({
+      where: { id: sourceId },
+      select: { speakerActors: { select: { id: true } } }
+    } as Parameters<typeof prisma.source.findUnique>[0]),
+    prisma.transcript.findUnique({
+      where: { id: transcriptId },
+      select: { speakerActors: { select: { id: true } } }
+    } as Parameters<typeof prisma.transcript.findUnique>[0])
+  ])) as [SpeakerActorsResult, SpeakerActorsResult];
+
+  const combinedSourceIds = mergeActorIds(speakerActorIds, currentSourceSpeakers);
+  const combinedTranscriptIds = mergeActorIds(speakerActorIds, currentTranscriptSpeakers);
+
+  await Promise.all([
+    prisma.source.update({
+      where: { id: sourceId },
+      data: { speakerActors: { set: combinedSourceIds.map(id => ({ id })) } }
+    } as Parameters<typeof prisma.source.update>[0]),
+    prisma.transcript.update({
+      where: { id: transcriptId },
+      data: { speakerActors: { set: combinedTranscriptIds.map(id => ({ id })) } }
+    } as Parameters<typeof prisma.transcript.update>[0])
+  ]);
+};
+
 export const updateAnalysis = async (transcriptId: string, data: Prisma.TranscriptUpdateArgs['data']) =>
   (await getPrismaSudo()).transcript.update({ where: { id: transcriptId }, data });
 
@@ -137,6 +175,9 @@ export const analyzeTranscript = async (transcriptId: string) => {
   const segmentIndexToId = new Map(
     storedSegments.filter(({ index }) => index !== null).map(segment => [segment.index as number, segment.id])
   );
+  const speakerActorIds = Array.from(new Set(Array.from(speakerNameToId.values())));
+
+  await updateSpeakerActorsAtSourceAndTranscript(transcriptId, transcript.sourceId!, speakerActorIds);
 
   // Pass 4a: Actor extraction
   console.log(`[analyzer] Pass 4a: Extracting actors for ${transcriptId}`);

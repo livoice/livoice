@@ -16,6 +16,10 @@ type Actor {
   relatesToCount(where: ActorLinkWhereInput! = {}): Int
   relatedFrom(where: ActorLinkWhereInput! = {}, orderBy: [ActorLinkOrderByInput!]! = [], take: Int, skip: Int! = 0, cursor: ActorLinkWhereUniqueInput): [ActorLink!]
   relatedFromCount(where: ActorLinkWhereInput! = {}): Int
+  speakerSources(where: SourceWhereInput! = {}, orderBy: [SourceOrderByInput!]! = [], take: Int, skip: Int! = 0, cursor: SourceWhereUniqueInput): [Source!]
+  speakerSourcesCount(where: SourceWhereInput! = {}): Int
+  speakerTranscripts(where: TranscriptWhereInput! = {}, orderBy: [TranscriptOrderByInput!]! = [], take: Int, skip: Int! = 0, cursor: TranscriptWhereUniqueInput): [Transcript!]
+  speakerTranscriptsCount(where: TranscriptWhereInput! = {}): Int
   createdAt: DateTime
   updatedAt: DateTime
 }
@@ -49,6 +53,8 @@ input ActorWhereInput {
   mentions: ActorMentionManyRelationFilter
   relatesTo: ActorLinkManyRelationFilter
   relatedFrom: ActorLinkManyRelationFilter
+  speakerSources: SourceManyRelationFilter
+  speakerTranscripts: TranscriptManyRelationFilter
   createdAt: DateTimeNullableFilter
   updatedAt: DateTimeNullableFilter
 }
@@ -117,6 +123,18 @@ input ActorLinkManyRelationFilter {
   none: ActorLinkWhereInput
 }
 
+input SourceManyRelationFilter {
+  every: SourceWhereInput
+  some: SourceWhereInput
+  none: SourceWhereInput
+}
+
+input TranscriptManyRelationFilter {
+  every: TranscriptWhereInput
+  some: TranscriptWhereInput
+  none: TranscriptWhereInput
+}
+
 input DateTimeNullableFilter {
   equals: DateTime
   in: [DateTime!]
@@ -154,6 +172,8 @@ input ActorUpdateInput {
   mentions: ActorMentionRelateToManyForUpdateInput
   relatesTo: ActorLinkRelateToManyForUpdateInput
   relatedFrom: ActorLinkRelateToManyForUpdateInput
+  speakerSources: SourceRelateToManyForUpdateInput
+  speakerTranscripts: TranscriptRelateToManyForUpdateInput
   createdAt: DateTime
   updatedAt: DateTime
 }
@@ -172,6 +192,20 @@ input ActorLinkRelateToManyForUpdateInput {
   connect: [ActorLinkWhereUniqueInput!]
 }
 
+input SourceRelateToManyForUpdateInput {
+  disconnect: [SourceWhereUniqueInput!]
+  set: [SourceWhereUniqueInput!]
+  create: [SourceCreateInput!]
+  connect: [SourceWhereUniqueInput!]
+}
+
+input TranscriptRelateToManyForUpdateInput {
+  disconnect: [TranscriptWhereUniqueInput!]
+  set: [TranscriptWhereUniqueInput!]
+  create: [TranscriptCreateInput!]
+  connect: [TranscriptWhereUniqueInput!]
+}
+
 input ActorUpdateArgs {
   where: ActorWhereUniqueInput!
   data: ActorUpdateInput!
@@ -188,6 +222,8 @@ input ActorCreateInput {
   mentions: ActorMentionRelateToManyForCreateInput
   relatesTo: ActorLinkRelateToManyForCreateInput
   relatedFrom: ActorLinkRelateToManyForCreateInput
+  speakerSources: SourceRelateToManyForCreateInput
+  speakerTranscripts: TranscriptRelateToManyForCreateInput
   createdAt: DateTime
   updatedAt: DateTime
 }
@@ -200,6 +236,16 @@ input ActorMentionRelateToManyForCreateInput {
 input ActorLinkRelateToManyForCreateInput {
   create: [ActorLinkCreateInput!]
   connect: [ActorLinkWhereUniqueInput!]
+}
+
+input SourceRelateToManyForCreateInput {
+  create: [SourceCreateInput!]
+  connect: [SourceWhereUniqueInput!]
+}
+
+input TranscriptRelateToManyForCreateInput {
+  create: [TranscriptCreateInput!]
+  connect: [TranscriptWhereUniqueInput!]
 }
 
 type ActorMention {
@@ -716,18 +762,6 @@ input ProjectManyRelationFilter {
   none: ProjectWhereInput
 }
 
-input TranscriptManyRelationFilter {
-  every: TranscriptWhereInput
-  some: TranscriptWhereInput
-  none: TranscriptWhereInput
-}
-
-input SourceManyRelationFilter {
-  every: SourceWhereInput
-  some: SourceWhereInput
-  none: SourceWhereInput
-}
-
 input ChatManyRelationFilter {
   every: ChatWhereInput
   some: ChatWhereInput
@@ -763,20 +797,6 @@ input ProjectRelateToManyForUpdateInput {
   connect: [ProjectWhereUniqueInput!]
 }
 
-input TranscriptRelateToManyForUpdateInput {
-  disconnect: [TranscriptWhereUniqueInput!]
-  set: [TranscriptWhereUniqueInput!]
-  create: [TranscriptCreateInput!]
-  connect: [TranscriptWhereUniqueInput!]
-}
-
-input SourceRelateToManyForUpdateInput {
-  disconnect: [SourceWhereUniqueInput!]
-  set: [SourceWhereUniqueInput!]
-  create: [SourceCreateInput!]
-  connect: [SourceWhereUniqueInput!]
-}
-
 input ChatRelateToManyForUpdateInput {
   disconnect: [ChatWhereUniqueInput!]
   set: [ChatWhereUniqueInput!]
@@ -807,16 +827,6 @@ input UserRelateToManyForCreateInput {
 input ProjectRelateToManyForCreateInput {
   create: [ProjectCreateInput!]
   connect: [ProjectWhereUniqueInput!]
-}
-
-input TranscriptRelateToManyForCreateInput {
-  create: [TranscriptCreateInput!]
-  connect: [TranscriptWhereUniqueInput!]
-}
-
-input SourceRelateToManyForCreateInput {
-  create: [SourceCreateInput!]
-  connect: [SourceWhereUniqueInput!]
 }
 
 input ChatRelateToManyForCreateInput {
@@ -897,6 +907,8 @@ type Source {
   org: Organization
   transcripts(where: TranscriptWhereInput! = {}, orderBy: [TranscriptOrderByInput!]! = [], take: Int, skip: Int! = 0, cursor: TranscriptWhereUniqueInput): [Transcript!]
   transcriptsCount(where: TranscriptWhereInput! = {}): Int
+  speakerActors(where: ActorWhereInput! = {}, orderBy: [ActorOrderByInput!]! = [], take: Int, skip: Int! = 0, cursor: ActorWhereUniqueInput): [Actor!]
+  speakerActorsCount(where: ActorWhereInput! = {}): Int
   projects(where: ProjectWhereInput! = {}, orderBy: [ProjectOrderByInput!]! = [], take: Int, skip: Int! = 0, cursor: ProjectWhereUniqueInput): [Project!]
   projectsCount(where: ProjectWhereInput! = {}): Int
   importTrigger: String
@@ -975,6 +987,7 @@ input SourceWhereInput {
   importCronExpression: StringFilter
   org: OrganizationWhereInput
   transcripts: TranscriptManyRelationFilter
+  speakerActors: ActorManyRelationFilter
   projects: ProjectManyRelationFilter
 }
 
@@ -990,6 +1003,12 @@ input SourceImportStatusTypeNullableFilter {
   in: [SourceImportStatusType!]
   notIn: [SourceImportStatusType!]
   not: SourceImportStatusTypeNullableFilter
+}
+
+input ActorManyRelationFilter {
+  every: ActorWhereInput
+  some: ActorWhereInput
+  none: ActorWhereInput
 }
 
 input SourceOrderByInput {
@@ -1016,7 +1035,15 @@ input SourceUpdateInput {
   importHistory: JSON
   org: OrganizationRelateToOneForUpdateInput
   transcripts: TranscriptRelateToManyForUpdateInput
+  speakerActors: ActorRelateToManyForUpdateInput
   projects: ProjectRelateToManyForUpdateInput
+}
+
+input ActorRelateToManyForUpdateInput {
+  disconnect: [ActorWhereUniqueInput!]
+  set: [ActorWhereUniqueInput!]
+  create: [ActorCreateInput!]
+  connect: [ActorWhereUniqueInput!]
 }
 
 input SourceUpdateArgs {
@@ -1036,15 +1063,19 @@ input SourceCreateInput {
   importHistory: JSON
   org: OrganizationRelateToOneForCreateInput
   transcripts: TranscriptRelateToManyForCreateInput
+  speakerActors: ActorRelateToManyForCreateInput
   projects: ProjectRelateToManyForCreateInput
+}
+
+input ActorRelateToManyForCreateInput {
+  create: [ActorCreateInput!]
+  connect: [ActorWhereUniqueInput!]
 }
 
 type Transcript {
   id: ID!
   title: String
-  intervieweeName: String
   sourceUrl: String
-  language: String
   notes: String
   externalId: String
   publishedAt: DateTime
@@ -1069,6 +1100,8 @@ type Transcript {
   org: Organization
   segments(where: TranscriptSegmentWhereInput! = {}, orderBy: [TranscriptSegmentOrderByInput!]! = [], take: Int, skip: Int! = 0, cursor: TranscriptSegmentWhereUniqueInput): [TranscriptSegment!]
   segmentsCount(where: TranscriptSegmentWhereInput! = {}): Int
+  speakerActors(where: ActorWhereInput! = {}, orderBy: [ActorOrderByInput!]! = [], take: Int, skip: Int! = 0, cursor: ActorWhereUniqueInput): [Actor!]
+  speakerActorsCount(where: ActorWhereInput! = {}): Int
   segmentEmbeddingProgress: SegmentEmbeddingProgress
   createdAt: DateTime
   updatedAt: DateTime
@@ -1115,9 +1148,7 @@ input TranscriptWhereInput {
   NOT: [TranscriptWhereInput!]
   id: IDFilter
   title: StringFilter
-  intervieweeName: StringFilter
   sourceUrl: StringFilter
-  language: StringFilter
   notes: StringFilter
   externalId: StringFilter
   publishedAt: DateTimeNullableFilter
@@ -1140,6 +1171,7 @@ input TranscriptWhereInput {
   source: SourceWhereInput
   org: OrganizationWhereInput
   segments: TranscriptSegmentManyRelationFilter
+  speakerActors: ActorManyRelationFilter
   createdAt: DateTimeNullableFilter
   updatedAt: DateTimeNullableFilter
 }
@@ -1185,9 +1217,7 @@ input TranscriptSegmentManyRelationFilter {
 input TranscriptOrderByInput {
   id: OrderDirection
   title: OrderDirection
-  intervieweeName: OrderDirection
   sourceUrl: OrderDirection
-  language: OrderDirection
   notes: OrderDirection
   externalId: OrderDirection
   publishedAt: OrderDirection
@@ -1213,9 +1243,7 @@ input TranscriptOrderByInput {
 
 input TranscriptUpdateInput {
   title: String
-  intervieweeName: String
   sourceUrl: String
-  language: String
   notes: String
   externalId: String
   publishedAt: DateTime
@@ -1239,6 +1267,7 @@ input TranscriptUpdateInput {
   source: SourceRelateToOneForUpdateInput
   org: OrganizationRelateToOneForUpdateInput
   segments: TranscriptSegmentRelateToManyForUpdateInput
+  speakerActors: ActorRelateToManyForUpdateInput
   createdAt: DateTime
   updatedAt: DateTime
 }
@@ -1257,9 +1286,7 @@ input TranscriptUpdateArgs {
 
 input TranscriptCreateInput {
   title: String
-  intervieweeName: String
   sourceUrl: String
-  language: String
   notes: String
   externalId: String
   publishedAt: DateTime
@@ -1283,6 +1310,7 @@ input TranscriptCreateInput {
   source: SourceRelateToOneForCreateInput
   org: OrganizationRelateToOneForCreateInput
   segments: TranscriptSegmentRelateToManyForCreateInput
+  speakerActors: ActorRelateToManyForCreateInput
   createdAt: DateTime
   updatedAt: DateTime
 }

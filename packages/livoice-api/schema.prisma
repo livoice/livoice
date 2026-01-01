@@ -23,6 +23,8 @@ model Actor {
   mentions                            ActorMention[]      @relation("ActorMention_actor")
   relatesTo                           ActorLink[]         @relation("ActorLink_fromActor")
   relatedFrom                         ActorLink[]         @relation("ActorLink_toActor")
+  speakerSources                      Source[]            @relation("Actor_speakerSources")
+  speakerTranscripts                  Transcript[]        @relation("Actor_speakerTranscripts")
   createdAt                           DateTime?           @default(now())
   updatedAt                           DateTime?           @updatedAt
   from_TranscriptSegment_speakerActor TranscriptSegment[] @relation("TranscriptSegment_speakerActor")
@@ -139,6 +141,7 @@ model Source {
   org                           Organization?           @relation("Source_org", fields: [orgId], references: [id])
   orgId                         String?                 @map("org")
   transcripts                   Transcript[]            @relation("Transcript_source")
+  speakerActors                 Actor[]                 @relation("Actor_speakerSources")
   projects                      Project[]               @relation("Project_sources")
   from_ActorMention_source      ActorMention[]          @relation("ActorMention_source")
   from_TranscriptSegment_source TranscriptSegment[]     @relation("TranscriptSegment_source")
@@ -149,9 +152,7 @@ model Source {
 model Transcript {
   id                           String                         @id @default(cuid())
   title                        String                         @default("")
-  intervieweeName              String                         @default("")
   sourceUrl                    String                         @default("")
-  language                     String                         @default("")
   notes                        String                         @default("")
   externalId                   String                         @default("")
   publishedAt                  DateTime?
@@ -177,6 +178,7 @@ model Transcript {
   org                          Organization?                  @relation("Transcript_org", fields: [orgId], references: [id])
   orgId                        String?                        @map("org")
   segments                     TranscriptSegment[]            @relation("TranscriptSegment_transcript")
+  speakerActors                Actor[]                        @relation("Actor_speakerTranscripts")
   createdAt                    DateTime?                      @default(now())
   updatedAt                    DateTime?                      @updatedAt
   from_ActorMention_transcript ActorMention[]                 @relation("ActorMention_transcript")

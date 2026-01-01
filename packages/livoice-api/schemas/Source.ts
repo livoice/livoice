@@ -97,6 +97,7 @@ export default list({
     }),
     org: relationship({ ref: 'Organization.sources', many: false }),
     transcripts: relationship({ ref: 'Transcript.source', many: true }),
+    speakerActors: relationship({ ref: 'Actor.speakerSources', many: true }),
     projects: relationship({ ref: 'Project.sources', many: true }),
     importTrigger: triggerButton()
   },

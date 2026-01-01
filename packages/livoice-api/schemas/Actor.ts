@@ -26,6 +26,8 @@ export default list({
     mentions: relationship({ ref: 'ActorMention.actor', many: true }),
     relatesTo: relationship({ ref: 'ActorLink.fromActor', many: true }),
     relatedFrom: relationship({ ref: 'ActorLink.toActor', many: true }),
+    speakerSources: relationship({ ref: 'Source.speakerActors', many: true }),
+    speakerTranscripts: relationship({ ref: 'Transcript.speakerActors', many: true }),
     createdAt: timestamp({ defaultValue: { kind: 'now' }, ui: { createView: { fieldMode: 'hidden' } } }),
     updatedAt: timestamp({ db: { updatedAt: true }, ui: { createView: { fieldMode: 'hidden' } } })
   },

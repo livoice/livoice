@@ -8,9 +8,7 @@ import { resolveSegmentEmbeddingProgress } from './resolvers/transcriptResolvers
 export default list({
   fields: {
     title: text({ validation: { isRequired: true } }),
-    intervieweeName: text(),
     sourceUrl: text({ ui: { description: 'Optional source or recording URL' } }),
-    language: text(),
     notes: text({ ui: { displayMode: 'textarea' } }),
     externalId: text(),
     publishedAt: timestamp(),
@@ -65,6 +63,7 @@ export default list({
     source: relationship({ ref: 'Source.transcripts', many: false }),
     org: relationship({ ref: 'Organization.transcripts', many: false }),
     segments: relationship({ ref: 'TranscriptSegment.transcript', many: true }),
+    speakerActors: relationship({ ref: 'Actor.speakerTranscripts', many: true }),
     segmentEmbeddingProgress: virtual({
       ui: {
         listView: { fieldMode: 'hidden' },
