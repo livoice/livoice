@@ -62,11 +62,14 @@ export const processImportSource = async (job: Job<ImportSourceJob>) => {
           publishedAt: item.publishedAt,
           duration: item.duration ? item.duration * 1000 : undefined,
           thumbnailUrl: item.thumbnailUrl ?? '',
+          description: item.description ?? undefined,
+          chapters: item.chapters ?? undefined,
           source: { connect: { id: source.id } },
           org: source.orgId ? { connect: { id: source.orgId } } : undefined,
           embeddingStatus: 'pending',
-          importStatus: 'pending'
-        }
+          importStatus: 'pending',
+          analysisStatus: 'pending'
+        } as Record<string, unknown>
       });
 
       return { imported: 1, skipped: 0, failed: 0 };

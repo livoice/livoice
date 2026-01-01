@@ -1,4 +1,5 @@
 import SrtParser from 'srt-parser-2';
+import type { SpeakerMap, SpeakerRange } from './analysis/types';
 
 export type ParsedSegment = {
   index: number;
@@ -127,3 +128,30 @@ const mergeSegmentsBySentence = (segments: ParsedSegment[]): ParsedSegment[] => 
 };
 
 export const toTranscriptSegments = (srt: string): ParsedSegment[] => mergeSegmentsBySentence(parseSrt(srt));
+
+const isInRange = (ms: number, ranges: SpeakerRange[]): boolean =>
+  ranges.some(([start, end]) => ms >= start && ms <= end);
+
+export type SegmentWithSpeaker = ParsedSegment & {
+  speaker: string;
+  speakerRole: string;
+};
+
+export const assignSpeakersFromMap = (segments: ParsedSegment[], speakerMap: SpeakerMap): SegmentWithSpeaker[] =>
+  segments.map(segment => {
+    if (segment.speaker) {
+      const matchedByName = speakerMap.speakers.find(
+        speaker => speaker.name.toLowerCase() === segment.speaker?.toLowerCase()
+      );
+      if (matchedByName) return { ...segment, speaker: matchedByName.name, speakerRole: matchedByName.role };
+    }
+
+    const midpoint = (segment.startMs + segment.endMs) / 2;
+    const matchedByTime = speakerMap.speakers.find(speaker => isInRange(midpoint, speaker.ranges));
+
+    return {
+      ...segment,
+      speaker: matchedByTime?.name ?? segment.speaker ?? 'Unknown',
+      speakerRole: matchedByTime?.role ?? 'unknown'
+    };
+  });

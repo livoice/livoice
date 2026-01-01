@@ -15,7 +15,8 @@
     "./context/*": "./context/*",
     "./lib/*": "./lib/*",
     "./jobs/*": "./jobs/*",
-    "./config/*": "./config/*"
+    "./config/*": "./config/*",
+    "./services/*": "./services/*"
   },
   "dependencies": {
     "@bull-board/api": "^6.0.0",
@@ -25,6 +26,7 @@
     "@keystone-6/core": "^6.0.0",
     "@keystone-6/fields-document": "^9.0.0",
     "@vvo/tzdb": "^6.190.0",
+    "bottleneck": "^2.19.5",
     "bullmq": "^5.65.0",
     "cookie": "^1.0.2",
     "cron-parser": "^5.4.0",

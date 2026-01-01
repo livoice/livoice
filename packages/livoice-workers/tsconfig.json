@@ -7,7 +7,10 @@
     "forceConsistentCasingInFileNames": true,
     "resolveJsonModule": true,
     "baseUrl": ".",
-    "moduleResolution": "node"
+    "moduleResolution": "node",
+    "paths": {
+      "livoice-api/*": ["../livoice-api/*"]
+    }
   },
   "include": ["src/**/*.ts"],
   "exclude": ["node_modules", "dist"]

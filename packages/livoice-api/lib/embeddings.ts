@@ -18,6 +18,7 @@ export const fetchPendingSegments = async (limit = 500): Promise<PendingSegment[
      INNER JOIN "Transcript" t ON ts.transcript = t.id
      WHERE ts.embedding IS NULL
        AND t."importStatus" IN ('completed', 'skipped')
+       AND t."analysisStatus" = 'completed'
      LIMIT ${Number(limit)}`
   );
   return rows;
@@ -52,6 +53,7 @@ export const markCompletedTranscripts = async () =>
     SET "embeddingStatus" = 'completed', "embeddingAt" = NOW()
     WHERE "embeddingStatus" IN ('pending', 'processing')
       AND "importStatus" IN ('completed', 'skipped')
+      AND "analysisStatus" = 'completed'
       AND NOT EXISTS (
         SELECT 1 FROM "TranscriptSegment"
         WHERE "TranscriptSegment"."transcript" = "Transcript"."id"

@@ -14,7 +14,7 @@ export default list({
     endMs: integer(),
     durationMs: integer(),
     text: text({ ui: { displayMode: 'textarea' } }),
-    speaker: text(),
+    speakerActor: relationship({ ref: 'Actor', many: false }),
     isMetadata: checkbox({ defaultValue: false })
   },
   db: {

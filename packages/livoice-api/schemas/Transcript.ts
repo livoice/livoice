@@ -1,6 +1,6 @@
 import { type Lists } from '.keystone/types';
 import { graphql, list } from '@keystone-6/core';
-import { integer, relationship, select, text, timestamp, virtual } from '@keystone-6/core/fields';
+import { integer, json, relationship, select, text, timestamp, virtual } from '@keystone-6/core/fields';
 import { canEditOrgData, filterByUserOrg, isAuthenticated, isGod, isOrgAdmin } from '../domains/auth/userRole';
 import { SegmentEmbeddingProgressGraphqlType } from './extensions/SourceImportProgress';
 import { resolveSegmentEmbeddingProgress } from './resolvers/transcriptResolvers';
@@ -16,19 +16,9 @@ export default list({
     publishedAt: timestamp(),
     duration: integer(),
     thumbnailUrl: text(),
-    embeddingStatus: select({
-      type: 'enum',
-      options: [
-        { label: 'Pending', value: 'pending' },
-        { label: 'Processing', value: 'processing' },
-        { label: 'Completed', value: 'completed' },
-        { label: 'Failed', value: 'failed' }
-      ],
-      defaultValue: 'pending'
-    }),
-    embeddingAttempts: integer({ defaultValue: 0 }),
-    embeddingError: text(),
-    embeddingAt: timestamp(),
+    description: text({ ui: { displayMode: 'textarea' } }),
+    chapters: json(),
+    rawSrt: text({ ui: { displayMode: 'textarea' } }),
     importStatus: select({
       type: 'enum',
       options: [
@@ -43,6 +33,35 @@ export default list({
     importAttempts: integer({ defaultValue: 0 }),
     importError: text(),
     importAt: timestamp(),
+    analysisStatus: select({
+      type: 'enum',
+      options: [
+        { label: 'Pending', value: 'pending' },
+        { label: 'Processing', value: 'processing' },
+        { label: 'Completed', value: 'completed' },
+        { label: 'Failed', value: 'failed' },
+        { label: 'Skipped', value: 'skipped' }
+      ],
+      defaultValue: 'pending'
+    }),
+    analysisAttempts: integer({ defaultValue: 0 }),
+    analysisError: text(),
+    analysisAt: timestamp(),
+
+    embeddingStatus: select({
+      type: 'enum',
+      options: [
+        { label: 'Pending', value: 'pending' },
+        { label: 'Processing', value: 'processing' },
+        { label: 'Completed', value: 'completed' },
+        { label: 'Failed', value: 'failed' }
+      ],
+      defaultValue: 'pending'
+    }),
+    embeddingAttempts: integer({ defaultValue: 0 }),
+    embeddingError: text(),
+    embeddingAt: timestamp(),
+
     source: relationship({ ref: 'Source.transcripts', many: false }),
     org: relationship({ ref: 'Organization.transcripts', many: false }),
     segments: relationship({ ref: 'TranscriptSegment.transcript', many: true }),
@@ -132,22 +151,29 @@ export default list({
         return { ...resolvedData, org: { connect: { id: source.org.id } } };
       },
       update: async ({ resolvedData, context, item }) => {
-        if (resolvedData.importStatus === 'pending') resolvedData.importAttempts = 0;
+        const mutableResolvedData = resolvedData as Record<string, unknown>;
+        const resolvedImportStatus = (resolvedData as Record<string, unknown>).importStatus as string | undefined;
+        const resolvedAnalysisStatus = (resolvedData as Record<string, unknown>).analysisStatus as string | undefined;
+        if (resolvedImportStatus === 'pending') mutableResolvedData.importAttempts = 0;
+        if (resolvedAnalysisStatus === 'pending') mutableResolvedData.analysisAttempts = 0;
 
         if (!item?.id) return resolvedData;
 
         const sudoContext = context.sudo();
         const current = (await sudoContext.query.Transcript.findOne({
           where: { id: String(item.id) },
-          query: 'embeddingStatus importStatus'
-        })) as { embeddingStatus?: string; importStatus?: string } | null;
+          query: 'embeddingStatus importStatus analysisStatus'
+        })) as { embeddingStatus?: string; importStatus?: string; analysisStatus?: string } | null;
 
         if (current) {
           if (resolvedData.embeddingStatus !== undefined && resolvedData.embeddingStatus !== current.embeddingStatus) {
-            (resolvedData as Record<string, unknown>).embeddingAt = new Date();
+            mutableResolvedData.embeddingAt = new Date();
           }
-          if (resolvedData.importStatus !== undefined && resolvedData.importStatus !== current.importStatus) {
-            (resolvedData as Record<string, unknown>).importAt = new Date();
+          if (resolvedImportStatus !== undefined && resolvedImportStatus !== current.importStatus) {
+            mutableResolvedData.importAt = new Date();
+          }
+          if (resolvedAnalysisStatus !== undefined && resolvedAnalysisStatus !== current.analysisStatus) {
+            mutableResolvedData.analysisAt = new Date();
           }
         }
 

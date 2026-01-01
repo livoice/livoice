@@ -11,6 +11,69 @@ generator client {
   provider = "prisma-client-js"
 }
 
+model Actor {
+  id                                  String              @id @default(cuid())
+  name                                String              @default("")
+  type                                ActorTypeType
+  description                         String              @default("")
+  aliases                             Json?
+  externalIds                         Json?
+  metadata                            Json?
+  imageUrl                            String              @default("")
+  mentions                            ActorMention[]      @relation("ActorMention_actor")
+  relatesTo                           ActorLink[]         @relation("ActorLink_fromActor")
+  relatedFrom                         ActorLink[]         @relation("ActorLink_toActor")
+  createdAt                           DateTime?           @default(now())
+  updatedAt                           DateTime?           @updatedAt
+  from_TranscriptSegment_speakerActor TranscriptSegment[] @relation("TranscriptSegment_speakerActor")
+}
+
+model ActorMention {
+  id              String                           @id @default(cuid())
+  actor           Actor?                           @relation("ActorMention_actor", fields: [actorId], references: [id])
+  actorId         String?                          @map("actor")
+  actorLink       ActorLink?                       @relation("ActorMention_actorLink", fields: [actorLinkId], references: [id])
+  actorLinkId     String?                          @map("actorLink")
+  segment         TranscriptSegment?               @relation("ActorMention_segment", fields: [segmentId], references: [id])
+  segmentId       String?                          @map("segment")
+  transcript      Transcript?                      @relation("ActorMention_transcript", fields: [transcriptId], references: [id])
+  transcriptId    String?                          @map("transcript")
+  source          Source?                          @relation("ActorMention_source", fields: [sourceId], references: [id])
+  sourceId        String?                          @map("source")
+  mentionType     ActorMentionMentionTypeType
+  sentiment       ActorMentionSentimentType?
+  emotion         ActorMentionEmotionType?
+  confidence      Float?
+  detectionSource ActorMentionDetectionSourceType?
+  verified        Boolean                          @default(false)
+  createdAt       DateTime?                        @default(now())
+
+  @@index([actorId])
+  @@index([actorLinkId])
+  @@index([segmentId])
+  @@index([transcriptId])
+  @@index([sourceId])
+}
+
+model ActorLink {
+  id              String                        @id @default(cuid())
+  fromActor       Actor?                        @relation("ActorLink_fromActor", fields: [fromActorId], references: [id])
+  fromActorId     String?                       @map("fromActor")
+  toActor         Actor?                        @relation("ActorLink_toActor", fields: [toActorId], references: [id])
+  toActorId       String?                       @map("toActor")
+  linkType        String                        @default("")
+  role            String                        @default("")
+  metadata        Json?
+  confidence      Float?
+  detectionSource ActorLinkDetectionSourceType?
+  verified        Boolean                       @default(false)
+  mentions        ActorMention[]                @relation("ActorMention_actorLink")
+  createdAt       DateTime?                     @default(now())
+
+  @@index([fromActorId])
+  @@index([toActorId])
+}
+
 model Chat {
   id           String        @id @default(cuid())
   title        String        @default("AI chat")
@@ -81,59 +144,71 @@ model Source {
   orgId                         String?                 @map("org")
   transcripts                   Transcript[]            @relation("Transcript_source")
   projects                      Project[]               @relation("Project_sources")
+  from_ActorMention_source      ActorMention[]          @relation("ActorMention_source")
   from_TranscriptSegment_source TranscriptSegment[]     @relation("TranscriptSegment_source")
 
   @@index([orgId])
 }
 
 model Transcript {
-  id                String                         @id @default(cuid())
-  title             String                         @default("")
-  intervieweeName   String                         @default("")
-  sourceUrl         String                         @default("")
-  language          String                         @default("")
-  notes             String                         @default("")
-  externalId        String                         @default("")
-  publishedAt       DateTime?
-  duration          Int?
-  thumbnailUrl      String                         @default("")
-  embeddingStatus   TranscriptEmbeddingStatusType? @default(pending)
-  embeddingAttempts Int?                           @default(0)
-  embeddingError    String                         @default("")
-  embeddingAt       DateTime?
-  importStatus      TranscriptImportStatusType?    @default(pending)
-  importAttempts    Int?                           @default(0)
-  importError       String                         @default("")
-  importAt          DateTime?
-  source            Source?                        @relation("Transcript_source", fields: [sourceId], references: [id])
-  sourceId          String?                        @map("source")
-  org               Organization?                  @relation("Transcript_org", fields: [orgId], references: [id])
-  orgId             String?                        @map("org")
-  segments          TranscriptSegment[]            @relation("TranscriptSegment_transcript")
-  createdAt         DateTime?                      @default(now())
-  updatedAt         DateTime?                      @updatedAt
+  id                           String                         @id @default(cuid())
+  title                        String                         @default("")
+  intervieweeName              String                         @default("")
+  sourceUrl                    String                         @default("")
+  language                     String                         @default("")
+  notes                        String                         @default("")
+  externalId                   String                         @default("")
+  publishedAt                  DateTime?
+  duration                     Int?
+  thumbnailUrl                 String                         @default("")
+  description                  String                         @default("")
+  chapters                     Json?
+  rawSrt                       String                         @default("")
+  importStatus                 TranscriptImportStatusType?    @default(pending)
+  importAttempts               Int?                           @default(0)
+  importError                  String                         @default("")
+  importAt                     DateTime?
+  analysisStatus               TranscriptAnalysisStatusType?  @default(pending)
+  analysisAttempts             Int?                           @default(0)
+  analysisError                String                         @default("")
+  analysisAt                   DateTime?
+  embeddingStatus              TranscriptEmbeddingStatusType? @default(pending)
+  embeddingAttempts            Int?                           @default(0)
+  embeddingError               String                         @default("")
+  embeddingAt                  DateTime?
+  source                       Source?                        @relation("Transcript_source", fields: [sourceId], references: [id])
+  sourceId                     String?                        @map("source")
+  org                          Organization?                  @relation("Transcript_org", fields: [orgId], references: [id])
+  orgId                        String?                        @map("org")
+  segments                     TranscriptSegment[]            @relation("TranscriptSegment_transcript")
+  createdAt                    DateTime?                      @default(now())
+  updatedAt                    DateTime?                      @updatedAt
+  from_ActorMention_transcript ActorMention[]                 @relation("ActorMention_transcript")
 
   @@index([sourceId])
   @@index([orgId])
 }
 
 model TranscriptSegment {
-  id           String                       @id @default(cuid())
-  transcript   Transcript?                  @relation("TranscriptSegment_transcript", fields: [transcriptId], references: [id])
-  transcriptId String?                      @map("transcript")
-  source       Source?                      @relation("TranscriptSegment_source", fields: [sourceId], references: [id])
-  sourceId     String?                      @map("source")
-  index        Int?
-  startMs      Int?
-  endMs        Int?
-  durationMs   Int?
-  text         String                       @default("")
-  speaker      String                       @default("")
-  isMetadata   Boolean                      @default(false)
-  embedding    Unsupported("vector(1536)")?
+  id                        String                       @id @default(cuid())
+  transcript                Transcript?                  @relation("TranscriptSegment_transcript", fields: [transcriptId], references: [id])
+  transcriptId              String?                      @map("transcript")
+  source                    Source?                      @relation("TranscriptSegment_source", fields: [sourceId], references: [id])
+  sourceId                  String?                      @map("source")
+  index                     Int?
+  startMs                   Int?
+  endMs                     Int?
+  durationMs                Int?
+  text                      String                       @default("")
+  speakerActor              Actor?                       @relation("TranscriptSegment_speakerActor", fields: [speakerActorId], references: [id])
+  speakerActorId            String?                      @map("speakerActor")
+  isMetadata                Boolean                      @default(false)
+  from_ActorMention_segment ActorMention[]               @relation("ActorMention_segment")
+  embedding                 Unsupported("vector(1536)")?
 
   @@index([transcriptId])
   @@index([sourceId])
+  @@index([speakerActorId])
   @@index([embedding], map: "TranscriptSegment_embedding_idx")
 }
 
@@ -161,6 +236,55 @@ model User {
   @@index([orgId])
 }
 
+enum ActorTypeType {
+  person
+  organization
+  product
+  event
+  topic
+  location
+  brand
+  book
+}
+
+enum ActorMentionMentionTypeType {
+  speaker
+  mentioned
+  host
+  guest
+  sponsor
+  channel_owner
+  topic
+}
+
+enum ActorMentionSentimentType {
+  positive
+  negative
+  neutral
+}
+
+enum ActorMentionEmotionType {
+  neutral
+  happy
+  excited
+  stressed
+  frustrated
+  angry
+  sad
+  confident
+  uncertain
+}
+
+enum ActorMentionDetectionSourceType {
+  ai
+  youtube
+}
+
+enum ActorLinkDetectionSourceType {
+  ai
+  youtube
+}
+
 enum SourceTypeType {
   youtube_channel
 }
@@ -172,19 +296,27 @@ enum SourceImportStatusType {
   failed
 }
 
-enum TranscriptEmbeddingStatusType {
-  pending
-  processing
-  completed
-  failed
-}
-
 enum TranscriptImportStatusType {
   pending
   fetching
   completed
   failed
   skipped
+}
+
+enum TranscriptAnalysisStatusType {
+  pending
+  processing
+  completed
+  failed
+  skipped
+}
+
+enum TranscriptEmbeddingStatusType {
+  pending
+  processing
+  completed
+  failed
 }
 
 enum UserRoleType {

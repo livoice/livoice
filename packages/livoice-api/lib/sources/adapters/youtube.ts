@@ -9,16 +9,27 @@ import { secondsFromDuration } from './utils/secondsFromDuration';
 type YoutubeModule = typeof import('youtubei.js');
 type YoutubeClient = Awaited<ReturnType<YoutubeModule['Innertube']['create']>>;
 
+interface YtDlpVideoInfo {
+  description?: string;
+  tags?: string[];
+  categories?: string[];
+  chapters?: Array<{
+    title?: string;
+    start_time?: number;
+    end_time?: number;
+  }>;
+}
+
 const getYoutubeClient = (() => {
   let clientPromise: Promise<YoutubeClient> | null = null;
   return async () => {
-    if (!clientPromise) {
-      clientPromise = (async () => {
+    clientPromise =
+      clientPromise ??
+      (async () => {
         const { Innertube, Log } = await import('youtubei.js');
         Log.setLevel(Log.Level.WARNING);
         return Innertube.create({ fetch: proxyFetch });
       })();
-    }
     return clientPromise;
   };
 })();
@@ -66,6 +77,11 @@ const parsePublished = (published?: { text?: string }) => {
 
 const toVideoUrl = (videoId: string) => `https://www.youtube.com/watch?v=${videoId}`;
 
+const ytDlpBaseConfig = {
+  skipDownload: true,
+  cookies: path.resolve(__dirname, 'assets', `youtube-cookies${env.NODE_ENV === 'development' ? '-local' : ''}.txt`)
+};
+
 const gatherVideos = async (videosTab: YoutubeVideosTab): Promise<YoutubeVideosTab['videos']> => {
   if (!videosTab?.videos) return [] as unknown as YoutubeVideoArray;
   if (!videosTab.has_continuation) return cloneVideos(videosTab.videos);
@@ -104,20 +120,53 @@ export const youtubeAdapter: SourceAdapter = {
     const channel = await client.getChannel(channelId);
     const videosTab = await channel.getVideos();
 
-    const allVideos = await gatherVideos(videosTab);
+    const allVideos = (await gatherVideos(videosTab)).slice(0, 1);
     const normalized = allVideos.filter(isYoutubeVideo) as YoutubeVideo[];
 
     console.log(`[youtubeAdapter] listItems: fetched ${normalized.length} videos`);
     return normalized.map(
-      (video): SourceItem => ({
-        externalId: video.id,
-        title: video.title?.text ?? '',
-        url: toVideoUrl(video.id),
-        publishedAt: parsePublished(video.published),
-        duration: secondsFromDuration(video.duration?.seconds ?? null),
-        thumbnailUrl: video.best_thumbnail?.url ?? null
-      })
+      (video): SourceItem =>
+        ({
+          externalId: video.id,
+          title: video.title?.text ?? '',
+          url: toVideoUrl(video.id),
+          publishedAt: parsePublished(video.published), // TODO: doesn't work
+          duration: secondsFromDuration(video.duration?.seconds ?? null),
+          thumbnailUrl: video.best_thumbnail?.url ?? null,
+          description: null,
+          chapters: null,
+          tags: [],
+          category: null
+        }) as SourceItem
     );
+  },
+
+  fetchInfo: async itemExternalId => {
+    console.log(`[youtubeAdapter] fetchInfo: itemExternalId=${itemExternalId}`);
+
+    try {
+      const info = (await youtubeDlExec(toVideoUrl(itemExternalId), {
+        ...ytDlpBaseConfig,
+        dumpSingleJson: true,
+        noWarnings: true
+      })) as YtDlpVideoInfo;
+
+      const description = info.description ?? null;
+      const tags = info.tags ?? [];
+      const category = info.categories?.[0] ?? null;
+      const chapters =
+        info.chapters?.map(({ title, start_time, end_time }) => ({
+          title: title ?? '',
+          startMs: Math.floor((start_time || 0) * 1000),
+          endMs: Math.floor((end_time || 0) * 1000)
+        })) ?? undefined;
+
+      console.log(`[youtubeAdapter] fetchInfo: extracted info for ${itemExternalId}`);
+      return { description, category, tags, chapters };
+    } catch (error) {
+      console.error(`[youtubeAdapter] fetchInfo failed for ${itemExternalId}:`, error);
+      return { description: null, category: null, tags: [], chapters: undefined };
+    }
   },
 
   fetchTranscript: async itemExternalId => {
@@ -130,17 +179,12 @@ export const youtubeAdapter: SourceAdapter = {
       const tempFile = await TempFile.create();
 
       await youtubeDlExec(toVideoUrl(itemExternalId), {
-        skipDownload: true,
+        ...ytDlpBaseConfig,
         writeAutoSub: true,
         subLang: LANG,
         subFormat: SUB_FORMAT,
         output: tempFile.path,
         jsRuntimes: 'node' as const,
-        cookies: path.resolve(
-          __dirname,
-          'assets',
-          `youtube-cookies${env.NODE_ENV === 'development' ? '-local' : ''}.txt`
-        ),
         sleepRequests: Math.random() * 2 + 0.5,
         sleepSubtitles: Math.floor(Math.random() * 5) + 1
       } as Parameters<typeof youtubeDlExec>[1] & {

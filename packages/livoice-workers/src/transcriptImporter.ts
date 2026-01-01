@@ -17,12 +17,12 @@ export const start = async () => {
     if (!adapter)
       return updateTranscriptStatus(transcript, 'failed', `No adapter for source type ${transcript.source.type}`);
 
-    console.log(`[transcriber] processing transcript ${transcript.id}`);
+    console.log(`[transcriptImporter] processing transcript ${transcript.id}`);
 
     try {
       await transcriptImportQueue.add(() => processTranscriptImport(transcript, adapter));
     } catch (error) {
-      console.error(`[transcriber] failed to import transcript ${transcript.id}:`, error);
+      console.error(`[transcriptImporter] failed to import transcript ${transcript.id}:`, error);
     }
 
     return false;

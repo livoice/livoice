@@ -2,7 +2,7 @@ import type { KeystoneContext } from '@keystone-6/core/types';
 import { Prisma } from '@prisma/client';
 import { intervalToDuration } from 'date-fns';
 import type { Session } from '../auth';
-import { createEmbeddings, getOpenAIClient, openAiModel } from '../lib/openai';
+import { chatCompletion, createEmbeddings, openAiModel } from '../lib/openai';
 import { formatVectorLiteral } from '../lib/pgvector';
 
 type SegmentRecord = {
@@ -28,6 +28,29 @@ type ProjectWithOrg = {
 
 type SegmentWithMeta = SegmentRecord & {
   estimatedTokens: number;
+};
+
+const fetchSegmentActors = async (context: KeystoneContext, segmentIds: string[]) => {
+  if (!segmentIds.length) return {} as Record<string, string[]>;
+  const sudo = context.sudo();
+  const mentions =
+    (await sudo.prisma.actorMention.findMany({
+      where: {
+        segment: { id: { in: segmentIds } }
+      },
+      include: { actor: true, segment: true }
+    })) ?? [];
+
+  return mentions.reduce(
+    (acc, mention) => {
+      const segmentId = mention.segment?.id ?? null;
+      const actorName = mention.actor?.name;
+      if (!segmentId || !actorName) return acc;
+      acc[segmentId] = acc[segmentId] ? [...acc[segmentId], actorName] : [actorName];
+      return acc;
+    },
+    {} as Record<string, string[]>
+  );
 };
 
 export type SegmentReference = {
@@ -143,8 +166,12 @@ const formatMs = (value?: number | null) => {
   return [hours, minutes, seconds].map(unit => unit.toString().padStart(2, '0')).join(':');
 };
 
-const buildSegmentDescription = (segment: SegmentRecord) =>
-  `${segment.speaker ?? 'Speaker'} (${formatMs(segment.startMs)} - ${formatMs(segment.endMs)}): ${segment.text}`;
+const buildSegmentDescription = (segment: SegmentRecord, actors?: string[]) => {
+  const actorText = actors?.length ? ` [Actors: ${actors.join(', ')}]` : '';
+  return `${segment.speaker ?? 'Speaker'} (${formatMs(segment.startMs)} - ${formatMs(
+    segment.endMs
+  )}): ${segment.text}${actorText}`;
+};
 
 const mapSegmentReference = (segment: SegmentRecord): SegmentReference => ({
   id: segment.id,
@@ -336,8 +363,7 @@ export const fetchChatHistory = async (context: KeystoneContext, chatId: string)
   }));
 };
 
-// Rough token estimation (OpenAI uses ~1 token per 4 characters)
-const estimateTokens = (text: string): number => Math.ceil(text.length / 4);
+import { estimateTokens } from '../lib/tokenUtils';
 
 // Take messages from end while under token limit
 const takeMessagesWithinLimit = (
@@ -538,12 +564,11 @@ Examples of BAD titles (DO NOT include context):
 Title only (no quotes, no explanation):`;
 
   try {
-    const openai = getOpenAIClient();
     const timeoutPromise = new Promise<never>((_, reject) =>
       globalThis.setTimeout(() => reject(new Error('Title generation timeout')), 3000)
     );
 
-    const completionPromise = openai.chat.completions.create({
+    const completionPromise = chatCompletion({
       model: openAiModel,
       messages: [{ role: 'user', content: prompt }],
       temperature: 0.3,
@@ -621,12 +646,19 @@ export const runChatConversation = async ({
   });
   if (!segments.length) throw new Error('No transcript segments found for this context yet');
 
+  const segmentActorMap = await fetchSegmentActors(
+    context,
+    segments.map(segment => segment.id)
+  );
+
   const referenceSegments = segments.slice(0, 3);
   const { selected: segmentsForPrompt, totalTokens: segmentsTokensUsed } = selectSegmentsWithinBudget(
     segments,
     chatConfig.segments.tokenBudget
   );
-  const segmentsText = segmentsForPrompt.map(buildSegmentDescription).join('\n');
+  const segmentsText = segmentsForPrompt
+    .map(segment => buildSegmentDescription(segment, segmentActorMap[segment.id]))
+    .join('\n');
   const userMessageWithContext = `${segmentsText}\n\nQuestion: ${messageText}`;
 
   const finalSystemPrompt = await replaceSystemPromptPlaceholders({
@@ -692,9 +724,8 @@ export const runChatConversation = async ({
     reservedTokens: chatConfig.context.reservedTokens
   });
 
-  const openai = getOpenAIClient();
   const startedAt = new Date().toISOString();
-  const completion = await openai.chat.completions.create({
+  const completion = await chatCompletion({
     model: chatConfig.openai.model,
     messages: openAiMessages,
     temperature: chatConfig.openai.temperature,

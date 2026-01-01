@@ -9,11 +9,11 @@ export const start = () => {
   });
 
   worker.on('completed', job => {
-    console.log(`[importer] completed job ${job.id} (${job.name})`);
+    console.log(`[sourceImporter] completed job ${job.id} (${job.name})`);
   });
 
   worker.on('failed', (job, err) => {
-    console.error(`[importer] failed job ${job?.id} (${job?.name}):`, err?.message ?? err);
+    console.error(`[sourceImporter] failed job ${job?.id} (${job?.name}):`, err?.message ?? err);
   });
 
   return worker;

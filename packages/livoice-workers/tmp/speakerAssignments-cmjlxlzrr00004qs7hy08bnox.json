@@ -1,0 +1,3954 @@
+{
+  "1": {
+    "speaker": "Steven Bartlett",
+    "role": "host"
+  },
+  "2": {
+    "speaker": "Jefferson Fisher",
+    "role": "guest"
+  },
+  "3": {
+    "speaker": "Steven Bartlett",
+    "role": "host"
+  },
+  "4": {
+    "speaker": "Jefferson Fisher",
+    "role": "guest"
+  },
+  "5": {
+    "speaker": "Jefferson Fisher",
+    "role": "guest"
+  },
+  "6": {
+    "speaker": "Jefferson Fisher",
+    "role": "guest"
+  },
+  "7": {
+    "speaker": "Jefferson Fisher",
+    "role": "guest"
+  },
+  "8": {
+    "speaker": "Jefferson Fisher",
+    "role": "guest"
+  },
+  "9": {
+    "speaker": "Steven Bartlett",
+    "role": "host"
+  },
+  "10": {
+    "speaker": "Jefferson Fisher",
+    "role": "guest"
+  },
+  "11": {
+    "speaker": "Jefferson Fisher",
+    "role": "guest"
+  },
+  "12": {
+    "speaker": "Jefferson Fisher",
+    "role": "guest"
+  },
+  "13": {
+    "speaker": "Jefferson Fisher",
+    "role": "guest"
+  },
+  "14": {
+    "speaker": "Steven Bartlett",
+    "role": "host"
+  },
+  "15": {
+    "speaker": "Steven Bartlett",
+    "role": "host"
+  },
+  "16": {
+    "speaker": "Unknown",
+    "role": "unknown"
+  },
+  "17": {
+    "speaker": "Unknown",
+    "role": "unknown"
+  },
+  "18": {
+    "speaker": "Jefferson Fisher",
+    "role": "guest"
+  },
+  "19": {
+    "speaker": "Steven Bartlett",
+    "role": "host"
+  },
+  "20": {
+    "speaker": "Steven Bartlett",
+    "role": "host"
+  },
+  "21": {
+    "speaker": "Jefferson Fisher",
+    "role": "guest"
+  },
+  "22": {
+    "speaker": "Steven Bartlett",
+    "role": "host"
+  },
+  "23": {
+    "speaker": "Jefferson Fisher",
+    "role": "guest"
+  },
+  "24": {
+    "speaker": "Steven Bartlett",
+    "role": "host"
+  },
+  "25": {
+    "speaker": "Jefferson Fisher",
+    "role": "guest"
+  },
+  "26": {
+    "speaker": "Jefferson Fisher",
+    "role": "guest"
+  },
+  "27": {
+    "speaker": "Jefferson Fisher",
+    "role": "guest"
+  },
+  "28": {
+    "speaker": "Jefferson Fisher",
+    "role": "guest"
+  },
+  "29": {
+    "speaker": "Jefferson Fisher",
+    "role": "guest"
+  },
+  "30": {
+    "speaker": "Jefferson Fisher",
+    "role": "guest"
+  },
+  "31": {
+    "speaker": "Steven Bartlett",
+    "role": "host"
+  },
+  "32": {
+    "speaker": "Jefferson Fisher",
+    "role": "guest"
+  },
+  "33": {
+    "speaker": "Jefferson Fisher",
+    "role": "guest"
+  },
+  "34": {
+    "speaker": "Jefferson Fisher",
+    "role": "guest"
+  },
+  "35": {
+    "speaker": "Steven Bartlett",
+    "role": "host"
+  },
+  "36": {
+    "speaker": "Unknown",
+    "role": "unknown"
+  },
+  "37": {
+    "speaker": "Jefferson Fisher",
+    "role": "guest"
+  },
+  "38": {
+    "speaker": "Jefferson Fisher",
+    "role": "guest"
+  },
+  "39": {
+    "speaker": "Jefferson Fisher",
+    "role": "guest"
+  },
+  "40": {
+    "speaker": "Jefferson Fisher",
+    "role": "guest"
+  },
+  "41": {
+    "speaker": "Jefferson Fisher",
+    "role": "guest"
+  },
+  "42": {
+    "speaker": "Jefferson Fisher",
+    "role": "guest"
+  },
+  "43": {
+    "speaker": "Steven Bartlett",
+    "role": "host"
+  },
+  "44": {
+    "speaker": "Jefferson Fisher",
+    "role": "guest"
+  },
+  "45": {
+    "speaker": "Steven Bartlett",
+    "role": "host"
+  },
+  "46": {
+    "speaker": "Jefferson Fisher",
+    "role": "guest"
+  },
+  "47": {
+    "speaker": "Jefferson Fisher",
+    "role": "guest"
+  },
+  "48": {
+    "speaker": "Jefferson Fisher",
+    "role": "guest"
+  },
+  "49": {
+    "speaker": "Jefferson Fisher",
+    "role": "guest"
+  },
+  "50": {
+    "speaker": "Jefferson Fisher",
+    "role": "guest"
+  },
+  "51": {
+    "speaker": "Steven Bartlett",
+    "role": "host"
+  },
+  "52": {
+    "speaker": "Steven Bartlett",
+    "role": "host"
+  },
+  "53": {
+    "speaker": "Jefferson Fisher",
+    "role": "guest"
+  },
+  "54": {
+    "speaker": "Jefferson Fisher",
+    "role": "guest"
+  },
+  "55": {
+    "speaker": "Jefferson Fisher",
+    "role": "guest"
+  },
+  "56": {
+    "speaker": "Jefferson Fisher",
+    "role": "guest"
+  },
+  "57": {
+    "speaker": "Jefferson Fisher",
+    "role": "guest"
+  },
+  "58": {
+    "speaker": "Jefferson Fisher",
+    "role": "guest"
+  },
+  "59": {
+    "speaker": "Steven Bartlett",
+    "role": "host"
+  },
+  "60": {
+    "speaker": "Steven Bartlett",
+    "role": "host"
+  },
+  "61": {
+    "speaker": "Steven Bartlett",
+    "role": "host"
+  },
+  "62": {
+    "speaker": "Steven Bartlett",
+    "role": "host"
+  },
+  "63": {
+    "speaker": "Jefferson Fisher",
+    "role": "guest"
+  },
+  "64": {
+    "speaker": "Jefferson Fisher",
+    "role": "guest"
+  },
+  "65": {
+    "speaker": "Jefferson Fisher",
+    "role": "guest"
+  },
+  "66": {
+    "speaker": "Steven Bartlett",
+    "role": "host"
+  },
+  "67": {
+    "speaker": "Jefferson Fisher",
+    "role": "guest"
+  },
+  "68": {
+    "speaker": "Steven Bartlett",
+    "role": "host"
+  },
+  "69": {
+    "speaker": "Steven Bartlett",
+    "role": "host"
+  },
+  "70": {
+    "speaker": "Jefferson Fisher",
+    "role": "guest"
+  },
+  "71": {
+    "speaker": "Jefferson Fisher",
+    "role": "guest"
+  },
+  "72": {
+    "speaker": "Jefferson Fisher",
+    "role": "guest"
+  },
+  "73": {
+    "speaker": "Jefferson Fisher",
+    "role": "guest"
+  },
+  "74": {
+    "speaker": "Jefferson Fisher",
+    "role": "guest"
+  },
+  "75": {
+    "speaker": "Jefferson Fisher",
+    "role": "guest"
+  },
+  "76": {
+    "speaker": "Steven Bartlett",
+    "role": "host"
+  },
+  "77": {
+    "speaker": "Steven Bartlett",
+    "role": "host"
+  },
+  "78": {
+    "speaker": "Steven Bartlett",
+    "role": "host"
+  },
+  "79": {
+    "speaker": "Steven Bartlett",
+    "role": "host"
+  },
+  "80": {
+    "speaker": "Jefferson Fisher",
+    "role": "guest"
+  },
+  "81": {
+    "speaker": "Jefferson Fisher",
+    "role": "guest"
+  },
+  "82": {
+    "speaker": "Jefferson Fisher",
+    "role": "guest"
+  },
+  "83": {
+    "speaker": "Steven Bartlett",
+    "role": "host"
+  },
+  "84": {
+    "speaker": "Jefferson Fisher",
+    "role": "guest"
+  },
+  "85": {
+    "speaker": "Jefferson Fisher",
+    "role": "guest"
+  },
+  "86": {
+    "speaker": "Jefferson Fisher",
+    "role": "guest"
+  },
+  "87": {
+    "speaker": "Steven Bartlett",
+    "role": "host"
+  },
+  "88": {
+    "speaker": "Steven Bartlett",
+    "role": "host"
+  },
+  "89": {
+    "speaker": "Jefferson Fisher",
+    "role": "guest"
+  },
+  "90": {
+    "speaker": "Jefferson Fisher",
+    "role": "guest"
+  },
+  "91": {
+    "speaker": "Jefferson Fisher",
+    "role": "guest"
+  },
+  "92": {
+    "speaker": "Jefferson Fisher",
+    "role": "guest"
+  },
+  "93": {
+    "speaker": "Jefferson Fisher",
+    "role": "guest"
+  },
+  "94": {
+    "speaker": "Jefferson Fisher",
+    "role": "guest"
+  },
+  "95": {
+    "speaker": "Jefferson Fisher",
+    "role": "guest"
+  },
+  "96": {
+    "speaker": "Jefferson Fisher",
+    "role": "guest"
+  },
+  "97": {
+    "speaker": "Jefferson Fisher",
+    "role": "guest"
+  },
+  "98": {
+    "speaker": "Steven Bartlett",
+    "role": "host"
+  },
+  "99": {
+    "speaker": "Jefferson Fisher",
+    "role": "guest"
+  },
+  "100": {
+    "speaker": "Jefferson Fisher",
+    "role": "guest"
+  },
+  "101": {
+    "speaker": "Jefferson Fisher",
+    "role": "guest"
+  },
+  "102": {
+    "speaker": "Jefferson Fisher",
+    "role": "guest"
+  },
+  "103": {
+    "speaker": "Jefferson Fisher",
+    "role": "guest"
+  },
+  "104": {
+    "speaker": "Jefferson Fisher",
+    "role": "guest"
+  },
+  "105": {
+    "speaker": "Jefferson Fisher",
+    "role": "guest"
+  },
+  "106": {
+    "speaker": "Jefferson Fisher",
+    "role": "guest"
+  },
+  "107": {
+    "speaker": "Jefferson Fisher",
+    "role": "guest"
+  },
+  "108": {
+    "speaker": "Jefferson Fisher",
+    "role": "guest"
+  },
+  "109": {
+    "speaker": "Steven Bartlett",
+    "role": "host"
+  },
+  "110": {
+    "speaker": "Steven Bartlett",
+    "role": "host"
+  },
+  "111": {
+    "speaker": "Jefferson Fisher",
+    "role": "guest"
+  },
+  "112": {
+    "speaker": "Jefferson Fisher",
+    "role": "guest"
+  },
+  "113": {
+    "speaker": "Steven Bartlett",
+    "role": "host"
+  },
+  "114": {
+    "speaker": "Steven Bartlett",
+    "role": "host"
+  },
+  "115": {
+    "speaker": "Jefferson Fisher",
+    "role": "guest"
+  },
+  "116": {
+    "speaker": "Jefferson Fisher",
+    "role": "guest"
+  },
+  "117": {
+    "speaker": "Jefferson Fisher",
+    "role": "guest"
+  },
+  "118": {
+    "speaker": "Jefferson Fisher",
+    "role": "guest"
+  },
+  "119": {
+    "speaker": "Jefferson Fisher",
+    "role": "guest"
+  },
+  "120": {
+    "speaker": "Jefferson Fisher",
+    "role": "guest"
+  },
+  "121": {
+    "speaker": "Jefferson Fisher",
+    "role": "guest"
+  },
+  "122": {
+    "speaker": "Jefferson Fisher",
+    "role": "guest"
+  },
+  "123": {
+    "speaker": "Jefferson Fisher",
+    "role": "guest"
+  },
+  "124": {
+    "speaker": "Jefferson Fisher",
+    "role": "guest"
+  },
+  "125": {
+    "speaker": "Jefferson Fisher",
+    "role": "guest"
+  },
+  "126": {
+    "speaker": "Jefferson Fisher",
+    "role": "guest"
+  },
+  "127": {
+    "speaker": "Jefferson Fisher",
+    "role": "guest"
+  },
+  "128": {
+    "speaker": "Jefferson Fisher",
+    "role": "guest"
+  },
+  "129": {
+    "speaker": "Jefferson Fisher",
+    "role": "guest"
+  },
+  "130": {
+    "speaker": "Jefferson Fisher",
+    "role": "guest"
+  },
+  "131": {
+    "speaker": "Jefferson Fisher",
+    "role": "guest"
+  },
+  "132": {
+    "speaker": "Jefferson Fisher",
+    "role": "guest"
+  },
+  "133": {
+    "speaker": "Steven Bartlett",
+    "role": "host"
+  },
+  "134": {
+    "speaker": "Jefferson Fisher",
+    "role": "guest"
+  },
+  "135": {
+    "speaker": "Steven Bartlett",
+    "role": "host"
+  },
+  "136": {
+    "speaker": "Jefferson Fisher",
+    "role": "guest"
+  },
+  "137": {
+    "speaker": "Steven Bartlett",
+    "role": "host"
+  },
+  "138": {
+    "speaker": "Jefferson Fisher",
+    "role": "guest"
+  },
+  "139": {
+    "speaker": "Jefferson Fisher",
+    "role": "guest"
+  },
+  "140": {
+    "speaker": "Jefferson Fisher",
+    "role": "guest"
+  },
+  "141": {
+    "speaker": "Jefferson Fisher",
+    "role": "guest"
+  },
+  "142": {
+    "speaker": "Jefferson Fisher",
+    "role": "guest"
+  },
+  "143": {
+    "speaker": "Jefferson Fisher",
+    "role": "guest"
+  },
+  "144": {
+    "speaker": "Jefferson Fisher",
+    "role": "guest"
+  },
+  "145": {
+    "speaker": "Jefferson Fisher",
+    "role": "guest"
+  },
+  "146": {
+    "speaker": "Jefferson Fisher",
+    "role": "guest"
+  },
+  "147": {
+    "speaker": "Jefferson Fisher",
+    "role": "guest"
+  },
+  "148": {
+    "speaker": "Steven Bartlett",
+    "role": "host"
+  },
+  "149": {
+    "speaker": "Jefferson Fisher",
+    "role": "guest"
+  },
+  "150": {
+    "speaker": "Jefferson Fisher",
+    "role": "guest"
+  },
+  "151": {
+    "speaker": "Jefferson Fisher",
+    "role": "guest"
+  },
+  "152": {
+    "speaker": "Jefferson Fisher",
+    "role": "guest"
+  },
+  "153": {
+    "speaker": "Jefferson Fisher",
+    "role": "guest"
+  },
+  "154": {
+    "speaker": "Jefferson Fisher",
+    "role": "guest"
+  },
+  "155": {
+    "speaker": "Jefferson Fisher",
+    "role": "guest"
+  },
+  "156": {
+    "speaker": "Jefferson Fisher",
+    "role": "guest"
+  },
+  "157": {
+    "speaker": "Jefferson Fisher",
+    "role": "guest"
+  },
+  "158": {
+    "speaker": "Jefferson Fisher",
+    "role": "guest"
+  },
+  "159": {
+    "speaker": "Jefferson Fisher",
+    "role": "guest"
+  },
+  "160": {
+    "speaker": "Jefferson Fisher",
+    "role": "guest"
+  },
+  "161": {
+    "speaker": "Jefferson Fisher",
+    "role": "guest"
+  },
+  "162": {
+    "speaker": "Jefferson Fisher",
+    "role": "guest"
+  },
+  "163": {
+    "speaker": "Jefferson Fisher",
+    "role": "guest"
+  },
+  "164": {
+    "speaker": "Jefferson Fisher",
+    "role": "guest"
+  },
+  "165": {
+    "speaker": "Jefferson Fisher",
+    "role": "guest"
+  },
+  "166": {
+    "speaker": "Jefferson Fisher",
+    "role": "guest"
+  },
+  "167": {
+    "speaker": "Jefferson Fisher",
+    "role": "guest"
+  },
+  "168": {
+    "speaker": "Jefferson Fisher",
+    "role": "guest"
+  },
+  "169": {
+    "speaker": "Jefferson Fisher",
+    "role": "guest"
+  },
+  "170": {
+    "speaker": "Jefferson Fisher",
+    "role": "guest"
+  },
+  "171": {
+    "speaker": "Jefferson Fisher",
+    "role": "guest"
+  },
+  "172": {
+    "speaker": "Jefferson Fisher",
+    "role": "guest"
+  },
+  "173": {
+    "speaker": "Jefferson Fisher",
+    "role": "guest"
+  },
+  "174": {
+    "speaker": "Steven Bartlett",
+    "role": "host"
+  },
+  "175": {
+    "speaker": "Jefferson Fisher",
+    "role": "guest"
+  },
+  "176": {
+    "speaker": "Jefferson Fisher",
+    "role": "guest"
+  },
+  "177": {
+    "speaker": "Jefferson Fisher",
+    "role": "guest"
+  },
+  "178": {
+    "speaker": "Jefferson Fisher",
+    "role": "guest"
+  },
+  "179": {
+    "speaker": "Jefferson Fisher",
+    "role": "guest"
+  },
+  "180": {
+    "speaker": "Jefferson Fisher",
+    "role": "guest"
+  },
+  "181": {
+    "speaker": "Jefferson Fisher",
+    "role": "guest"
+  },
+  "182": {
+    "speaker": "Jefferson Fisher",
+    "role": "guest"
+  },
+  "183": {
+    "speaker": "Jefferson Fisher",
+    "role": "guest"
+  },
+  "184": {
+    "speaker": "Jefferson Fisher",
+    "role": "guest"
+  },
+  "185": {
+    "speaker": "Jefferson Fisher",
+    "role": "guest"
+  },
+  "186": {
+    "speaker": "Jefferson Fisher",
+    "role": "guest"
+  },
+  "187": {
+    "speaker": "Jefferson Fisher",
+    "role": "guest"
+  },
+  "188": {
+    "speaker": "Jefferson Fisher",
+    "role": "guest"
+  },
+  "189": {
+    "speaker": "Jefferson Fisher",
+    "role": "guest"
+  },
+  "190": {
+    "speaker": "Jefferson Fisher",
+    "role": "guest"
+  },
+  "191": {
+    "speaker": "Jefferson Fisher",
+    "role": "guest"
+  },
+  "192": {
+    "speaker": "Jefferson Fisher",
+    "role": "guest"
+  },
+  "193": {
+    "speaker": "Jefferson Fisher",
+    "role": "guest"
+  },
+  "194": {
+    "speaker": "Jefferson Fisher",
+    "role": "guest"
+  },
+  "195": {
+    "speaker": "Jefferson Fisher",
+    "role": "guest"
+  },
+  "196": {
+    "speaker": "Jefferson Fisher",
+    "role": "guest"
+  },
+  "197": {
+    "speaker": "Steven Bartlett",
+    "role": "host"
+  },
+  "198": {
+    "speaker": "Steven Bartlett",
+    "role": "host"
+  },
+  "199": {
+    "speaker": "Steven Bartlett",
+    "role": "host"
+  },
+  "200": {
+    "speaker": "Steven Bartlett",
+    "role": "host"
+  },
+  "201": {
+    "speaker": "Jefferson Fisher",
+    "role": "guest"
+  },
+  "202": {
+    "speaker": "Jefferson Fisher",
+    "role": "guest"
+  },
+  "203": {
+    "speaker": "Jefferson Fisher",
+    "role": "guest"
+  },
+  "204": {
+    "speaker": "Jefferson Fisher",
+    "role": "guest"
+  },
+  "205": {
+    "speaker": "Jefferson Fisher",
+    "role": "guest"
+  },
+  "206": {
+    "speaker": "Jefferson Fisher",
+    "role": "guest"
+  },
+  "207": {
+    "speaker": "Jefferson Fisher",
+    "role": "guest"
+  },
+  "208": {
+    "speaker": "Jefferson Fisher",
+    "role": "guest"
+  },
+  "209": {
+    "speaker": "Jefferson Fisher",
+    "role": "guest"
+  },
+  "210": {
+    "speaker": "Jefferson Fisher",
+    "role": "guest"
+  },
+  "211": {
+    "speaker": "Jefferson Fisher",
+    "role": "guest"
+  },
+  "212": {
+    "speaker": "Jefferson Fisher",
+    "role": "guest"
+  },
+  "213": {
+    "speaker": "Steven Bartlett",
+    "role": "host"
+  },
+  "214": {
+    "speaker": "Jefferson Fisher",
+    "role": "guest"
+  },
+  "215": {
+    "speaker": "Jefferson Fisher",
+    "role": "guest"
+  },
+  "216": {
+    "speaker": "Jefferson Fisher",
+    "role": "guest"
+  },
+  "217": {
+    "speaker": "Steven Bartlett",
+    "role": "host"
+  },
+  "218": {
+    "speaker": "Jefferson Fisher",
+    "role": "guest"
+  },
+  "219": {
+    "speaker": "Steven Bartlett",
+    "role": "host"
+  },
+  "220": {
+    "speaker": "Jefferson Fisher",
+    "role": "guest"
+  },
+  "221": {
+    "speaker": "Steven Bartlett",
+    "role": "host"
+  },
+  "222": {
+    "speaker": "Jefferson Fisher",
+    "role": "guest"
+  },
+  "223": {
+    "speaker": "Jefferson Fisher",
+    "role": "guest"
+  },
+  "224": {
+    "speaker": "Jefferson Fisher",
+    "role": "guest"
+  },
+  "225": {
+    "speaker": "Jefferson Fisher",
+    "role": "guest"
+  },
+  "226": {
+    "speaker": "Jefferson Fisher",
+    "role": "guest"
+  },
+  "227": {
+    "speaker": "Jefferson Fisher",
+    "role": "guest"
+  },
+  "228": {
+    "speaker": "Jefferson Fisher",
+    "role": "guest"
+  },
+  "229": {
+    "speaker": "Jefferson Fisher",
+    "role": "guest"
+  },
+  "230": {
+    "speaker": "Jefferson Fisher",
+    "role": "guest"
+  },
+  "231": {
+    "speaker": "Jefferson Fisher",
+    "role": "guest"
+  },
+  "232": {
+    "speaker": "Jefferson Fisher",
+    "role": "guest"
+  },
+  "233": {
+    "speaker": "Jefferson Fisher",
+    "role": "guest"
+  },
+  "234": {
+    "speaker": "Jefferson Fisher",
+    "role": "guest"
+  },
+  "235": {
+    "speaker": "Jefferson Fisher",
+    "role": "guest"
+  },
+  "236": {
+    "speaker": "Jefferson Fisher",
+    "role": "guest"
+  },
+  "237": {
+    "speaker": "Jefferson Fisher",
+    "role": "guest"
+  },
+  "238": {
+    "speaker": "Jefferson Fisher",
+    "role": "guest"
+  },
+  "239": {
+    "speaker": "Jefferson Fisher",
+    "role": "guest"
+  },
+  "240": {
+    "speaker": "Jefferson Fisher",
+    "role": "guest"
+  },
+  "241": {
+    "speaker": "Jefferson Fisher",
+    "role": "guest"
+  },
+  "242": {
+    "speaker": "Jefferson Fisher",
+    "role": "guest"
+  },
+  "243": {
+    "speaker": "Jefferson Fisher",
+    "role": "guest"
+  },
+  "244": {
+    "speaker": "Jefferson Fisher",
+    "role": "guest"
+  },
+  "245": {
+    "speaker": "Jefferson Fisher",
+    "role": "guest"
+  },
+  "246": {
+    "speaker": "Jefferson Fisher",
+    "role": "guest"
+  },
+  "247": {
+    "speaker": "Jefferson Fisher",
+    "role": "guest"
+  },
+  "248": {
+    "speaker": "Jefferson Fisher",
+    "role": "guest"
+  },
+  "249": {
+    "speaker": "Jefferson Fisher",
+    "role": "guest"
+  },
+  "250": {
+    "speaker": "Jefferson Fisher",
+    "role": "guest"
+  },
+  "251": {
+    "speaker": "Jefferson Fisher",
+    "role": "guest"
+  },
+  "252": {
+    "speaker": "Jefferson Fisher",
+    "role": "guest"
+  },
+  "253": {
+    "speaker": "Jefferson Fisher",
+    "role": "guest"
+  },
+  "254": {
+    "speaker": "Jefferson Fisher",
+    "role": "guest"
+  },
+  "255": {
+    "speaker": "Jefferson Fisher",
+    "role": "guest"
+  },
+  "256": {
+    "speaker": "Jefferson Fisher",
+    "role": "guest"
+  },
+  "257": {
+    "speaker": "Jefferson Fisher",
+    "role": "guest"
+  },
+  "258": {
+    "speaker": "Jefferson Fisher",
+    "role": "guest"
+  },
+  "259": {
+    "speaker": "Jefferson Fisher",
+    "role": "guest"
+  },
+  "260": {
+    "speaker": "Jefferson Fisher",
+    "role": "guest"
+  },
+  "261": {
+    "speaker": "Jefferson Fisher",
+    "role": "guest"
+  },
+  "262": {
+    "speaker": "Jefferson Fisher",
+    "role": "guest"
+  },
+  "263": {
+    "speaker": "Jefferson Fisher",
+    "role": "guest"
+  },
+  "264": {
+    "speaker": "Jefferson Fisher",
+    "role": "guest"
+  },
+  "265": {
+    "speaker": "Jefferson Fisher",
+    "role": "guest"
+  },
+  "266": {
+    "speaker": "Jefferson Fisher",
+    "role": "guest"
+  },
+  "267": {
+    "speaker": "Jefferson Fisher",
+    "role": "guest"
+  },
+  "268": {
+    "speaker": "Jefferson Fisher",
+    "role": "guest"
+  },
+  "269": {
+    "speaker": "Jefferson Fisher",
+    "role": "guest"
+  },
+  "270": {
+    "speaker": "Jefferson Fisher",
+    "role": "guest"
+  },
+  "271": {
+    "speaker": "Jefferson Fisher",
+    "role": "guest"
+  },
+  "272": {
+    "speaker": "Jefferson Fisher",
+    "role": "guest"
+  },
+  "273": {
+    "speaker": "Jefferson Fisher",
+    "role": "guest"
+  },
+  "274": {
+    "speaker": "Jefferson Fisher",
+    "role": "guest"
+  },
+  "275": {
+    "speaker": "Jefferson Fisher",
+    "role": "guest"
+  },
+  "276": {
+    "speaker": "Jefferson Fisher",
+    "role": "guest"
+  },
+  "277": {
+    "speaker": "Jefferson Fisher",
+    "role": "guest"
+  },
+  "278": {
+    "speaker": "Jefferson Fisher",
+    "role": "guest"
+  },
+  "279": {
+    "speaker": "Jefferson Fisher",
+    "role": "guest"
+  },
+  "280": {
+    "speaker": "Jefferson Fisher",
+    "role": "guest"
+  },
+  "281": {
+    "speaker": "Jefferson Fisher",
+    "role": "guest"
+  },
+  "282": {
+    "speaker": "Jefferson Fisher",
+    "role": "guest"
+  },
+  "283": {
+    "speaker": "Jefferson Fisher",
+    "role": "guest"
+  },
+  "284": {
+    "speaker": "Jefferson Fisher",
+    "role": "guest"
+  },
+  "285": {
+    "speaker": "Jefferson Fisher",
+    "role": "guest"
+  },
+  "286": {
+    "speaker": "Jefferson Fisher",
+    "role": "guest"
+  },
+  "287": {
+    "speaker": "Jefferson Fisher",
+    "role": "guest"
+  },
+  "288": {
+    "speaker": "Jefferson Fisher",
+    "role": "guest"
+  },
+  "289": {
+    "speaker": "Jefferson Fisher",
+    "role": "guest"
+  },
+  "290": {
+    "speaker": "Jefferson Fisher",
+    "role": "guest"
+  },
+  "291": {
+    "speaker": "Jefferson Fisher",
+    "role": "guest"
+  },
+  "292": {
+    "speaker": "Jefferson Fisher",
+    "role": "guest"
+  },
+  "293": {
+    "speaker": "Jefferson Fisher",
+    "role": "guest"
+  },
+  "294": {
+    "speaker": "Jefferson Fisher",
+    "role": "guest"
+  },
+  "295": {
+    "speaker": "Jefferson Fisher",
+    "role": "guest"
+  },
+  "296": {
+    "speaker": "Jefferson Fisher",
+    "role": "guest"
+  },
+  "297": {
+    "speaker": "Jefferson Fisher",
+    "role": "guest"
+  },
+  "298": {
+    "speaker": "Jefferson Fisher",
+    "role": "guest"
+  },
+  "299": {
+    "speaker": "Jefferson Fisher",
+    "role": "guest"
+  },
+  "300": {
+    "speaker": "Jefferson Fisher",
+    "role": "guest"
+  },
+  "301": {
+    "speaker": "Jefferson Fisher",
+    "role": "guest"
+  },
+  "302": {
+    "speaker": "Jefferson Fisher",
+    "role": "guest"
+  },
+  "303": {
+    "speaker": "Jefferson Fisher",
+    "role": "guest"
+  },
+  "304": {
+    "speaker": "Jefferson Fisher",
+    "role": "guest"
+  },
+  "305": {
+    "speaker": "Jefferson Fisher",
+    "role": "guest"
+  },
+  "306": {
+    "speaker": "Jefferson Fisher",
+    "role": "guest"
+  },
+  "307": {
+    "speaker": "Jefferson Fisher",
+    "role": "guest"
+  },
+  "308": {
+    "speaker": "Jefferson Fisher",
+    "role": "guest"
+  },
+  "309": {
+    "speaker": "Jefferson Fisher",
+    "role": "guest"
+  },
+  "310": {
+    "speaker": "Steven Bartlett",
+    "role": "host"
+  },
+  "311": {
+    "speaker": "Jefferson Fisher",
+    "role": "guest"
+  },
+  "312": {
+    "speaker": "Jefferson Fisher",
+    "role": "guest"
+  },
+  "313": {
+    "speaker": "Jefferson Fisher",
+    "role": "guest"
+  },
+  "314": {
+    "speaker": "Jefferson Fisher",
+    "role": "guest"
+  },
+  "315": {
+    "speaker": "Steven Bartlett",
+    "role": "host"
+  },
+  "316": {
+    "speaker": "Jefferson Fisher",
+    "role": "guest"
+  },
+  "317": {
+    "speaker": "Jefferson Fisher",
+    "role": "guest"
+  },
+  "318": {
+    "speaker": "Jefferson Fisher",
+    "role": "guest"
+  },
+  "319": {
+    "speaker": "Steven Bartlett",
+    "role": "host"
+  },
+  "320": {
+    "speaker": "Steven Bartlett",
+    "role": "host"
+  },
+  "321": {
+    "speaker": "Steven Bartlett",
+    "role": "host"
+  },
+  "322": {
+    "speaker": "Steven Bartlett",
+    "role": "host"
+  },
+  "323": {
+    "speaker": "Steven Bartlett",
+    "role": "host"
+  },
+  "324": {
+    "speaker": "Jefferson Fisher",
+    "role": "guest"
+  },
+  "325": {
+    "speaker": "Jefferson Fisher",
+    "role": "guest"
+  },
+  "326": {
+    "speaker": "Jefferson Fisher",
+    "role": "guest"
+  },
+  "327": {
+    "speaker": "Jefferson Fisher",
+    "role": "guest"
+  },
+  "328": {
+    "speaker": "Steven Bartlett",
+    "role": "host"
+  },
+  "329": {
+    "speaker": "Jefferson Fisher",
+    "role": "guest"
+  },
+  "330": {
+    "speaker": "Jefferson Fisher",
+    "role": "guest"
+  },
+  "331": {
+    "speaker": "Jefferson Fisher",
+    "role": "guest"
+  },
+  "332": {
+    "speaker": "Jefferson Fisher",
+    "role": "guest"
+  },
+  "333": {
+    "speaker": "Jefferson Fisher",
+    "role": "guest"
+  },
+  "334": {
+    "speaker": "Jefferson Fisher",
+    "role": "guest"
+  },
+  "335": {
+    "speaker": "Jefferson Fisher",
+    "role": "guest"
+  },
+  "336": {
+    "speaker": "Jefferson Fisher",
+    "role": "guest"
+  },
+  "337": {
+    "speaker": "Jefferson Fisher",
+    "role": "guest"
+  },
+  "338": {
+    "speaker": "Jefferson Fisher",
+    "role": "guest"
+  },
+  "339": {
+    "speaker": "Jefferson Fisher",
+    "role": "guest"
+  },
+  "340": {
+    "speaker": "Jefferson Fisher",
+    "role": "guest"
+  },
+  "341": {
+    "speaker": "Jefferson Fisher",
+    "role": "guest"
+  },
+  "342": {
+    "speaker": "Jefferson Fisher",
+    "role": "guest"
+  },
+  "343": {
+    "speaker": "Jefferson Fisher",
+    "role": "guest"
+  },
+  "344": {
+    "speaker": "Steven Bartlett",
+    "role": "host"
+  },
+  "345": {
+    "speaker": "Steven Bartlett",
+    "role": "host"
+  },
+  "346": {
+    "speaker": "Jefferson Fisher",
+    "role": "guest"
+  },
+  "347": {
+    "speaker": "Jefferson Fisher",
+    "role": "guest"
+  },
+  "348": {
+    "speaker": "Jefferson Fisher",
+    "role": "guest"
+  },
+  "349": {
+    "speaker": "Steven Bartlett",
+    "role": "host"
+  },
+  "350": {
+    "speaker": "Jefferson Fisher",
+    "role": "guest"
+  },
+  "351": {
+    "speaker": "Jefferson Fisher",
+    "role": "guest"
+  },
+  "352": {
+    "speaker": "Jefferson Fisher",
+    "role": "guest"
+  },
+  "353": {
+    "speaker": "Jefferson Fisher",
+    "role": "guest"
+  },
+  "354": {
+    "speaker": "Jefferson Fisher",
+    "role": "guest"
+  },
+  "355": {
+    "speaker": "Steven Bartlett",
+    "role": "host"
+  },
+  "356": {
+    "speaker": "Jefferson Fisher",
+    "role": "guest"
+  },
+  "357": {
+    "speaker": "Jefferson Fisher",
+    "role": "guest"
+  },
+  "358": {
+    "speaker": "Steven Bartlett",
+    "role": "host"
+  },
+  "359": {
+    "speaker": "Steven Bartlett",
+    "role": "host"
+  },
+  "360": {
+    "speaker": "Jefferson Fisher",
+    "role": "guest"
+  },
+  "361": {
+    "speaker": "Jefferson Fisher",
+    "role": "guest"
+  },
+  "362": {
+    "speaker": "Jefferson Fisher",
+    "role": "guest"
+  },
+  "363": {
+    "speaker": "Jefferson Fisher",
+    "role": "guest"
+  },
+  "364": {
+    "speaker": "Jefferson Fisher",
+    "role": "guest"
+  },
+  "365": {
+    "speaker": "Steven Bartlett",
+    "role": "host"
+  },
+  "366": {
+    "speaker": "Steven Bartlett",
+    "role": "host"
+  },
+  "367": {
+    "speaker": "Jefferson Fisher",
+    "role": "guest"
+  },
+  "368": {
+    "speaker": "Jefferson Fisher",
+    "role": "guest"
+  },
+  "369": {
+    "speaker": "Jefferson Fisher",
+    "role": "guest"
+  },
+  "370": {
+    "speaker": "Jefferson Fisher",
+    "role": "guest"
+  },
+  "371": {
+    "speaker": "Jefferson Fisher",
+    "role": "guest"
+  },
+  "372": {
+    "speaker": "Jefferson Fisher",
+    "role": "guest"
+  },
+  "373": {
+    "speaker": "Jefferson Fisher",
+    "role": "guest"
+  },
+  "374": {
+    "speaker": "Jefferson Fisher",
+    "role": "guest"
+  },
+  "375": {
+    "speaker": "Jefferson Fisher",
+    "role": "guest"
+  },
+  "376": {
+    "speaker": "Jefferson Fisher",
+    "role": "guest"
+  },
+  "377": {
+    "speaker": "Steven Bartlett",
+    "role": "host"
+  },
+  "378": {
+    "speaker": "Jefferson Fisher",
+    "role": "guest"
+  },
+  "379": {
+    "speaker": "Steven Bartlett",
+    "role": "host"
+  },
+  "380": {
+    "speaker": "Steven Bartlett",
+    "role": "host"
+  },
+  "381": {
+    "speaker": "Steven Bartlett",
+    "role": "host"
+  },
+  "382": {
+    "speaker": "Jefferson Fisher",
+    "role": "guest"
+  },
+  "383": {
+    "speaker": "Jefferson Fisher",
+    "role": "guest"
+  },
+  "384": {
+    "speaker": "Steven Bartlett",
+    "role": "host"
+  },
+  "385": {
+    "speaker": "Steven Bartlett",
+    "role": "host"
+  },
+  "386": {
+    "speaker": "Jefferson Fisher",
+    "role": "guest"
+  },
+  "387": {
+    "speaker": "Jefferson Fisher",
+    "role": "guest"
+  },
+  "388": {
+    "speaker": "Jefferson Fisher",
+    "role": "guest"
+  },
+  "389": {
+    "speaker": "Jefferson Fisher",
+    "role": "guest"
+  },
+  "390": {
+    "speaker": "Jefferson Fisher",
+    "role": "guest"
+  },
+  "391": {
+    "speaker": "Jefferson Fisher",
+    "role": "guest"
+  },
+  "392": {
+    "speaker": "Jefferson Fisher",
+    "role": "guest"
+  },
+  "393": {
+    "speaker": "Jefferson Fisher",
+    "role": "guest"
+  },
+  "394": {
+    "speaker": "Jefferson Fisher",
+    "role": "guest"
+  },
+  "395": {
+    "speaker": "Steven Bartlett",
+    "role": "host"
+  },
+  "396": {
+    "speaker": "Jefferson Fisher",
+    "role": "guest"
+  },
+  "397": {
+    "speaker": "Jefferson Fisher",
+    "role": "guest"
+  },
+  "398": {
+    "speaker": "Jefferson Fisher",
+    "role": "guest"
+  },
+  "399": {
+    "speaker": "Jefferson Fisher",
+    "role": "guest"
+  },
+  "400": {
+    "speaker": "Jefferson Fisher",
+    "role": "guest"
+  },
+  "401": {
+    "speaker": "Jefferson Fisher",
+    "role": "guest"
+  },
+  "402": {
+    "speaker": "Steven Bartlett",
+    "role": "host"
+  },
+  "403": {
+    "speaker": "Jefferson Fisher",
+    "role": "guest"
+  },
+  "404": {
+    "speaker": "Jefferson Fisher",
+    "role": "guest"
+  },
+  "405": {
+    "speaker": "Jefferson Fisher",
+    "role": "guest"
+  },
+  "406": {
+    "speaker": "Jefferson Fisher",
+    "role": "guest"
+  },
+  "407": {
+    "speaker": "Jefferson Fisher",
+    "role": "guest"
+  },
+  "408": {
+    "speaker": "Jefferson Fisher",
+    "role": "guest"
+  },
+  "409": {
+    "speaker": "Steven Bartlett",
+    "role": "host"
+  },
+  "410": {
+    "speaker": "Jefferson Fisher",
+    "role": "guest"
+  },
+  "411": {
+    "speaker": "Jefferson Fisher",
+    "role": "guest"
+  },
+  "412": {
+    "speaker": "Jefferson Fisher",
+    "role": "guest"
+  },
+  "413": {
+    "speaker": "Steven Bartlett",
+    "role": "host"
+  },
+  "414": {
+    "speaker": "Jefferson Fisher",
+    "role": "guest"
+  },
+  "415": {
+    "speaker": "Jefferson Fisher",
+    "role": "guest"
+  },
+  "416": {
+    "speaker": "Jefferson Fisher",
+    "role": "guest"
+  },
+  "417": {
+    "speaker": "Jefferson Fisher",
+    "role": "guest"
+  },
+  "418": {
+    "speaker": "Jefferson Fisher",
+    "role": "guest"
+  },
+  "419": {
+    "speaker": "Jefferson Fisher",
+    "role": "guest"
+  },
+  "420": {
+    "speaker": "Jefferson Fisher",
+    "role": "guest"
+  },
+  "421": {
+    "speaker": "Steven Bartlett",
+    "role": "host"
+  },
+  "422": {
+    "speaker": "Steven Bartlett",
+    "role": "host"
+  },
+  "423": {
+    "speaker": "Jefferson Fisher",
+    "role": "guest"
+  },
+  "424": {
+    "speaker": "Jefferson Fisher",
+    "role": "guest"
+  },
+  "425": {
+    "speaker": "Jefferson Fisher",
+    "role": "guest"
+  },
+  "426": {
+    "speaker": "Steven Bartlett",
+    "role": "host"
+  },
+  "427": {
+    "speaker": "Jefferson Fisher",
+    "role": "guest"
+  },
+  "428": {
+    "speaker": "Jefferson Fisher",
+    "role": "guest"
+  },
+  "429": {
+    "speaker": "Jefferson Fisher",
+    "role": "guest"
+  },
+  "430": {
+    "speaker": "Jefferson Fisher",
+    "role": "guest"
+  },
+  "431": {
+    "speaker": "Jefferson Fisher",
+    "role": "guest"
+  },
+  "432": {
+    "speaker": "Jefferson Fisher",
+    "role": "guest"
+  },
+  "433": {
+    "speaker": "Steven Bartlett",
+    "role": "host"
+  },
+  "434": {
+    "speaker": "Jefferson Fisher",
+    "role": "guest"
+  },
+  "435": {
+    "speaker": "Jefferson Fisher",
+    "role": "guest"
+  },
+  "436": {
+    "speaker": "Jefferson Fisher",
+    "role": "guest"
+  },
+  "437": {
+    "speaker": "Steven Bartlett",
+    "role": "host"
+  },
+  "438": {
+    "speaker": "Jefferson Fisher",
+    "role": "guest"
+  },
+  "439": {
+    "speaker": "Steven Bartlett",
+    "role": "host"
+  },
+  "440": {
+    "speaker": "Steven Bartlett",
+    "role": "host"
+  },
+  "441": {
+    "speaker": "Jefferson Fisher",
+    "role": "guest"
+  },
+  "442": {
+    "speaker": "Jefferson Fisher",
+    "role": "guest"
+  },
+  "443": {
+    "speaker": "Jefferson Fisher",
+    "role": "guest"
+  },
+  "444": {
+    "speaker": "Jefferson Fisher",
+    "role": "guest"
+  },
+  "445": {
+    "speaker": "Steven Bartlett",
+    "role": "host"
+  },
+  "446": {
+    "speaker": "Jefferson Fisher",
+    "role": "guest"
+  },
+  "447": {
+    "speaker": "Jefferson Fisher",
+    "role": "guest"
+  },
+  "448": {
+    "speaker": "Jefferson Fisher",
+    "role": "guest"
+  },
+  "449": {
+    "speaker": "Jefferson Fisher",
+    "role": "guest"
+  },
+  "450": {
+    "speaker": "Jefferson Fisher",
+    "role": "guest"
+  },
+  "451": {
+    "speaker": "Jefferson Fisher",
+    "role": "guest"
+  },
+  "452": {
+    "speaker": "Jefferson Fisher",
+    "role": "guest"
+  },
+  "453": {
+    "speaker": "Steven Bartlett",
+    "role": "host"
+  },
+  "454": {
+    "speaker": "Steven Bartlett",
+    "role": "host"
+  },
+  "455": {
+    "speaker": "Jefferson Fisher",
+    "role": "guest"
+  },
+  "456": {
+    "speaker": "Jefferson Fisher",
+    "role": "guest"
+  },
+  "457": {
+    "speaker": "Jefferson Fisher",
+    "role": "guest"
+  },
+  "458": {
+    "speaker": "Jefferson Fisher",
+    "role": "guest"
+  },
+  "459": {
+    "speaker": "Jefferson Fisher",
+    "role": "guest"
+  },
+  "460": {
+    "speaker": "Steven Bartlett",
+    "role": "host"
+  },
+  "461": {
+    "speaker": "Steven Bartlett",
+    "role": "host"
+  },
+  "462": {
+    "speaker": "Jefferson Fisher",
+    "role": "guest"
+  },
+  "463": {
+    "speaker": "Jefferson Fisher",
+    "role": "guest"
+  },
+  "464": {
+    "speaker": "Jefferson Fisher",
+    "role": "guest"
+  },
+  "465": {
+    "speaker": "Jefferson Fisher",
+    "role": "guest"
+  },
+  "466": {
+    "speaker": "Jefferson Fisher",
+    "role": "guest"
+  },
+  "467": {
+    "speaker": "Jefferson Fisher",
+    "role": "guest"
+  },
+  "468": {
+    "speaker": "Jefferson Fisher",
+    "role": "guest"
+  },
+  "469": {
+    "speaker": "Jefferson Fisher",
+    "role": "guest"
+  },
+  "470": {
+    "speaker": "Jefferson Fisher",
+    "role": "guest"
+  },
+  "471": {
+    "speaker": "Steven Bartlett",
+    "role": "host"
+  },
+  "472": {
+    "speaker": "Jefferson Fisher",
+    "role": "guest"
+  },
+  "473": {
+    "speaker": "Jefferson Fisher",
+    "role": "guest"
+  },
+  "474": {
+    "speaker": "Jefferson Fisher",
+    "role": "guest"
+  },
+  "475": {
+    "speaker": "Jefferson Fisher",
+    "role": "guest"
+  },
+  "476": {
+    "speaker": "Jefferson Fisher",
+    "role": "guest"
+  },
+  "477": {
+    "speaker": "Jefferson Fisher",
+    "role": "guest"
+  },
+  "478": {
+    "speaker": "Jefferson Fisher",
+    "role": "guest"
+  },
+  "479": {
+    "speaker": "Jefferson Fisher",
+    "role": "guest"
+  },
+  "480": {
+    "speaker": "Jefferson Fisher",
+    "role": "guest"
+  },
+  "481": {
+    "speaker": "Jefferson Fisher",
+    "role": "guest"
+  },
+  "482": {
+    "speaker": "Jefferson Fisher",
+    "role": "guest"
+  },
+  "483": {
+    "speaker": "Jefferson Fisher",
+    "role": "guest"
+  },
+  "484": {
+    "speaker": "Jefferson Fisher",
+    "role": "guest"
+  },
+  "485": {
+    "speaker": "Jefferson Fisher",
+    "role": "guest"
+  },
+  "486": {
+    "speaker": "Jefferson Fisher",
+    "role": "guest"
+  },
+  "487": {
+    "speaker": "Jefferson Fisher",
+    "role": "guest"
+  },
+  "488": {
+    "speaker": "Jefferson Fisher",
+    "role": "guest"
+  },
+  "489": {
+    "speaker": "Jefferson Fisher",
+    "role": "guest"
+  },
+  "490": {
+    "speaker": "Jefferson Fisher",
+    "role": "guest"
+  },
+  "491": {
+    "speaker": "Jefferson Fisher",
+    "role": "guest"
+  },
+  "492": {
+    "speaker": "Jefferson Fisher",
+    "role": "guest"
+  },
+  "493": {
+    "speaker": "Jefferson Fisher",
+    "role": "guest"
+  },
+  "494": {
+    "speaker": "Jefferson Fisher",
+    "role": "guest"
+  },
+  "495": {
+    "speaker": "Jefferson Fisher",
+    "role": "guest"
+  },
+  "496": {
+    "speaker": "Jefferson Fisher",
+    "role": "guest"
+  },
+  "497": {
+    "speaker": "Jefferson Fisher",
+    "role": "guest"
+  },
+  "498": {
+    "speaker": "Jefferson Fisher",
+    "role": "guest"
+  },
+  "499": {
+    "speaker": "Jefferson Fisher",
+    "role": "guest"
+  },
+  "500": {
+    "speaker": "Jefferson Fisher",
+    "role": "guest"
+  },
+  "501": {
+    "speaker": "Jefferson Fisher",
+    "role": "guest"
+  },
+  "502": {
+    "speaker": "Steven Bartlett",
+    "role": "host"
+  },
+  "503": {
+    "speaker": "Jefferson Fisher",
+    "role": "guest"
+  },
+  "504": {
+    "speaker": "Jefferson Fisher",
+    "role": "guest"
+  },
+  "505": {
+    "speaker": "Jefferson Fisher",
+    "role": "guest"
+  },
+  "506": {
+    "speaker": "Jefferson Fisher",
+    "role": "guest"
+  },
+  "507": {
+    "speaker": "Jefferson Fisher",
+    "role": "guest"
+  },
+  "508": {
+    "speaker": "Jefferson Fisher",
+    "role": "guest"
+  },
+  "509": {
+    "speaker": "Jefferson Fisher",
+    "role": "guest"
+  },
+  "510": {
+    "speaker": "Jefferson Fisher",
+    "role": "guest"
+  },
+  "511": {
+    "speaker": "Jefferson Fisher",
+    "role": "guest"
+  },
+  "512": {
+    "speaker": "Jefferson Fisher",
+    "role": "guest"
+  },
+  "513": {
+    "speaker": "Jefferson Fisher",
+    "role": "guest"
+  },
+  "514": {
+    "speaker": "Steven Bartlett",
+    "role": "host"
+  },
+  "515": {
+    "speaker": "Jefferson Fisher",
+    "role": "guest"
+  },
+  "516": {
+    "speaker": "Jefferson Fisher",
+    "role": "guest"
+  },
+  "517": {
+    "speaker": "Jefferson Fisher",
+    "role": "guest"
+  },
+  "518": {
+    "speaker": "Jefferson Fisher",
+    "role": "guest"
+  },
+  "519": {
+    "speaker": "Jefferson Fisher",
+    "role": "guest"
+  },
+  "520": {
+    "speaker": "Jefferson Fisher",
+    "role": "guest"
+  },
+  "521": {
+    "speaker": "Jefferson Fisher",
+    "role": "guest"
+  },
+  "522": {
+    "speaker": "Jefferson Fisher",
+    "role": "guest"
+  },
+  "523": {
+    "speaker": "Jefferson Fisher",
+    "role": "guest"
+  },
+  "524": {
+    "speaker": "Steven Bartlett",
+    "role": "host"
+  },
+  "525": {
+    "speaker": "Jefferson Fisher",
+    "role": "guest"
+  },
+  "526": {
+    "speaker": "Jefferson Fisher",
+    "role": "guest"
+  },
+  "527": {
+    "speaker": "Jefferson Fisher",
+    "role": "guest"
+  },
+  "528": {
+    "speaker": "Jefferson Fisher",
+    "role": "guest"
+  },
+  "529": {
+    "speaker": "Jefferson Fisher",
+    "role": "guest"
+  },
+  "530": {
+    "speaker": "Jefferson Fisher",
+    "role": "guest"
+  },
+  "531": {
+    "speaker": "Jefferson Fisher",
+    "role": "guest"
+  },
+  "532": {
+    "speaker": "Jefferson Fisher",
+    "role": "guest"
+  },
+  "533": {
+    "speaker": "Jefferson Fisher",
+    "role": "guest"
+  },
+  "534": {
+    "speaker": "Jefferson Fisher",
+    "role": "guest"
+  },
+  "535": {
+    "speaker": "Jefferson Fisher",
+    "role": "guest"
+  },
+  "536": {
+    "speaker": "Jefferson Fisher",
+    "role": "guest"
+  },
+  "537": {
+    "speaker": "Jefferson Fisher",
+    "role": "guest"
+  },
+  "538": {
+    "speaker": "Jefferson Fisher",
+    "role": "guest"
+  },
+  "539": {
+    "speaker": "Jefferson Fisher",
+    "role": "guest"
+  },
+  "540": {
+    "speaker": "Jefferson Fisher",
+    "role": "guest"
+  },
+  "541": {
+    "speaker": "Jefferson Fisher",
+    "role": "guest"
+  },
+  "542": {
+    "speaker": "Jefferson Fisher",
+    "role": "guest"
+  },
+  "543": {
+    "speaker": "Jefferson Fisher",
+    "role": "guest"
+  },
+  "544": {
+    "speaker": "Jefferson Fisher",
+    "role": "guest"
+  },
+  "545": {
+    "speaker": "Jefferson Fisher",
+    "role": "guest"
+  },
+  "546": {
+    "speaker": "Jefferson Fisher",
+    "role": "guest"
+  },
+  "547": {
+    "speaker": "Steven Bartlett",
+    "role": "host"
+  },
+  "548": {
+    "speaker": "Steven Bartlett",
+    "role": "host"
+  },
+  "549": {
+    "speaker": "Jefferson Fisher",
+    "role": "guest"
+  },
+  "550": {
+    "speaker": "Steven Bartlett",
+    "role": "host"
+  },
+  "551": {
+    "speaker": "Steven Bartlett",
+    "role": "host"
+  },
+  "552": {
+    "speaker": "Steven Bartlett",
+    "role": "host"
+  },
+  "553": {
+    "speaker": "Steven Bartlett",
+    "role": "host"
+  },
+  "554": {
+    "speaker": "Steven Bartlett",
+    "role": "host"
+  },
+  "555": {
+    "speaker": "Steven Bartlett",
+    "role": "host"
+  },
+  "556": {
+    "speaker": "Steven Bartlett",
+    "role": "host"
+  },
+  "557": {
+    "speaker": "Steven Bartlett",
+    "role": "host"
+  },
+  "558": {
+    "speaker": "Steven Bartlett",
+    "role": "host"
+  },
+  "559": {
+    "speaker": "Steven Bartlett",
+    "role": "host"
+  },
+  "560": {
+    "speaker": "Jefferson Fisher",
+    "role": "guest"
+  },
+  "561": {
+    "speaker": "Steven Bartlett",
+    "role": "host"
+  },
+  "562": {
+    "speaker": "Steven Bartlett",
+    "role": "host"
+  },
+  "563": {
+    "speaker": "Steven Bartlett",
+    "role": "host"
+  },
+  "564": {
+    "speaker": "Steven Bartlett",
+    "role": "host"
+  },
+  "565": {
+    "speaker": "Steven Bartlett",
+    "role": "host"
+  },
+  "566": {
+    "speaker": "Jefferson Fisher",
+    "role": "guest"
+  },
+  "567": {
+    "speaker": "Jefferson Fisher",
+    "role": "guest"
+  },
+  "568": {
+    "speaker": "Jefferson Fisher",
+    "role": "guest"
+  },
+  "569": {
+    "speaker": "Jefferson Fisher",
+    "role": "guest"
+  },
+  "570": {
+    "speaker": "Jefferson Fisher",
+    "role": "guest"
+  },
+  "571": {
+    "speaker": "Jefferson Fisher",
+    "role": "guest"
+  },
+  "572": {
+    "speaker": "Jefferson Fisher",
+    "role": "guest"
+  },
+  "573": {
+    "speaker": "Jefferson Fisher",
+    "role": "guest"
+  },
+  "574": {
+    "speaker": "Jefferson Fisher",
+    "role": "guest"
+  },
+  "575": {
+    "speaker": "Jefferson Fisher",
+    "role": "guest"
+  },
+  "576": {
+    "speaker": "Jefferson Fisher",
+    "role": "guest"
+  },
+  "577": {
+    "speaker": "Jefferson Fisher",
+    "role": "guest"
+  },
+  "578": {
+    "speaker": "Jefferson Fisher",
+    "role": "guest"
+  },
+  "579": {
+    "speaker": "Jefferson Fisher",
+    "role": "guest"
+  },
+  "580": {
+    "speaker": "Jefferson Fisher",
+    "role": "guest"
+  },
+  "581": {
+    "speaker": "Jefferson Fisher",
+    "role": "guest"
+  },
+  "582": {
+    "speaker": "Jefferson Fisher",
+    "role": "guest"
+  },
+  "583": {
+    "speaker": "Jefferson Fisher",
+    "role": "guest"
+  },
+  "584": {
+    "speaker": "Jefferson Fisher",
+    "role": "guest"
+  },
+  "585": {
+    "speaker": "Jefferson Fisher",
+    "role": "guest"
+  },
+  "586": {
+    "speaker": "Jefferson Fisher",
+    "role": "guest"
+  },
+  "587": {
+    "speaker": "Jefferson Fisher",
+    "role": "guest"
+  },
+  "588": {
+    "speaker": "Jefferson Fisher",
+    "role": "guest"
+  },
+  "589": {
+    "speaker": "Jefferson Fisher",
+    "role": "guest"
+  },
+  "590": {
+    "speaker": "Jefferson Fisher",
+    "role": "guest"
+  },
+  "591": {
+    "speaker": "Jefferson Fisher",
+    "role": "guest"
+  },
+  "592": {
+    "speaker": "Jefferson Fisher",
+    "role": "guest"
+  },
+  "593": {
+    "speaker": "Jefferson Fisher",
+    "role": "guest"
+  },
+  "594": {
+    "speaker": "Jefferson Fisher",
+    "role": "guest"
+  },
+  "595": {
+    "speaker": "Jefferson Fisher",
+    "role": "guest"
+  },
+  "596": {
+    "speaker": "Jefferson Fisher",
+    "role": "guest"
+  },
+  "597": {
+    "speaker": "Jefferson Fisher",
+    "role": "guest"
+  },
+  "598": {
+    "speaker": "Jefferson Fisher",
+    "role": "guest"
+  },
+  "599": {
+    "speaker": "Jefferson Fisher",
+    "role": "guest"
+  },
+  "600": {
+    "speaker": "Jefferson Fisher",
+    "role": "guest"
+  },
+  "601": {
+    "speaker": "Jefferson Fisher",
+    "role": "guest"
+  },
+  "602": {
+    "speaker": "Jefferson Fisher",
+    "role": "guest"
+  },
+  "603": {
+    "speaker": "Jefferson Fisher",
+    "role": "guest"
+  },
+  "604": {
+    "speaker": "Jefferson Fisher",
+    "role": "guest"
+  },
+  "605": {
+    "speaker": "Steven Bartlett",
+    "role": "host"
+  },
+  "606": {
+    "speaker": "Jefferson Fisher",
+    "role": "guest"
+  },
+  "607": {
+    "speaker": "Steven Bartlett",
+    "role": "host"
+  },
+  "608": {
+    "speaker": "Steven Bartlett",
+    "role": "host"
+  },
+  "609": {
+    "speaker": "Steven Bartlett",
+    "role": "host"
+  },
+  "610": {
+    "speaker": "Jefferson Fisher",
+    "role": "guest"
+  },
+  "611": {
+    "speaker": "Steven Bartlett",
+    "role": "host"
+  },
+  "612": {
+    "speaker": "Jefferson Fisher",
+    "role": "guest"
+  },
+  "613": {
+    "speaker": "Steven Bartlett",
+    "role": "host"
+  },
+  "614": {
+    "speaker": "Jefferson Fisher",
+    "role": "guest"
+  },
+  "615": {
+    "speaker": "Steven Bartlett",
+    "role": "host"
+  },
+  "616": {
+    "speaker": "Steven Bartlett",
+    "role": "host"
+  },
+  "617": {
+    "speaker": "Jefferson Fisher",
+    "role": "guest"
+  },
+  "618": {
+    "speaker": "Jefferson Fisher",
+    "role": "guest"
+  },
+  "619": {
+    "speaker": "Jefferson Fisher",
+    "role": "guest"
+  },
+  "620": {
+    "speaker": "Jefferson Fisher",
+    "role": "guest"
+  },
+  "621": {
+    "speaker": "Steven Bartlett",
+    "role": "host"
+  },
+  "622": {
+    "speaker": "Jefferson Fisher",
+    "role": "guest"
+  },
+  "623": {
+    "speaker": "Jefferson Fisher",
+    "role": "guest"
+  },
+  "624": {
+    "speaker": "Steven Bartlett",
+    "role": "host"
+  },
+  "625": {
+    "speaker": "Jefferson Fisher",
+    "role": "guest"
+  },
+  "626": {
+    "speaker": "Steven Bartlett",
+    "role": "host"
+  },
+  "627": {
+    "speaker": "Jefferson Fisher",
+    "role": "guest"
+  },
+  "628": {
+    "speaker": "Steven Bartlett",
+    "role": "host"
+  },
+  "629": {
+    "speaker": "Jefferson Fisher",
+    "role": "guest"
+  },
+  "630": {
+    "speaker": "Steven Bartlett",
+    "role": "host"
+  },
+  "631": {
+    "speaker": "Jefferson Fisher",
+    "role": "guest"
+  },
+  "632": {
+    "speaker": "Steven Bartlett",
+    "role": "host"
+  },
+  "633": {
+    "speaker": "Jefferson Fisher",
+    "role": "guest"
+  },
+  "634": {
+    "speaker": "Jefferson Fisher",
+    "role": "guest"
+  },
+  "635": {
+    "speaker": "Steven Bartlett",
+    "role": "host"
+  },
+  "636": {
+    "speaker": "Jefferson Fisher",
+    "role": "guest"
+  },
+  "637": {
+    "speaker": "Jefferson Fisher",
+    "role": "guest"
+  },
+  "638": {
+    "speaker": "Jefferson Fisher",
+    "role": "guest"
+  },
+  "639": {
+    "speaker": "Jefferson Fisher",
+    "role": "guest"
+  },
+  "640": {
+    "speaker": "Jefferson Fisher",
+    "role": "guest"
+  },
+  "641": {
+    "speaker": "Steven Bartlett",
+    "role": "host"
+  },
+  "642": {
+    "speaker": "Jefferson Fisher",
+    "role": "guest"
+  },
+  "643": {
+    "speaker": "Steven Bartlett",
+    "role": "host"
+  },
+  "644": {
+    "speaker": "Jefferson Fisher",
+    "role": "guest"
+  },
+  "645": {
+    "speaker": "Steven Bartlett",
+    "role": "host"
+  },
+  "646": {
+    "speaker": "Jefferson Fisher",
+    "role": "guest"
+  },
+  "647": {
+    "speaker": "Steven Bartlett",
+    "role": "host"
+  },
+  "648": {
+    "speaker": "Jefferson Fisher",
+    "role": "guest"
+  },
+  "649": {
+    "speaker": "Steven Bartlett",
+    "role": "host"
+  },
+  "650": {
+    "speaker": "Jefferson Fisher",
+    "role": "guest"
+  },
+  "651": {
+    "speaker": "Steven Bartlett",
+    "role": "host"
+  },
+  "652": {
+    "speaker": "Jefferson Fisher",
+    "role": "guest"
+  },
+  "653": {
+    "speaker": "Steven Bartlett",
+    "role": "host"
+  },
+  "654": {
+    "speaker": "Jefferson Fisher",
+    "role": "guest"
+  },
+  "655": {
+    "speaker": "Steven Bartlett",
+    "role": "host"
+  },
+  "656": {
+    "speaker": "Jefferson Fisher",
+    "role": "guest"
+  },
+  "657": {
+    "speaker": "Steven Bartlett",
+    "role": "host"
+  },
+  "658": {
+    "speaker": "Jefferson Fisher",
+    "role": "guest"
+  },
+  "659": {
+    "speaker": "Steven Bartlett",
+    "role": "host"
+  },
+  "660": {
+    "speaker": "Jefferson Fisher",
+    "role": "guest"
+  },
+  "661": {
+    "speaker": "Steven Bartlett",
+    "role": "host"
+  },
+  "662": {
+    "speaker": "Jefferson Fisher",
+    "role": "guest"
+  },
+  "663": {
+    "speaker": "Steven Bartlett",
+    "role": "host"
+  },
+  "664": {
+    "speaker": "Jefferson Fisher",
+    "role": "guest"
+  },
+  "665": {
+    "speaker": "Steven Bartlett",
+    "role": "host"
+  },
+  "666": {
+    "speaker": "Jefferson Fisher",
+    "role": "guest"
+  },
+  "667": {
+    "speaker": "Steven Bartlett",
+    "role": "host"
+  },
+  "668": {
+    "speaker": "Jefferson Fisher",
+    "role": "guest"
+  },
+  "669": {
+    "speaker": "Steven Bartlett",
+    "role": "host"
+  },
+  "670": {
+    "speaker": "Jefferson Fisher",
+    "role": "guest"
+  },
+  "671": {
+    "speaker": "Steven Bartlett",
+    "role": "host"
+  },
+  "672": {
+    "speaker": "Jefferson Fisher",
+    "role": "guest"
+  },
+  "673": {
+    "speaker": "Steven Bartlett",
+    "role": "host"
+  },
+  "674": {
+    "speaker": "Jefferson Fisher",
+    "role": "guest"
+  },
+  "675": {
+    "speaker": "Steven Bartlett",
+    "role": "host"
+  },
+  "676": {
+    "speaker": "Jefferson Fisher",
+    "role": "guest"
+  },
+  "677": {
+    "speaker": "Steven Bartlett",
+    "role": "host"
+  },
+  "678": {
+    "speaker": "Jefferson Fisher",
+    "role": "guest"
+  },
+  "679": {
+    "speaker": "Steven Bartlett",
+    "role": "host"
+  },
+  "680": {
+    "speaker": "Jefferson Fisher",
+    "role": "guest"
+  },
+  "681": {
+    "speaker": "Steven Bartlett",
+    "role": "host"
+  },
+  "682": {
+    "speaker": "Jefferson Fisher",
+    "role": "guest"
+  },
+  "683": {
+    "speaker": "Steven Bartlett",
+    "role": "host"
+  },
+  "684": {
+    "speaker": "Jefferson Fisher",
+    "role": "guest"
+  },
+  "685": {
+    "speaker": "Steven Bartlett",
+    "role": "host"
+  },
+  "686": {
+    "speaker": "Jefferson Fisher",
+    "role": "guest"
+  },
+  "687": {
+    "speaker": "Steven Bartlett",
+    "role": "host"
+  },
+  "688": {
+    "speaker": "Jefferson Fisher",
+    "role": "guest"
+  },
+  "689": {
+    "speaker": "Steven Bartlett",
+    "role": "host"
+  },
+  "690": {
+    "speaker": "Jefferson Fisher",
+    "role": "guest"
+  },
+  "691": {
+    "speaker": "Steven Bartlett",
+    "role": "host"
+  },
+  "692": {
+    "speaker": "Jefferson Fisher",
+    "role": "guest"
+  },
+  "693": {
+    "speaker": "Steven Bartlett",
+    "role": "host"
+  },
+  "694": {
+    "speaker": "Jefferson Fisher",
+    "role": "guest"
+  },
+  "695": {
+    "speaker": "Steven Bartlett",
+    "role": "host"
+  },
+  "696": {
+    "speaker": "Jefferson Fisher",
+    "role": "guest"
+  },
+  "697": {
+    "speaker": "Steven Bartlett",
+    "role": "host"
+  },
+  "698": {
+    "speaker": "Jefferson Fisher",
+    "role": "guest"
+  },
+  "699": {
+    "speaker": "Steven Bartlett",
+    "role": "host"
+  },
+  "700": {
+    "speaker": "Jefferson Fisher",
+    "role": "guest"
+  },
+  "701": {
+    "speaker": "Jefferson Fisher",
+    "role": "guest"
+  },
+  "702": {
+    "speaker": "Jefferson Fisher",
+    "role": "guest"
+  },
+  "703": {
+    "speaker": "Jefferson Fisher",
+    "role": "guest"
+  },
+  "704": {
+    "speaker": "Jefferson Fisher",
+    "role": "guest"
+  },
+  "705": {
+    "speaker": "Jefferson Fisher",
+    "role": "guest"
+  },
+  "706": {
+    "speaker": "Jefferson Fisher",
+    "role": "guest"
+  },
+  "707": {
+    "speaker": "Jefferson Fisher",
+    "role": "guest"
+  },
+  "708": {
+    "speaker": "Jefferson Fisher",
+    "role": "guest"
+  },
+  "709": {
+    "speaker": "Jefferson Fisher",
+    "role": "guest"
+  },
+  "710": {
+    "speaker": "Jefferson Fisher",
+    "role": "guest"
+  },
+  "711": {
+    "speaker": "Steven Bartlett",
+    "role": "host"
+  },
+  "712": {
+    "speaker": "Jefferson Fisher",
+    "role": "guest"
+  },
+  "713": {
+    "speaker": "Steven Bartlett",
+    "role": "host"
+  },
+  "714": {
+    "speaker": "Jefferson Fisher",
+    "role": "guest"
+  },
+  "715": {
+    "speaker": "Jefferson Fisher",
+    "role": "guest"
+  },
+  "716": {
+    "speaker": "Steven Bartlett",
+    "role": "host"
+  },
+  "717": {
+    "speaker": "Jefferson Fisher",
+    "role": "guest"
+  },
+  "718": {
+    "speaker": "Jefferson Fisher",
+    "role": "guest"
+  },
+  "719": {
+    "speaker": "Jefferson Fisher",
+    "role": "guest"
+  },
+  "720": {
+    "speaker": "Jefferson Fisher",
+    "role": "guest"
+  },
+  "721": {
+    "speaker": "Jefferson Fisher",
+    "role": "guest"
+  },
+  "722": {
+    "speaker": "Jefferson Fisher",
+    "role": "guest"
+  },
+  "723": {
+    "speaker": "Steven Bartlett",
+    "role": "host"
+  },
+  "724": {
+    "speaker": "Steven Bartlett",
+    "role": "host"
+  },
+  "725": {
+    "speaker": "Jefferson Fisher",
+    "role": "guest"
+  },
+  "726": {
+    "speaker": "Jefferson Fisher",
+    "role": "guest"
+  },
+  "727": {
+    "speaker": "Jefferson Fisher",
+    "role": "guest"
+  },
+  "728": {
+    "speaker": "Steven Bartlett",
+    "role": "host"
+  },
+  "729": {
+    "speaker": "Jefferson Fisher",
+    "role": "guest"
+  },
+  "730": {
+    "speaker": "Jefferson Fisher",
+    "role": "guest"
+  },
+  "731": {
+    "speaker": "Jefferson Fisher",
+    "role": "guest"
+  },
+  "732": {
+    "speaker": "Jefferson Fisher",
+    "role": "guest"
+  },
+  "733": {
+    "speaker": "Jefferson Fisher",
+    "role": "guest"
+  },
+  "734": {
+    "speaker": "Jefferson Fisher",
+    "role": "guest"
+  },
+  "735": {
+    "speaker": "Jefferson Fisher",
+    "role": "guest"
+  },
+  "736": {
+    "speaker": "Jefferson Fisher",
+    "role": "guest"
+  },
+  "737": {
+    "speaker": "Jefferson Fisher",
+    "role": "guest"
+  },
+  "738": {
+    "speaker": "Jefferson Fisher",
+    "role": "guest"
+  },
+  "739": {
+    "speaker": "Jefferson Fisher",
+    "role": "guest"
+  },
+  "740": {
+    "speaker": "Jefferson Fisher",
+    "role": "guest"
+  },
+  "741": {
+    "speaker": "Jefferson Fisher",
+    "role": "guest"
+  },
+  "742": {
+    "speaker": "Steven Bartlett",
+    "role": "host"
+  },
+  "743": {
+    "speaker": "Jefferson Fisher",
+    "role": "guest"
+  },
+  "744": {
+    "speaker": "Jefferson Fisher",
+    "role": "guest"
+  },
+  "745": {
+    "speaker": "Jefferson Fisher",
+    "role": "guest"
+  },
+  "746": {
+    "speaker": "Jefferson Fisher",
+    "role": "guest"
+  },
+  "747": {
+    "speaker": "Jefferson Fisher",
+    "role": "guest"
+  },
+  "748": {
+    "speaker": "Jefferson Fisher",
+    "role": "guest"
+  },
+  "749": {
+    "speaker": "Jefferson Fisher",
+    "role": "guest"
+  },
+  "750": {
+    "speaker": "Jefferson Fisher",
+    "role": "guest"
+  },
+  "751": {
+    "speaker": "Jefferson Fisher",
+    "role": "guest"
+  },
+  "752": {
+    "speaker": "Jefferson Fisher",
+    "role": "guest"
+  },
+  "753": {
+    "speaker": "Jefferson Fisher",
+    "role": "guest"
+  },
+  "754": {
+    "speaker": "Jefferson Fisher",
+    "role": "guest"
+  },
+  "755": {
+    "speaker": "Jefferson Fisher",
+    "role": "guest"
+  },
+  "756": {
+    "speaker": "Jefferson Fisher",
+    "role": "guest"
+  },
+  "757": {
+    "speaker": "Jefferson Fisher",
+    "role": "guest"
+  },
+  "758": {
+    "speaker": "Jefferson Fisher",
+    "role": "guest"
+  },
+  "759": {
+    "speaker": "Jefferson Fisher",
+    "role": "guest"
+  },
+  "760": {
+    "speaker": "Jefferson Fisher",
+    "role": "guest"
+  },
+  "761": {
+    "speaker": "Steven Bartlett",
+    "role": "host"
+  },
+  "762": {
+    "speaker": "Steven Bartlett",
+    "role": "host"
+  },
+  "763": {
+    "speaker": "Jefferson Fisher",
+    "role": "guest"
+  },
+  "764": {
+    "speaker": "Jefferson Fisher",
+    "role": "guest"
+  },
+  "765": {
+    "speaker": "Jefferson Fisher",
+    "role": "guest"
+  },
+  "766": {
+    "speaker": "Jefferson Fisher",
+    "role": "guest"
+  },
+  "767": {
+    "speaker": "Jefferson Fisher",
+    "role": "guest"
+  },
+  "768": {
+    "speaker": "Jefferson Fisher",
+    "role": "guest"
+  },
+  "769": {
+    "speaker": "Jefferson Fisher",
+    "role": "guest"
+  },
+  "770": {
+    "speaker": "Jefferson Fisher",
+    "role": "guest"
+  },
+  "771": {
+    "speaker": "Jefferson Fisher",
+    "role": "guest"
+  },
+  "772": {
+    "speaker": "Jefferson Fisher",
+    "role": "guest"
+  },
+  "773": {
+    "speaker": "Jefferson Fisher",
+    "role": "guest"
+  },
+  "774": {
+    "speaker": "Jefferson Fisher",
+    "role": "guest"
+  },
+  "775": {
+    "speaker": "Jefferson Fisher",
+    "role": "guest"
+  },
+  "776": {
+    "speaker": "Jefferson Fisher",
+    "role": "guest"
+  },
+  "777": {
+    "speaker": "Jefferson Fisher",
+    "role": "guest"
+  },
+  "778": {
+    "speaker": "Jefferson Fisher",
+    "role": "guest"
+  },
+  "779": {
+    "speaker": "Jefferson Fisher",
+    "role": "guest"
+  },
+  "780": {
+    "speaker": "Jefferson Fisher",
+    "role": "guest"
+  },
+  "781": {
+    "speaker": "Jefferson Fisher",
+    "role": "guest"
+  },
+  "782": {
+    "speaker": "Jefferson Fisher",
+    "role": "guest"
+  },
+  "783": {
+    "speaker": "Jefferson Fisher",
+    "role": "guest"
+  },
+  "784": {
+    "speaker": "Jefferson Fisher",
+    "role": "guest"
+  },
+  "785": {
+    "speaker": "Jefferson Fisher",
+    "role": "guest"
+  },
+  "786": {
+    "speaker": "Jefferson Fisher",
+    "role": "guest"
+  },
+  "787": {
+    "speaker": "Jefferson Fisher",
+    "role": "guest"
+  },
+  "788": {
+    "speaker": "Jefferson Fisher",
+    "role": "guest"
+  },
+  "789": {
+    "speaker": "Jefferson Fisher",
+    "role": "guest"
+  },
+  "790": {
+    "speaker": "Jefferson Fisher",
+    "role": "guest"
+  },
+  "791": {
+    "speaker": "Jefferson Fisher",
+    "role": "guest"
+  },
+  "792": {
+    "speaker": "Jefferson Fisher",
+    "role": "guest"
+  },
+  "793": {
+    "speaker": "Jefferson Fisher",
+    "role": "guest"
+  },
+  "794": {
+    "speaker": "Jefferson Fisher",
+    "role": "guest"
+  },
+  "795": {
+    "speaker": "Jefferson Fisher",
+    "role": "guest"
+  },
+  "796": {
+    "speaker": "Jefferson Fisher",
+    "role": "guest"
+  },
+  "797": {
+    "speaker": "Steven Bartlett",
+    "role": "host"
+  },
+  "798": {
+    "speaker": "Steven Bartlett",
+    "role": "host"
+  },
+  "799": {
+    "speaker": "Steven Bartlett",
+    "role": "host"
+  },
+  "800": {
+    "speaker": "Jefferson Fisher",
+    "role": "guest"
+  },
+  "801": {
+    "speaker": "Jefferson Fisher",
+    "role": "guest"
+  },
+  "802": {
+    "speaker": "Jefferson Fisher",
+    "role": "guest"
+  },
+  "803": {
+    "speaker": "Jefferson Fisher",
+    "role": "guest"
+  },
+  "804": {
+    "speaker": "Jefferson Fisher",
+    "role": "guest"
+  },
+  "805": {
+    "speaker": "Jefferson Fisher",
+    "role": "guest"
+  },
+  "806": {
+    "speaker": "Steven Bartlett",
+    "role": "host"
+  },
+  "807": {
+    "speaker": "Jefferson Fisher",
+    "role": "guest"
+  },
+  "808": {
+    "speaker": "Jefferson Fisher",
+    "role": "guest"
+  },
+  "809": {
+    "speaker": "Jefferson Fisher",
+    "role": "guest"
+  },
+  "810": {
+    "speaker": "Jefferson Fisher",
+    "role": "guest"
+  },
+  "811": {
+    "speaker": "Steven Bartlett",
+    "role": "host"
+  },
+  "812": {
+    "speaker": "Jefferson Fisher",
+    "role": "guest"
+  },
+  "813": {
+    "speaker": "Jefferson Fisher",
+    "role": "guest"
+  },
+  "814": {
+    "speaker": "Jefferson Fisher",
+    "role": "guest"
+  },
+  "815": {
+    "speaker": "Jefferson Fisher",
+    "role": "guest"
+  },
+  "816": {
+    "speaker": "Jefferson Fisher",
+    "role": "guest"
+  },
+  "817": {
+    "speaker": "Jefferson Fisher",
+    "role": "guest"
+  },
+  "818": {
+    "speaker": "Jefferson Fisher",
+    "role": "guest"
+  },
+  "819": {
+    "speaker": "Jefferson Fisher",
+    "role": "guest"
+  },
+  "820": {
+    "speaker": "Jefferson Fisher",
+    "role": "guest"
+  },
+  "821": {
+    "speaker": "Jefferson Fisher",
+    "role": "guest"
+  },
+  "822": {
+    "speaker": "Jefferson Fisher",
+    "role": "guest"
+  },
+  "823": {
+    "speaker": "Jefferson Fisher",
+    "role": "guest"
+  },
+  "824": {
+    "speaker": "Jefferson Fisher",
+    "role": "guest"
+  },
+  "825": {
+    "speaker": "Jefferson Fisher",
+    "role": "guest"
+  },
+  "826": {
+    "speaker": "Jefferson Fisher",
+    "role": "guest"
+  },
+  "827": {
+    "speaker": "Jefferson Fisher",
+    "role": "guest"
+  },
+  "828": {
+    "speaker": "Jefferson Fisher",
+    "role": "guest"
+  },
+  "829": {
+    "speaker": "Jefferson Fisher",
+    "role": "guest"
+  },
+  "830": {
+    "speaker": "Jefferson Fisher",
+    "role": "guest"
+  },
+  "831": {
+    "speaker": "Jefferson Fisher",
+    "role": "guest"
+  },
+  "832": {
+    "speaker": "Jefferson Fisher",
+    "role": "guest"
+  },
+  "833": {
+    "speaker": "Jefferson Fisher",
+    "role": "guest"
+  },
+  "834": {
+    "speaker": "Jefferson Fisher",
+    "role": "guest"
+  },
+  "835": {
+    "speaker": "Jefferson Fisher",
+    "role": "guest"
+  },
+  "836": {
+    "speaker": "Jefferson Fisher",
+    "role": "guest"
+  },
+  "837": {
+    "speaker": "Jefferson Fisher",
+    "role": "guest"
+  },
+  "838": {
+    "speaker": "Jefferson Fisher",
+    "role": "guest"
+  },
+  "839": {
+    "speaker": "Steven Bartlett",
+    "role": "host"
+  },
+  "840": {
+    "speaker": "Steven Bartlett",
+    "role": "host"
+  },
+  "841": {
+    "speaker": "Jefferson Fisher",
+    "role": "guest"
+  },
+  "842": {
+    "speaker": "Jefferson Fisher",
+    "role": "guest"
+  },
+  "843": {
+    "speaker": "Jefferson Fisher",
+    "role": "guest"
+  },
+  "844": {
+    "speaker": "Jefferson Fisher",
+    "role": "guest"
+  },
+  "845": {
+    "speaker": "Jefferson Fisher",
+    "role": "guest"
+  },
+  "846": {
+    "speaker": "Jefferson Fisher",
+    "role": "guest"
+  },
+  "847": {
+    "speaker": "Jefferson Fisher",
+    "role": "guest"
+  },
+  "848": {
+    "speaker": "Steven Bartlett",
+    "role": "host"
+  },
+  "849": {
+    "speaker": "Steven Bartlett",
+    "role": "host"
+  },
+  "850": {
+    "speaker": "Steven Bartlett",
+    "role": "host"
+  },
+  "851": {
+    "speaker": "Steven Bartlett",
+    "role": "host"
+  },
+  "852": {
+    "speaker": "Steven Bartlett",
+    "role": "host"
+  },
+  "853": {
+    "speaker": "Steven Bartlett",
+    "role": "host"
+  },
+  "854": {
+    "speaker": "Steven Bartlett",
+    "role": "host"
+  },
+  "855": {
+    "speaker": "Steven Bartlett",
+    "role": "host"
+  },
+  "856": {
+    "speaker": "Steven Bartlett",
+    "role": "host"
+  },
+  "857": {
+    "speaker": "Steven Bartlett",
+    "role": "host"
+  },
+  "858": {
+    "speaker": "Steven Bartlett",
+    "role": "host"
+  },
+  "859": {
+    "speaker": "Steven Bartlett",
+    "role": "host"
+  },
+  "860": {
+    "speaker": "Steven Bartlett",
+    "role": "host"
+  },
+  "861": {
+    "speaker": "Steven Bartlett",
+    "role": "host"
+  },
+  "862": {
+    "speaker": "Steven Bartlett",
+    "role": "host"
+  },
+  "863": {
+    "speaker": "Steven Bartlett",
+    "role": "host"
+  },
+  "864": {
+    "speaker": "Jefferson Fisher",
+    "role": "guest"
+  },
+  "865": {
+    "speaker": "Jefferson Fisher",
+    "role": "guest"
+  },
+  "866": {
+    "speaker": "Jefferson Fisher",
+    "role": "guest"
+  },
+  "867": {
+    "speaker": "Jefferson Fisher",
+    "role": "guest"
+  },
+  "868": {
+    "speaker": "Jefferson Fisher",
+    "role": "guest"
+  },
+  "869": {
+    "speaker": "Jefferson Fisher",
+    "role": "guest"
+  },
+  "870": {
+    "speaker": "Jefferson Fisher",
+    "role": "guest"
+  },
+  "871": {
+    "speaker": "Jefferson Fisher",
+    "role": "guest"
+  },
+  "872": {
+    "speaker": "Jefferson Fisher",
+    "role": "guest"
+  },
+  "873": {
+    "speaker": "Jefferson Fisher",
+    "role": "guest"
+  },
+  "874": {
+    "speaker": "Jefferson Fisher",
+    "role": "guest"
+  },
+  "875": {
+    "speaker": "Jefferson Fisher",
+    "role": "guest"
+  },
+  "876": {
+    "speaker": "Jefferson Fisher",
+    "role": "guest"
+  },
+  "877": {
+    "speaker": "Jefferson Fisher",
+    "role": "guest"
+  },
+  "878": {
+    "speaker": "Jefferson Fisher",
+    "role": "guest"
+  },
+  "879": {
+    "speaker": "Jefferson Fisher",
+    "role": "guest"
+  },
+  "880": {
+    "speaker": "Jefferson Fisher",
+    "role": "guest"
+  },
+  "881": {
+    "speaker": "Jefferson Fisher",
+    "role": "guest"
+  },
+  "882": {
+    "speaker": "Jefferson Fisher",
+    "role": "guest"
+  },
+  "883": {
+    "speaker": "Jefferson Fisher",
+    "role": "guest"
+  },
+  "884": {
+    "speaker": "Jefferson Fisher",
+    "role": "guest"
+  },
+  "885": {
+    "speaker": "Jefferson Fisher",
+    "role": "guest"
+  },
+  "886": {
+    "speaker": "Jefferson Fisher",
+    "role": "guest"
+  },
+  "887": {
+    "speaker": "Jefferson Fisher",
+    "role": "guest"
+  },
+  "888": {
+    "speaker": "Jefferson Fisher",
+    "role": "guest"
+  },
+  "889": {
+    "speaker": "Jefferson Fisher",
+    "role": "guest"
+  },
+  "890": {
+    "speaker": "Jefferson Fisher",
+    "role": "guest"
+  },
+  "891": {
+    "speaker": "Jefferson Fisher",
+    "role": "guest"
+  },
+  "892": {
+    "speaker": "Jefferson Fisher",
+    "role": "guest"
+  },
+  "893": {
+    "speaker": "Jefferson Fisher",
+    "role": "guest"
+  },
+  "894": {
+    "speaker": "Jefferson Fisher",
+    "role": "guest"
+  },
+  "895": {
+    "speaker": "Jefferson Fisher",
+    "role": "guest"
+  },
+  "896": {
+    "speaker": "Jefferson Fisher",
+    "role": "guest"
+  },
+  "897": {
+    "speaker": "Steven Bartlett",
+    "role": "host"
+  },
+  "898": {
+    "speaker": "Steven Bartlett",
+    "role": "host"
+  },
+  "899": {
+    "speaker": "Steven Bartlett",
+    "role": "host"
+  },
+  "900": {
+    "speaker": "Steven Bartlett",
+    "role": "host"
+  },
+  "901": {
+    "speaker": "Jefferson Fisher",
+    "role": "guest"
+  },
+  "902": {
+    "speaker": "Jefferson Fisher",
+    "role": "guest"
+  },
+  "903": {
+    "speaker": "Jefferson Fisher",
+    "role": "guest"
+  },
+  "904": {
+    "speaker": "Steven Bartlett",
+    "role": "host"
+  },
+  "905": {
+    "speaker": "Jefferson Fisher",
+    "role": "guest"
+  },
+  "906": {
+    "speaker": "Steven Bartlett",
+    "role": "host"
+  },
+  "907": {
+    "speaker": "Jefferson Fisher",
+    "role": "guest"
+  },
+  "908": {
+    "speaker": "Jefferson Fisher",
+    "role": "guest"
+  },
+  "909": {
+    "speaker": "Jefferson Fisher",
+    "role": "guest"
+  },
+  "910": {
+    "speaker": "Jefferson Fisher",
+    "role": "guest"
+  },
+  "911": {
+    "speaker": "Jefferson Fisher",
+    "role": "guest"
+  },
+  "912": {
+    "speaker": "Jefferson Fisher",
+    "role": "guest"
+  },
+  "913": {
+    "speaker": "Jefferson Fisher",
+    "role": "guest"
+  },
+  "914": {
+    "speaker": "Steven Bartlett",
+    "role": "host"
+  },
+  "915": {
+    "speaker": "Jefferson Fisher",
+    "role": "guest"
+  },
+  "916": {
+    "speaker": "Jefferson Fisher",
+    "role": "guest"
+  },
+  "917": {
+    "speaker": "Jefferson Fisher",
+    "role": "guest"
+  },
+  "918": {
+    "speaker": "Jefferson Fisher",
+    "role": "guest"
+  },
+  "919": {
+    "speaker": "Steven Bartlett",
+    "role": "host"
+  },
+  "920": {
+    "speaker": "Jefferson Fisher",
+    "role": "guest"
+  },
+  "921": {
+    "speaker": "Jefferson Fisher",
+    "role": "guest"
+  },
+  "922": {
+    "speaker": "Jefferson Fisher",
+    "role": "guest"
+  },
+  "923": {
+    "speaker": "Jefferson Fisher",
+    "role": "guest"
+  },
+  "924": {
+    "speaker": "Jefferson Fisher",
+    "role": "guest"
+  },
+  "925": {
+    "speaker": "Jefferson Fisher",
+    "role": "guest"
+  },
+  "926": {
+    "speaker": "Jefferson Fisher",
+    "role": "guest"
+  },
+  "927": {
+    "speaker": "Jefferson Fisher",
+    "role": "guest"
+  },
+  "928": {
+    "speaker": "Jefferson Fisher",
+    "role": "guest"
+  },
+  "929": {
+    "speaker": "Jefferson Fisher",
+    "role": "guest"
+  },
+  "930": {
+    "speaker": "Jefferson Fisher",
+    "role": "guest"
+  },
+  "931": {
+    "speaker": "Jefferson Fisher",
+    "role": "guest"
+  },
+  "932": {
+    "speaker": "Jefferson Fisher",
+    "role": "guest"
+  },
+  "933": {
+    "speaker": "Jefferson Fisher",
+    "role": "guest"
+  },
+  "934": {
+    "speaker": "Steven Bartlett",
+    "role": "host"
+  },
+  "935": {
+    "speaker": "Jefferson Fisher",
+    "role": "guest"
+  },
+  "936": {
+    "speaker": "Jefferson Fisher",
+    "role": "guest"
+  },
+  "937": {
+    "speaker": "Jefferson Fisher",
+    "role": "guest"
+  },
+  "938": {
+    "speaker": "Jefferson Fisher",
+    "role": "guest"
+  },
+  "939": {
+    "speaker": "Jefferson Fisher",
+    "role": "guest"
+  },
+  "940": {
+    "speaker": "Jefferson Fisher",
+    "role": "guest"
+  },
+  "941": {
+    "speaker": "Jefferson Fisher",
+    "role": "guest"
+  },
+  "942": {
+    "speaker": "Jefferson Fisher",
+    "role": "guest"
+  },
+  "943": {
+    "speaker": "Jefferson Fisher",
+    "role": "guest"
+  },
+  "944": {
+    "speaker": "Jefferson Fisher",
+    "role": "guest"
+  },
+  "945": {
+    "speaker": "Jefferson Fisher",
+    "role": "guest"
+  },
+  "946": {
+    "speaker": "Steven Bartlett",
+    "role": "host"
+  },
+  "947": {
+    "speaker": "Jefferson Fisher",
+    "role": "guest"
+  },
+  "948": {
+    "speaker": "Steven Bartlett",
+    "role": "host"
+  },
+  "949": {
+    "speaker": "Jefferson Fisher",
+    "role": "guest"
+  },
+  "950": {
+    "speaker": "Jefferson Fisher",
+    "role": "guest"
+  },
+  "951": {
+    "speaker": "Jefferson Fisher",
+    "role": "guest"
+  },
+  "952": {
+    "speaker": "Jefferson Fisher",
+    "role": "guest"
+  },
+  "953": {
+    "speaker": "Jefferson Fisher",
+    "role": "guest"
+  },
+  "954": {
+    "speaker": "Jefferson Fisher",
+    "role": "guest"
+  },
+  "955": {
+    "speaker": "Jefferson Fisher",
+    "role": "guest"
+  },
+  "956": {
+    "speaker": "Jefferson Fisher",
+    "role": "guest"
+  },
+  "957": {
+    "speaker": "Jefferson Fisher",
+    "role": "guest"
+  },
+  "958": {
+    "speaker": "Steven Bartlett",
+    "role": "host"
+  },
+  "959": {
+    "speaker": "Jefferson Fisher",
+    "role": "guest"
+  },
+  "960": {
+    "speaker": "Jefferson Fisher",
+    "role": "guest"
+  },
+  "961": {
+    "speaker": "Jefferson Fisher",
+    "role": "guest"
+  },
+  "962": {
+    "speaker": "Jefferson Fisher",
+    "role": "guest"
+  },
+  "963": {
+    "speaker": "Steven Bartlett",
+    "role": "host"
+  },
+  "964": {
+    "speaker": "Jefferson Fisher",
+    "role": "guest"
+  },
+  "965": {
+    "speaker": "Jefferson Fisher",
+    "role": "guest"
+  },
+  "966": {
+    "speaker": "Steven Bartlett",
+    "role": "host"
+  },
+  "967": {
+    "speaker": "Jefferson Fisher",
+    "role": "guest"
+  },
+  "968": {
+    "speaker": "Jefferson Fisher",
+    "role": "guest"
+  },
+  "969": {
+    "speaker": "Jefferson Fisher",
+    "role": "guest"
+  },
+  "970": {
+    "speaker": "Jefferson Fisher",
+    "role": "guest"
+  },
+  "971": {
+    "speaker": "Jefferson Fisher",
+    "role": "guest"
+  },
+  "972": {
+    "speaker": "Jefferson Fisher",
+    "role": "guest"
+  },
+  "973": {
+    "speaker": "Steven Bartlett",
+    "role": "host"
+  },
+  "974": {
+    "speaker": "Steven Bartlett",
+    "role": "host"
+  },
+  "975": {
+    "speaker": "Jefferson Fisher",
+    "role": "guest"
+  },
+  "976": {
+    "speaker": "Jefferson Fisher",
+    "role": "guest"
+  },
+  "977": {
+    "speaker": "Jefferson Fisher",
+    "role": "guest"
+  },
+  "978": {
+    "speaker": "Jefferson Fisher",
+    "role": "guest"
+  },
+  "979": {
+    "speaker": "Steven Bartlett",
+    "role": "host"
+  },
+  "980": {
+    "speaker": "Jefferson Fisher",
+    "role": "guest"
+  },
+  "981": {
+    "speaker": "Jefferson Fisher",
+    "role": "guest"
+  },
+  "982": {
+    "speaker": "Jefferson Fisher",
+    "role": "guest"
+  },
+  "983": {
+    "speaker": "Jefferson Fisher",
+    "role": "guest"
+  },
+  "984": {
+    "speaker": "Steven Bartlett",
+    "role": "host"
+  },
+  "985": {
+    "speaker": "Unknown",
+    "role": "unknown"
+  },
+  "986": {
+    "speaker": "Unknown",
+    "role": "unknown"
+  },
+  "987": {
+    "speaker": "Unknown",
+    "role": "unknown"
+  },
+  "988": {
+    "speaker": "Unknown",
+    "role": "unknown"
+  }
+}
