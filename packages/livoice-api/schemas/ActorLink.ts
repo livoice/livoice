@@ -18,13 +18,12 @@ export default list({
     confidence: float(),
     detectionSource: select({ type: 'enum', options: DETECTION_SOURCE_OPTIONS }),
     verified: checkbox({ defaultValue: false }),
-    mentions: relationship({ ref: 'ActorMention.actorLink', many: true }),
     createdAt: timestamp({ defaultValue: { kind: 'now' }, ui: { createView: { fieldMode: 'hidden' } } })
   },
   ui: {
     labelField: 'linkType',
     listView: {
-      initialColumns: ['fromActor', 'toActor', 'linkType', 'confidence', 'mentions']
+      initialColumns: ['fromActor', 'toActor', 'linkType', 'confidence']
     }
   },
   access: {

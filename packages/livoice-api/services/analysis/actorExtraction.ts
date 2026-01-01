@@ -25,7 +25,6 @@ const buildActorExtractionPrompt = ({
 
 CHANNEL METADATA:
 - Name: ${channelName}
-- Description: The Diary of a CEO is a highly popular podcast hosted by British entrepreneur Steven Bartlett, featuring in-depth interviews with successful figures, exploring themes of business, mindset, health, and personal growth through raw, honest conversations. Launched in 2017, the show aims to share untold stories and actionable insights from top achievers, with video content available on YouTube and audio on platforms like Spotify, making it a leading voice in business and self-development.  
 
 VIDEO METADATA:
 - Title: ${title}

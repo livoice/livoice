@@ -205,7 +205,6 @@ input ActorLinkRelateToManyForCreateInput {
 type ActorMention {
   id: ID!
   actor: Actor
-  actorLink: ActorLink
   segment: TranscriptSegment
   transcript: Transcript
   source: Source
@@ -261,7 +260,6 @@ input ActorMentionWhereInput {
   NOT: [ActorMentionWhereInput!]
   id: IDFilter
   actor: ActorWhereInput
-  actorLink: ActorLinkWhereInput
   segment: TranscriptSegmentWhereInput
   transcript: TranscriptWhereInput
   source: SourceWhereInput
@@ -331,7 +329,6 @@ input ActorMentionOrderByInput {
 
 input ActorMentionUpdateInput {
   actor: ActorRelateToOneForUpdateInput
-  actorLink: ActorLinkRelateToOneForUpdateInput
   segment: TranscriptSegmentRelateToOneForUpdateInput
   transcript: TranscriptRelateToOneForUpdateInput
   source: SourceRelateToOneForUpdateInput
@@ -347,12 +344,6 @@ input ActorMentionUpdateInput {
 input ActorRelateToOneForUpdateInput {
   create: ActorCreateInput
   connect: ActorWhereUniqueInput
-  disconnect: Boolean
-}
-
-input ActorLinkRelateToOneForUpdateInput {
-  create: ActorLinkCreateInput
-  connect: ActorLinkWhereUniqueInput
   disconnect: Boolean
 }
 
@@ -381,7 +372,6 @@ input ActorMentionUpdateArgs {
 
 input ActorMentionCreateInput {
   actor: ActorRelateToOneForCreateInput
-  actorLink: ActorLinkRelateToOneForCreateInput
   segment: TranscriptSegmentRelateToOneForCreateInput
   transcript: TranscriptRelateToOneForCreateInput
   source: SourceRelateToOneForCreateInput
@@ -397,11 +387,6 @@ input ActorMentionCreateInput {
 input ActorRelateToOneForCreateInput {
   create: ActorCreateInput
   connect: ActorWhereUniqueInput
-}
-
-input ActorLinkRelateToOneForCreateInput {
-  create: ActorLinkCreateInput
-  connect: ActorLinkWhereUniqueInput
 }
 
 input TranscriptSegmentRelateToOneForCreateInput {
@@ -429,8 +414,6 @@ type ActorLink {
   confidence: Float
   detectionSource: ActorLinkDetectionSourceType
   verified: Boolean
-  mentions(where: ActorMentionWhereInput! = {}, orderBy: [ActorMentionOrderByInput!]! = [], take: Int, skip: Int! = 0, cursor: ActorMentionWhereUniqueInput): [ActorMention!]
-  mentionsCount(where: ActorMentionWhereInput! = {}): Int
   createdAt: DateTime
 }
 
@@ -455,7 +438,6 @@ input ActorLinkWhereInput {
   confidence: FloatNullableFilter
   detectionSource: ActorLinkDetectionSourceTypeNullableFilter
   verified: BooleanFilter
-  mentions: ActorMentionManyRelationFilter
   createdAt: DateTimeNullableFilter
 }
 
@@ -485,7 +467,6 @@ input ActorLinkUpdateInput {
   confidence: Float
   detectionSource: ActorLinkDetectionSourceType
   verified: Boolean
-  mentions: ActorMentionRelateToManyForUpdateInput
   createdAt: DateTime
 }
 
@@ -503,7 +484,6 @@ input ActorLinkCreateInput {
   confidence: Float
   detectionSource: ActorLinkDetectionSourceType
   verified: Boolean
-  mentions: ActorMentionRelateToManyForCreateInput
   createdAt: DateTime
 }
 

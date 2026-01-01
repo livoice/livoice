@@ -39,7 +39,6 @@ const DETECTION_SOURCE_OPTIONS = [
 export default list({
   fields: {
     actor: relationship({ ref: 'Actor.mentions', many: false }),
-    actorLink: relationship({ ref: 'ActorLink.mentions', many: false }),
     segment: relationship({ ref: 'TranscriptSegment', many: false }),
     transcript: relationship({ ref: 'Transcript', many: false }),
     source: relationship({ ref: 'Source', many: false }),
@@ -54,7 +53,7 @@ export default list({
   ui: {
     labelField: 'mentionType',
     listView: {
-      initialColumns: ['actor', 'actorLink', 'mentionType', 'transcript', 'segment', 'detectionSource']
+      initialColumns: ['actor', 'mentionType', 'transcript', 'segment', 'detectionSource']
     }
   },
   access: {

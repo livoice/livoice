@@ -32,8 +32,6 @@ model ActorMention {
   id              String                           @id @default(cuid())
   actor           Actor?                           @relation("ActorMention_actor", fields: [actorId], references: [id])
   actorId         String?                          @map("actor")
-  actorLink       ActorLink?                       @relation("ActorMention_actorLink", fields: [actorLinkId], references: [id])
-  actorLinkId     String?                          @map("actorLink")
   segment         TranscriptSegment?               @relation("ActorMention_segment", fields: [segmentId], references: [id])
   segmentId       String?                          @map("segment")
   transcript      Transcript?                      @relation("ActorMention_transcript", fields: [transcriptId], references: [id])
@@ -49,7 +47,6 @@ model ActorMention {
   createdAt       DateTime?                        @default(now())
 
   @@index([actorId])
-  @@index([actorLinkId])
   @@index([segmentId])
   @@index([transcriptId])
   @@index([sourceId])
@@ -67,7 +64,6 @@ model ActorLink {
   confidence      Float?
   detectionSource ActorLinkDetectionSourceType?
   verified        Boolean                       @default(false)
-  mentions        ActorMention[]                @relation("ActorMention_actorLink")
   createdAt       DateTime?                     @default(now())
 
   @@index([fromActorId])

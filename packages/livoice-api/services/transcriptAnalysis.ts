@@ -155,7 +155,6 @@ export const analyzeTranscript = async (transcriptId: string) => {
   );
   const mentions = await attributeMentions(segments, actorNames);
   console.log(`[analyzer] received ${mentions.length} mentions from attribution`);
-  console.log(mentions);
   await storeMentions(mentions, actorNameToId, segmentIndexToId, transcriptId, transcript.sourceId ?? '');
 
   await prisma.transcript.update({
