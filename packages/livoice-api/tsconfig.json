@@ -9,6 +9,9 @@
     "resolveJsonModule": true,
     "baseUrl": ".",
     "moduleResolution": "node",
+    "paths": {
+      "chrono-node": ["../../node_modules/chrono-node"]
+    },
     "jsx": "react-jsx",
     "jsxImportSource": "react"
   },

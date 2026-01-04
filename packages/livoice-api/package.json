@@ -28,6 +28,7 @@
     "@vvo/tzdb": "^6.190.0",
     "bottleneck": "^2.19.5",
     "bullmq": "^5.65.0",
+    "chrono-node": "^2.7.6",
     "cookie": "^1.0.2",
     "cron-parser": "^5.4.0",
     "date-fns": "^4.1.0",

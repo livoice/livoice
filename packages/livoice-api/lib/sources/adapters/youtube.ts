@@ -1,3 +1,5 @@
+import { parseDate as parseRelativeDate } from 'chrono-node';
+import { startOfDay } from 'date-fns';
 import path from 'path';
 import youtubeDlExec from 'youtube-dl-exec';
 import env from '../../../config/env';
@@ -5,20 +7,10 @@ import { TempFile } from '../../TempFile';
 import { SourceAdapter, SourceItem } from '../types';
 import { proxyFetch } from './utils/proxyFetch';
 import { secondsFromDuration } from './utils/secondsFromDuration';
+import type { YtDlpVideoInfo } from './youtubeTypes';
 
 type YoutubeModule = typeof import('youtubei.js');
 type YoutubeClient = Awaited<ReturnType<YoutubeModule['Innertube']['create']>>;
-
-interface YtDlpVideoInfo {
-  description?: string;
-  tags?: string[];
-  categories?: string[];
-  chapters?: Array<{
-    title?: string;
-    start_time?: number;
-    end_time?: number;
-  }>;
-}
 
 const getYoutubeClient = (() => {
   let clientPromise: Promise<YoutubeClient> | null = null;
@@ -68,13 +60,6 @@ const cloneVideos = (videos?: YoutubeVideoArray): YoutubeVideoArray => {
 const isYoutubeVideo = (node: unknown): node is YoutubeVideo =>
   typeof node === 'object' && node !== null && typeof (node as { id?: unknown }).id === 'string';
 
-const parsePublished = (published?: { text?: string }) => {
-  const text = published?.text;
-  if (!text) return null;
-  const parsed = new Date(text);
-  return Number.isNaN(parsed.getTime()) ? null : parsed;
-};
-
 const toVideoUrl = (videoId: string) => `https://www.youtube.com/watch?v=${videoId}`;
 
 const ytDlpBaseConfig = {
@@ -121,6 +106,7 @@ export const youtubeAdapter: SourceAdapter = {
     const videosTab = await channel.getVideos();
 
     const allVideos = await gatherVideos(videosTab);
+
     const normalized = allVideos.filter(isYoutubeVideo) as YoutubeVideo[];
 
     console.log(`[youtubeAdapter] listItems: fetched ${normalized.length} videos`);
@@ -130,7 +116,7 @@ export const youtubeAdapter: SourceAdapter = {
           externalId: video.id,
           title: video.title?.text ?? '',
           url: toVideoUrl(video.id),
-          publishedAt: parsePublished(video.published), // TODO: doesn't work
+          publishedAt: (parsed => (parsed ? startOfDay(parsed) : null))(parseRelativeDate(video.published?.text ?? '')),
           duration: secondsFromDuration(video.duration?.seconds ?? null),
           thumbnailUrl: video.best_thumbnail?.url ?? null,
           description: null,
@@ -154,6 +140,7 @@ export const youtubeAdapter: SourceAdapter = {
       const description = info.description ?? null;
       const tags = info.tags ?? [];
       const category = info.categories?.[0] ?? null;
+      const publishedAt = info.timestamp ? new Date(info.timestamp * 1000) : null;
       const chapters =
         info.chapters?.map(({ title, start_time, end_time }) => ({
           title: title ?? '',
@@ -162,10 +149,10 @@ export const youtubeAdapter: SourceAdapter = {
         })) ?? undefined;
 
       console.log(`[youtubeAdapter] fetchInfo: extracted info for ${itemExternalId}`);
-      return { description, category, tags, chapters };
+      return { description, category, tags, chapters, publishedAt };
     } catch (error) {
       console.error(`[youtubeAdapter] fetchInfo failed for ${itemExternalId}:`, error);
-      return { description: null, category: null, tags: [], chapters: undefined };
+      return { description: null, category: null, tags: [], chapters: undefined, publishedAt: null };
     }
   },
 
