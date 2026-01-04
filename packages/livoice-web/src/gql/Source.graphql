@@ -54,16 +54,6 @@ query Source($id: ID!) {
       embeddingCompletedPercentage
       overallPercentage
     }
-    transcripts {
-      id
-      title
-      createdAt
-      segmentsCount
-      speakerActors {
-        id
-        name
-      }
-    }
     projects {
       id
       name

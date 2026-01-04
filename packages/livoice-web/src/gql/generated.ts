@@ -2989,7 +2989,7 @@ export type SourceQueryVariables = Exact<{
 }>;
 
 
-export type SourceQuery = { __typename?: 'Query', source?: { __typename?: 'Source', id: string, type?: SourceTypeType | null, name?: string | null, url?: string | null, externalId?: string | null, importStatus?: SourceImportStatusType | null, importCronExpression?: string | null, importStartedAt?: any | null, importCompletedAt?: any | null, importHistory?: any | null, transcriptsCount?: number | null, transcriptImportProgress?: { __typename?: 'TranscriptImportProgress', total: number, pending: number, fetching: number, completed: number, failed: number, skipped: number, pendingPercentage: number, fetchingPercentage: number, completedPercentage: number, failedPercentage: number, skippedPercentage: number } | null, transcriptAnalysisProgress?: { __typename?: 'TranscriptAnalysisProgress', total: number, pending: number, processing: number, completed: number, failed: number, skipped: number, pendingPercentage: number, processingPercentage: number, completedPercentage: number, failedPercentage: number, skippedPercentage: number } | null, transcriptEmbeddingProgress?: { __typename?: 'TranscriptEmbeddingProgress', total: number, pending: number, processing: number, completed: number, failed: number, pendingPercentage: number, processingPercentage: number, completedPercentage: number, failedPercentage: number } | null, overallProgress?: { __typename?: 'OverallProgress', importCompletedPercentage: number, analysisCompletedPercentage: number, embeddingCompletedPercentage: number, overallPercentage: number } | null, transcripts?: Array<{ __typename?: 'Transcript', id: string, title?: string | null, createdAt?: any | null, segmentsCount?: number | null, speakerActors?: Array<{ __typename?: 'Actor', id: string, name?: string | null }> | null }> | null, projects?: Array<{ __typename?: 'Project', id: string, name?: string | null }> | null } | null };
+export type SourceQuery = { __typename?: 'Query', source?: { __typename?: 'Source', id: string, type?: SourceTypeType | null, name?: string | null, url?: string | null, externalId?: string | null, importStatus?: SourceImportStatusType | null, importCronExpression?: string | null, importStartedAt?: any | null, importCompletedAt?: any | null, importHistory?: any | null, transcriptsCount?: number | null, transcriptImportProgress?: { __typename?: 'TranscriptImportProgress', total: number, pending: number, fetching: number, completed: number, failed: number, skipped: number, pendingPercentage: number, fetchingPercentage: number, completedPercentage: number, failedPercentage: number, skippedPercentage: number } | null, transcriptAnalysisProgress?: { __typename?: 'TranscriptAnalysisProgress', total: number, pending: number, processing: number, completed: number, failed: number, skipped: number, pendingPercentage: number, processingPercentage: number, completedPercentage: number, failedPercentage: number, skippedPercentage: number } | null, transcriptEmbeddingProgress?: { __typename?: 'TranscriptEmbeddingProgress', total: number, pending: number, processing: number, completed: number, failed: number, pendingPercentage: number, processingPercentage: number, completedPercentage: number, failedPercentage: number } | null, overallProgress?: { __typename?: 'OverallProgress', importCompletedPercentage: number, analysisCompletedPercentage: number, embeddingCompletedPercentage: number, overallPercentage: number } | null, projects?: Array<{ __typename?: 'Project', id: string, name?: string | null }> | null } | null };
 
 export type SourcesQueryVariables = Exact<{ [key: string]: never; }>;
 
@@ -3911,16 +3911,6 @@ export const SourceDocument = gql`
       analysisCompletedPercentage
       embeddingCompletedPercentage
       overallPercentage
-    }
-    transcripts {
-      id
-      title
-      createdAt
-      segmentsCount
-      speakerActors {
-        id
-        name
-      }
     }
     projects {
       id
