@@ -468,10 +468,22 @@ function ConfigModalWindow({ open, onClose, onApply, configs, currentConfig }: C
                   <code className="bg-slate-100 px-1 rounded text-xs">{'{projectName}'}</code> - Project name
                 </li>
                 <li>
-                  <code className="bg-slate-100 px-1 rounded text-xs">{'{transcriptTitles}'}</code> - Transcript titles
+                  <code className="bg-slate-100 px-1 rounded text-xs">{'{transcriptTitles}'}</code> - Distinct transcript titles in the project
                 </li>
                 <li>
-                  <code className="bg-slate-100 px-1 rounded text-xs">{'{sourceNames}'}</code> - Source names
+                  <code className="bg-slate-100 px-1 rounded text-xs">{'{sourceNames}'}</code> - Distinct source names linked to the project
+                </li>
+                <li>
+                  <code className="bg-slate-100 px-1 rounded text-xs">{'{actorsSummary}'}</code> - Top mentioned actors with type and frequency
+                </li>
+                <li>
+                  <code className="bg-slate-100 px-1 rounded text-xs">{'{speakersSummary}'}</code> - Top speaker actors and how often they speak
+                </li>
+                <li>
+                  <code className="bg-slate-100 px-1 rounded text-xs">{'{dateRange}'}</code> - Earliest to latest published transcript date
+                </li>
+                <li>
+                  <code className="bg-slate-100 px-1 rounded text-xs">{'{totalTranscripts}'}</code> - Total transcripts in the project
                 </li>
               </ul>
             </div>

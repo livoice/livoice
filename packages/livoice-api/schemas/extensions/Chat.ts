@@ -7,9 +7,9 @@ import {
   MessageDebugData,
   SegmentReference,
   fetchChatHistory,
-  getSystemPromptReplacements,
   runChatConversation
 } from '../../services/chat';
+import { replaceSystemPromptPlaceholders } from '../../services/chat/systemPrompt';
 
 const ChatSegmentReference = g.object<SegmentReference>()({
   name: 'ChatSegmentReference',
@@ -297,15 +297,11 @@ const findLatestChat = async ({
 
   let resolvedSystemPrompt = '';
   if (storedSystemPrompt) {
-    const { projectName, transcriptTitles, sourceNames } = await getSystemPromptReplacements({
+    resolvedSystemPrompt = await replaceSystemPromptPlaceholders({
+      systemPrompt: storedSystemPrompt,
       context,
-      projectId,
-      systemPrompt: storedSystemPrompt
+      projectId
     });
-    resolvedSystemPrompt = storedSystemPrompt
-      .replace(/\{projectName\}/g, projectName)
-      .replace(/\{transcriptTitles\}/g, transcriptTitles.map(title => `- ${title}`).join(',\n'))
-      .replace(/\{sourceNames\}/g, sourceNames.map(title => `- ${title}`).join(',\n'));
   }
 
   return {
