@@ -120,7 +120,7 @@ export const youtubeAdapter: SourceAdapter = {
     const channel = await client.getChannel(channelId);
     const videosTab = await channel.getVideos();
 
-    const allVideos = (await gatherVideos(videosTab)).slice(0, 1);
+    const allVideos = await gatherVideos(videosTab);
     const normalized = allVideos.filter(isYoutubeVideo) as YoutubeVideo[];
 
     console.log(`[youtubeAdapter] listItems: fetched ${normalized.length} videos`);

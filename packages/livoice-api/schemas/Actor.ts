@@ -1,23 +1,17 @@
 import { type Lists } from '.keystone/types';
 import { list } from '@keystone-6/core';
 import { json, relationship, select, text, timestamp } from '@keystone-6/core/fields';
+import { ACTOR_TYPES } from '../domains/actors/constants';
 import { isAuthenticated, isGod } from '../domains/auth/userRole';
-
-const ACTOR_TYPES = [
-  { label: 'Person', value: 'person' },
-  { label: 'Organization', value: 'organization' },
-  { label: 'Product', value: 'product' },
-  { label: 'Event', value: 'event' },
-  { label: 'Topic', value: 'topic' },
-  { label: 'Location', value: 'location' },
-  { label: 'Brand', value: 'brand' },
-  { label: 'Book', value: 'book' }
-] as const;
 
 export default list({
   fields: {
     name: text({ validation: { isRequired: true } }),
-    type: select({ type: 'enum', options: ACTOR_TYPES, validation: { isRequired: true } }),
+    type: select({
+      type: 'enum',
+      options: ACTOR_TYPES.map(({ label, value }) => ({ label, value })),
+      validation: { isRequired: true }
+    }),
     description: text({ ui: { displayMode: 'textarea' } }),
     aliases: json(),
     externalIds: json(),

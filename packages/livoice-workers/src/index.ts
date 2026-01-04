@@ -1,6 +1,7 @@
 import 'livoice-api/config/env'; // Validate environment variables at startup (fail fast)
 import * as analyzer from './analyzer';
 import * as embedder from './embedder';
+import * as scheduler from './scheduler';
 import * as sourceImporter from './sourceImporter';
 import * as transcriptImporter from './transcriptImporter';
 
@@ -22,8 +23,8 @@ process.on('uncaughtException', error => {
 });
 
 const start = async () => {
-  // console.log('[workers] starting scheduler...');
-  // void scheduler.start();
+  console.log('[workers] starting scheduler...');
+  void scheduler.start();
 
   console.log('[workers] starting source importer...');
   void sourceImporter.start();

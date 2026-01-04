@@ -163,6 +163,12 @@ export const storeMentions = async (
 
   const prisma = await getPrismaSudo();
 
+  const transcript = await prisma.transcript.findUnique({ where: { id: transcriptId } });
+  if (!transcript) {
+    console.warn(`[storeMentions] transcript not found, skipping mentions write`, { transcriptId });
+    return 0;
+  }
+
   await prisma.actorMention.deleteMany({ where: { transcriptId, detectionSource: 'ai' } });
 
   const mentionData = mentions

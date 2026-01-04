@@ -43,3 +43,4 @@ ALTER TABLE "_Transcript_speakerActors" ADD CONSTRAINT "_Transcript_speakerActor
 -- AddForeignKey
 ALTER TABLE "_Transcript_speakerActors" ADD CONSTRAINT "_Transcript_speakerActors_B_fkey" FOREIGN KEY ("B") REFERENCES "Actor"("id") ON DELETE CASCADE ON UPDATE CASCADE;
 
+

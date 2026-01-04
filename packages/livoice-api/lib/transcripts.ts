@@ -37,8 +37,17 @@ const createTopicActorsFromMetadata = async ({ tags, category, transcriptId, sou
   const actorIds = await Promise.all(
     uniqueTopics.map(async topic => {
       const { id } =
-        (await prisma.actor.findFirst({ where: { name: topic, type: 'topic' } })) ||
-        (await prisma.actor.create({ data: { name: topic, type: 'topic' } }));
+        (await prisma.actor.findFirst({
+          where: {
+            // type: 'topic',
+            OR: [
+              { name: { equals: topic, mode: 'insensitive' } },
+              { aliases: { array_contains: [topic] } },
+              { aliases: { array_contains: [topic.toLowerCase()] } }
+            ]
+          }
+        })) || (await prisma.actor.create({ data: { name: topic, type: 'topic' } }));
+
       return id;
     })
   );
@@ -58,10 +67,7 @@ const createTopicActorsFromMetadata = async ({ tags, category, transcriptId, sou
 };
 
 export const updateTranscript = async (transcriptId: string, data: Prisma.TranscriptUpdateArgs['data']) =>
-  (await getPrismaSudo()).transcript.update({
-    where: { id: transcriptId },
-    data
-  });
+  (await getPrismaSudo()).transcript.update({ where: { id: transcriptId }, data });
 
 export const updateTranscriptStatus = async (
   transcript: Transcript,

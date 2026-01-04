@@ -1,5 +1,6 @@
-import type { Prisma } from '@prisma/client';
-import type { ActorExtractionResult, ExtractedRelationship } from '../../lib/analysis/types';
+import { ActorTypeType, type Prisma } from '@prisma/client';
+import { ACTOR_TYPES } from '../../domains/actors/constants';
+import type { ActorExtractionResult, ActorType, ExtractedRelationship } from '../../lib/analysis/types';
 import { SEED_LINK_TYPES } from '../../lib/analysis/types';
 import { chatCompletion, openAiModel } from '../../lib/openai';
 import { getPrismaSudo } from '../../lib/prisma';
@@ -12,6 +13,14 @@ type PromptParams = {
   description: string;
   speakers: string[];
   existingLinkTypes: string[];
+};
+
+const VALID_ACTOR_TYPES = Object.values(ActorTypeType) as ActorType[];
+
+const normalizeActorType = (type?: string | null): ActorTypeType => {
+  const normalized = type?.toLowerCase() ?? '';
+  const resolved = normalized as ActorType;
+  return (VALID_ACTOR_TYPES.includes(resolved) ? resolved : 'other') as ActorTypeType;
 };
 
 const buildActorExtractionPrompt = ({
@@ -36,13 +45,7 @@ ${transcriptText}
 
 TASK:
 1. Extract all actors mentioned in the transcript:
-   - person: Individual people
-   - organization: Companies, institutions
-   - product: Products, services, software
-   - event: Conferences, launches
-   - topic: Key themes, concepts
-   - location: Cities, countries
-   - brand: Brand names
+${ACTOR_TYPES.map(({ value, description }) => `   - ${value}: ${description}`).join('\n')}
 
 2. Extract relationships between actors.
    PREFERRED LINK TYPES (use these if applicable):
@@ -60,6 +63,7 @@ IMPORTANT:
 - DO NOT create actors with names like "unknown", "unknown speaker", "unidentified", or any variation. Skip any actor where you cannot determine their identity.
 - Only extract actors whose names can be confidently determined from context.
 - Confidence: 0.0-1.0 based on certainty
+- Always use English for the actor name. You can add original language to "aliases".
 
 OUTPUT:
 {
@@ -146,6 +150,11 @@ export const storeActors = async (result: ActorExtractionResult): Promise<Map<st
       const rawAliases = actor.aliases ?? [];
       const normalizedAliases = [...new Set(rawAliases.map(alias => normalizeName(alias)).filter(Boolean))];
       const searchAliases = [...new Set([...rawAliases, ...normalizedAliases].filter(Boolean))];
+      const actorType = normalizeActorType(actor.type);
+      const normalizedInputType = actor.type?.toLowerCase() ?? '';
+      if (actorType === ('other' as ActorTypeType) && normalizedInputType !== 'other') {
+        console.warn(`[actorExtraction] defaulting actor type to other`, { name: primaryName, type: actor.type });
+      }
 
       // Reuse already mapped actor in this batch by normalized name/aliases
       const existingMappedId =
@@ -159,7 +168,7 @@ export const storeActors = async (result: ActorExtractionResult): Promise<Map<st
 
       const existing = await prisma.actor.findFirst({
         where: {
-          type: actor.type,
+          type: actorType,
           name: { equals: primaryName, mode: 'insensitive' }
         }
       });
@@ -172,7 +181,7 @@ export const storeActors = async (result: ActorExtractionResult): Promise<Map<st
       const created = await prisma.actor.create({
         data: {
           name: primaryName,
-          type: actor.type,
+          type: actorType,
           description: actor.description,
           aliases: normalizedAliases
         }

@@ -3,3 +3,4 @@ ALTER TABLE "TranscriptSegment" DROP COLUMN IF EXISTS "speaker";
 
 
 
+

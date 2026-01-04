@@ -243,6 +243,7 @@ enum ActorTypeType {
   location
   brand
   book
+  other
 }
 
 enum ActorMentionMentionTypeType {

@@ -10,7 +10,7 @@ export type SpeakerMap = {
   speakers: Speaker[];
 };
 
-export type ActorType = 'person' | 'organization' | 'product' | 'event' | 'topic' | 'location' | 'brand' | 'book';
+export type ActorType = 'person' | 'organization' | 'product' | 'event' | 'topic' | 'location' | 'brand' | 'book' | 'other';
 
 export type ExtractedActor = {
   name: string;
