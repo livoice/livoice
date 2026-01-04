@@ -28,7 +28,7 @@ export const start = async () => {
   const queue = new PQueue();
 
   await runForever(async () => {
-    queue.concurrency = await flags.getNumber('workersAnalyzeProcessingConcurrency', 3);
+    queue.concurrency = await flags.getNumber('workersAnalyzerConcurrency', 3);
 
     const freeSlots = queue.concurrency - queue.size - queue.pending;
     if (freeSlots <= 0) return true;
