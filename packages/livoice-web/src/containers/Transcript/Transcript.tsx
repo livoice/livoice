@@ -22,6 +22,12 @@ const Transcript = () => {
     return new Date(transcript.createdAt).toLocaleDateString();
   }, [transcript?.createdAt]);
 
+  const speakerNames = useMemo(() => {
+    const names = transcript?.speakerActors?.map(({ name }) => name).filter(Boolean);
+    if (!names?.length) return '—';
+    return names.join(', ');
+  }, [transcript?.speakerActors]);
+
   if (loading) return <Card>{t('transcriptStatus.loading')}</Card>;
   if (error || !transcript) return <Card>{t('transcriptStatus.error')}</Card>;
 
@@ -47,7 +53,7 @@ const Transcript = () => {
             <div className="grid gap-4 sm:grid-cols-3">
               {[
                 { label: t('fields.date'), value: formattedDate || '—' },
-                { label: t('fields.interviewee'), value: transcript.intervieweeName ?? '—' },
+                { label: t('fields.interviewee'), value: speakerNames },
                 { label: t('fields.chunks'), value: chunkCount.toString() }
               ].map(stat => (
                 <div key={stat.label} className="rounded-2xl bg-white/10 px-4 py-3 text-sm shadow-inner">

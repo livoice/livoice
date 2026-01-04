@@ -43,9 +43,12 @@ query Source($id: ID!) {
     transcripts {
       id
       title
-      intervieweeName
       createdAt
       segmentsCount
+      speakerActors {
+        id
+        name
+      }
     }
     projects {
       id

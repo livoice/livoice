@@ -11,6 +11,12 @@ interface TranscriptTableProps {
 
 const dateFormatter = new Intl.DateTimeFormat(undefined, { dateStyle: 'medium' });
 
+const formatSpeakerNames = (speakerActors?: { name?: string | null }[] | null) => {
+  const names = (speakerActors ?? []).map(({ name }) => name).filter(Boolean);
+  if (!names.length) return '—';
+  return names.join(', ');
+};
+
 export const TranscriptTable = ({ transcripts = [] }: TranscriptTableProps) => {
   if (!transcripts.length)
     return (
@@ -43,7 +49,7 @@ export const TranscriptTable = ({ transcripts = [] }: TranscriptTableProps) => {
                 </Link>
                 <p className="text-xs text-slate-500">{transcript.notes || 'No notes yet'}</p>
               </td>
-              <td className="px-6 py-4 text-slate-600">{transcript.intervieweeName ?? '—'}</td>
+              <td className="px-6 py-4 text-slate-600">{formatSpeakerNames(transcript.speakerActors)}</td>
               <td className="px-6 py-4 text-slate-600">
                 {transcript.createdAt ? dateFormatter.format(new Date(transcript.createdAt)) : '—'}
               </td>

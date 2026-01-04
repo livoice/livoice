@@ -14,7 +14,6 @@ import { TextField } from '@/ui/text-field';
 
 type FormValues = {
   title: string;
-  intervieweeName: string;
   language: string;
   notes: string;
   srt: string;
@@ -22,7 +21,6 @@ type FormValues = {
 
 const defaultValues: FormValues = {
   title: '',
-  intervieweeName: '',
   language: '',
   notes: '',
   srt: ''
@@ -31,6 +29,12 @@ const defaultValues: FormValues = {
 export type ProjectTranscriptsProps = {
   projectId: string;
   projectName?: string | null;
+};
+
+const formatSpeakerNames = (speakerActors?: { name?: string | null }[] | null) => {
+  const names = (speakerActors ?? []).map(({ name }) => name).filter(Boolean);
+  if (!names.length) return '—';
+  return names.join(', ');
 };
 
 export default function ProjectTranscripts({ projectId, projectName }: ProjectTranscriptsProps) {
@@ -47,7 +51,6 @@ export default function ProjectTranscripts({ projectId, projectName }: ProjectTr
     () =>
       z.object({
         title: z.string().trim().min(1, t('errors.required')),
-        intervieweeName: z.string().trim().optional(),
         language: z.string().trim().optional(),
         notes: z.string().trim().optional(),
         srt: z.string().trim().min(1, t('errors.required'))
@@ -76,7 +79,6 @@ export default function ProjectTranscripts({ projectId, projectName }: ProjectTr
         input: {
           projectId,
           title: values.title.trim(),
-          intervieweeName: values.intervieweeName?.trim() || null,
           language: values.language?.trim() || null,
           notes: values.notes?.trim() || null,
           srt: values.srt
@@ -112,7 +114,7 @@ export default function ProjectTranscripts({ projectId, projectName }: ProjectTr
                   {t('fields.chunks')}: {transcript.segmentsCount ?? 0}
                 </span>
               </div>
-              <p className="text-sm text-slate-500">{transcript.intervieweeName || '—'}</p>
+            <p className="text-sm text-slate-500">{formatSpeakerNames(transcript.speakerActors)}</p>
               <p className="text-xs uppercase tracking-[0.3em] text-slate-400">
                 {new Date(transcript.createdAt ?? Date.now()).toLocaleDateString()}
               </p>
@@ -148,15 +150,6 @@ export default function ProjectTranscripts({ projectId, projectName }: ProjectTr
             render={({ field, fieldState }) => (
               <FormField label={t('projects.transcripts.ingest.fields.title')} error={fieldState.error?.message}>
                 <TextField {...field} placeholder={t('projects.transcripts.ingest.placeholders.title')} />
-              </FormField>
-            )}
-          />
-          <Controller
-            name="intervieweeName"
-            control={control}
-            render={({ field }) => (
-              <FormField label={t('projects.transcripts.ingest.fields.intervieweeName')}>
-                <TextField {...field} placeholder={t('projects.transcripts.ingest.placeholders.intervieweeName')} />
               </FormField>
             )}
           />

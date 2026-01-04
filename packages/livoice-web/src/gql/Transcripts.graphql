@@ -2,12 +2,15 @@ query Transcripts($sourceId: ID) {
   transcripts(where: { source: { id: { equals: $sourceId } } }) {
     id
     title
-    intervieweeName
     notes
     createdAt
     segmentsCount
     importStatus
     embeddingStatus
+    speakerActors {
+      id
+      name
+    }
     segmentEmbeddingProgress {
       total
       embedded

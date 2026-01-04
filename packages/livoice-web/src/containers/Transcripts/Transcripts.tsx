@@ -9,6 +9,12 @@ import { Card } from '@/ui';
 import { SummaryStat } from './components/SummaryStat';
 import { TranscriptGrid } from './components/TranscriptGrid';
 
+const getSpeakerNames = (speakerActors?: { name?: string | null }[] | null) =>
+  (speakerActors ?? [])
+    .map(({ name }) => name)
+    .filter(Boolean)
+    .join(', ');
+
 type TranscriptsProps = {
   sourceId?: string;
   projectId?: string;
@@ -35,7 +41,7 @@ const Transcripts = ({ sourceId, title, showSummary = true }: TranscriptsProps) 
 
     return transcripts.filter(transcript => {
       const haystack =
-        `${transcript.title ?? ''} ${transcript.notes ?? ''} ${transcript.intervieweeName ?? ''}`.toLowerCase();
+        `${transcript.title ?? ''} ${transcript.notes ?? ''} ${getSpeakerNames(transcript.speakerActors)}`.toLowerCase();
       return haystack.includes(normalized);
     });
   }, [searchValue, transcripts]);

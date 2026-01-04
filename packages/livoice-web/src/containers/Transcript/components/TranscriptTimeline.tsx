@@ -39,7 +39,7 @@ export const TranscriptTimeline = ({ chunks }: TranscriptTimelineProps) => {
         {sortedChunks.map(chunk => (
           <li key={chunk.id} className="rounded-2xl border border-slate-100 bg-slate-50/80 p-4 shadow-inner">
             <div className="flex flex-wrap items-center justify-between gap-2 text-xs font-semibold uppercase tracking-[0.2em] text-slate-400">
-              <span>{chunk.speaker ?? 'Speaker'}</span>
+              <span>{chunk.speakerActor?.name ?? 'Speaker'}</span>
               <div className="flex items-center gap-3 text-slate-500">
                 <span>{chunk.durationMs ? `${(chunk.durationMs / 1000).toFixed(1)}s` : '—'}</span>
                 <span>{formatTimestamp(chunk.startMs ?? undefined)}</span>

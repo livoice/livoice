@@ -2,9 +2,12 @@ query Transcript($id: ID!) {
   transcript(where: { id: $id }) {
     id
     title
-    intervieweeName
     notes
     createdAt
+    speakerActors {
+      id
+      name
+    }
     segmentEmbeddingProgress {
       total
       embedded
@@ -15,10 +18,14 @@ query Transcript($id: ID!) {
     segments {
       id
       text
-      speaker
+      speakerActor {
+        id
+        name
+      }
       startMs
       endMs
       durationMs
+      index
     }
   }
 }

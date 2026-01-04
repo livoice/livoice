@@ -7,8 +7,11 @@ query ProjectTranscripts($projectId: ID!) {
       transcripts {
         id
         title
-        intervieweeName
         createdAt
+        speakerActors {
+          id
+          name
+        }
       }
     }
   }

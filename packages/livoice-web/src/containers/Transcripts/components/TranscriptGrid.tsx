@@ -5,6 +5,12 @@ import { toTranscript } from '@/services/linker';
 
 const dateFormatter = new Intl.DateTimeFormat(undefined, { dateStyle: 'medium' });
 
+const formatSpeakerNames = (speakerActors?: { name?: string | null }[] | null) => {
+  const names = (speakerActors ?? []).map(({ name }) => name).filter(Boolean);
+  if (!names.length) return 'Unknown speaker';
+  return names.join(', ');
+};
+
 type TranscriptGridProps = {
   transcripts: NonNullable<TranscriptsQuery['transcripts']>;
   sourceId?: string;
@@ -41,7 +47,7 @@ export const TranscriptGrid = ({ transcripts, sourceId }: TranscriptGridProps) =
             </div>
             <div className="flex flex-wrap items-center gap-4 text-xs">
               <span className="rounded-full bg-slate-100 px-3 py-1 font-semibold text-slate-700">
-                {transcript.intervieweeName || 'Unknown speaker'}
+                {formatSpeakerNames(transcript.speakerActors)}
               </span>
               {transcript.importStatus && (
                 <span

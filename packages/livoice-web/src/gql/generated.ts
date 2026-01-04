@@ -22,6 +22,482 @@ export type Scalars = {
   Upload: { input: any; output: any; }
 };
 
+export type Actor = {
+  __typename?: 'Actor';
+  aliases?: Maybe<Scalars['JSON']['output']>;
+  createdAt?: Maybe<Scalars['DateTime']['output']>;
+  description?: Maybe<Scalars['String']['output']>;
+  externalIds?: Maybe<Scalars['JSON']['output']>;
+  id: Scalars['ID']['output'];
+  imageUrl?: Maybe<Scalars['String']['output']>;
+  mentions?: Maybe<Array<ActorMention>>;
+  mentionsCount?: Maybe<Scalars['Int']['output']>;
+  metadata?: Maybe<Scalars['JSON']['output']>;
+  name?: Maybe<Scalars['String']['output']>;
+  relatedFrom?: Maybe<Array<ActorLink>>;
+  relatedFromCount?: Maybe<Scalars['Int']['output']>;
+  relatesTo?: Maybe<Array<ActorLink>>;
+  relatesToCount?: Maybe<Scalars['Int']['output']>;
+  speakerSources?: Maybe<Array<Source>>;
+  speakerSourcesCount?: Maybe<Scalars['Int']['output']>;
+  speakerTranscripts?: Maybe<Array<Transcript>>;
+  speakerTranscriptsCount?: Maybe<Scalars['Int']['output']>;
+  type?: Maybe<ActorTypeType>;
+  updatedAt?: Maybe<Scalars['DateTime']['output']>;
+};
+
+
+export type ActorMentionsArgs = {
+  cursor?: InputMaybe<ActorMentionWhereUniqueInput>;
+  orderBy?: Array<ActorMentionOrderByInput>;
+  skip?: Scalars['Int']['input'];
+  take?: InputMaybe<Scalars['Int']['input']>;
+  where?: ActorMentionWhereInput;
+};
+
+
+export type ActorMentionsCountArgs = {
+  where?: ActorMentionWhereInput;
+};
+
+
+export type ActorRelatedFromArgs = {
+  cursor?: InputMaybe<ActorLinkWhereUniqueInput>;
+  orderBy?: Array<ActorLinkOrderByInput>;
+  skip?: Scalars['Int']['input'];
+  take?: InputMaybe<Scalars['Int']['input']>;
+  where?: ActorLinkWhereInput;
+};
+
+
+export type ActorRelatedFromCountArgs = {
+  where?: ActorLinkWhereInput;
+};
+
+
+export type ActorRelatesToArgs = {
+  cursor?: InputMaybe<ActorLinkWhereUniqueInput>;
+  orderBy?: Array<ActorLinkOrderByInput>;
+  skip?: Scalars['Int']['input'];
+  take?: InputMaybe<Scalars['Int']['input']>;
+  where?: ActorLinkWhereInput;
+};
+
+
+export type ActorRelatesToCountArgs = {
+  where?: ActorLinkWhereInput;
+};
+
+
+export type ActorSpeakerSourcesArgs = {
+  cursor?: InputMaybe<SourceWhereUniqueInput>;
+  orderBy?: Array<SourceOrderByInput>;
+  skip?: Scalars['Int']['input'];
+  take?: InputMaybe<Scalars['Int']['input']>;
+  where?: SourceWhereInput;
+};
+
+
+export type ActorSpeakerSourcesCountArgs = {
+  where?: SourceWhereInput;
+};
+
+
+export type ActorSpeakerTranscriptsArgs = {
+  cursor?: InputMaybe<TranscriptWhereUniqueInput>;
+  orderBy?: Array<TranscriptOrderByInput>;
+  skip?: Scalars['Int']['input'];
+  take?: InputMaybe<Scalars['Int']['input']>;
+  where?: TranscriptWhereInput;
+};
+
+
+export type ActorSpeakerTranscriptsCountArgs = {
+  where?: TranscriptWhereInput;
+};
+
+export type ActorCreateInput = {
+  aliases?: InputMaybe<Scalars['JSON']['input']>;
+  createdAt?: InputMaybe<Scalars['DateTime']['input']>;
+  description?: InputMaybe<Scalars['String']['input']>;
+  externalIds?: InputMaybe<Scalars['JSON']['input']>;
+  imageUrl?: InputMaybe<Scalars['String']['input']>;
+  mentions?: InputMaybe<ActorMentionRelateToManyForCreateInput>;
+  metadata?: InputMaybe<Scalars['JSON']['input']>;
+  name?: InputMaybe<Scalars['String']['input']>;
+  relatedFrom?: InputMaybe<ActorLinkRelateToManyForCreateInput>;
+  relatesTo?: InputMaybe<ActorLinkRelateToManyForCreateInput>;
+  speakerSources?: InputMaybe<SourceRelateToManyForCreateInput>;
+  speakerTranscripts?: InputMaybe<TranscriptRelateToManyForCreateInput>;
+  type?: InputMaybe<ActorTypeType>;
+  updatedAt?: InputMaybe<Scalars['DateTime']['input']>;
+};
+
+export type ActorLink = {
+  __typename?: 'ActorLink';
+  confidence?: Maybe<Scalars['Float']['output']>;
+  createdAt?: Maybe<Scalars['DateTime']['output']>;
+  detectionSource?: Maybe<ActorLinkDetectionSourceType>;
+  fromActor?: Maybe<Actor>;
+  id: Scalars['ID']['output'];
+  linkType?: Maybe<Scalars['String']['output']>;
+  metadata?: Maybe<Scalars['JSON']['output']>;
+  role?: Maybe<Scalars['String']['output']>;
+  toActor?: Maybe<Actor>;
+  verified?: Maybe<Scalars['Boolean']['output']>;
+};
+
+export type ActorLinkCreateInput = {
+  confidence?: InputMaybe<Scalars['Float']['input']>;
+  createdAt?: InputMaybe<Scalars['DateTime']['input']>;
+  detectionSource?: InputMaybe<ActorLinkDetectionSourceType>;
+  fromActor?: InputMaybe<ActorRelateToOneForCreateInput>;
+  linkType?: InputMaybe<Scalars['String']['input']>;
+  metadata?: InputMaybe<Scalars['JSON']['input']>;
+  role?: InputMaybe<Scalars['String']['input']>;
+  toActor?: InputMaybe<ActorRelateToOneForCreateInput>;
+  verified?: InputMaybe<Scalars['Boolean']['input']>;
+};
+
+export enum ActorLinkDetectionSourceType {
+  Ai = 'ai',
+  Youtube = 'youtube'
+}
+
+export type ActorLinkDetectionSourceTypeNullableFilter = {
+  equals?: InputMaybe<ActorLinkDetectionSourceType>;
+  in?: InputMaybe<Array<ActorLinkDetectionSourceType>>;
+  not?: InputMaybe<ActorLinkDetectionSourceTypeNullableFilter>;
+  notIn?: InputMaybe<Array<ActorLinkDetectionSourceType>>;
+};
+
+export type ActorLinkManyRelationFilter = {
+  every?: InputMaybe<ActorLinkWhereInput>;
+  none?: InputMaybe<ActorLinkWhereInput>;
+  some?: InputMaybe<ActorLinkWhereInput>;
+};
+
+export type ActorLinkOrderByInput = {
+  confidence?: InputMaybe<OrderDirection>;
+  createdAt?: InputMaybe<OrderDirection>;
+  detectionSource?: InputMaybe<OrderDirection>;
+  id?: InputMaybe<OrderDirection>;
+  linkType?: InputMaybe<OrderDirection>;
+  role?: InputMaybe<OrderDirection>;
+  verified?: InputMaybe<OrderDirection>;
+};
+
+export type ActorLinkRelateToManyForCreateInput = {
+  connect?: InputMaybe<Array<ActorLinkWhereUniqueInput>>;
+  create?: InputMaybe<Array<ActorLinkCreateInput>>;
+};
+
+export type ActorLinkRelateToManyForUpdateInput = {
+  connect?: InputMaybe<Array<ActorLinkWhereUniqueInput>>;
+  create?: InputMaybe<Array<ActorLinkCreateInput>>;
+  disconnect?: InputMaybe<Array<ActorLinkWhereUniqueInput>>;
+  set?: InputMaybe<Array<ActorLinkWhereUniqueInput>>;
+};
+
+export type ActorLinkUpdateArgs = {
+  data: ActorLinkUpdateInput;
+  where: ActorLinkWhereUniqueInput;
+};
+
+export type ActorLinkUpdateInput = {
+  confidence?: InputMaybe<Scalars['Float']['input']>;
+  createdAt?: InputMaybe<Scalars['DateTime']['input']>;
+  detectionSource?: InputMaybe<ActorLinkDetectionSourceType>;
+  fromActor?: InputMaybe<ActorRelateToOneForUpdateInput>;
+  linkType?: InputMaybe<Scalars['String']['input']>;
+  metadata?: InputMaybe<Scalars['JSON']['input']>;
+  role?: InputMaybe<Scalars['String']['input']>;
+  toActor?: InputMaybe<ActorRelateToOneForUpdateInput>;
+  verified?: InputMaybe<Scalars['Boolean']['input']>;
+};
+
+export type ActorLinkWhereInput = {
+  AND?: InputMaybe<Array<ActorLinkWhereInput>>;
+  NOT?: InputMaybe<Array<ActorLinkWhereInput>>;
+  OR?: InputMaybe<Array<ActorLinkWhereInput>>;
+  confidence?: InputMaybe<FloatNullableFilter>;
+  createdAt?: InputMaybe<DateTimeNullableFilter>;
+  detectionSource?: InputMaybe<ActorLinkDetectionSourceTypeNullableFilter>;
+  fromActor?: InputMaybe<ActorWhereInput>;
+  id?: InputMaybe<IdFilter>;
+  linkType?: InputMaybe<StringFilter>;
+  role?: InputMaybe<StringFilter>;
+  toActor?: InputMaybe<ActorWhereInput>;
+  verified?: InputMaybe<BooleanFilter>;
+};
+
+export type ActorLinkWhereUniqueInput = {
+  id?: InputMaybe<Scalars['ID']['input']>;
+};
+
+export type ActorManyRelationFilter = {
+  every?: InputMaybe<ActorWhereInput>;
+  none?: InputMaybe<ActorWhereInput>;
+  some?: InputMaybe<ActorWhereInput>;
+};
+
+export type ActorMention = {
+  __typename?: 'ActorMention';
+  actor?: Maybe<Actor>;
+  confidence?: Maybe<Scalars['Float']['output']>;
+  createdAt?: Maybe<Scalars['DateTime']['output']>;
+  detectionSource?: Maybe<ActorMentionDetectionSourceType>;
+  emotion?: Maybe<ActorMentionEmotionType>;
+  id: Scalars['ID']['output'];
+  mentionType?: Maybe<ActorMentionMentionTypeType>;
+  segment?: Maybe<TranscriptSegment>;
+  sentiment?: Maybe<ActorMentionSentimentType>;
+  source?: Maybe<Source>;
+  transcript?: Maybe<Transcript>;
+  verified?: Maybe<Scalars['Boolean']['output']>;
+};
+
+export type ActorMentionCreateInput = {
+  actor?: InputMaybe<ActorRelateToOneForCreateInput>;
+  confidence?: InputMaybe<Scalars['Float']['input']>;
+  createdAt?: InputMaybe<Scalars['DateTime']['input']>;
+  detectionSource?: InputMaybe<ActorMentionDetectionSourceType>;
+  emotion?: InputMaybe<ActorMentionEmotionType>;
+  mentionType?: InputMaybe<ActorMentionMentionTypeType>;
+  segment?: InputMaybe<TranscriptSegmentRelateToOneForCreateInput>;
+  sentiment?: InputMaybe<ActorMentionSentimentType>;
+  source?: InputMaybe<SourceRelateToOneForCreateInput>;
+  transcript?: InputMaybe<TranscriptRelateToOneForCreateInput>;
+  verified?: InputMaybe<Scalars['Boolean']['input']>;
+};
+
+export enum ActorMentionDetectionSourceType {
+  Ai = 'ai',
+  Youtube = 'youtube'
+}
+
+export type ActorMentionDetectionSourceTypeNullableFilter = {
+  equals?: InputMaybe<ActorMentionDetectionSourceType>;
+  in?: InputMaybe<Array<ActorMentionDetectionSourceType>>;
+  not?: InputMaybe<ActorMentionDetectionSourceTypeNullableFilter>;
+  notIn?: InputMaybe<Array<ActorMentionDetectionSourceType>>;
+};
+
+export enum ActorMentionEmotionType {
+  Angry = 'angry',
+  Confident = 'confident',
+  Excited = 'excited',
+  Frustrated = 'frustrated',
+  Happy = 'happy',
+  Neutral = 'neutral',
+  Sad = 'sad',
+  Stressed = 'stressed',
+  Uncertain = 'uncertain'
+}
+
+export type ActorMentionEmotionTypeNullableFilter = {
+  equals?: InputMaybe<ActorMentionEmotionType>;
+  in?: InputMaybe<Array<ActorMentionEmotionType>>;
+  not?: InputMaybe<ActorMentionEmotionTypeNullableFilter>;
+  notIn?: InputMaybe<Array<ActorMentionEmotionType>>;
+};
+
+export type ActorMentionManyRelationFilter = {
+  every?: InputMaybe<ActorMentionWhereInput>;
+  none?: InputMaybe<ActorMentionWhereInput>;
+  some?: InputMaybe<ActorMentionWhereInput>;
+};
+
+export enum ActorMentionMentionTypeType {
+  ChannelOwner = 'channel_owner',
+  Guest = 'guest',
+  Host = 'host',
+  Mentioned = 'mentioned',
+  Speaker = 'speaker',
+  Sponsor = 'sponsor',
+  Topic = 'topic'
+}
+
+export type ActorMentionMentionTypeTypeNullableFilter = {
+  equals?: InputMaybe<ActorMentionMentionTypeType>;
+  in?: InputMaybe<Array<ActorMentionMentionTypeType>>;
+  not?: InputMaybe<ActorMentionMentionTypeTypeNullableFilter>;
+  notIn?: InputMaybe<Array<ActorMentionMentionTypeType>>;
+};
+
+export type ActorMentionOrderByInput = {
+  confidence?: InputMaybe<OrderDirection>;
+  createdAt?: InputMaybe<OrderDirection>;
+  detectionSource?: InputMaybe<OrderDirection>;
+  emotion?: InputMaybe<OrderDirection>;
+  id?: InputMaybe<OrderDirection>;
+  mentionType?: InputMaybe<OrderDirection>;
+  sentiment?: InputMaybe<OrderDirection>;
+  verified?: InputMaybe<OrderDirection>;
+};
+
+export type ActorMentionRelateToManyForCreateInput = {
+  connect?: InputMaybe<Array<ActorMentionWhereUniqueInput>>;
+  create?: InputMaybe<Array<ActorMentionCreateInput>>;
+};
+
+export type ActorMentionRelateToManyForUpdateInput = {
+  connect?: InputMaybe<Array<ActorMentionWhereUniqueInput>>;
+  create?: InputMaybe<Array<ActorMentionCreateInput>>;
+  disconnect?: InputMaybe<Array<ActorMentionWhereUniqueInput>>;
+  set?: InputMaybe<Array<ActorMentionWhereUniqueInput>>;
+};
+
+export enum ActorMentionSentimentType {
+  Negative = 'negative',
+  Neutral = 'neutral',
+  Positive = 'positive'
+}
+
+export type ActorMentionSentimentTypeNullableFilter = {
+  equals?: InputMaybe<ActorMentionSentimentType>;
+  in?: InputMaybe<Array<ActorMentionSentimentType>>;
+  not?: InputMaybe<ActorMentionSentimentTypeNullableFilter>;
+  notIn?: InputMaybe<Array<ActorMentionSentimentType>>;
+};
+
+export type ActorMentionUpdateArgs = {
+  data: ActorMentionUpdateInput;
+  where: ActorMentionWhereUniqueInput;
+};
+
+export type ActorMentionUpdateInput = {
+  actor?: InputMaybe<ActorRelateToOneForUpdateInput>;
+  confidence?: InputMaybe<Scalars['Float']['input']>;
+  createdAt?: InputMaybe<Scalars['DateTime']['input']>;
+  detectionSource?: InputMaybe<ActorMentionDetectionSourceType>;
+  emotion?: InputMaybe<ActorMentionEmotionType>;
+  mentionType?: InputMaybe<ActorMentionMentionTypeType>;
+  segment?: InputMaybe<TranscriptSegmentRelateToOneForUpdateInput>;
+  sentiment?: InputMaybe<ActorMentionSentimentType>;
+  source?: InputMaybe<SourceRelateToOneForUpdateInput>;
+  transcript?: InputMaybe<TranscriptRelateToOneForUpdateInput>;
+  verified?: InputMaybe<Scalars['Boolean']['input']>;
+};
+
+export type ActorMentionWhereInput = {
+  AND?: InputMaybe<Array<ActorMentionWhereInput>>;
+  NOT?: InputMaybe<Array<ActorMentionWhereInput>>;
+  OR?: InputMaybe<Array<ActorMentionWhereInput>>;
+  actor?: InputMaybe<ActorWhereInput>;
+  confidence?: InputMaybe<FloatNullableFilter>;
+  createdAt?: InputMaybe<DateTimeNullableFilter>;
+  detectionSource?: InputMaybe<ActorMentionDetectionSourceTypeNullableFilter>;
+  emotion?: InputMaybe<ActorMentionEmotionTypeNullableFilter>;
+  id?: InputMaybe<IdFilter>;
+  mentionType?: InputMaybe<ActorMentionMentionTypeTypeNullableFilter>;
+  segment?: InputMaybe<TranscriptSegmentWhereInput>;
+  sentiment?: InputMaybe<ActorMentionSentimentTypeNullableFilter>;
+  source?: InputMaybe<SourceWhereInput>;
+  transcript?: InputMaybe<TranscriptWhereInput>;
+  verified?: InputMaybe<BooleanFilter>;
+};
+
+export type ActorMentionWhereUniqueInput = {
+  id?: InputMaybe<Scalars['ID']['input']>;
+};
+
+export type ActorOrderByInput = {
+  createdAt?: InputMaybe<OrderDirection>;
+  description?: InputMaybe<OrderDirection>;
+  id?: InputMaybe<OrderDirection>;
+  imageUrl?: InputMaybe<OrderDirection>;
+  name?: InputMaybe<OrderDirection>;
+  type?: InputMaybe<OrderDirection>;
+  updatedAt?: InputMaybe<OrderDirection>;
+};
+
+export type ActorRelateToManyForCreateInput = {
+  connect?: InputMaybe<Array<ActorWhereUniqueInput>>;
+  create?: InputMaybe<Array<ActorCreateInput>>;
+};
+
+export type ActorRelateToManyForUpdateInput = {
+  connect?: InputMaybe<Array<ActorWhereUniqueInput>>;
+  create?: InputMaybe<Array<ActorCreateInput>>;
+  disconnect?: InputMaybe<Array<ActorWhereUniqueInput>>;
+  set?: InputMaybe<Array<ActorWhereUniqueInput>>;
+};
+
+export type ActorRelateToOneForCreateInput = {
+  connect?: InputMaybe<ActorWhereUniqueInput>;
+  create?: InputMaybe<ActorCreateInput>;
+};
+
+export type ActorRelateToOneForUpdateInput = {
+  connect?: InputMaybe<ActorWhereUniqueInput>;
+  create?: InputMaybe<ActorCreateInput>;
+  disconnect?: InputMaybe<Scalars['Boolean']['input']>;
+};
+
+export enum ActorTypeType {
+  Book = 'book',
+  Brand = 'brand',
+  Event = 'event',
+  Location = 'location',
+  Organization = 'organization',
+  Other = 'other',
+  Person = 'person',
+  Product = 'product',
+  Topic = 'topic'
+}
+
+export type ActorTypeTypeNullableFilter = {
+  equals?: InputMaybe<ActorTypeType>;
+  in?: InputMaybe<Array<ActorTypeType>>;
+  not?: InputMaybe<ActorTypeTypeNullableFilter>;
+  notIn?: InputMaybe<Array<ActorTypeType>>;
+};
+
+export type ActorUpdateArgs = {
+  data: ActorUpdateInput;
+  where: ActorWhereUniqueInput;
+};
+
+export type ActorUpdateInput = {
+  aliases?: InputMaybe<Scalars['JSON']['input']>;
+  createdAt?: InputMaybe<Scalars['DateTime']['input']>;
+  description?: InputMaybe<Scalars['String']['input']>;
+  externalIds?: InputMaybe<Scalars['JSON']['input']>;
+  imageUrl?: InputMaybe<Scalars['String']['input']>;
+  mentions?: InputMaybe<ActorMentionRelateToManyForUpdateInput>;
+  metadata?: InputMaybe<Scalars['JSON']['input']>;
+  name?: InputMaybe<Scalars['String']['input']>;
+  relatedFrom?: InputMaybe<ActorLinkRelateToManyForUpdateInput>;
+  relatesTo?: InputMaybe<ActorLinkRelateToManyForUpdateInput>;
+  speakerSources?: InputMaybe<SourceRelateToManyForUpdateInput>;
+  speakerTranscripts?: InputMaybe<TranscriptRelateToManyForUpdateInput>;
+  type?: InputMaybe<ActorTypeType>;
+  updatedAt?: InputMaybe<Scalars['DateTime']['input']>;
+};
+
+export type ActorWhereInput = {
+  AND?: InputMaybe<Array<ActorWhereInput>>;
+  NOT?: InputMaybe<Array<ActorWhereInput>>;
+  OR?: InputMaybe<Array<ActorWhereInput>>;
+  createdAt?: InputMaybe<DateTimeNullableFilter>;
+  description?: InputMaybe<StringFilter>;
+  id?: InputMaybe<IdFilter>;
+  imageUrl?: InputMaybe<StringFilter>;
+  mentions?: InputMaybe<ActorMentionManyRelationFilter>;
+  name?: InputMaybe<StringFilter>;
+  relatedFrom?: InputMaybe<ActorLinkManyRelationFilter>;
+  relatesTo?: InputMaybe<ActorLinkManyRelationFilter>;
+  speakerSources?: InputMaybe<SourceManyRelationFilter>;
+  speakerTranscripts?: InputMaybe<TranscriptManyRelationFilter>;
+  type?: InputMaybe<ActorTypeTypeNullableFilter>;
+  updatedAt?: InputMaybe<DateTimeNullableFilter>;
+};
+
+export type ActorWhereUniqueInput = {
+  id?: InputMaybe<Scalars['ID']['input']>;
+};
+
 export type BooleanFilter = {
   equals?: InputMaybe<Scalars['Boolean']['input']>;
   not?: InputMaybe<BooleanFilter>;
@@ -428,6 +904,17 @@ export type DateTimeNullableFilter = {
   notIn?: InputMaybe<Array<Scalars['DateTime']['input']>>;
 };
 
+export type FloatNullableFilter = {
+  equals?: InputMaybe<Scalars['Float']['input']>;
+  gt?: InputMaybe<Scalars['Float']['input']>;
+  gte?: InputMaybe<Scalars['Float']['input']>;
+  in?: InputMaybe<Array<Scalars['Float']['input']>>;
+  lt?: InputMaybe<Scalars['Float']['input']>;
+  lte?: InputMaybe<Scalars['Float']['input']>;
+  not?: InputMaybe<FloatNullableFilter>;
+  notIn?: InputMaybe<Array<Scalars['Float']['input']>>;
+};
+
 export type IdFilter = {
   equals?: InputMaybe<Scalars['ID']['input']>;
   gt?: InputMaybe<Scalars['ID']['input']>;
@@ -616,6 +1103,12 @@ export type KeystoneMeta = {
 export type Mutation = {
   __typename?: 'Mutation';
   chatProject: ChatMutationResult;
+  createActor?: Maybe<Actor>;
+  createActorLink?: Maybe<ActorLink>;
+  createActorLinks?: Maybe<Array<Maybe<ActorLink>>>;
+  createActorMention?: Maybe<ActorMention>;
+  createActorMentions?: Maybe<Array<Maybe<ActorMention>>>;
+  createActors?: Maybe<Array<Maybe<Actor>>>;
   createChat?: Maybe<Chat>;
   createChatMessage?: Maybe<ChatMessage>;
   createChatMessages?: Maybe<Array<Maybe<ChatMessage>>>;
@@ -632,6 +1125,12 @@ export type Mutation = {
   createTranscripts?: Maybe<Array<Maybe<Transcript>>>;
   createUser?: Maybe<User>;
   createUsers?: Maybe<Array<Maybe<User>>>;
+  deleteActor?: Maybe<Actor>;
+  deleteActorLink?: Maybe<ActorLink>;
+  deleteActorLinks?: Maybe<Array<Maybe<ActorLink>>>;
+  deleteActorMention?: Maybe<ActorMention>;
+  deleteActorMentions?: Maybe<Array<Maybe<ActorMention>>>;
+  deleteActors?: Maybe<Array<Maybe<Actor>>>;
   deleteChat?: Maybe<Chat>;
   deleteChatMessage?: Maybe<ChatMessage>;
   deleteChatMessages?: Maybe<Array<Maybe<ChatMessage>>>;
@@ -650,6 +1149,12 @@ export type Mutation = {
   deleteUsers?: Maybe<Array<Maybe<User>>>;
   endSession: Scalars['Boolean']['output'];
   triggerSourceImport: Source;
+  updateActor?: Maybe<Actor>;
+  updateActorLink?: Maybe<ActorLink>;
+  updateActorLinks?: Maybe<Array<Maybe<ActorLink>>>;
+  updateActorMention?: Maybe<ActorMention>;
+  updateActorMentions?: Maybe<Array<Maybe<ActorMention>>>;
+  updateActors?: Maybe<Array<Maybe<Actor>>>;
   updateChat?: Maybe<Chat>;
   updateChatMessage?: Maybe<ChatMessage>;
   updateChatMessages?: Maybe<Array<Maybe<ChatMessage>>>;
@@ -671,6 +1176,36 @@ export type Mutation = {
 
 export type MutationChatProjectArgs = {
   input: ChatProjectInput;
+};
+
+
+export type MutationCreateActorArgs = {
+  data: ActorCreateInput;
+};
+
+
+export type MutationCreateActorLinkArgs = {
+  data: ActorLinkCreateInput;
+};
+
+
+export type MutationCreateActorLinksArgs = {
+  data: Array<ActorLinkCreateInput>;
+};
+
+
+export type MutationCreateActorMentionArgs = {
+  data: ActorMentionCreateInput;
+};
+
+
+export type MutationCreateActorMentionsArgs = {
+  data: Array<ActorMentionCreateInput>;
+};
+
+
+export type MutationCreateActorsArgs = {
+  data: Array<ActorCreateInput>;
 };
 
 
@@ -751,6 +1286,36 @@ export type MutationCreateUserArgs = {
 
 export type MutationCreateUsersArgs = {
   data: Array<UserCreateInput>;
+};
+
+
+export type MutationDeleteActorArgs = {
+  where: ActorWhereUniqueInput;
+};
+
+
+export type MutationDeleteActorLinkArgs = {
+  where: ActorLinkWhereUniqueInput;
+};
+
+
+export type MutationDeleteActorLinksArgs = {
+  where: Array<ActorLinkWhereUniqueInput>;
+};
+
+
+export type MutationDeleteActorMentionArgs = {
+  where: ActorMentionWhereUniqueInput;
+};
+
+
+export type MutationDeleteActorMentionsArgs = {
+  where: Array<ActorMentionWhereUniqueInput>;
+};
+
+
+export type MutationDeleteActorsArgs = {
+  where: Array<ActorWhereUniqueInput>;
 };
 
 
@@ -836,6 +1401,39 @@ export type MutationDeleteUsersArgs = {
 
 export type MutationTriggerSourceImportArgs = {
   sourceId: Scalars['ID']['input'];
+};
+
+
+export type MutationUpdateActorArgs = {
+  data: ActorUpdateInput;
+  where: ActorWhereUniqueInput;
+};
+
+
+export type MutationUpdateActorLinkArgs = {
+  data: ActorLinkUpdateInput;
+  where: ActorLinkWhereUniqueInput;
+};
+
+
+export type MutationUpdateActorLinksArgs = {
+  data: Array<ActorLinkUpdateArgs>;
+};
+
+
+export type MutationUpdateActorMentionArgs = {
+  data: ActorMentionUpdateInput;
+  where: ActorMentionWhereUniqueInput;
+};
+
+
+export type MutationUpdateActorMentionsArgs = {
+  data: Array<ActorMentionUpdateArgs>;
+};
+
+
+export type MutationUpdateActorsArgs = {
+  data: Array<ActorUpdateArgs>;
 };
 
 
@@ -1211,6 +1809,15 @@ export type ProjectWhereUniqueInput = {
 
 export type Query = {
   __typename?: 'Query';
+  actor?: Maybe<Actor>;
+  actorLink?: Maybe<ActorLink>;
+  actorLinks?: Maybe<Array<ActorLink>>;
+  actorLinksCount?: Maybe<Scalars['Int']['output']>;
+  actorMention?: Maybe<ActorMention>;
+  actorMentions?: Maybe<Array<ActorMention>>;
+  actorMentionsCount?: Maybe<Scalars['Int']['output']>;
+  actors?: Maybe<Array<Actor>>;
+  actorsCount?: Maybe<Scalars['Int']['output']>;
   chat?: Maybe<Chat>;
   chatMessage?: Maybe<ChatMessage>;
   chatMessages?: Maybe<Array<ChatMessage>>;
@@ -1237,6 +1844,63 @@ export type Query = {
   user?: Maybe<User>;
   users?: Maybe<Array<User>>;
   usersCount?: Maybe<Scalars['Int']['output']>;
+};
+
+
+export type QueryActorArgs = {
+  where: ActorWhereUniqueInput;
+};
+
+
+export type QueryActorLinkArgs = {
+  where: ActorLinkWhereUniqueInput;
+};
+
+
+export type QueryActorLinksArgs = {
+  cursor?: InputMaybe<ActorLinkWhereUniqueInput>;
+  orderBy?: Array<ActorLinkOrderByInput>;
+  skip?: Scalars['Int']['input'];
+  take?: InputMaybe<Scalars['Int']['input']>;
+  where?: ActorLinkWhereInput;
+};
+
+
+export type QueryActorLinksCountArgs = {
+  where?: ActorLinkWhereInput;
+};
+
+
+export type QueryActorMentionArgs = {
+  where: ActorMentionWhereUniqueInput;
+};
+
+
+export type QueryActorMentionsArgs = {
+  cursor?: InputMaybe<ActorMentionWhereUniqueInput>;
+  orderBy?: Array<ActorMentionOrderByInput>;
+  skip?: Scalars['Int']['input'];
+  take?: InputMaybe<Scalars['Int']['input']>;
+  where?: ActorMentionWhereInput;
+};
+
+
+export type QueryActorMentionsCountArgs = {
+  where?: ActorMentionWhereInput;
+};
+
+
+export type QueryActorsArgs = {
+  cursor?: InputMaybe<ActorWhereUniqueInput>;
+  orderBy?: Array<ActorOrderByInput>;
+  skip?: Scalars['Int']['input'];
+  take?: InputMaybe<Scalars['Int']['input']>;
+  where?: ActorWhereInput;
+};
+
+
+export type QueryActorsCountArgs = {
+  where?: ActorWhereInput;
 };
 
 
@@ -1428,6 +2092,8 @@ export type Source = {
   overallProgress?: Maybe<OverallProgress>;
   projects?: Maybe<Array<Project>>;
   projectsCount?: Maybe<Scalars['Int']['output']>;
+  speakerActors?: Maybe<Array<Actor>>;
+  speakerActorsCount?: Maybe<Scalars['Int']['output']>;
   transcriptEmbeddingProgress?: Maybe<TranscriptEmbeddingProgress>;
   transcriptImportProgress?: Maybe<TranscriptImportProgress>;
   transcripts?: Maybe<Array<Transcript>>;
@@ -1448,6 +2114,20 @@ export type SourceProjectsArgs = {
 
 export type SourceProjectsCountArgs = {
   where?: ProjectWhereInput;
+};
+
+
+export type SourceSpeakerActorsArgs = {
+  cursor?: InputMaybe<ActorWhereUniqueInput>;
+  orderBy?: Array<ActorOrderByInput>;
+  skip?: Scalars['Int']['input'];
+  take?: InputMaybe<Scalars['Int']['input']>;
+  where?: ActorWhereInput;
+};
+
+
+export type SourceSpeakerActorsCountArgs = {
+  where?: ActorWhereInput;
 };
 
 
@@ -1474,6 +2154,7 @@ export type SourceCreateInput = {
   name?: InputMaybe<Scalars['String']['input']>;
   org?: InputMaybe<OrganizationRelateToOneForCreateInput>;
   projects?: InputMaybe<ProjectRelateToManyForCreateInput>;
+  speakerActors?: InputMaybe<ActorRelateToManyForCreateInput>;
   transcripts?: InputMaybe<TranscriptRelateToManyForCreateInput>;
   type?: InputMaybe<SourceTypeType>;
   url?: InputMaybe<Scalars['String']['input']>;
@@ -1560,6 +2241,7 @@ export type SourceUpdateInput = {
   name?: InputMaybe<Scalars['String']['input']>;
   org?: InputMaybe<OrganizationRelateToOneForUpdateInput>;
   projects?: InputMaybe<ProjectRelateToManyForUpdateInput>;
+  speakerActors?: InputMaybe<ActorRelateToManyForUpdateInput>;
   transcripts?: InputMaybe<TranscriptRelateToManyForUpdateInput>;
   type?: InputMaybe<SourceTypeType>;
   url?: InputMaybe<Scalars['String']['input']>;
@@ -1578,6 +2260,7 @@ export type SourceWhereInput = {
   name?: InputMaybe<StringFilter>;
   org?: InputMaybe<OrganizationWhereInput>;
   projects?: InputMaybe<ProjectManyRelationFilter>;
+  speakerActors?: InputMaybe<ActorManyRelationFilter>;
   transcripts?: InputMaybe<TranscriptManyRelationFilter>;
   type?: InputMaybe<SourceTypeTypeNullableFilter>;
   url?: InputMaybe<StringFilter>;
@@ -1605,7 +2288,13 @@ export type StringFilter = {
 
 export type Transcript = {
   __typename?: 'Transcript';
+  analysisAt?: Maybe<Scalars['DateTime']['output']>;
+  analysisAttempts?: Maybe<Scalars['Int']['output']>;
+  analysisError?: Maybe<Scalars['String']['output']>;
+  analysisStatus?: Maybe<TranscriptAnalysisStatusType>;
+  chapters?: Maybe<Scalars['JSON']['output']>;
   createdAt?: Maybe<Scalars['DateTime']['output']>;
+  description?: Maybe<Scalars['String']['output']>;
   duration?: Maybe<Scalars['Int']['output']>;
   embeddingAt?: Maybe<Scalars['DateTime']['output']>;
   embeddingAttempts?: Maybe<Scalars['Int']['output']>;
@@ -1617,16 +2306,17 @@ export type Transcript = {
   importAttempts?: Maybe<Scalars['Int']['output']>;
   importError?: Maybe<Scalars['String']['output']>;
   importStatus?: Maybe<TranscriptImportStatusType>;
-  intervieweeName?: Maybe<Scalars['String']['output']>;
-  language?: Maybe<Scalars['String']['output']>;
   notes?: Maybe<Scalars['String']['output']>;
   org?: Maybe<Organization>;
   publishedAt?: Maybe<Scalars['DateTime']['output']>;
+  rawSrt?: Maybe<Scalars['String']['output']>;
   segmentEmbeddingProgress?: Maybe<SegmentEmbeddingProgress>;
   segments?: Maybe<Array<TranscriptSegment>>;
   segmentsCount?: Maybe<Scalars['Int']['output']>;
   source?: Maybe<Source>;
   sourceUrl?: Maybe<Scalars['String']['output']>;
+  speakerActors?: Maybe<Array<Actor>>;
+  speakerActorsCount?: Maybe<Scalars['Int']['output']>;
   thumbnailUrl?: Maybe<Scalars['String']['output']>;
   title?: Maybe<Scalars['String']['output']>;
   updatedAt?: Maybe<Scalars['DateTime']['output']>;
@@ -1646,8 +2336,43 @@ export type TranscriptSegmentsCountArgs = {
   where?: TranscriptSegmentWhereInput;
 };
 
+
+export type TranscriptSpeakerActorsArgs = {
+  cursor?: InputMaybe<ActorWhereUniqueInput>;
+  orderBy?: Array<ActorOrderByInput>;
+  skip?: Scalars['Int']['input'];
+  take?: InputMaybe<Scalars['Int']['input']>;
+  where?: ActorWhereInput;
+};
+
+
+export type TranscriptSpeakerActorsCountArgs = {
+  where?: ActorWhereInput;
+};
+
+export enum TranscriptAnalysisStatusType {
+  Completed = 'completed',
+  Failed = 'failed',
+  Pending = 'pending',
+  Processing = 'processing',
+  Skipped = 'skipped'
+}
+
+export type TranscriptAnalysisStatusTypeNullableFilter = {
+  equals?: InputMaybe<TranscriptAnalysisStatusType>;
+  in?: InputMaybe<Array<TranscriptAnalysisStatusType>>;
+  not?: InputMaybe<TranscriptAnalysisStatusTypeNullableFilter>;
+  notIn?: InputMaybe<Array<TranscriptAnalysisStatusType>>;
+};
+
 export type TranscriptCreateInput = {
+  analysisAt?: InputMaybe<Scalars['DateTime']['input']>;
+  analysisAttempts?: InputMaybe<Scalars['Int']['input']>;
+  analysisError?: InputMaybe<Scalars['String']['input']>;
+  analysisStatus?: InputMaybe<TranscriptAnalysisStatusType>;
+  chapters?: InputMaybe<Scalars['JSON']['input']>;
   createdAt?: InputMaybe<Scalars['DateTime']['input']>;
+  description?: InputMaybe<Scalars['String']['input']>;
   duration?: InputMaybe<Scalars['Int']['input']>;
   embeddingAt?: InputMaybe<Scalars['DateTime']['input']>;
   embeddingAttempts?: InputMaybe<Scalars['Int']['input']>;
@@ -1658,14 +2383,14 @@ export type TranscriptCreateInput = {
   importAttempts?: InputMaybe<Scalars['Int']['input']>;
   importError?: InputMaybe<Scalars['String']['input']>;
   importStatus?: InputMaybe<TranscriptImportStatusType>;
-  intervieweeName?: InputMaybe<Scalars['String']['input']>;
-  language?: InputMaybe<Scalars['String']['input']>;
   notes?: InputMaybe<Scalars['String']['input']>;
   org?: InputMaybe<OrganizationRelateToOneForCreateInput>;
   publishedAt?: InputMaybe<Scalars['DateTime']['input']>;
+  rawSrt?: InputMaybe<Scalars['String']['input']>;
   segments?: InputMaybe<TranscriptSegmentRelateToManyForCreateInput>;
   source?: InputMaybe<SourceRelateToOneForCreateInput>;
   sourceUrl?: InputMaybe<Scalars['String']['input']>;
+  speakerActors?: InputMaybe<ActorRelateToManyForCreateInput>;
   thumbnailUrl?: InputMaybe<Scalars['String']['input']>;
   title?: InputMaybe<Scalars['String']['input']>;
   updatedAt?: InputMaybe<Scalars['DateTime']['input']>;
@@ -1735,7 +2460,12 @@ export type TranscriptManyRelationFilter = {
 };
 
 export type TranscriptOrderByInput = {
+  analysisAt?: InputMaybe<OrderDirection>;
+  analysisAttempts?: InputMaybe<OrderDirection>;
+  analysisError?: InputMaybe<OrderDirection>;
+  analysisStatus?: InputMaybe<OrderDirection>;
   createdAt?: InputMaybe<OrderDirection>;
+  description?: InputMaybe<OrderDirection>;
   duration?: InputMaybe<OrderDirection>;
   embeddingAt?: InputMaybe<OrderDirection>;
   embeddingAttempts?: InputMaybe<OrderDirection>;
@@ -1747,10 +2477,9 @@ export type TranscriptOrderByInput = {
   importAttempts?: InputMaybe<OrderDirection>;
   importError?: InputMaybe<OrderDirection>;
   importStatus?: InputMaybe<OrderDirection>;
-  intervieweeName?: InputMaybe<OrderDirection>;
-  language?: InputMaybe<OrderDirection>;
   notes?: InputMaybe<OrderDirection>;
   publishedAt?: InputMaybe<OrderDirection>;
+  rawSrt?: InputMaybe<OrderDirection>;
   sourceUrl?: InputMaybe<OrderDirection>;
   thumbnailUrl?: InputMaybe<OrderDirection>;
   title?: InputMaybe<OrderDirection>;
@@ -1788,7 +2517,7 @@ export type TranscriptSegment = {
   index?: Maybe<Scalars['Int']['output']>;
   isMetadata?: Maybe<Scalars['Boolean']['output']>;
   source?: Maybe<Source>;
-  speaker?: Maybe<Scalars['String']['output']>;
+  speakerActor?: Maybe<Actor>;
   startMs?: Maybe<Scalars['Int']['output']>;
   text?: Maybe<Scalars['String']['output']>;
   transcript?: Maybe<Transcript>;
@@ -1800,7 +2529,7 @@ export type TranscriptSegmentCreateInput = {
   index?: InputMaybe<Scalars['Int']['input']>;
   isMetadata?: InputMaybe<Scalars['Boolean']['input']>;
   source?: InputMaybe<SourceRelateToOneForCreateInput>;
-  speaker?: InputMaybe<Scalars['String']['input']>;
+  speakerActor?: InputMaybe<ActorRelateToOneForCreateInput>;
   startMs?: InputMaybe<Scalars['Int']['input']>;
   text?: InputMaybe<Scalars['String']['input']>;
   transcript?: InputMaybe<TranscriptRelateToOneForCreateInput>;
@@ -1818,7 +2547,6 @@ export type TranscriptSegmentOrderByInput = {
   id?: InputMaybe<OrderDirection>;
   index?: InputMaybe<OrderDirection>;
   isMetadata?: InputMaybe<OrderDirection>;
-  speaker?: InputMaybe<OrderDirection>;
   startMs?: InputMaybe<OrderDirection>;
   text?: InputMaybe<OrderDirection>;
 };
@@ -1835,6 +2563,17 @@ export type TranscriptSegmentRelateToManyForUpdateInput = {
   set?: InputMaybe<Array<TranscriptSegmentWhereUniqueInput>>;
 };
 
+export type TranscriptSegmentRelateToOneForCreateInput = {
+  connect?: InputMaybe<TranscriptSegmentWhereUniqueInput>;
+  create?: InputMaybe<TranscriptSegmentCreateInput>;
+};
+
+export type TranscriptSegmentRelateToOneForUpdateInput = {
+  connect?: InputMaybe<TranscriptSegmentWhereUniqueInput>;
+  create?: InputMaybe<TranscriptSegmentCreateInput>;
+  disconnect?: InputMaybe<Scalars['Boolean']['input']>;
+};
+
 export type TranscriptSegmentUpdateArgs = {
   data: TranscriptSegmentUpdateInput;
   where: TranscriptSegmentWhereUniqueInput;
@@ -1846,7 +2585,7 @@ export type TranscriptSegmentUpdateInput = {
   index?: InputMaybe<Scalars['Int']['input']>;
   isMetadata?: InputMaybe<Scalars['Boolean']['input']>;
   source?: InputMaybe<SourceRelateToOneForUpdateInput>;
-  speaker?: InputMaybe<Scalars['String']['input']>;
+  speakerActor?: InputMaybe<ActorRelateToOneForUpdateInput>;
   startMs?: InputMaybe<Scalars['Int']['input']>;
   text?: InputMaybe<Scalars['String']['input']>;
   transcript?: InputMaybe<TranscriptRelateToOneForUpdateInput>;
@@ -1862,7 +2601,7 @@ export type TranscriptSegmentWhereInput = {
   index?: InputMaybe<IntNullableFilter>;
   isMetadata?: InputMaybe<BooleanFilter>;
   source?: InputMaybe<SourceWhereInput>;
-  speaker?: InputMaybe<StringFilter>;
+  speakerActor?: InputMaybe<ActorWhereInput>;
   startMs?: InputMaybe<IntNullableFilter>;
   text?: InputMaybe<StringFilter>;
   transcript?: InputMaybe<TranscriptWhereInput>;
@@ -1878,7 +2617,13 @@ export type TranscriptUpdateArgs = {
 };
 
 export type TranscriptUpdateInput = {
+  analysisAt?: InputMaybe<Scalars['DateTime']['input']>;
+  analysisAttempts?: InputMaybe<Scalars['Int']['input']>;
+  analysisError?: InputMaybe<Scalars['String']['input']>;
+  analysisStatus?: InputMaybe<TranscriptAnalysisStatusType>;
+  chapters?: InputMaybe<Scalars['JSON']['input']>;
   createdAt?: InputMaybe<Scalars['DateTime']['input']>;
+  description?: InputMaybe<Scalars['String']['input']>;
   duration?: InputMaybe<Scalars['Int']['input']>;
   embeddingAt?: InputMaybe<Scalars['DateTime']['input']>;
   embeddingAttempts?: InputMaybe<Scalars['Int']['input']>;
@@ -1889,14 +2634,14 @@ export type TranscriptUpdateInput = {
   importAttempts?: InputMaybe<Scalars['Int']['input']>;
   importError?: InputMaybe<Scalars['String']['input']>;
   importStatus?: InputMaybe<TranscriptImportStatusType>;
-  intervieweeName?: InputMaybe<Scalars['String']['input']>;
-  language?: InputMaybe<Scalars['String']['input']>;
   notes?: InputMaybe<Scalars['String']['input']>;
   org?: InputMaybe<OrganizationRelateToOneForUpdateInput>;
   publishedAt?: InputMaybe<Scalars['DateTime']['input']>;
+  rawSrt?: InputMaybe<Scalars['String']['input']>;
   segments?: InputMaybe<TranscriptSegmentRelateToManyForUpdateInput>;
   source?: InputMaybe<SourceRelateToOneForUpdateInput>;
   sourceUrl?: InputMaybe<Scalars['String']['input']>;
+  speakerActors?: InputMaybe<ActorRelateToManyForUpdateInput>;
   thumbnailUrl?: InputMaybe<Scalars['String']['input']>;
   title?: InputMaybe<Scalars['String']['input']>;
   updatedAt?: InputMaybe<Scalars['DateTime']['input']>;
@@ -1906,7 +2651,12 @@ export type TranscriptWhereInput = {
   AND?: InputMaybe<Array<TranscriptWhereInput>>;
   NOT?: InputMaybe<Array<TranscriptWhereInput>>;
   OR?: InputMaybe<Array<TranscriptWhereInput>>;
+  analysisAt?: InputMaybe<DateTimeNullableFilter>;
+  analysisAttempts?: InputMaybe<IntNullableFilter>;
+  analysisError?: InputMaybe<StringFilter>;
+  analysisStatus?: InputMaybe<TranscriptAnalysisStatusTypeNullableFilter>;
   createdAt?: InputMaybe<DateTimeNullableFilter>;
+  description?: InputMaybe<StringFilter>;
   duration?: InputMaybe<IntNullableFilter>;
   embeddingAt?: InputMaybe<DateTimeNullableFilter>;
   embeddingAttempts?: InputMaybe<IntNullableFilter>;
@@ -1918,14 +2668,14 @@ export type TranscriptWhereInput = {
   importAttempts?: InputMaybe<IntNullableFilter>;
   importError?: InputMaybe<StringFilter>;
   importStatus?: InputMaybe<TranscriptImportStatusTypeNullableFilter>;
-  intervieweeName?: InputMaybe<StringFilter>;
-  language?: InputMaybe<StringFilter>;
   notes?: InputMaybe<StringFilter>;
   org?: InputMaybe<OrganizationWhereInput>;
   publishedAt?: InputMaybe<DateTimeNullableFilter>;
+  rawSrt?: InputMaybe<StringFilter>;
   segments?: InputMaybe<TranscriptSegmentManyRelationFilter>;
   source?: InputMaybe<SourceWhereInput>;
   sourceUrl?: InputMaybe<StringFilter>;
+  speakerActors?: InputMaybe<ActorManyRelationFilter>;
   thumbnailUrl?: InputMaybe<StringFilter>;
   title?: InputMaybe<StringFilter>;
   updatedAt?: InputMaybe<DateTimeNullableFilter>;
@@ -2210,7 +2960,7 @@ export type ProjectTranscriptsQueryVariables = Exact<{
 }>;
 
 
-export type ProjectTranscriptsQuery = { __typename?: 'Query', project?: { __typename?: 'Project', id: string, sources?: Array<{ __typename?: 'Source', id: string, name?: string | null, transcripts?: Array<{ __typename?: 'Transcript', id: string, title?: string | null, intervieweeName?: string | null, createdAt?: any | null }> | null }> | null } | null };
+export type ProjectTranscriptsQuery = { __typename?: 'Query', project?: { __typename?: 'Project', id: string, sources?: Array<{ __typename?: 'Source', id: string, name?: string | null, transcripts?: Array<{ __typename?: 'Transcript', id: string, title?: string | null, createdAt?: any | null, speakerActors?: Array<{ __typename?: 'Actor', id: string, name?: string | null }> | null }> | null }> | null } | null };
 
 export type ProjectsQueryVariables = Exact<{ [key: string]: never; }>;
 
@@ -2222,7 +2972,7 @@ export type SourceQueryVariables = Exact<{
 }>;
 
 
-export type SourceQuery = { __typename?: 'Query', source?: { __typename?: 'Source', id: string, type?: SourceTypeType | null, name?: string | null, url?: string | null, externalId?: string | null, importStatus?: SourceImportStatusType | null, importCronExpression?: string | null, importStartedAt?: any | null, importCompletedAt?: any | null, importHistory?: any | null, transcriptsCount?: number | null, transcriptImportProgress?: { __typename?: 'TranscriptImportProgress', total: number, pending: number, fetching: number, completed: number, failed: number, skipped: number, pendingPercentage: number, fetchingPercentage: number, completedPercentage: number, failedPercentage: number, skippedPercentage: number } | null, transcriptEmbeddingProgress?: { __typename?: 'TranscriptEmbeddingProgress', total: number, pending: number, processing: number, completed: number, failed: number, pendingPercentage: number, processingPercentage: number, completedPercentage: number, failedPercentage: number } | null, overallProgress?: { __typename?: 'OverallProgress', importCompletedPercentage: number, embeddingCompletedPercentage: number, overallPercentage: number } | null, transcripts?: Array<{ __typename?: 'Transcript', id: string, title?: string | null, intervieweeName?: string | null, createdAt?: any | null, segmentsCount?: number | null }> | null, projects?: Array<{ __typename?: 'Project', id: string, name?: string | null }> | null } | null };
+export type SourceQuery = { __typename?: 'Query', source?: { __typename?: 'Source', id: string, type?: SourceTypeType | null, name?: string | null, url?: string | null, externalId?: string | null, importStatus?: SourceImportStatusType | null, importCronExpression?: string | null, importStartedAt?: any | null, importCompletedAt?: any | null, importHistory?: any | null, transcriptsCount?: number | null, transcriptImportProgress?: { __typename?: 'TranscriptImportProgress', total: number, pending: number, fetching: number, completed: number, failed: number, skipped: number, pendingPercentage: number, fetchingPercentage: number, completedPercentage: number, failedPercentage: number, skippedPercentage: number } | null, transcriptEmbeddingProgress?: { __typename?: 'TranscriptEmbeddingProgress', total: number, pending: number, processing: number, completed: number, failed: number, pendingPercentage: number, processingPercentage: number, completedPercentage: number, failedPercentage: number } | null, overallProgress?: { __typename?: 'OverallProgress', importCompletedPercentage: number, embeddingCompletedPercentage: number, overallPercentage: number } | null, transcripts?: Array<{ __typename?: 'Transcript', id: string, title?: string | null, createdAt?: any | null, segmentsCount?: number | null, speakerActors?: Array<{ __typename?: 'Actor', id: string, name?: string | null }> | null }> | null, projects?: Array<{ __typename?: 'Project', id: string, name?: string | null }> | null } | null };
 
 export type SourcesQueryVariables = Exact<{ [key: string]: never; }>;
 
@@ -2234,14 +2984,14 @@ export type TranscriptQueryVariables = Exact<{
 }>;
 
 
-export type TranscriptQuery = { __typename?: 'Query', transcript?: { __typename?: 'Transcript', id: string, title?: string | null, intervieweeName?: string | null, notes?: string | null, createdAt?: any | null, segmentEmbeddingProgress?: { __typename?: 'SegmentEmbeddingProgress', total: number, embedded: number, notEmbedded: number, embeddedPercentage: number, notEmbeddedPercentage: number } | null, segments?: Array<{ __typename?: 'TranscriptSegment', id: string, text?: string | null, speaker?: string | null, startMs?: number | null, endMs?: number | null, durationMs?: number | null }> | null } | null };
+export type TranscriptQuery = { __typename?: 'Query', transcript?: { __typename?: 'Transcript', id: string, title?: string | null, notes?: string | null, createdAt?: any | null, speakerActors?: Array<{ __typename?: 'Actor', id: string, name?: string | null }> | null, segmentEmbeddingProgress?: { __typename?: 'SegmentEmbeddingProgress', total: number, embedded: number, notEmbedded: number, embeddedPercentage: number, notEmbeddedPercentage: number } | null, segments?: Array<{ __typename?: 'TranscriptSegment', id: string, text?: string | null, startMs?: number | null, endMs?: number | null, durationMs?: number | null, index?: number | null, speakerActor?: { __typename?: 'Actor', id: string, name?: string | null } | null }> | null } | null };
 
 export type TranscriptsQueryVariables = Exact<{
   sourceId?: InputMaybe<Scalars['ID']['input']>;
 }>;
 
 
-export type TranscriptsQuery = { __typename?: 'Query', transcripts?: Array<{ __typename?: 'Transcript', id: string, title?: string | null, intervieweeName?: string | null, notes?: string | null, createdAt?: any | null, segmentsCount?: number | null, importStatus?: TranscriptImportStatusType | null, embeddingStatus?: TranscriptEmbeddingStatusType | null, segmentEmbeddingProgress?: { __typename?: 'SegmentEmbeddingProgress', total: number, embedded: number, notEmbedded: number, embeddedPercentage: number, notEmbeddedPercentage: number } | null, source?: { __typename?: 'Source', id: string, name?: string | null } | null }> | null };
+export type TranscriptsQuery = { __typename?: 'Query', transcripts?: Array<{ __typename?: 'Transcript', id: string, title?: string | null, notes?: string | null, createdAt?: any | null, segmentsCount?: number | null, importStatus?: TranscriptImportStatusType | null, embeddingStatus?: TranscriptEmbeddingStatusType | null, speakerActors?: Array<{ __typename?: 'Actor', id: string, name?: string | null }> | null, segmentEmbeddingProgress?: { __typename?: 'SegmentEmbeddingProgress', total: number, embedded: number, notEmbedded: number, embeddedPercentage: number, notEmbeddedPercentage: number } | null, source?: { __typename?: 'Source', id: string, name?: string | null } | null }> | null };
 
 export type UpdateChatMutationVariables = Exact<{
   id: Scalars['ID']['input'];
@@ -2996,8 +3746,11 @@ export const ProjectTranscriptsDocument = gql`
       transcripts {
         id
         title
-        intervieweeName
         createdAt
+        speakerActors {
+          id
+          name
+        }
       }
     }
   }
@@ -3128,9 +3881,12 @@ export const SourceDocument = gql`
     transcripts {
       id
       title
-      intervieweeName
       createdAt
       segmentsCount
+      speakerActors {
+        id
+        name
+      }
     }
     projects {
       id
@@ -3234,9 +3990,12 @@ export const TranscriptDocument = gql`
   transcript(where: {id: $id}) {
     id
     title
-    intervieweeName
     notes
     createdAt
+    speakerActors {
+      id
+      name
+    }
     segmentEmbeddingProgress {
       total
       embedded
@@ -3247,10 +4006,14 @@ export const TranscriptDocument = gql`
     segments {
       id
       text
-      speaker
+      speakerActor {
+        id
+        name
+      }
       startMs
       endMs
       durationMs
+      index
     }
   }
 }
@@ -3293,12 +4056,15 @@ export const TranscriptsDocument = gql`
   transcripts(where: {source: {id: {equals: $sourceId}}}) {
     id
     title
-    intervieweeName
     notes
     createdAt
     segmentsCount
     importStatus
     embeddingStatus
+    speakerActors {
+      id
+      name
+    }
     segmentEmbeddingProgress {
       total
       embedded
