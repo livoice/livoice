@@ -1,5 +1,6 @@
 import { parseDate as parseRelativeDate } from 'chrono-node';
 import { startOfDay } from 'date-fns';
+import { existsSync } from 'fs';
 import path from 'path';
 import youtubeDlExec from 'youtube-dl-exec';
 import env from '../../../config/env';
@@ -62,9 +63,23 @@ const isYoutubeVideo = (node: unknown): node is YoutubeVideo =>
 
 const toVideoUrl = (videoId: string) => `https://www.youtube.com/watch?v=${videoId}`;
 
+const getYtDlpBinaryPath = (): string | undefined => {
+  // In production, prefer system-installed yt-dlp or workspace-local binary
+  if (env.NODE_ENV !== 'development') {
+    const workspaceBinary = path.resolve(process.cwd(), 'yt-dlp');
+    if (existsSync(workspaceBinary)) return workspaceBinary;
+    if (existsSync('/usr/local/bin/yt-dlp')) return '/usr/local/bin/yt-dlp';
+  }
+  // Fall back to youtube-dl-exec bundled binary
+  return undefined;
+};
+
+const customBinaryPath = getYtDlpBinaryPath();
+
 const ytDlpBaseConfig = {
   skipDownload: true,
-  cookies: path.resolve(__dirname, 'assets', `youtube-cookies${env.NODE_ENV === 'development' ? '-local' : ''}.txt`)
+  cookies: path.resolve(__dirname, 'assets', `youtube-cookies${env.NODE_ENV === 'development' ? '-local' : ''}.txt`),
+  ...(customBinaryPath && { binaryPath: customBinaryPath })
 };
 
 const gatherVideos = async (videosTab: YoutubeVideosTab): Promise<YoutubeVideosTab['videos']> => {
@@ -185,8 +200,15 @@ export const youtubeAdapter: SourceAdapter = {
 
       return strContent;
     } catch (error) {
-      // Check if this is an ENOENT error (file not found), which means no subtitles available
+      // Check if this is an ENOENT error (file not found)
       if (error instanceof Error && 'code' in error && error.code === 'ENOENT') {
+        const errorPath = 'path' in error ? (error as { path?: string }).path : '';
+        // If the ENOENT is about the yt-dlp binary, throw - this is a configuration issue
+        if (errorPath?.includes('yt-dlp')) {
+          console.error(`[youtubeAdapter] fetchTranscript: yt-dlp binary not found at ${errorPath}`, error);
+          throw new Error(`yt-dlp binary not found. Ensure yt-dlp is installed on the system.`);
+        }
+        // Otherwise it's likely a missing subtitle file - expected case
         console.log(`[youtubeAdapter] fetchTranscript: no subtitles available for ${itemExternalId}, skipping`, error);
         return '';
       }
