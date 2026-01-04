@@ -17,8 +17,8 @@ import {
 } from './extensions/SourceImportProgress';
 import {
   resolveImportNextAt,
-  resolveTranscriptAnalysisProgress,
   resolveOverallProgress,
+  resolveTranscriptAnalysisProgress,
   resolveTranscriptEmbeddingProgress,
   resolveTranscriptImportProgress
 } from './resolvers/sourceResolvers';

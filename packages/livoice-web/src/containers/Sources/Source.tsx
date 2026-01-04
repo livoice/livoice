@@ -1,4 +1,5 @@
 import { ArrowLeft } from 'lucide-react';
+import { useEffect, useRef } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Link, useParams } from 'react-router-dom';
 
@@ -23,6 +24,7 @@ const typeLabel: Record<string, string> = {
 
 export default function Source() {
   const { t } = useTranslation('common');
+  const headingRef = useRef<HTMLHeadingElement | null>(null);
   const { sourceId = '' } = useParams<{ sourceId: string }>();
   const toast = useToast();
 
@@ -35,6 +37,10 @@ export default function Source() {
     onCompleted: () => void refetch(),
     onError: err => toast.showToast(err?.message || t('errors.somethingWentWrong'), 'error')
   });
+
+  useEffect(() => {
+    headingRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+  }, []);
 
   if (!sourceId) return <Card className="p-6 text-sm text-muted-foreground">{t('errors.somethingWentWrong')}</Card>;
   if (loading) return <Card className="p-6 text-sm text-muted-foreground">{t('transcriptStatus.loading')}</Card>;
@@ -58,7 +64,9 @@ export default function Source() {
             {t('buttons.back')}
           </Link>
           <div className="flex flex-col">
-            <h1 className="text-2xl font-semibold text-slate-900">{source.name || t('sources.detail.untitled')}</h1>
+            <h1 ref={headingRef} className="text-2xl font-semibold text-slate-900">
+              {source.name || t('sources.detail.untitled')}
+            </h1>
             <div className="flex items-center gap-2 text-sm text-slate-600">
               <span className="rounded-full bg-slate-100 px-3 py-1 text-xs font-semibold text-slate-700">{type}</span>
               <span className="rounded-full bg-slate-50 px-3 py-1 text-xs font-semibold text-slate-600">{status}</span>
