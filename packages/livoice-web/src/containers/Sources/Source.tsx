@@ -39,8 +39,9 @@ export default function Source() {
   });
 
   useEffect(() => {
-    headingRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' });
-  }, []);
+    if (!data?.source) return;
+    requestAnimationFrame(() => headingRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' }));
+  }, [data?.source]);
 
   if (!sourceId) return <Card className="p-6 text-sm text-muted-foreground">{t('errors.somethingWentWrong')}</Card>;
   if (loading) return <Card className="p-6 text-sm text-muted-foreground">{t('transcriptStatus.loading')}</Card>;
