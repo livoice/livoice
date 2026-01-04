@@ -117,13 +117,37 @@ export default function Sources() {
                           </span>
                         </div>
                       )}
-                      <div className="flex items-center gap-3 text-sm text-slate-600">
+                      <div className="flex flex-wrap items-center gap-2 text-sm text-slate-600">
                         <span className="rounded-full bg-slate-100 px-3 py-1 text-xs font-semibold text-slate-700">
                           {typeLabel[source.type ?? ''] ?? source.type ?? '—'}
                         </span>
-                        <span className="rounded-full bg-slate-50 px-3 py-1 text-xs font-semibold text-slate-600">
-                          {statusLabel[source.importStatus ?? ''] ?? source.importStatus ?? '—'}
-                        </span>
+                        {source.overallProgress ? (
+                          [
+                            {
+                              label: 'Import',
+                              percent: source.overallProgress.importCompletedPercentage
+                            },
+                            {
+                              label: 'Analysis',
+                              percent: source.overallProgress.analysisCompletedPercentage
+                            },
+                            {
+                              label: 'Embedding',
+                              percent: source.overallProgress.embeddingCompletedPercentage
+                            }
+                          ].map(({ label, percent }) => (
+                            <span
+                              key={label}
+                              className="rounded-full bg-slate-50 px-3 py-1 text-xs font-semibold text-slate-600"
+                            >
+                              {label}: {Math.round(percent)}%
+                            </span>
+                          ))
+                        ) : (
+                          <span className="rounded-full bg-slate-50 px-3 py-1 text-xs font-semibold text-slate-600">
+                            {statusLabel[source.importStatus ?? ''] ?? source.importStatus ?? '—'}
+                          </span>
+                        )}
                         <span className="text-sm font-semibold text-slate-900">
                           {t('sources.list.columns.transcripts')}: {source.transcriptsCount ?? 0}
                         </span>
@@ -155,7 +179,3 @@ export default function Sources() {
     </div>
   );
 }
-
-
-
-
