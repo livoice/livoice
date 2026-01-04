@@ -1,12 +1,10 @@
 import { getPrismaSudo } from 'livoice-api/lib/prisma';
 import { analyzeTranscript, updateAnalysis } from 'livoice-api/services/transcriptAnalysis';
 import PQueue from 'p-queue';
+import flags from './config/flags';
 import { runForever } from './utils/loop';
 
-const CONCURRENCY = 3;
 const SLEEP_MS = 5_000;
-
-const queue = new PQueue({ concurrency: CONCURRENCY });
 
 const processTranscript = async (transcript: { id: string; title: string | null; sourceId: string | null }) => {
   console.log(
@@ -27,8 +25,13 @@ const processTranscript = async (transcript: { id: string; title: string | null;
 };
 
 export const start = async () => {
+  const queue = new PQueue();
+
   await runForever(async () => {
-    const freeSlots = CONCURRENCY - queue.size - queue.pending;
+    queue.concurrency = await flags.getNumber('workersAnalyzeProcessingConcurrency', 3);
+    console.log(`[analyzer] concurrency=${queue.concurrency}`);
+
+    const freeSlots = queue.concurrency - queue.size - queue.pending;
     if (freeSlots <= 0) return true;
 
     const prisma = await getPrismaSudo();

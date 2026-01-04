@@ -7,9 +7,12 @@
     "start": "tsx src/index.ts"
   },
   "dependencies": {
-    "livoice-api": "*",
     "bullmq": "^5.65.0",
+    "@configcat/sdk": "^1.0.2",
     "cron-parser": "^5.4.0",
+    "dotenv": "^16.5.0",
+    "envalid": "^8.0.0",
+    "livoice-api": "*",
     "p-queue": "^8.1.1"
   },
   "devDependencies": {
