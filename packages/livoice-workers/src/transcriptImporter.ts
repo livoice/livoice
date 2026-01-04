@@ -1,13 +1,17 @@
 import { getSourceAdapter } from 'livoice-api/lib/sources';
 import { fetchPendingTranscript, processTranscriptImport, updateTranscriptStatus } from 'livoice-api/lib/transcripts';
 import PQueue from 'p-queue';
+import flags from './config/flags';
 import { runForever } from './utils/loop';
 
 const SLEEP_MS = 5_000;
-const transcriptImportQueue = new PQueue({ concurrency: 1 });
 
 export const start = async () => {
+  const queue = new PQueue();
+
   await runForever(async () => {
+    queue.concurrency = await flags.getNumber('workersTranscriptImporterConcurrency', 1);
+
     const transcript = await fetchPendingTranscript();
     if (!transcript) return true;
 
@@ -20,7 +24,7 @@ export const start = async () => {
     console.log(`[transcriptImporter] processing transcript ${transcript.id}`);
 
     try {
-      await transcriptImportQueue.add(() => processTranscriptImport(transcript, adapter));
+      await queue.add(() => processTranscriptImport(transcript, adapter));
     } catch (error) {
       console.error(`[transcriptImporter] failed to import transcript ${transcript.id}:`, error);
     }
