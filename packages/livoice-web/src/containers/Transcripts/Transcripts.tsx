@@ -1,12 +1,12 @@
 import { Search } from 'lucide-react';
 import { parseAsString, useQueryState } from 'nuqs';
 import type { FormEvent } from 'react';
-import { useCallback, useEffect, useMemo, useState } from 'react';
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
+import InfiniteScroll from 'react-infinite-scroll-component';
 
 import { useTranscriptsQuery, type TranscriptsQuery } from '@/gql/generated';
 import { Card } from '@/ui';
-import InfiniteScroll from 'react-infinite-scroller';
 import { SummaryStat } from './components/SummaryStat';
 import { TranscriptGrid } from './components/TranscriptGrid';
 
@@ -38,7 +38,7 @@ const Transcripts = ({ sourceId, title, showSummary = true }: TranscriptsProps) 
     skip: !sourceId
   });
 
-  const [isFetchingMore, setIsFetchingMore] = useState(false);
+  const isFetchingMoreRef = useRef(false);
 
   const transcripts: NonNullable<TranscriptsQuery['transcripts']> = useMemo(
     () => data?.transcripts ?? [],
@@ -62,8 +62,8 @@ const Transcripts = ({ sourceId, title, showSummary = true }: TranscriptsProps) 
   };
 
   const handleLoadMore = useCallback(async () => {
-    if (loading || isFetchingMore || !hasMore) return;
-    setIsFetchingMore(true);
+    if (loading || isFetchingMoreRef.current || !hasMore) return;
+    isFetchingMoreRef.current = true;
     await fetchMore({
       variables: {
         sourceId,
@@ -72,8 +72,8 @@ const Transcripts = ({ sourceId, title, showSummary = true }: TranscriptsProps) 
         search: debouncedSearch || undefined
       }
     });
-    setIsFetchingMore(false);
-  }, [loading, isFetchingMore, hasMore, fetchMore, sourceId, pageSize, transcripts.length, debouncedSearch]);
+    isFetchingMoreRef.current = false;
+  }, [loading, hasMore, fetchMore, sourceId, pageSize, transcripts.length, debouncedSearch]);
 
   if (error) return <Card>{t('transcriptStatus.error')}</Card>;
 
@@ -116,15 +116,13 @@ const Transcripts = ({ sourceId, title, showSummary = true }: TranscriptsProps) 
             <div className="text-center text-sm text-muted-foreground">{t('transcriptStatus.loading')}</div>
           ) : (
             <InfiniteScroll
-              pageStart={0}
-              loadMore={() => void handleLoadMore()}
+              dataLength={transcripts.length}
+              next={() => void handleLoadMore()}
               hasMore={hasMore}
-              threshold={300}
               loader={
-                <div key="transcripts-loader" className="text-center text-sm text-muted-foreground">
-                  {t('transcriptStatus.loading')}
-                </div>
+                <div className="py-4 text-center text-sm text-muted-foreground">{t('transcriptStatus.loading')}</div>
               }
+              scrollThreshold="200px"
             >
               <TranscriptGrid transcripts={transcripts} sourceId={sourceId} />
             </InfiniteScroll>
