@@ -187,7 +187,7 @@ export const youtubeAdapter: SourceAdapter = {
     } catch (error) {
       // Check if this is an ENOENT error (file not found), which means no subtitles available
       if (error instanceof Error && 'code' in error && error.code === 'ENOENT') {
-        console.log(`[youtubeAdapter] fetchTranscript: no subtitles available for ${itemExternalId}, skipping`);
+        console.log(`[youtubeAdapter] fetchTranscript: no subtitles available for ${itemExternalId}, skipping`, error);
         return '';
       }
 
