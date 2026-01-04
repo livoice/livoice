@@ -11,11 +11,13 @@ import { SourceType } from '../lib/sources/types';
 import { SourceImportHistoryEntry, SourceImportHistoryEntryGraphqlType } from './extensions/SourceImportHistoryEntry';
 import {
   OverallProgressGraphqlType,
+  TranscriptAnalysisProgressGraphqlType,
   TranscriptEmbeddingProgressGraphqlType,
   TranscriptImportProgressGraphqlType
 } from './extensions/SourceImportProgress';
 import {
   resolveImportNextAt,
+  resolveTranscriptAnalysisProgress,
   resolveOverallProgress,
   resolveTranscriptEmbeddingProgress,
   resolveTranscriptImportProgress
@@ -73,6 +75,16 @@ export default list({
       field: graphql.field({
         type: TranscriptImportProgressGraphqlType,
         resolve: resolveTranscriptImportProgress
+      })
+    }),
+    transcriptAnalysisProgress: virtual({
+      ui: {
+        listView: { fieldMode: 'hidden' },
+        itemView: { fieldMode: 'hidden' }
+      },
+      field: graphql.field({
+        type: TranscriptAnalysisProgressGraphqlType,
+        resolve: resolveTranscriptAnalysisProgress
       })
     }),
     transcriptEmbeddingProgress: virtual({

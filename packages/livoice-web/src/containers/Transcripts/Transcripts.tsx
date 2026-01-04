@@ -1,19 +1,14 @@
 import { Search } from 'lucide-react';
 import { parseAsString, useQueryState } from 'nuqs';
 import type { FormEvent } from 'react';
-import { useMemo } from 'react';
+import { useCallback, useEffect, useMemo, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 
 import { useTranscriptsQuery, type TranscriptsQuery } from '@/gql/generated';
 import { Card } from '@/ui';
+import InfiniteScroll from 'react-infinite-scroller';
 import { SummaryStat } from './components/SummaryStat';
 import { TranscriptGrid } from './components/TranscriptGrid';
-
-const getSpeakerNames = (speakerActors?: { name?: string | null }[] | null) =>
-  (speakerActors ?? [])
-    .map(({ name }) => name)
-    .filter(Boolean)
-    .join(', ');
 
 type TranscriptsProps = {
   sourceId?: string;
@@ -24,43 +19,65 @@ type TranscriptsProps = {
 
 const Transcripts = ({ sourceId, title, showSummary = true }: TranscriptsProps) => {
   const { t } = useTranslation('common');
-  const { data, loading, error } = useTranscriptsQuery({
-    variables: { sourceId },
+  const pageSize = 10;
+  const [searchValue, setSearchValue] = useQueryState('search', parseAsString.withDefault(''));
+  const [debouncedSearch, setDebouncedSearch] = useState(searchValue);
+
+  useEffect(() => {
+    const timeout = setTimeout(() => setDebouncedSearch(searchValue.trim()), 300);
+    return () => clearTimeout(timeout);
+  }, [searchValue]);
+
+  const { data, loading, error, fetchMore } = useTranscriptsQuery({
+    variables: {
+      sourceId,
+      take: pageSize,
+      skip: 0,
+      search: debouncedSearch || undefined
+    },
     skip: !sourceId
   });
-  const [searchValue, setSearchValue] = useQueryState('search', parseAsString.withDefault(''));
+
+  const [isFetchingMore, setIsFetchingMore] = useState(false);
 
   const transcripts: NonNullable<TranscriptsQuery['transcripts']> = useMemo(
     () => data?.transcripts ?? [],
     [data?.transcripts]
   );
 
-  const filteredTranscripts = useMemo(() => {
-    if (!searchValue.trim()) return transcripts;
-    const normalized = searchValue.trim().toLowerCase();
+  const transcriptsCount = data?.transcriptsCount ?? 0;
+  const hasMore = transcripts.length < transcriptsCount;
 
-    return transcripts.filter(transcript => {
-      const haystack =
-        `${transcript.title ?? ''} ${transcript.notes ?? ''} ${getSpeakerNames(transcript.speakerActors)}`.toLowerCase();
-      return haystack.includes(normalized);
-    });
-  }, [searchValue, transcripts]);
-
-  const totalChunks = filteredTranscripts.reduce((sum, transcript) => sum + (transcript.segmentsCount ?? 0), 0);
-  const mostRecentTimestamp = filteredTranscripts.reduce((latest, transcript) => {
+  const totalChunks = transcripts.reduce((sum, transcript) => sum + (transcript.segmentsCount ?? 0), 0);
+  const mostRecentTimestamp = transcripts.reduce((latest, transcript) => {
     const timestamp = transcript.createdAt ? new Date(transcript.createdAt).getTime() : 0;
     return timestamp > latest ? timestamp : latest;
   }, 0);
   const formattedLastUpdated = mostRecentTimestamp ? new Date(mostRecentTimestamp).toLocaleDateString() : '—';
-  const transcriptCount = filteredTranscripts.length;
+  const transcriptCount = transcripts.length;
   const averageChunkCount = transcriptCount ? Math.round(totalChunks / transcriptCount) : 0;
 
   const handleSearchSubmit = (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
   };
 
-  if (loading) return <Card>{t('transcriptStatus.loading')}</Card>;
+  const handleLoadMore = useCallback(async () => {
+    if (loading || isFetchingMore || !hasMore) return;
+    setIsFetchingMore(true);
+    await fetchMore({
+      variables: {
+        sourceId,
+        take: pageSize,
+        skip: transcripts.length,
+        search: debouncedSearch || undefined
+      }
+    });
+    setIsFetchingMore(false);
+  }, [loading, isFetchingMore, hasMore, fetchMore, sourceId, pageSize, transcripts.length, debouncedSearch]);
+
   if (error) return <Card>{t('transcriptStatus.error')}</Card>;
+
+  const isInitialLoading = loading && transcripts.length === 0;
 
   return (
     <div className="space-y-6">
@@ -95,7 +112,23 @@ const Transcripts = ({ sourceId, title, showSummary = true }: TranscriptsProps) 
               <SummaryStat label="Last updated" value={formattedLastUpdated} />
             </div>
           ) : null}
-          <TranscriptGrid transcripts={filteredTranscripts} sourceId={sourceId} />
+          {isInitialLoading ? (
+            <div className="text-center text-sm text-muted-foreground">{t('transcriptStatus.loading')}</div>
+          ) : (
+            <InfiniteScroll
+              pageStart={0}
+              loadMore={() => void handleLoadMore()}
+              hasMore={hasMore}
+              threshold={300}
+              loader={
+                <div key="transcripts-loader" className="text-center text-sm text-muted-foreground">
+                  {t('transcriptStatus.loading')}
+                </div>
+              }
+            >
+              <TranscriptGrid transcripts={transcripts} sourceId={sourceId} />
+            </InfiniteScroll>
+          )}
         </div>
       </Card>
     </div>

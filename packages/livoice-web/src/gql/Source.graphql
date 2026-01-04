@@ -24,6 +24,19 @@ query Source($id: ID!) {
       failedPercentage
       skippedPercentage
     }
+    transcriptAnalysisProgress {
+      total
+      pending
+      processing
+      completed
+      failed
+      skipped
+      pendingPercentage
+      processingPercentage
+      completedPercentage
+      failedPercentage
+      skippedPercentage
+    }
     transcriptEmbeddingProgress {
       total
       pending
@@ -37,6 +50,7 @@ query Source($id: ID!) {
     }
     overallProgress {
       importCompletedPercentage
+      analysisCompletedPercentage
       embeddingCompletedPercentage
       overallPercentage
     }

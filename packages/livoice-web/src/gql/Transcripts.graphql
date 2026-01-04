@@ -1,11 +1,22 @@
-query Transcripts($sourceId: ID) {
-  transcripts(where: { source: { id: { equals: $sourceId } } }) {
+query Transcripts($sourceId: ID, $take: Int, $skip: Int, $search: String) {
+  transcripts(
+    where: {
+      AND: [
+        { source: { id: { equals: $sourceId } } }
+        { OR: [{ title: { contains: $search } }, { notes: { contains: $search } }] }
+      ]
+    }
+    orderBy: { createdAt: desc }
+    take: $take
+    skip: $skip
+  ) {
     id
     title
     notes
     createdAt
     segmentsCount
     importStatus
+    analysisStatus
     embeddingStatus
     speakerActors {
       id
@@ -23,4 +34,12 @@ query Transcripts($sourceId: ID) {
       name
     }
   }
+  transcriptsCount(
+    where: {
+      AND: [
+        { source: { id: { equals: $sourceId } } }
+        { OR: [{ title: { contains: $search } }, { notes: { contains: $search } }] }
+      ]
+    }
+  )
 }

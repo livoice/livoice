@@ -26,8 +26,23 @@ export type TranscriptEmbeddingProgress = {
   failedPercentage: number;
 };
 
+export type TranscriptAnalysisProgress = {
+  total: number;
+  pending: number;
+  processing: number;
+  completed: number;
+  failed: number;
+  skipped: number;
+  pendingPercentage: number;
+  processingPercentage: number;
+  completedPercentage: number;
+  failedPercentage: number;
+  skippedPercentage: number;
+};
+
 export type OverallProgress = {
   importCompletedPercentage: number;
+  analysisCompletedPercentage: number;
   embeddingCompletedPercentage: number;
   overallPercentage: number;
 };
@@ -72,10 +87,28 @@ const TranscriptEmbeddingProgressGraphqlType = graphql.object<TranscriptEmbeddin
   }
 });
 
+const TranscriptAnalysisProgressGraphqlType = graphql.object<TranscriptAnalysisProgress>()({
+  name: 'TranscriptAnalysisProgress',
+  fields: {
+    total: graphql.field({ type: graphql.nonNull(graphql.Int) }),
+    pending: graphql.field({ type: graphql.nonNull(graphql.Int) }),
+    processing: graphql.field({ type: graphql.nonNull(graphql.Int) }),
+    completed: graphql.field({ type: graphql.nonNull(graphql.Int) }),
+    failed: graphql.field({ type: graphql.nonNull(graphql.Int) }),
+    skipped: graphql.field({ type: graphql.nonNull(graphql.Int) }),
+    pendingPercentage: graphql.field({ type: graphql.nonNull(graphql.Float) }),
+    processingPercentage: graphql.field({ type: graphql.nonNull(graphql.Float) }),
+    completedPercentage: graphql.field({ type: graphql.nonNull(graphql.Float) }),
+    failedPercentage: graphql.field({ type: graphql.nonNull(graphql.Float) }),
+    skippedPercentage: graphql.field({ type: graphql.nonNull(graphql.Float) })
+  }
+});
+
 const OverallProgressGraphqlType = graphql.object<OverallProgress>()({
   name: 'OverallProgress',
   fields: {
     importCompletedPercentage: graphql.field({ type: graphql.nonNull(graphql.Float) }),
+    analysisCompletedPercentage: graphql.field({ type: graphql.nonNull(graphql.Float) }),
     embeddingCompletedPercentage: graphql.field({ type: graphql.nonNull(graphql.Float) }),
     overallPercentage: graphql.field({ type: graphql.nonNull(graphql.Float) })
   }
@@ -95,6 +128,7 @@ const SegmentEmbeddingProgressGraphqlType = graphql.object<SegmentEmbeddingProgr
 export {
   OverallProgressGraphqlType,
   SegmentEmbeddingProgressGraphqlType,
+  TranscriptAnalysisProgressGraphqlType,
   TranscriptEmbeddingProgressGraphqlType,
   TranscriptImportProgressGraphqlType
 };

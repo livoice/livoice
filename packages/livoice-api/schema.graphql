@@ -903,6 +903,7 @@ type Source {
   importHistory: JSON
   importHistoryTyped: [ImportHistoryEntry]
   transcriptImportProgress: TranscriptImportProgress
+  transcriptAnalysisProgress: TranscriptAnalysisProgress
   transcriptEmbeddingProgress: TranscriptEmbeddingProgress
   overallProgress: OverallProgress
   org: Organization
@@ -950,6 +951,20 @@ type TranscriptImportProgress {
   skippedPercentage: Float!
 }
 
+type TranscriptAnalysisProgress {
+  total: Int!
+  pending: Int!
+  processing: Int!
+  completed: Int!
+  failed: Int!
+  skipped: Int!
+  pendingPercentage: Float!
+  processingPercentage: Float!
+  completedPercentage: Float!
+  failedPercentage: Float!
+  skippedPercentage: Float!
+}
+
 type TranscriptEmbeddingProgress {
   total: Int!
   pending: Int!
@@ -964,6 +979,7 @@ type TranscriptEmbeddingProgress {
 
 type OverallProgress {
   importCompletedPercentage: Float!
+  analysisCompletedPercentage: Float!
   embeddingCompletedPercentage: Float!
   overallPercentage: Float!
 }

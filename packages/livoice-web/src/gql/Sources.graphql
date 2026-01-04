@@ -12,6 +12,7 @@ query Sources {
     transcriptsCount
     overallProgress {
       importCompletedPercentage
+      analysisCompletedPercentage
       embeddingCompletedPercentage
       overallPercentage
     }

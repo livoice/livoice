@@ -169,6 +169,48 @@ export default function Source() {
             </Card>
           )}
 
+          {source.transcriptAnalysisProgress && source.transcriptAnalysisProgress.total > 0 && (
+            <Card className="space-y-4 p-4">
+              <div className="flex items-center justify-between">
+                <h3 className="text-sm font-semibold text-slate-900">Transcript Analysis Progress</h3>
+                <span className="text-sm font-semibold text-slate-600">
+                  {source.transcriptAnalysisProgress.completed + source.transcriptAnalysisProgress.skipped}/
+                  {source.transcriptAnalysisProgress.total}
+                </span>
+              </div>
+              <div className="h-2 w-full overflow-hidden rounded-full bg-slate-200">
+                <div
+                  className="h-full bg-amber-500 transition-all"
+                  style={{ width: `${source.transcriptAnalysisProgress.completedPercentage}%` }}
+                />
+              </div>
+              <div className="grid grid-cols-2 gap-4 text-xs">
+                <div>
+                  <span className="text-slate-500">Pending:</span>{' '}
+                  <span className="font-semibold text-slate-900">{source.transcriptAnalysisProgress.pending}</span>
+                </div>
+                <div>
+                  <span className="text-slate-500">Processing:</span>{' '}
+                  <span className="font-semibold text-slate-900">{source.transcriptAnalysisProgress.processing}</span>
+                </div>
+                <div>
+                  <span className="text-slate-500">Completed:</span>{' '}
+                  <span className="font-semibold text-green-600">{source.transcriptAnalysisProgress.completed}</span>
+                </div>
+                <div>
+                  <span className="text-slate-500">Failed:</span>{' '}
+                  <span className="font-semibold text-red-600">{source.transcriptAnalysisProgress.failed}</span>
+                </div>
+                {source.transcriptAnalysisProgress.skipped > 0 && (
+                  <div>
+                    <span className="text-slate-500">Skipped:</span>{' '}
+                    <span className="font-semibold text-slate-600">{source.transcriptAnalysisProgress.skipped}</span>
+                  </div>
+                )}
+              </div>
+            </Card>
+          )}
+
           {source.transcriptEmbeddingProgress && source.transcriptEmbeddingProgress.total > 0 && (
             <Card className="space-y-4 p-4">
               <div className="flex items-center justify-between">

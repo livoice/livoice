@@ -64,6 +64,23 @@ export const TranscriptGrid = ({ transcripts, sourceId }: TranscriptGridProps) =
                   Import: {transcript.importStatus}
                 </span>
               )}
+              {transcript.analysisStatus && (
+                <span
+                  className={`rounded-full px-3 py-1 font-semibold ${
+                    transcript.analysisStatus === 'completed'
+                      ? 'bg-green-100 text-green-700'
+                      : transcript.analysisStatus === 'failed'
+                        ? 'bg-red-100 text-red-700'
+                        : transcript.analysisStatus === 'processing'
+                          ? 'bg-amber-100 text-amber-700'
+                          : transcript.analysisStatus === 'skipped'
+                            ? 'bg-slate-100 text-slate-600'
+                            : 'bg-slate-100 text-slate-700'
+                  }`}
+                >
+                  Analysis: {transcript.analysisStatus}
+                </span>
+              )}
               {transcript.embeddingStatus && (
                 <span
                   className={`rounded-full px-3 py-1 font-semibold ${

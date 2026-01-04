@@ -54,7 +54,28 @@ const errorLink = onError(({ graphQLErrors: graphQlErrors = [], networkError }) 
 
 const apolloClient = new ApolloClient({
   link: from([loadingLink, errorLink, httpLink]),
-  cache: new InMemoryCache({})
+  cache: new InMemoryCache({
+    typePolicies: {
+      Query: {
+        fields: {
+          transcripts: {
+            keyArgs: ['where', 'orderBy'],
+            merge(existing = [], incoming, { args }) {
+              const start = args?.skip ?? 0;
+              const existingList = existing ?? [];
+              const end = start + incoming.length;
+              const length = Math.max(existingList.length, end);
+              return Array.from({ length }, (_value, index) => {
+                const isIncomingRange = index >= start && index < end;
+                const incomingIndex = index - start;
+                return isIncomingRange ? incoming[incomingIndex] : existingList[index];
+              });
+            }
+          }
+        }
+      }
+    }
+  })
 });
 
 export { apolloClient };
