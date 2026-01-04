@@ -120,7 +120,14 @@ export const extractActors = async (
   const content = completion.choices?.[0]?.message?.content;
   if (!content) throw new Error('OpenAI returned empty content for actor extraction');
 
-  return JSON.parse(content) as ActorExtractionResult;
+  try {
+    return JSON.parse(content) as ActorExtractionResult;
+  } catch (error) {
+    console.error('[actorExtraction] Failed to parse JSON response:', content.slice(0, 500));
+    throw new Error(
+      `[actorExtraction] Failed to parse response: ${error instanceof Error ? error.message : 'unknown error'}`
+    );
+  }
 };
 
 const dedupeRelationships = (relationships: ExtractedRelationship[]) => {

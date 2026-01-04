@@ -117,11 +117,16 @@ const attributeMentionsByBatch = async (
   const content = completion.choices?.[0]?.message?.content;
   if (!content) return [];
 
-  const result = JSON.parse(content) as MentionAttributionResult;
-  console.log(
-    `[mentionAttribution] done batch segments=${segments.length} actors=${actorNames.length} mentions=${result.mentions?.length ?? 0}`
-  );
-  return result.mentions ?? [];
+  try {
+    const result = JSON.parse(content) as MentionAttributionResult;
+    console.log(
+      `[mentionAttribution] done batch segments=${segments.length} actors=${actorNames.length} mentions=${result.mentions?.length ?? 0}`
+    );
+    return result.mentions ?? [];
+  } catch (error) {
+    console.error('[mentionAttribution] Failed to parse JSON response:', content.slice(0, 500), error);
+    return [];
+  }
 };
 
 export const attributeMentions = async (

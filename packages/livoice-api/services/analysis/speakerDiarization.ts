@@ -143,7 +143,13 @@ const assignBatch = async (
   const content = completion.choices?.[0]?.message?.content;
   if (!content) return segments.map(s => ({ index: s.index, speaker: 'Unknown', role: 'unknown' }));
 
-  const result = JSON.parse(content) as CompactAssignmentResult;
+  let result: CompactAssignmentResult;
+  try {
+    result = JSON.parse(content) as CompactAssignmentResult;
+  } catch (error) {
+    console.error('[speakerDiarization] Failed to parse JSON response:', content.slice(0, 500), error);
+    return segments.map(s => ({ index: s.index, speaker: 'Unknown', role: 'unknown' }));
+  }
 
   // Convert compact format to SegmentAssignment array
   const assignments = Object.entries(result.segments ?? {}).map(([indexStr, speaker]) => ({
