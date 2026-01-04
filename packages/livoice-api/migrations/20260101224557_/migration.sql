@@ -6,76 +6,76 @@
 
 */
 -- AlterEnum
-ALTER TYPE "ActorTypeType" ADD VALUE 'book';
+ALTER TYPE "ActorTypeType" ADD VALUE IF NOT EXISTS 'book';
 
 -- DropForeignKey
-ALTER TABLE "ActorMention" DROP CONSTRAINT "ActorMention_segment_fkey";
+ALTER TABLE "ActorMention" DROP CONSTRAINT IF EXISTS "ActorMention_segment_fkey";
 
 -- DropForeignKey
-ALTER TABLE "ActorMention" DROP CONSTRAINT "ActorMention_source_fkey";
+ALTER TABLE "ActorMention" DROP CONSTRAINT IF EXISTS "ActorMention_source_fkey";
 
 -- DropForeignKey
-ALTER TABLE "ActorMention" DROP CONSTRAINT "ActorMention_transcript_fkey";
+ALTER TABLE "ActorMention" DROP CONSTRAINT IF EXISTS "ActorMention_transcript_fkey";
 
 -- DropForeignKey
-ALTER TABLE "Transcript" DROP CONSTRAINT "Transcript_source_fkey";
+ALTER TABLE "Transcript" DROP CONSTRAINT IF EXISTS "Transcript_source_fkey";
 
 -- DropForeignKey
-ALTER TABLE "TranscriptSegment" DROP CONSTRAINT "TranscriptSegment_source_fkey";
+ALTER TABLE "TranscriptSegment" DROP CONSTRAINT IF EXISTS "TranscriptSegment_source_fkey";
 
 -- DropForeignKey
-ALTER TABLE "TranscriptSegment" DROP CONSTRAINT "TranscriptSegment_transcript_fkey";
+ALTER TABLE "TranscriptSegment" DROP CONSTRAINT IF EXISTS "TranscriptSegment_transcript_fkey";
 
 -- DropForeignKey
-ALTER TABLE "_Source_speakerActors" DROP CONSTRAINT "_Source_speakerActors_A_fkey";
+ALTER TABLE IF EXISTS "_Source_speakerActors" DROP CONSTRAINT IF EXISTS "_Source_speakerActors_A_fkey";
 
 -- DropForeignKey
-ALTER TABLE "_Source_speakerActors" DROP CONSTRAINT "_Source_speakerActors_B_fkey";
+ALTER TABLE IF EXISTS "_Source_speakerActors" DROP CONSTRAINT IF EXISTS "_Source_speakerActors_B_fkey";
 
 -- DropForeignKey
-ALTER TABLE "_Transcript_speakerActors" DROP CONSTRAINT "_Transcript_speakerActors_A_fkey";
+ALTER TABLE IF EXISTS "_Transcript_speakerActors" DROP CONSTRAINT IF EXISTS "_Transcript_speakerActors_A_fkey";
 
 -- DropForeignKey
-ALTER TABLE "_Transcript_speakerActors" DROP CONSTRAINT "_Transcript_speakerActors_B_fkey";
+ALTER TABLE IF EXISTS "_Transcript_speakerActors" DROP CONSTRAINT IF EXISTS "_Transcript_speakerActors_B_fkey";
 
 -- DropIndex
-DROP INDEX "Actor_name_trgm_idx";
+DROP INDEX IF EXISTS "Actor_name_trgm_idx";
 
 -- DropIndex
-DROP INDEX "Actor_name_type_key";
+DROP INDEX IF EXISTS "Actor_name_type_key";
 
 -- AlterTable
 ALTER TABLE "ActorLink" ALTER COLUMN "linkType" SET DEFAULT '';
 
 -- DropTable
-DROP TABLE "_Source_speakerActors";
+DROP TABLE IF EXISTS "_Source_speakerActors";
 
 -- DropTable
-DROP TABLE "_Transcript_speakerActors";
+DROP TABLE IF EXISTS "_Transcript_speakerActors";
 
 -- CreateTable
-CREATE TABLE "_Actor_speakerSources" (
+CREATE TABLE IF NOT EXISTS "_Actor_speakerSources" (
     "A" TEXT NOT NULL,
     "B" TEXT NOT NULL
 );
 
 -- CreateTable
-CREATE TABLE "_Actor_speakerTranscripts" (
+CREATE TABLE IF NOT EXISTS "_Actor_speakerTranscripts" (
     "A" TEXT NOT NULL,
     "B" TEXT NOT NULL
 );
 
 -- CreateIndex
-CREATE UNIQUE INDEX "_Actor_speakerSources_AB_unique" ON "_Actor_speakerSources"("A", "B");
+CREATE UNIQUE INDEX IF NOT EXISTS "_Actor_speakerSources_AB_unique" ON "_Actor_speakerSources"("A", "B");
 
 -- CreateIndex
-CREATE INDEX "_Actor_speakerSources_B_index" ON "_Actor_speakerSources"("B");
+CREATE INDEX IF NOT EXISTS "_Actor_speakerSources_B_index" ON "_Actor_speakerSources"("B");
 
 -- CreateIndex
-CREATE UNIQUE INDEX "_Actor_speakerTranscripts_AB_unique" ON "_Actor_speakerTranscripts"("A", "B");
+CREATE UNIQUE INDEX IF NOT EXISTS "_Actor_speakerTranscripts_AB_unique" ON "_Actor_speakerTranscripts"("A", "B");
 
 -- CreateIndex
-CREATE INDEX "_Actor_speakerTranscripts_B_index" ON "_Actor_speakerTranscripts"("B");
+CREATE INDEX IF NOT EXISTS "_Actor_speakerTranscripts_B_index" ON "_Actor_speakerTranscripts"("B");
 
 -- AddForeignKey
 ALTER TABLE "ActorMention" ADD CONSTRAINT "ActorMention_segment_fkey" FOREIGN KEY ("segment") REFERENCES "TranscriptSegment"("id") ON DELETE SET NULL ON UPDATE CASCADE;
