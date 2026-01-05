@@ -288,6 +288,25 @@ export default function ChatMessageDebug() {
 
           {activeTab === 'config' && (
             <section className="space-y-4">
+              {/* Config metadata */}
+              <div className="rounded-2xl border border-violet-100 bg-violet-50/60 p-4">
+                <div className="grid gap-3 sm:grid-cols-3 text-sm">
+                  <div>
+                    <p className="text-xs uppercase text-violet-500">Config Name</p>
+                    <p className="font-semibold text-violet-900">{debugData.config.name ?? 'Unnamed'}</p>
+                  </div>
+                  <div>
+                    <p className="text-xs uppercase text-violet-500">Config ID</p>
+                    <p className="font-mono text-xs text-violet-700">{debugData.config.id ?? '—'}</p>
+                  </div>
+                  <div>
+                    <p className="text-xs uppercase text-violet-500">Created At</p>
+                    <p className="text-violet-700">
+                      {debugData.config.createdAt ? new Date(debugData.config.createdAt).toLocaleString() : '—'}
+                    </p>
+                  </div>
+                </div>
+              </div>
               <div className="rounded-2xl border border-slate-100 bg-slate-50/60 p-4 text-sm text-slate-700">
                 <p className="text-xs uppercase text-slate-500">System Prompt</p>
                 <pre className="mt-2 max-h-100 overflow-y-auto whitespace-pre-wrap text-xs text-slate-600">

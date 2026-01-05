@@ -505,14 +505,14 @@ export type BooleanFilter = {
 
 export type Chat = {
   __typename?: 'Chat';
-  config?: Maybe<Scalars['JSON']['output']>;
+  chatConfig?: Maybe<ChatConfig>;
+  configSnapshot?: Maybe<Scalars['JSON']['output']>;
   createdAt?: Maybe<Scalars['DateTime']['output']>;
   id: Scalars['ID']['output'];
   messages?: Maybe<Array<ChatMessage>>;
   messagesCount?: Maybe<Scalars['Int']['output']>;
   org?: Maybe<Organization>;
   project?: Maybe<Project>;
-  systemPrompt?: Maybe<Scalars['String']['output']>;
   title?: Maybe<Scalars['String']['output']>;
   updatedAt?: Maybe<Scalars['DateTime']['output']>;
   user?: Maybe<User>;
@@ -534,65 +534,138 @@ export type ChatMessagesCountArgs = {
 
 export type ChatConfig = {
   __typename?: 'ChatConfig';
-  context: ChatConfigContext;
+  chats?: Maybe<Array<Chat>>;
+  chatsCount?: Maybe<Scalars['Int']['output']>;
+  context?: Maybe<Scalars['JSON']['output']>;
+  createdAt?: Maybe<Scalars['DateTime']['output']>;
+  id: Scalars['ID']['output'];
   name?: Maybe<Scalars['String']['output']>;
-  openai: ChatConfigOpenAi;
-  segments: ChatConfigSegments;
+  notes?: Maybe<Scalars['String']['output']>;
+  openai?: Maybe<Scalars['JSON']['output']>;
+  segments?: Maybe<Scalars['JSON']['output']>;
+  systemPrompt?: Maybe<Scalars['String']['output']>;
+  updatedAt?: Maybe<Scalars['DateTime']['output']>;
+};
+
+
+export type ChatConfigChatsArgs = {
+  cursor?: InputMaybe<ChatWhereUniqueInput>;
+  orderBy?: Array<ChatOrderByInput>;
+  skip?: Scalars['Int']['input'];
+  take?: InputMaybe<Scalars['Int']['input']>;
+  where?: ChatWhereInput;
+};
+
+
+export type ChatConfigChatsCountArgs = {
+  where?: ChatWhereInput;
+};
+
+export type ChatConfigCreateInput = {
+  chats?: InputMaybe<ChatRelateToManyForCreateInput>;
+  context?: InputMaybe<Scalars['JSON']['input']>;
+  createdAt?: InputMaybe<Scalars['DateTime']['input']>;
+  name?: InputMaybe<Scalars['String']['input']>;
+  notes?: InputMaybe<Scalars['String']['input']>;
+  openai?: InputMaybe<Scalars['JSON']['input']>;
+  segments?: InputMaybe<Scalars['JSON']['input']>;
+  systemPrompt?: InputMaybe<Scalars['String']['input']>;
+  updatedAt?: InputMaybe<Scalars['DateTime']['input']>;
+};
+
+export type ChatConfigOrderByInput = {
+  createdAt?: InputMaybe<OrderDirection>;
+  id?: InputMaybe<OrderDirection>;
+  name?: InputMaybe<OrderDirection>;
+  notes?: InputMaybe<OrderDirection>;
+  systemPrompt?: InputMaybe<OrderDirection>;
+  updatedAt?: InputMaybe<OrderDirection>;
+};
+
+export type ChatConfigRelateToOneForCreateInput = {
+  connect?: InputMaybe<ChatConfigWhereUniqueInput>;
+  create?: InputMaybe<ChatConfigCreateInput>;
+};
+
+export type ChatConfigRelateToOneForUpdateInput = {
+  connect?: InputMaybe<ChatConfigWhereUniqueInput>;
+  create?: InputMaybe<ChatConfigCreateInput>;
+  disconnect?: InputMaybe<Scalars['Boolean']['input']>;
+};
+
+export type ChatConfigSnapshot = {
+  __typename?: 'ChatConfigSnapshot';
+  context: ChatConfigSnapshotContext;
+  createdAt?: Maybe<Scalars['String']['output']>;
+  id?: Maybe<Scalars['ID']['output']>;
+  name?: Maybe<Scalars['String']['output']>;
+  openai: ChatConfigSnapshotOpenAi;
+  segments: ChatConfigSnapshotSegments;
   systemPrompt: Scalars['String']['output'];
 };
 
-export type ChatConfigContext = {
-  __typename?: 'ChatConfigContext';
+export type ChatConfigSnapshotContext = {
+  __typename?: 'ChatConfigSnapshotContext';
   historyTokenBudget: Scalars['Int']['output'];
   maxInputTokens: Scalars['Int']['output'];
   reservedTokens: Scalars['Int']['output'];
 };
 
-export type ChatConfigContextInput = {
-  historyTokenBudget?: InputMaybe<Scalars['Int']['input']>;
-  maxInputTokens?: InputMaybe<Scalars['Int']['input']>;
-  reservedTokens?: InputMaybe<Scalars['Int']['input']>;
-};
-
-export type ChatConfigInput = {
-  context?: InputMaybe<ChatConfigContextInput>;
-  name?: InputMaybe<Scalars['String']['input']>;
-  openai?: InputMaybe<ChatConfigOpenAiInput>;
-  segments?: InputMaybe<ChatConfigSegmentsInput>;
-  systemPrompt?: InputMaybe<Scalars['String']['input']>;
-};
-
-export type ChatConfigOpenAi = {
-  __typename?: 'ChatConfigOpenAI';
+export type ChatConfigSnapshotOpenAi = {
+  __typename?: 'ChatConfigSnapshotOpenAI';
   maxOutputTokens: Scalars['Int']['output'];
   model: Scalars['String']['output'];
   temperature: Scalars['Float']['output'];
 };
 
-export type ChatConfigOpenAiInput = {
-  maxOutputTokens?: InputMaybe<Scalars['Int']['input']>;
-  model?: InputMaybe<Scalars['String']['input']>;
-  temperature?: InputMaybe<Scalars['Float']['input']>;
-};
-
-export type ChatConfigSegments = {
-  __typename?: 'ChatConfigSegments';
+export type ChatConfigSnapshotSegments = {
+  __typename?: 'ChatConfigSnapshotSegments';
   maxCount: Scalars['Int']['output'];
   tokenBudget: Scalars['Int']['output'];
 };
 
-export type ChatConfigSegmentsInput = {
-  maxCount?: InputMaybe<Scalars['Int']['input']>;
-  tokenBudget?: InputMaybe<Scalars['Int']['input']>;
+export type ChatConfigUpdateArgs = {
+  data: ChatConfigUpdateInput;
+  where: ChatConfigWhereUniqueInput;
+};
+
+export type ChatConfigUpdateInput = {
+  chats?: InputMaybe<ChatRelateToManyForUpdateInput>;
+  context?: InputMaybe<Scalars['JSON']['input']>;
+  createdAt?: InputMaybe<Scalars['DateTime']['input']>;
+  name?: InputMaybe<Scalars['String']['input']>;
+  notes?: InputMaybe<Scalars['String']['input']>;
+  openai?: InputMaybe<Scalars['JSON']['input']>;
+  segments?: InputMaybe<Scalars['JSON']['input']>;
+  systemPrompt?: InputMaybe<Scalars['String']['input']>;
+  updatedAt?: InputMaybe<Scalars['DateTime']['input']>;
+};
+
+export type ChatConfigWhereInput = {
+  AND?: InputMaybe<Array<ChatConfigWhereInput>>;
+  NOT?: InputMaybe<Array<ChatConfigWhereInput>>;
+  OR?: InputMaybe<Array<ChatConfigWhereInput>>;
+  chats?: InputMaybe<ChatManyRelationFilter>;
+  createdAt?: InputMaybe<DateTimeNullableFilter>;
+  id?: InputMaybe<IdFilter>;
+  name?: InputMaybe<StringFilter>;
+  notes?: InputMaybe<StringFilter>;
+  systemPrompt?: InputMaybe<StringFilter>;
+  updatedAt?: InputMaybe<DateTimeNullableFilter>;
+};
+
+export type ChatConfigWhereUniqueInput = {
+  id?: InputMaybe<Scalars['ID']['input']>;
+  name?: InputMaybe<Scalars['String']['input']>;
 };
 
 export type ChatCreateInput = {
-  config?: InputMaybe<Scalars['JSON']['input']>;
+  chatConfig?: InputMaybe<ChatConfigRelateToOneForCreateInput>;
+  configSnapshot?: InputMaybe<Scalars['JSON']['input']>;
   createdAt?: InputMaybe<Scalars['DateTime']['input']>;
   messages?: InputMaybe<ChatMessageRelateToManyForCreateInput>;
   org?: InputMaybe<OrganizationRelateToOneForCreateInput>;
   project?: InputMaybe<ProjectRelateToOneForCreateInput>;
-  systemPrompt?: InputMaybe<Scalars['String']['input']>;
   title?: InputMaybe<Scalars['String']['input']>;
   updatedAt?: InputMaybe<Scalars['DateTime']['input']>;
   user?: InputMaybe<UserRelateToOneForCreateInput>;
@@ -601,7 +674,7 @@ export type ChatCreateInput = {
 export type ChatHistoryResult = {
   __typename?: 'ChatHistoryResult';
   chatId?: Maybe<Scalars['ID']['output']>;
-  config?: Maybe<ChatConfig>;
+  config?: Maybe<ChatConfigSnapshot>;
   messages: Array<ChatMessageResult>;
   resolvedSystemPrompt?: Maybe<Scalars['String']['output']>;
   systemPrompt?: Maybe<Scalars['String']['output']>;
@@ -634,7 +707,7 @@ export type ChatMessageCreateInput = {
 
 export type ChatMessageDebugData = {
   __typename?: 'ChatMessageDebugData';
-  config: ChatConfig;
+  config: ChatConfigSnapshot;
   history: ChatMessageDebugHistory;
   openaiResponse: ChatMessageDebugOpenAiResponse;
   resolvedSystemPrompt: Scalars['String']['output'];
@@ -758,17 +831,15 @@ export type ChatMutationResult = {
 export type ChatOrderByInput = {
   createdAt?: InputMaybe<OrderDirection>;
   id?: InputMaybe<OrderDirection>;
-  systemPrompt?: InputMaybe<OrderDirection>;
   title?: InputMaybe<OrderDirection>;
   updatedAt?: InputMaybe<OrderDirection>;
 };
 
 export type ChatProjectInput = {
+  chatConfigId?: InputMaybe<Scalars['ID']['input']>;
   chatId?: InputMaybe<Scalars['ID']['input']>;
-  config?: InputMaybe<ChatConfigInput>;
   message: Scalars['String']['input'];
   projectId: Scalars['ID']['input'];
-  systemPrompt?: InputMaybe<Scalars['String']['input']>;
 };
 
 export type ChatRelateToManyForCreateInput = {
@@ -810,12 +881,12 @@ export type ChatUpdateArgs = {
 };
 
 export type ChatUpdateInput = {
-  config?: InputMaybe<Scalars['JSON']['input']>;
+  chatConfig?: InputMaybe<ChatConfigRelateToOneForUpdateInput>;
+  configSnapshot?: InputMaybe<Scalars['JSON']['input']>;
   createdAt?: InputMaybe<Scalars['DateTime']['input']>;
   messages?: InputMaybe<ChatMessageRelateToManyForUpdateInput>;
   org?: InputMaybe<OrganizationRelateToOneForUpdateInput>;
   project?: InputMaybe<ProjectRelateToOneForUpdateInput>;
-  systemPrompt?: InputMaybe<Scalars['String']['input']>;
   title?: InputMaybe<Scalars['String']['input']>;
   updatedAt?: InputMaybe<Scalars['DateTime']['input']>;
   user?: InputMaybe<UserRelateToOneForUpdateInput>;
@@ -825,12 +896,12 @@ export type ChatWhereInput = {
   AND?: InputMaybe<Array<ChatWhereInput>>;
   NOT?: InputMaybe<Array<ChatWhereInput>>;
   OR?: InputMaybe<Array<ChatWhereInput>>;
+  chatConfig?: InputMaybe<ChatConfigWhereInput>;
   createdAt?: InputMaybe<DateTimeNullableFilter>;
   id?: InputMaybe<IdFilter>;
   messages?: InputMaybe<ChatMessageManyRelationFilter>;
   org?: InputMaybe<OrganizationWhereInput>;
   project?: InputMaybe<ProjectWhereInput>;
-  systemPrompt?: InputMaybe<StringFilter>;
   title?: InputMaybe<StringFilter>;
   updatedAt?: InputMaybe<DateTimeNullableFilter>;
   user?: InputMaybe<UserWhereInput>;
@@ -1110,6 +1181,8 @@ export type Mutation = {
   createActorMentions?: Maybe<Array<Maybe<ActorMention>>>;
   createActors?: Maybe<Array<Maybe<Actor>>>;
   createChat?: Maybe<Chat>;
+  createChatConfig?: Maybe<ChatConfig>;
+  createChatConfigs?: Maybe<Array<Maybe<ChatConfig>>>;
   createChatMessage?: Maybe<ChatMessage>;
   createChatMessages?: Maybe<Array<Maybe<ChatMessage>>>;
   createChats?: Maybe<Array<Maybe<Chat>>>;
@@ -1132,6 +1205,8 @@ export type Mutation = {
   deleteActorMentions?: Maybe<Array<Maybe<ActorMention>>>;
   deleteActors?: Maybe<Array<Maybe<Actor>>>;
   deleteChat?: Maybe<Chat>;
+  deleteChatConfig?: Maybe<ChatConfig>;
+  deleteChatConfigs?: Maybe<Array<Maybe<ChatConfig>>>;
   deleteChatMessage?: Maybe<ChatMessage>;
   deleteChatMessages?: Maybe<Array<Maybe<ChatMessage>>>;
   deleteChats?: Maybe<Array<Maybe<Chat>>>;
@@ -1156,6 +1231,8 @@ export type Mutation = {
   updateActorMentions?: Maybe<Array<Maybe<ActorMention>>>;
   updateActors?: Maybe<Array<Maybe<Actor>>>;
   updateChat?: Maybe<Chat>;
+  updateChatConfig?: Maybe<ChatConfig>;
+  updateChatConfigs?: Maybe<Array<Maybe<ChatConfig>>>;
   updateChatMessage?: Maybe<ChatMessage>;
   updateChatMessages?: Maybe<Array<Maybe<ChatMessage>>>;
   updateChats?: Maybe<Array<Maybe<Chat>>>;
@@ -1211,6 +1288,16 @@ export type MutationCreateActorsArgs = {
 
 export type MutationCreateChatArgs = {
   data: ChatCreateInput;
+};
+
+
+export type MutationCreateChatConfigArgs = {
+  data: ChatConfigCreateInput;
+};
+
+
+export type MutationCreateChatConfigsArgs = {
+  data: Array<ChatConfigCreateInput>;
 };
 
 
@@ -1321,6 +1408,16 @@ export type MutationDeleteActorsArgs = {
 
 export type MutationDeleteChatArgs = {
   where: ChatWhereUniqueInput;
+};
+
+
+export type MutationDeleteChatConfigArgs = {
+  where: ChatConfigWhereUniqueInput;
+};
+
+
+export type MutationDeleteChatConfigsArgs = {
+  where: Array<ChatConfigWhereUniqueInput>;
 };
 
 
@@ -1440,6 +1537,17 @@ export type MutationUpdateActorsArgs = {
 export type MutationUpdateChatArgs = {
   data: ChatUpdateInput;
   where: ChatWhereUniqueInput;
+};
+
+
+export type MutationUpdateChatConfigArgs = {
+  data: ChatConfigUpdateInput;
+  where: ChatConfigWhereUniqueInput;
+};
+
+
+export type MutationUpdateChatConfigsArgs = {
+  data: Array<ChatConfigUpdateArgs>;
 };
 
 
@@ -1820,6 +1928,9 @@ export type Query = {
   actors?: Maybe<Array<Actor>>;
   actorsCount?: Maybe<Scalars['Int']['output']>;
   chat?: Maybe<Chat>;
+  chatConfig?: Maybe<ChatConfig>;
+  chatConfigs?: Maybe<Array<ChatConfig>>;
+  chatConfigsCount?: Maybe<Scalars['Int']['output']>;
   chatMessage?: Maybe<ChatMessage>;
   chatMessages?: Maybe<Array<ChatMessage>>;
   chatMessagesCount?: Maybe<Scalars['Int']['output']>;
@@ -1907,6 +2018,25 @@ export type QueryActorsCountArgs = {
 
 export type QueryChatArgs = {
   where: ChatWhereUniqueInput;
+};
+
+
+export type QueryChatConfigArgs = {
+  where: ChatConfigWhereUniqueInput;
+};
+
+
+export type QueryChatConfigsArgs = {
+  cursor?: InputMaybe<ChatConfigWhereUniqueInput>;
+  orderBy?: Array<ChatConfigOrderByInput>;
+  skip?: Scalars['Int']['input'];
+  take?: InputMaybe<Scalars['Int']['input']>;
+  where?: ChatConfigWhereInput;
+};
+
+
+export type QueryChatConfigsCountArgs = {
+  where?: ChatConfigWhereInput;
 };
 
 
@@ -2884,17 +3014,24 @@ export type GetAllUsersQueryVariables = Exact<{ [key: string]: never; }>;
 
 export type GetAllUsersQuery = { __typename?: 'Query', users?: Array<{ __typename?: 'User', id: string, firstName?: string | null, lastName?: string | null, email?: string | null, displayName?: string | null, role?: UserRoleType | null, avatarUrl?: string | null, provisionedAt?: any | null, seenAt?: any | null, isActive?: boolean | null }> | null };
 
+export type ChatConfigQueryVariables = Exact<{
+  id: Scalars['ID']['input'];
+}>;
+
+
+export type ChatConfigQuery = { __typename?: 'Query', chatConfig?: { __typename?: 'ChatConfig', id: string, name?: string | null, notes?: string | null, systemPrompt?: string | null, openai?: any | null, context?: any | null, segments?: any | null, createdAt?: any | null, updatedAt?: any | null } | null };
+
 export type ChatConfigsQueryVariables = Exact<{ [key: string]: never; }>;
 
 
-export type ChatConfigsQuery = { __typename?: 'Query', chats?: Array<{ __typename?: 'Chat', id: string, title?: string | null, createdAt?: any | null, config?: any | null, project?: { __typename?: 'Project', id: string, name?: string | null } | null }> | null };
+export type ChatConfigsQuery = { __typename?: 'Query', chatConfigs?: Array<{ __typename?: 'ChatConfig', id: string, name?: string | null, notes?: string | null, systemPrompt?: string | null, openai?: any | null, context?: any | null, segments?: any | null, createdAt?: any | null, updatedAt?: any | null }> | null };
 
 export type ChatProjectMutationVariables = Exact<{
   input: ChatProjectInput;
 }>;
 
 
-export type ChatProjectMutation = { __typename?: 'Mutation', chatProject: { __typename?: 'ChatMutationResult', chatId: string, answer: string, messages: Array<{ __typename?: 'ChatMessageResult', id: string, role: string, content: string, createdAt?: string | null, debugData?: { __typename?: 'ChatMessageDebugData', resolvedSystemPrompt: string, userMessageWithContext: string, segmentTokensUsed: number, config: { __typename?: 'ChatConfig', systemPrompt: string, openai: { __typename?: 'ChatConfigOpenAI', model: string, temperature: number, maxOutputTokens: number }, context: { __typename?: 'ChatConfigContext', maxInputTokens: number, reservedTokens: number, historyTokenBudget: number }, segments: { __typename?: 'ChatConfigSegments', tokenBudget: number, maxCount: number } }, history: { __typename?: 'ChatMessageDebugHistory', messagesIncluded: number, tokensUsed: number, tokenBudget: number, messages: Array<{ __typename?: 'ChatMessageDebugHistoryMessage', role: string, content: string, tokens: number }> }, segments?: Array<{ __typename?: 'ChatMessageDebugSegment', id: string, text: string, transcriptTitle?: string | null, speaker?: string | null, startMs?: number | null, endMs?: number | null, similarityScore?: number | null, estimatedTokens: number }> | null, openaiResponse: { __typename?: 'ChatMessageDebugOpenAIResponse', model: string, promptTokens?: number | null, completionTokens?: number | null, totalTokens?: number | null }, timing: { __typename?: 'ChatMessageDebugTiming', startedAt: string, completedAt: string } } | null }>, references: Array<{ __typename?: 'ChatSegmentReference', id: string, text: string, startMs?: number | null, endMs?: number | null, speaker?: string | null, transcriptTitle?: string | null }> } };
+export type ChatProjectMutation = { __typename?: 'Mutation', chatProject: { __typename?: 'ChatMutationResult', chatId: string, answer: string, messages: Array<{ __typename?: 'ChatMessageResult', id: string, role: string, content: string, createdAt?: string | null, debugData?: { __typename?: 'ChatMessageDebugData', resolvedSystemPrompt: string, userMessageWithContext: string, segmentTokensUsed: number, config: { __typename?: 'ChatConfigSnapshot', id?: string | null, name?: string | null, createdAt?: string | null, systemPrompt: string, openai: { __typename?: 'ChatConfigSnapshotOpenAI', model: string, temperature: number, maxOutputTokens: number }, context: { __typename?: 'ChatConfigSnapshotContext', maxInputTokens: number, reservedTokens: number, historyTokenBudget: number }, segments: { __typename?: 'ChatConfigSnapshotSegments', tokenBudget: number, maxCount: number } }, history: { __typename?: 'ChatMessageDebugHistory', messagesIncluded: number, tokensUsed: number, tokenBudget: number, messages: Array<{ __typename?: 'ChatMessageDebugHistoryMessage', role: string, content: string, tokens: number }> }, segments?: Array<{ __typename?: 'ChatMessageDebugSegment', id: string, text: string, transcriptTitle?: string | null, speaker?: string | null, startMs?: number | null, endMs?: number | null, similarityScore?: number | null, estimatedTokens: number }> | null, openaiResponse: { __typename?: 'ChatMessageDebugOpenAIResponse', model: string, promptTokens?: number | null, completionTokens?: number | null, totalTokens?: number | null }, timing: { __typename?: 'ChatMessageDebugTiming', startedAt: string, completedAt: string } } | null }>, references: Array<{ __typename?: 'ChatSegmentReference', id: string, text: string, startMs?: number | null, endMs?: number | null, speaker?: string | null, transcriptTitle?: string | null }> } };
 
 export type ChatProjectHistoryQueryVariables = Exact<{
   projectId: Scalars['ID']['input'];
@@ -2902,7 +3039,14 @@ export type ChatProjectHistoryQueryVariables = Exact<{
 }>;
 
 
-export type ChatProjectHistoryQuery = { __typename?: 'Query', chatProjectHistory: { __typename?: 'ChatHistoryResult', chatId?: string | null, title?: string | null, systemPrompt?: string | null, resolvedSystemPrompt?: string | null, config?: { __typename?: 'ChatConfig', systemPrompt: string, openai: { __typename?: 'ChatConfigOpenAI', model: string, temperature: number, maxOutputTokens: number }, context: { __typename?: 'ChatConfigContext', maxInputTokens: number, reservedTokens: number, historyTokenBudget: number }, segments: { __typename?: 'ChatConfigSegments', tokenBudget: number, maxCount: number } } | null, messages: Array<{ __typename?: 'ChatMessageResult', id: string, role: string, content: string, createdAt?: string | null, debugData?: { __typename?: 'ChatMessageDebugData', resolvedSystemPrompt: string, userMessageWithContext: string, segmentTokensUsed: number, config: { __typename?: 'ChatConfig', systemPrompt: string, openai: { __typename?: 'ChatConfigOpenAI', model: string, temperature: number, maxOutputTokens: number }, context: { __typename?: 'ChatConfigContext', maxInputTokens: number, reservedTokens: number, historyTokenBudget: number }, segments: { __typename?: 'ChatConfigSegments', tokenBudget: number, maxCount: number } }, history: { __typename?: 'ChatMessageDebugHistory', messagesIncluded: number, tokensUsed: number, tokenBudget: number, messages: Array<{ __typename?: 'ChatMessageDebugHistoryMessage', role: string, content: string, tokens: number }> }, segments?: Array<{ __typename?: 'ChatMessageDebugSegment', id: string, text: string, transcriptTitle?: string | null, speaker?: string | null, startMs?: number | null, endMs?: number | null, similarityScore?: number | null, estimatedTokens: number }> | null, openaiResponse: { __typename?: 'ChatMessageDebugOpenAIResponse', model: string, promptTokens?: number | null, completionTokens?: number | null, totalTokens?: number | null }, timing: { __typename?: 'ChatMessageDebugTiming', startedAt: string, completedAt: string } } | null }> } };
+export type ChatProjectHistoryQuery = { __typename?: 'Query', chatProjectHistory: { __typename?: 'ChatHistoryResult', chatId?: string | null, title?: string | null, systemPrompt?: string | null, resolvedSystemPrompt?: string | null, config?: { __typename?: 'ChatConfigSnapshot', id?: string | null, name?: string | null, createdAt?: string | null, systemPrompt: string, openai: { __typename?: 'ChatConfigSnapshotOpenAI', model: string, temperature: number, maxOutputTokens: number }, context: { __typename?: 'ChatConfigSnapshotContext', maxInputTokens: number, reservedTokens: number, historyTokenBudget: number }, segments: { __typename?: 'ChatConfigSnapshotSegments', tokenBudget: number, maxCount: number } } | null, messages: Array<{ __typename?: 'ChatMessageResult', id: string, role: string, content: string, createdAt?: string | null, debugData?: { __typename?: 'ChatMessageDebugData', resolvedSystemPrompt: string, userMessageWithContext: string, segmentTokensUsed: number, config: { __typename?: 'ChatConfigSnapshot', id?: string | null, name?: string | null, createdAt?: string | null, systemPrompt: string, openai: { __typename?: 'ChatConfigSnapshotOpenAI', model: string, temperature: number, maxOutputTokens: number }, context: { __typename?: 'ChatConfigSnapshotContext', maxInputTokens: number, reservedTokens: number, historyTokenBudget: number }, segments: { __typename?: 'ChatConfigSnapshotSegments', tokenBudget: number, maxCount: number } }, history: { __typename?: 'ChatMessageDebugHistory', messagesIncluded: number, tokensUsed: number, tokenBudget: number, messages: Array<{ __typename?: 'ChatMessageDebugHistoryMessage', role: string, content: string, tokens: number }> }, segments?: Array<{ __typename?: 'ChatMessageDebugSegment', id: string, text: string, transcriptTitle?: string | null, speaker?: string | null, startMs?: number | null, endMs?: number | null, similarityScore?: number | null, estimatedTokens: number }> | null, openaiResponse: { __typename?: 'ChatMessageDebugOpenAIResponse', model: string, promptTokens?: number | null, completionTokens?: number | null, totalTokens?: number | null }, timing: { __typename?: 'ChatMessageDebugTiming', startedAt: string, completedAt: string } } | null }> } };
+
+export type CreateChatConfigMutationVariables = Exact<{
+  data: ChatConfigCreateInput;
+}>;
+
+
+export type CreateChatConfigMutation = { __typename?: 'Mutation', createChatConfig?: { __typename?: 'ChatConfig', id: string, name?: string | null, notes?: string | null, systemPrompt?: string | null, openai?: any | null, context?: any | null, segments?: any | null, createdAt?: any | null, updatedAt?: any | null } | null };
 
 export type CreateProjectMutationVariables = Exact<{
   data: ProjectCreateInput;
@@ -3021,6 +3165,14 @@ export type UpdateChatMutationVariables = Exact<{
 
 export type UpdateChatMutation = { __typename?: 'Mutation', updateChat?: { __typename?: 'Chat', id: string, title?: string | null } | null };
 
+export type UpdateChatConfigMutationVariables = Exact<{
+  id: Scalars['ID']['input'];
+  data: ChatConfigUpdateInput;
+}>;
+
+
+export type UpdateChatConfigMutation = { __typename?: 'Mutation', updateChatConfig?: { __typename?: 'ChatConfig', id: string, name?: string | null, notes?: string | null, systemPrompt?: string | null, openai?: any | null, context?: any | null, segments?: any | null, createdAt?: any | null, updatedAt?: any | null } | null };
+
 export type UpdateProjectMutationVariables = Exact<{
   id: Scalars['ID']['input'];
   data: ProjectUpdateInput;
@@ -3101,17 +3253,66 @@ export type GetAllUsersQueryHookResult = ReturnType<typeof useGetAllUsersQuery>;
 export type GetAllUsersLazyQueryHookResult = ReturnType<typeof useGetAllUsersLazyQuery>;
 export type GetAllUsersSuspenseQueryHookResult = ReturnType<typeof useGetAllUsersSuspenseQuery>;
 export type GetAllUsersQueryResult = Apollo.QueryResult<GetAllUsersQuery, GetAllUsersQueryVariables>;
+export const ChatConfigDocument = gql`
+    query ChatConfig($id: ID!) {
+  chatConfig(where: {id: $id}) {
+    id
+    name
+    notes
+    systemPrompt
+    openai
+    context
+    segments
+    createdAt
+    updatedAt
+  }
+}
+    `;
+
+/**
+ * __useChatConfigQuery__
+ *
+ * To run a query within a React component, call `useChatConfigQuery` and pass it any options that fit your needs.
+ * When your component renders, `useChatConfigQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * you can use to render your UI.
+ *
+ * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ *
+ * @example
+ * const { data, loading, error } = useChatConfigQuery({
+ *   variables: {
+ *      id: // value for 'id'
+ *   },
+ * });
+ */
+export function useChatConfigQuery(baseOptions: Apollo.QueryHookOptions<ChatConfigQuery, ChatConfigQueryVariables> & ({ variables: ChatConfigQueryVariables; skip?: boolean; } | { skip: boolean; }) ) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useQuery<ChatConfigQuery, ChatConfigQueryVariables>(ChatConfigDocument, options);
+      }
+export function useChatConfigLazyQuery(baseOptions?: Apollo.LazyQueryHookOptions<ChatConfigQuery, ChatConfigQueryVariables>) {
+          const options = {...defaultOptions, ...baseOptions}
+          return Apollo.useLazyQuery<ChatConfigQuery, ChatConfigQueryVariables>(ChatConfigDocument, options);
+        }
+export function useChatConfigSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<ChatConfigQuery, ChatConfigQueryVariables>) {
+          const options = baseOptions === Apollo.skipToken ? baseOptions : {...defaultOptions, ...baseOptions}
+          return Apollo.useSuspenseQuery<ChatConfigQuery, ChatConfigQueryVariables>(ChatConfigDocument, options);
+        }
+export type ChatConfigQueryHookResult = ReturnType<typeof useChatConfigQuery>;
+export type ChatConfigLazyQueryHookResult = ReturnType<typeof useChatConfigLazyQuery>;
+export type ChatConfigSuspenseQueryHookResult = ReturnType<typeof useChatConfigSuspenseQuery>;
+export type ChatConfigQueryResult = Apollo.QueryResult<ChatConfigQuery, ChatConfigQueryVariables>;
 export const ChatConfigsDocument = gql`
     query ChatConfigs {
-  chats(orderBy: {createdAt: desc}) {
+  chatConfigs(orderBy: {createdAt: desc}) {
     id
-    title
+    name
+    notes
+    systemPrompt
+    openai
+    context
+    segments
     createdAt
-    project {
-      id
-      name
-    }
-    config
+    updatedAt
   }
 }
     `;
@@ -3159,6 +3360,9 @@ export const ChatProjectDocument = gql`
       createdAt
       debugData {
         config {
+          id
+          name
+          createdAt
           systemPrompt
           openai {
             model
@@ -3255,6 +3459,9 @@ export const ChatProjectHistoryDocument = gql`
     systemPrompt
     resolvedSystemPrompt
     config {
+      id
+      name
+      createdAt
       systemPrompt
       openai {
         model
@@ -3278,6 +3485,9 @@ export const ChatProjectHistoryDocument = gql`
       createdAt
       debugData {
         config {
+          id
+          name
+          createdAt
           systemPrompt
           openai {
             model
@@ -3366,6 +3576,47 @@ export type ChatProjectHistoryQueryHookResult = ReturnType<typeof useChatProject
 export type ChatProjectHistoryLazyQueryHookResult = ReturnType<typeof useChatProjectHistoryLazyQuery>;
 export type ChatProjectHistorySuspenseQueryHookResult = ReturnType<typeof useChatProjectHistorySuspenseQuery>;
 export type ChatProjectHistoryQueryResult = Apollo.QueryResult<ChatProjectHistoryQuery, ChatProjectHistoryQueryVariables>;
+export const CreateChatConfigDocument = gql`
+    mutation CreateChatConfig($data: ChatConfigCreateInput!) {
+  createChatConfig(data: $data) {
+    id
+    name
+    notes
+    systemPrompt
+    openai
+    context
+    segments
+    createdAt
+    updatedAt
+  }
+}
+    `;
+export type CreateChatConfigMutationFn = Apollo.MutationFunction<CreateChatConfigMutation, CreateChatConfigMutationVariables>;
+
+/**
+ * __useCreateChatConfigMutation__
+ *
+ * To run a mutation, you first call `useCreateChatConfigMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `useCreateChatConfigMutation` returns a tuple that includes:
+ * - A mutate function that you can call at any time to execute the mutation
+ * - An object with fields that represent the current status of the mutation's execution
+ *
+ * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
+ *
+ * @example
+ * const [createChatConfigMutation, { data, loading, error }] = useCreateChatConfigMutation({
+ *   variables: {
+ *      data: // value for 'data'
+ *   },
+ * });
+ */
+export function useCreateChatConfigMutation(baseOptions?: Apollo.MutationHookOptions<CreateChatConfigMutation, CreateChatConfigMutationVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useMutation<CreateChatConfigMutation, CreateChatConfigMutationVariables>(CreateChatConfigDocument, options);
+      }
+export type CreateChatConfigMutationHookResult = ReturnType<typeof useCreateChatConfigMutation>;
+export type CreateChatConfigMutationResult = Apollo.MutationResult<CreateChatConfigMutation>;
+export type CreateChatConfigMutationOptions = Apollo.BaseMutationOptions<CreateChatConfigMutation, CreateChatConfigMutationVariables>;
 export const CreateProjectDocument = gql`
     mutation CreateProject($data: ProjectCreateInput!) {
   createProject(data: $data) {
@@ -4184,6 +4435,48 @@ export function useUpdateChatMutation(baseOptions?: Apollo.MutationHookOptions<U
 export type UpdateChatMutationHookResult = ReturnType<typeof useUpdateChatMutation>;
 export type UpdateChatMutationResult = Apollo.MutationResult<UpdateChatMutation>;
 export type UpdateChatMutationOptions = Apollo.BaseMutationOptions<UpdateChatMutation, UpdateChatMutationVariables>;
+export const UpdateChatConfigDocument = gql`
+    mutation UpdateChatConfig($id: ID!, $data: ChatConfigUpdateInput!) {
+  updateChatConfig(where: {id: $id}, data: $data) {
+    id
+    name
+    notes
+    systemPrompt
+    openai
+    context
+    segments
+    createdAt
+    updatedAt
+  }
+}
+    `;
+export type UpdateChatConfigMutationFn = Apollo.MutationFunction<UpdateChatConfigMutation, UpdateChatConfigMutationVariables>;
+
+/**
+ * __useUpdateChatConfigMutation__
+ *
+ * To run a mutation, you first call `useUpdateChatConfigMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `useUpdateChatConfigMutation` returns a tuple that includes:
+ * - A mutate function that you can call at any time to execute the mutation
+ * - An object with fields that represent the current status of the mutation's execution
+ *
+ * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
+ *
+ * @example
+ * const [updateChatConfigMutation, { data, loading, error }] = useUpdateChatConfigMutation({
+ *   variables: {
+ *      id: // value for 'id'
+ *      data: // value for 'data'
+ *   },
+ * });
+ */
+export function useUpdateChatConfigMutation(baseOptions?: Apollo.MutationHookOptions<UpdateChatConfigMutation, UpdateChatConfigMutationVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useMutation<UpdateChatConfigMutation, UpdateChatConfigMutationVariables>(UpdateChatConfigDocument, options);
+      }
+export type UpdateChatConfigMutationHookResult = ReturnType<typeof useUpdateChatConfigMutation>;
+export type UpdateChatConfigMutationResult = Apollo.MutationResult<UpdateChatConfigMutation>;
+export type UpdateChatConfigMutationOptions = Apollo.BaseMutationOptions<UpdateChatConfigMutation, UpdateChatConfigMutationVariables>;
 export const UpdateProjectDocument = gql`
     mutation UpdateProject($id: ID!, $data: ProjectUpdateInput!) {
   updateProject(where: {id: $id}, data: $data) {

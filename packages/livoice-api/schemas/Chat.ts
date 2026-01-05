@@ -6,8 +6,8 @@ import { filterByUserOrg, isAuthenticated, isGod, isOrgAdmin } from '../domains/
 export default list({
   fields: {
     title: text({ validation: { isRequired: true }, defaultValue: 'AI chat' }),
-    systemPrompt: text({ ui: { displayMode: 'textarea' } }),
-    config: json(),
+    chatConfig: relationship({ ref: 'ChatConfig.chats', many: false }),
+    configSnapshot: json(),
     user: relationship({ ref: 'User.chats', many: false }),
     org: relationship({ ref: 'Organization.chats', many: false }),
     project: relationship({ ref: 'Project.chats', many: false }),

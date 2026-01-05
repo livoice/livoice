@@ -9,6 +9,9 @@ mutation ChatProject($input: ChatProjectInput!) {
       createdAt
       debugData {
         config {
+          id
+          name
+          createdAt
           systemPrompt
           openai {
             model

@@ -1,6 +1,6 @@
 import type { KeystoneContext } from '@keystone-6/core/types';
-import { DEFAULT_CHAT_CONFIG } from './constants';
 import { fetchProjectActorContext } from './actors';
+import { DEFAULT_CHAT_CONFIG } from './constants';
 import type { ChatConfig, SystemPromptContext } from './types';
 
 const parseJsonArray = <T>(value: string | T[] | null | undefined): T[] => {
@@ -51,7 +51,6 @@ export const getSystemPromptReplacements = async ({
     sourceNames: [],
     actorsSummary: '',
     speakersSummary: '',
-    dateRange: '',
     totalTranscripts: 0
   };
   if (!projectId) return defaults;
@@ -61,7 +60,6 @@ export const getSystemPromptReplacements = async ({
   const needsTranscriptTitles = systemPrompt?.includes('{transcriptTitles}') ?? false;
   const needsActorsSummary = systemPrompt?.includes('{actorsSummary}') ?? false;
   const needsSpeakersSummary = systemPrompt?.includes('{speakersSummary}') ?? false;
-  const needsDateRange = systemPrompt?.includes('{dateRange}') ?? false;
   const needsTotalTranscripts = systemPrompt?.includes('{totalTranscripts}') ?? false;
 
   if (
@@ -70,7 +68,6 @@ export const getSystemPromptReplacements = async ({
     !needsTranscriptTitles &&
     !needsActorsSummary &&
     !needsSpeakersSummary &&
-    !needsDateRange &&
     !needsTotalTranscripts
   )
     return defaults;
@@ -100,7 +97,7 @@ export const getSystemPromptReplacements = async ({
             AND t."title" != ''
         `.then((rows: { titles: string | string[] | null }[]) => rows?.[0])
       : null,
-    needsActorsSummary || needsSpeakersSummary || needsDateRange || needsTotalTranscripts
+    needsActorsSummary || needsSpeakersSummary || needsTotalTranscripts
       ? fetchProjectActorContext(context, projectId)
       : null
   ]);
@@ -113,7 +110,6 @@ export const getSystemPromptReplacements = async ({
     transcriptTitles: parseJsonArray<string>(transcriptRow?.titles),
     actorsSummary: actorContext?.actorsSummary ?? '',
     speakersSummary: actorContext?.speakersSummary ?? '',
-    dateRange: actorContext?.dateRange ?? '',
     totalTranscripts: actorContext?.totalTranscripts ?? 0
   };
 };
@@ -139,7 +135,5 @@ export const replaceSystemPromptPlaceholders = async ({
     .replace(/\{sourceNames\}/g, replacements.sourceNames.join(', '))
     .replace(/\{actorsSummary\}/g, replacements.actorsSummary ?? '')
     .replace(/\{speakersSummary\}/g, replacements.speakersSummary ?? '')
-    .replace(/\{dateRange\}/g, replacements.dateRange ?? '')
     .replace(/\{totalTranscripts\}/g, replacements.totalTranscripts?.toString() ?? '');
 };
-

@@ -1,0 +1,14 @@
+mutation UpdateChatConfig($id: ID!, $data: ChatConfigUpdateInput!) {
+  updateChatConfig(where: { id: $id }, data: $data) {
+    id
+    name
+    notes
+    systemPrompt
+    openai
+    context
+    segments
+    createdAt
+    updatedAt
+  }
+}
+

@@ -23,8 +23,8 @@ const ChatSegmentReference = g.object<SegmentReference>()({
   }
 });
 
-const ChatConfigOpenAI = g.object<ChatConfig['openai']>()({
-  name: 'ChatConfigOpenAI',
+const ChatConfigSnapshotOpenAI = g.object<ChatConfig['openai']>()({
+  name: 'ChatConfigSnapshotOpenAI',
   fields: {
     model: g.field({ type: g.nonNull(g.String) }),
     temperature: g.field({ type: g.nonNull(g.Float) }),
@@ -32,8 +32,8 @@ const ChatConfigOpenAI = g.object<ChatConfig['openai']>()({
   }
 });
 
-const ChatConfigContext = g.object<ChatConfig['context']>()({
-  name: 'ChatConfigContext',
+const ChatConfigSnapshotContext = g.object<ChatConfig['context']>()({
+  name: 'ChatConfigSnapshotContext',
   fields: {
     maxInputTokens: g.field({ type: g.nonNull(g.Int) }),
     reservedTokens: g.field({ type: g.nonNull(g.Int) }),
@@ -41,59 +41,24 @@ const ChatConfigContext = g.object<ChatConfig['context']>()({
   }
 });
 
-const ChatConfigSegments = g.object<ChatConfig['segments']>()({
-  name: 'ChatConfigSegments',
+const ChatConfigSnapshotSegments = g.object<ChatConfig['segments']>()({
+  name: 'ChatConfigSnapshotSegments',
   fields: {
     tokenBudget: g.field({ type: g.nonNull(g.Int) }),
     maxCount: g.field({ type: g.nonNull(g.Int) })
   }
 });
 
-const ChatConfigType = g.object<ChatConfig>()({
-  name: 'ChatConfig',
+const ChatConfigSnapshotType = g.object<ChatConfig>()({
+  name: 'ChatConfigSnapshot',
   fields: {
+    id: g.field({ type: g.ID }),
     name: g.field({ type: g.String }),
+    createdAt: g.field({ type: g.String }),
     systemPrompt: g.field({ type: g.nonNull(g.String) }),
-    openai: g.field({ type: g.nonNull(ChatConfigOpenAI) }),
-    context: g.field({ type: g.nonNull(ChatConfigContext) }),
-    segments: g.field({ type: g.nonNull(ChatConfigSegments) })
-  }
-});
-
-const ChatConfigOpenAIInput = g.inputObject({
-  name: 'ChatConfigOpenAIInput',
-  fields: {
-    model: g.arg({ type: g.String }),
-    temperature: g.arg({ type: g.Float }),
-    maxOutputTokens: g.arg({ type: g.Int })
-  }
-});
-
-const ChatConfigContextInput = g.inputObject({
-  name: 'ChatConfigContextInput',
-  fields: {
-    maxInputTokens: g.arg({ type: g.Int }),
-    reservedTokens: g.arg({ type: g.Int }),
-    historyTokenBudget: g.arg({ type: g.Int })
-  }
-});
-
-const ChatConfigSegmentsInput = g.inputObject({
-  name: 'ChatConfigSegmentsInput',
-  fields: {
-    tokenBudget: g.arg({ type: g.Int }),
-    maxCount: g.arg({ type: g.Int })
-  }
-});
-
-const ChatConfigInput = g.inputObject({
-  name: 'ChatConfigInput',
-  fields: {
-    name: g.arg({ type: g.String }),
-    systemPrompt: g.arg({ type: g.String }),
-    openai: g.arg({ type: ChatConfigOpenAIInput }),
-    context: g.arg({ type: ChatConfigContextInput }),
-    segments: g.arg({ type: ChatConfigSegmentsInput })
+    openai: g.field({ type: g.nonNull(ChatConfigSnapshotOpenAI) }),
+    context: g.field({ type: g.nonNull(ChatConfigSnapshotContext) }),
+    segments: g.field({ type: g.nonNull(ChatConfigSnapshotSegments) })
   }
 });
 
@@ -151,7 +116,7 @@ const ChatMessageDebugTiming = g.object<MessageDebugData['timing']>()({
 const ChatMessageDebugData = g.object<MessageDebugData>()({
   name: 'ChatMessageDebugData',
   fields: {
-    config: g.field({ type: g.nonNull(ChatConfigType) }),
+    config: g.field({ type: g.nonNull(ChatConfigSnapshotType) }),
     resolvedSystemPrompt: g.field({ type: g.nonNull(g.String) }),
     userMessageWithContext: g.field({ type: g.nonNull(g.String) }),
     history: g.field({ type: g.nonNull(ChatMessageDebugHistory) }),
@@ -188,7 +153,7 @@ const ChatHistoryResult = g.object<{
     messages: g.field({ type: g.nonNull(g.list(g.nonNull(ChatMessageResult))) }),
     systemPrompt: g.field({ type: g.String }),
     resolvedSystemPrompt: g.field({ type: g.String }),
-    config: g.field({ type: ChatConfigType })
+    config: g.field({ type: ChatConfigSnapshotType })
   }
 });
 
@@ -213,60 +178,9 @@ const ProjectChatInput = g.inputObject({
     chatId: g.arg({ type: g.ID }),
     projectId: g.arg({ type: g.nonNull(g.ID) }),
     message: g.arg({ type: g.nonNull(g.String) }),
-    systemPrompt: g.arg({ type: g.String }),
-    config: g.arg({ type: ChatConfigInput })
+    chatConfigId: g.arg({ type: g.ID })
   }
 });
-
-type ChatConfigInputMaybe = {
-  name?: string | null;
-  systemPrompt?: string | null;
-  openai?: {
-    model?: string | null;
-    temperature?: number | null;
-    maxOutputTokens?: number | null;
-  } | null;
-  context?: {
-    maxInputTokens?: number | null;
-    reservedTokens?: number | null;
-    historyTokenBudget?: number | null;
-  } | null;
-  segments?: {
-    tokenBudget?: number | null;
-    maxCount?: number | null;
-  } | null;
-};
-
-const normalizeChatConfigInput = (config?: ChatConfigInputMaybe | null): Partial<ChatConfig> | null => {
-  if (!config) return null;
-  const openai: Partial<ChatConfig['openai']> | undefined = config.openai ? {} : undefined;
-  if (openai) {
-    if (config.openai?.model != null) openai.model = config.openai.model;
-    if (config.openai?.temperature != null) openai.temperature = config.openai.temperature;
-    if (config.openai?.maxOutputTokens != null) openai.maxOutputTokens = config.openai.maxOutputTokens;
-  }
-
-  const context: Partial<ChatConfig['context']> | undefined = config.context ? {} : undefined;
-  if (context) {
-    if (config.context?.maxInputTokens != null) context.maxInputTokens = config.context.maxInputTokens;
-    if (config.context?.reservedTokens != null) context.reservedTokens = config.context.reservedTokens;
-    if (config.context?.historyTokenBudget != null) context.historyTokenBudget = config.context.historyTokenBudget;
-  }
-
-  const segments: Partial<ChatConfig['segments']> | undefined = config.segments ? {} : undefined;
-  if (segments) {
-    if (config.segments?.tokenBudget != null) segments.tokenBudget = config.segments.tokenBudget;
-    if (config.segments?.maxCount != null) segments.maxCount = config.segments.maxCount;
-  }
-
-  const payload: Partial<ChatConfig> = {};
-  if (config.name != null) payload.name = config.name;
-  if (config.systemPrompt != null) payload.systemPrompt = config.systemPrompt;
-  if (openai) payload.openai = openai as ChatConfig['openai'];
-  if (context) payload.context = context as ChatConfig['context'];
-  if (segments) payload.segments = segments as ChatConfig['segments'];
-  return payload;
-};
 
 const getSession = (context: KeystoneContext) => {
   const session = context.session as Session | undefined;
@@ -287,13 +201,23 @@ const findLatestChat = async ({
     where,
     orderBy: [{ createdAt: 'desc' }],
     take: 1,
-    query: 'id title systemPrompt config'
+    query: 'id title configSnapshot chatConfig { id name createdAt }'
   });
   const record = chats?.[0];
   if (!record?.id) return null;
   const history = await fetchChatHistory(context, record.id);
 
-  const storedSystemPrompt = record.config?.systemPrompt ?? record.systemPrompt;
+  const configSnapshot = record.configSnapshot as ChatConfig | null;
+  const configWithMeta = configSnapshot
+    ? {
+        ...configSnapshot,
+        id: configSnapshot?.id ?? (record.chatConfig as { id?: string } | null)?.id ?? undefined,
+        createdAt:
+          configSnapshot?.createdAt ?? (record.chatConfig as { createdAt?: string } | null)?.createdAt ?? undefined,
+        name: configSnapshot?.name ?? (record.chatConfig as { name?: string } | null)?.name ?? undefined
+      }
+    : undefined;
+  const storedSystemPrompt = configSnapshot?.systemPrompt ?? '';
 
   let resolvedSystemPrompt = '';
   if (storedSystemPrompt) {
@@ -310,7 +234,7 @@ const findLatestChat = async ({
     messages: history,
     systemPrompt: storedSystemPrompt,
     resolvedSystemPrompt,
-    config: record.config ?? null
+    config: configWithMeta
   };
 };
 
@@ -346,7 +270,7 @@ export const ChatExtension = () => ({
       },
       resolve: async (_root, { input }, context) => {
         const session = getSession(context);
-        if (!input.chatId && !input.systemPrompt) throw new Error('System prompt is required when creating a new chat');
+        if (!input.chatId && !input.chatConfigId) throw new Error('ChatConfig ID is required when creating a new chat');
         return runChatConversation({
           context,
           session,
@@ -354,8 +278,7 @@ export const ChatExtension = () => ({
             chatId: input.chatId ?? null,
             projectId: input.projectId,
             message: input.message,
-            systemPrompt: input.systemPrompt,
-            config: normalizeChatConfigInput(input.config)
+            chatConfigId: input.chatConfigId ?? null
           }
         });
       }

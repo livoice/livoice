@@ -10,12 +10,7 @@ import remarkBreaks from 'remark-breaks';
 import remarkGfm from 'remark-gfm';
 
 import FormDrawer from '@/components/FormDrawer/FormDrawer';
-import {
-  useChatProjectHistoryQuery,
-  useChatProjectMutation,
-  useUpdateChatMutation,
-  type ChatProjectInput
-} from '@/gql/generated';
+import { useChatProjectHistoryQuery, useChatProjectMutation, useUpdateChatMutation } from '@/gql/generated';
 import { cn } from '@/lib/cn';
 import {
   ROUTER_PATHS,
@@ -55,14 +50,15 @@ const Chat = () => {
   const navigate = useNavigate();
   const client = useApolloClient();
 
-  const { chatConfig, configs, setChatConfig, configsLoading } = useChatContext();
+  const { selectedConfigId, configs, configsLoading, getSelectedConfig } = useChatContext();
+  const selectedConfig = getSelectedConfig();
 
   const [draft, setDraft] = useState('');
   const [systemPromptExpanded, setSystemPromptExpanded] = useState({ raw: false, resolved: false });
   const [inputDirection, setInputDirection] = useState<'ltr' | 'rtl'>('ltr');
   const [isEditingTitle, setIsEditingTitle] = useState(false);
   const [editedTitle, setEditedTitle] = useState('');
-  const canSend = Boolean(draft.trim());
+  const canSend = Boolean(draft.trim()) && (!isNewChat || selectedConfigId);
   const messagesEndRef = useRef<HTMLDivElement | null>(null);
 
   const debugMatch = useMatch(ROUTER_PATHS.PROJECT_CHAT_ID_MESSAGE_DEBUG);
@@ -129,20 +125,19 @@ const Chat = () => {
   const handleSubmit = async () => {
     const trimmed = draft.trim();
     if (!trimmed) return;
+    if (isNewChat && !selectedConfigId) return;
 
-    const input: ChatProjectInput = isNewChat
+    const input = isNewChat
       ? {
           chatId: null,
           projectId,
           message: trimmed,
-          systemPrompt: chatConfig.systemPrompt,
-          config: chatConfig
+          chatConfigId: selectedConfigId
         }
       : {
           chatId,
           projectId,
-          message: trimmed,
-          systemPrompt: currentSystemPrompt
+          message: trimmed
         };
 
     await chatProject({ variables: { input } });
@@ -152,20 +147,22 @@ const Chat = () => {
 
   const title = t('projects.chat.title');
   const placeholder = t('projects.chat.placeholder');
-  const configTitle = chatConfig.name?.trim() || 'Untitled config';
+  const configTitle = selectedConfig?.name?.trim() || 'No config selected';
   const emptyPlaceholder = placeholder || t('chat.emptyPlaceholder');
   const inputPlaceholder = placeholder || t('chat.inputPlaceholder');
   const buttonLabel = isLoading ? t('buttons.sending') : t('buttons.sendQuestion');
-  const promptPreview = (chatConfig.systemPrompt.trim() ?? '').split('\n').slice(0, 5).join(' ');
+  const promptPreview = (selectedConfig?.systemPrompt?.trim() ?? '').split('\n').slice(0, 5).join(' ');
   const promptDisplay = promptPreview.length > 180 ? `${promptPreview.slice(0, 180)}...` : promptPreview;
-  const configSummaryItems = [
-    { label: 'Model', value: chatConfig.openai.model },
-    { label: 'Temperature', value: chatConfig.openai.temperature.toFixed(2) },
-    { label: 'Max output tokens', value: chatConfig.openai.maxOutputTokens.toString() },
-    { label: 'Max input tokens', value: chatConfig.context.maxInputTokens.toString() },
-    { label: 'History token budget', value: chatConfig.context.historyTokenBudget.toString() },
-    { label: 'Segment token budget', value: chatConfig.segments.tokenBudget.toString() }
-  ];
+  const configSummaryItems = selectedConfig
+    ? [
+        { label: 'Model', value: selectedConfig.openai.model },
+        { label: 'Temperature', value: selectedConfig.openai.temperature.toFixed(2) },
+        { label: 'Max output tokens', value: selectedConfig.openai.maxOutputTokens.toString() },
+        { label: 'Max input tokens', value: selectedConfig.context.maxInputTokens.toString() },
+        { label: 'History token budget', value: selectedConfig.context.historyTokenBudget.toString() },
+        { label: 'Segment token budget', value: selectedConfig.segments.tokenBudget.toString() }
+      ]
+    : [];
 
   const onClose = () => navigate(toProject({ projectId }));
 
@@ -258,12 +255,7 @@ const Chat = () => {
     if (messagesEndRef.current) messagesEndRef.current.scrollIntoView({ behavior: 'smooth', block: 'end' });
   }, [messages.length]);
 
-  useEffect(() => {
-    if (!isNewChat) return;
-    if (configsLoading) return;
-    if (!configs.length) return;
-    setChatConfig(configs[0].config);
-  }, [configs, configsLoading, isNewChat, setChatConfig]);
+  // Auto-selection of first config is now handled in ChatContext
 
   useEffect(() => {
     if (isNewChat) {

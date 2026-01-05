@@ -1,5 +1,5 @@
-query ChatConfigs {
-  chatConfigs(orderBy: { createdAt: desc }) {
+query ChatConfig($id: ID!) {
+  chatConfig(where: { id: $id }) {
     id
     name
     notes
@@ -11,3 +11,4 @@ query ChatConfigs {
     updatedAt
   }
 }
+

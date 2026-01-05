@@ -25,8 +25,7 @@ export const runChatConversation = async ({
     chatId?: string | null;
     projectId?: string;
     message: string;
-    systemPrompt?: string | null;
-    config?: Partial<ChatConfig> | null;
+    chatConfigId?: string | null;
   };
 }) => {
   if (!session?.id) throw new Error('Unauthorized');
@@ -53,17 +52,55 @@ export const runChatConversation = async ({
 
   const projectId = targetProject.id;
 
+  // For existing chats, use the stored configSnapshot
   const existingChatRecord = input.chatId
     ? await sudoContext.query.Chat.findOne({
         where: { id: input.chatId },
-        query: 'config systemPrompt'
+        query: 'configSnapshot chatConfig { id createdAt name }'
       })
     : null;
 
-  const chatConfig = normalizeChatConfig(
-    input.config ?? (existingChatRecord?.config as Partial<ChatConfig> | undefined),
-    input.systemPrompt ?? existingChatRecord?.systemPrompt ?? undefined
-  );
+  // For new chats, fetch the ChatConfig by ID
+  const chatConfigRecord = input.chatConfigId
+    ? await sudoContext.query.ChatConfig.findOne({
+        where: { id: input.chatConfigId },
+        query: 'id name notes systemPrompt openai context segments createdAt'
+      })
+    : null;
+
+  // Use existing snapshot for continuing chats, or fetch from ChatConfig for new chats
+  const chatConfigBase = existingChatRecord?.configSnapshot
+    ? normalizeChatConfig(existingChatRecord.configSnapshot as Partial<ChatConfig>)
+    : chatConfigRecord
+      ? normalizeChatConfig({
+          id: chatConfigRecord.id,
+          name: chatConfigRecord.name,
+          createdAt: chatConfigRecord.createdAt as string,
+          systemPrompt: chatConfigRecord.systemPrompt,
+          openai: chatConfigRecord.openai as ChatConfig['openai'],
+          context: chatConfigRecord.context as ChatConfig['context'],
+          segments: chatConfigRecord.segments as ChatConfig['segments']
+        })
+      : normalizeChatConfig();
+
+  const chatConfig = {
+    ...chatConfigBase,
+    id:
+      chatConfigBase.id ??
+      chatConfigRecord?.id ??
+      (existingChatRecord?.chatConfig as { id?: string } | null)?.id ??
+      input.chatConfigId ??
+      undefined,
+    createdAt:
+      chatConfigBase.createdAt ??
+      (chatConfigRecord?.createdAt as string | undefined) ??
+      (existingChatRecord?.chatConfig as { createdAt?: string } | null)?.createdAt ??
+      undefined,
+    name: chatConfigBase.name ?? chatConfigRecord?.name ?? (existingChatRecord?.configSnapshot as ChatConfig | null)?.name
+  };
+
+  // Store the chatConfigId for new chats
+  const chatConfigId = input.chatConfigId ?? (existingChatRecord?.chatConfig as { id?: string })?.id ?? null;
 
   const segments = await fetchSegments({
     context,
@@ -104,19 +141,15 @@ export const runChatConversation = async ({
 
   const persistChat = async (): Promise<string | null> => {
     if (input.chatId) {
-      const updated = await sudoContext.db.Chat.updateOne({
-        where: { id: input.chatId },
-        data: { systemPrompt: chatConfig.systemPrompt, config: chatConfig }
-      });
-      if (!updated) throw new Error('Chat not found');
+      // For existing chats, we don't update the config - it's frozen as snapshot
       return input.chatId;
     }
 
     const createdChat = await sudoContext.db.Chat.createOne({
       data: {
         title,
-        systemPrompt: chatConfig.systemPrompt,
-        config: chatConfig,
+        configSnapshot: chatConfig,
+        ...(chatConfigId ? { chatConfig: { connect: { id: chatConfigId } } } : {}),
         user: { connect: { id: session.id } },
         org: { connect: { id: session.orgId } },
         project: { connect: { id: projectId } }

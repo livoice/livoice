@@ -1,15 +1,6 @@
 import type { KeystoneContext } from '@keystone-6/core/types';
 import type { MentionInfo, SystemPromptContext } from './types';
 
-const formatDateLabel = (value?: Date | string | null) => {
-  if (!value) return null;
-  const date = typeof value === 'string' ? new Date(value) : value;
-  if (Number.isNaN(date.getTime())) return null;
-  const month = date.toLocaleString('en', { month: 'short' });
-  const year = date.getFullYear();
-  return `${month} ${year}`;
-};
-
 export const fetchSegmentActors = async (
   context: KeystoneContext,
   segmentIds: string[]
@@ -47,7 +38,6 @@ export const fetchProjectActorContext = async (
     sourceNames: [],
     actorsSummary: '',
     speakersSummary: '',
-    dateRange: '',
     totalTranscripts: 0
   };
 
@@ -103,16 +93,12 @@ export const fetchProjectActorContext = async (
     .join('\n');
 
   const range = rangeRow?.[0];
-  const dateRange =
-    range?.min && range?.max ? `${formatDateLabel(range.min)} - ${formatDateLabel(range.max)}` : '';
   const totalTranscripts = range?.total ?? 0;
 
   return {
     ...defaults,
     actorsSummary,
     speakersSummary,
-    dateRange,
     totalTranscripts
   };
 };
-

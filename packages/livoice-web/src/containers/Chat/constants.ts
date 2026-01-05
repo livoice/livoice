@@ -9,6 +9,7 @@ import type { ChatConfigForm } from './types';
 
 export const DEFAULT_CHAT_CONFIG: ChatConfigForm = {
   name: '',
+  notes: '',
   systemPrompt: '',
   openai: {
     model: 'gpt-4o-mini',

@@ -4,10 +4,9 @@ import { useParams } from 'react-router-dom';
 
 import { useChatConfigsQuery } from '@/gql/generated';
 import { DEFAULT_CHAT_CONFIG } from './constants';
-import type { ChatConfigForm, UniqueConfigEntry } from './types';
+import type { ChatConfigEntry, ChatConfigForm } from './types';
 
-const normalizeConfig = (raw: Record<string, unknown>): ChatConfigForm => ({
-  name: typeof raw.name === 'string' ? raw.name : DEFAULT_CHAT_CONFIG.name,
+const normalizeConfig = (raw: Record<string, unknown>): Omit<ChatConfigForm, 'name' | 'notes'> => ({
   systemPrompt: typeof raw.systemPrompt === 'string' ? raw.systemPrompt : DEFAULT_CHAT_CONFIG.systemPrompt,
   openai: {
     model:
@@ -50,54 +49,73 @@ const normalizeConfig = (raw: Record<string, unknown>): ChatConfigForm => ({
 });
 
 export type ChatContextType = {
-  chatConfig: ChatConfigForm;
-  setChatConfig: (config: ChatConfigForm) => void;
-  configs: UniqueConfigEntry[];
+  selectedConfigId: string | null;
+  setSelectedConfigId: (id: string | null) => void;
+  configs: ChatConfigEntry[];
   configsLoading: boolean;
+  refetchConfigs: () => void;
+  getSelectedConfig: () => ChatConfigEntry | null;
 };
 
 export const ChatContext = createContext<ChatContextType | null>(null);
 
 export function ChatProvider({ children }: { children: ReactNode }) {
-  const [chatConfig, setChatConfig] = useState<ChatConfigForm>(DEFAULT_CHAT_CONFIG);
+  const [selectedConfigId, setSelectedConfigId] = useState<string | null>(null);
   const { chatId, projectId } = useParams<{ chatId?: string; projectId?: string }>();
 
   const { data: configsData, loading: configsLoading, refetch: refetchConfigs } = useChatConfigsQuery();
 
-  const configs = useMemo(() => {
-    const chats = configsData?.chats ?? [];
-    const configMap = new Map<string, UniqueConfigEntry>();
-
-    chats.forEach(chat => {
-      const rawConfig = chat?.config;
-      if (!rawConfig) return;
-      const normalizedConfig = normalizeConfig(rawConfig);
-      const { name: configName, ...configWithoutName } = normalizedConfig;
-      const key = JSON.stringify(configWithoutName);
-      if (configMap.has(key)) return;
-      const createdAt = chat.createdAt ?? new Date().toISOString();
-      configMap.set(key, {
-        key,
-        config: normalizedConfig,
-        chatTitle: (chat as { title?: string }).title || 'Untitled chat',
-        projectName: chat.project?.name ?? null,
-        createdAt
+  const configs: ChatConfigEntry[] = useMemo(() => {
+    const rawConfigs = configsData?.chatConfigs ?? [];
+    return rawConfigs.map(config => {
+      const normalized = normalizeConfig({
+        systemPrompt: config.systemPrompt,
+        openai: config.openai,
+        context: config.context,
+        segments: config.segments
       });
+      return {
+        id: config.id,
+        name: config.name ?? '',
+        notes: config.notes ?? '',
+        systemPrompt: normalized.systemPrompt,
+        openai: normalized.openai,
+        context: normalized.context,
+        segments: normalized.segments,
+        createdAt: config.createdAt ?? new Date().toISOString(),
+        updatedAt: config.updatedAt ?? new Date().toISOString()
+      };
     });
+  }, [configsData?.chatConfigs]);
 
-    return Array.from(configMap.values()).sort(
-      (configA, configB) => new Date(configB.createdAt).getTime() - new Date(configA.createdAt).getTime()
-    );
-  }, [configsData?.chats]);
+  const getSelectedConfig = (): ChatConfigEntry | null => {
+    if (!selectedConfigId) return null;
+    return configs.find(({ id }) => id === selectedConfigId) ?? null;
+  };
 
   useEffect(() => {
-    // Reset to defaults and refresh available configs whenever chat changes
-    setChatConfig(DEFAULT_CHAT_CONFIG);
-    void refetchConfigs();
-  }, [chatId, projectId, refetchConfigs]);
+    // Reset selection whenever chat changes
+    setSelectedConfigId(null);
+  }, [chatId, projectId]);
+
+  // Auto-select first config when configs load and none is selected
+  useEffect(() => {
+    if (!configsLoading && configs.length && !selectedConfigId) {
+      setSelectedConfigId(configs[0].id);
+    }
+  }, [configsLoading, configs, selectedConfigId]);
 
   return (
-    <ChatContext.Provider value={{ chatConfig, setChatConfig, configs, configsLoading }}>
+    <ChatContext.Provider
+      value={{
+        selectedConfigId,
+        setSelectedConfigId,
+        configs,
+        configsLoading,
+        refetchConfigs: () => void refetchConfigs(),
+        getSelectedConfig
+      }}
+    >
       {children}
     </ChatContext.Provider>
   );

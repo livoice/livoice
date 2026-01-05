@@ -10,6 +10,7 @@ export type ChatMessageItem = {
 
 export interface ChatConfigForm {
   name: string;
+  notes: string;
   systemPrompt: string;
   openai: {
     model: string;
@@ -27,19 +28,23 @@ export interface ChatConfigForm {
   };
 }
 
-export type UniqueConfigEntry = {
-  key: string;
-  config: ChatConfigForm;
-  chatTitle: string;
-  projectName: string | null;
+export type ChatConfigEntry = {
+  id: string;
+  name: string;
+  notes: string;
+  systemPrompt: string;
+  openai: ChatConfigForm['openai'];
+  context: ChatConfigForm['context'];
+  segments: ChatConfigForm['segments'];
   createdAt: string;
+  updatedAt: string;
 };
 
 export type ChatConfigOutletContext = {
-  configs: UniqueConfigEntry[];
-  currentConfig: ChatConfigForm;
+  configs: ChatConfigEntry[];
+  selectedConfigId: string | null;
   onClose: () => void;
-  onApply: (config: ChatConfigForm) => void;
+  onSelectConfig: (configId: string) => void;
 };
 
 export type ChatDebugOutletContext = {

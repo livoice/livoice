@@ -5,6 +5,9 @@ query ChatProjectHistory($projectId: ID!, $chatId: ID) {
     systemPrompt
     resolvedSystemPrompt
     config {
+      id
+      name
+      createdAt
       systemPrompt
       openai {
         model
@@ -28,6 +31,9 @@ query ChatProjectHistory($projectId: ID!, $chatId: ID) {
       createdAt
       debugData {
         config {
+          id
+          name
+          createdAt
           systemPrompt
           openai {
             model

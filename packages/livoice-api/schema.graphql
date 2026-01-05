@@ -537,8 +537,8 @@ input ActorLinkCreateInput {
 type Chat {
   id: ID!
   title: String
-  systemPrompt: String
-  config: JSON
+  chatConfig: ChatConfig
+  configSnapshot: JSON
   user: User
   org: Organization
   project: Project
@@ -558,7 +558,7 @@ input ChatWhereInput {
   NOT: [ChatWhereInput!]
   id: IDFilter
   title: StringFilter
-  systemPrompt: StringFilter
+  chatConfig: ChatConfigWhereInput
   user: UserWhereInput
   org: OrganizationWhereInput
   project: ProjectWhereInput
@@ -576,21 +576,26 @@ input ChatMessageManyRelationFilter {
 input ChatOrderByInput {
   id: OrderDirection
   title: OrderDirection
-  systemPrompt: OrderDirection
   createdAt: OrderDirection
   updatedAt: OrderDirection
 }
 
 input ChatUpdateInput {
   title: String
-  systemPrompt: String
-  config: JSON
+  chatConfig: ChatConfigRelateToOneForUpdateInput
+  configSnapshot: JSON
   user: UserRelateToOneForUpdateInput
   org: OrganizationRelateToOneForUpdateInput
   project: ProjectRelateToOneForUpdateInput
   messages: ChatMessageRelateToManyForUpdateInput
   createdAt: DateTime
   updatedAt: DateTime
+}
+
+input ChatConfigRelateToOneForUpdateInput {
+  create: ChatConfigCreateInput
+  connect: ChatConfigWhereUniqueInput
+  disconnect: Boolean
 }
 
 input UserRelateToOneForUpdateInput {
@@ -625,14 +630,19 @@ input ChatUpdateArgs {
 
 input ChatCreateInput {
   title: String
-  systemPrompt: String
-  config: JSON
+  chatConfig: ChatConfigRelateToOneForCreateInput
+  configSnapshot: JSON
   user: UserRelateToOneForCreateInput
   org: OrganizationRelateToOneForCreateInput
   project: ProjectRelateToOneForCreateInput
   messages: ChatMessageRelateToManyForCreateInput
   createdAt: DateTime
   updatedAt: DateTime
+}
+
+input ChatConfigRelateToOneForCreateInput {
+  create: ChatConfigCreateInput
+  connect: ChatConfigWhereUniqueInput
 }
 
 input UserRelateToOneForCreateInput {
@@ -653,6 +663,94 @@ input ProjectRelateToOneForCreateInput {
 input ChatMessageRelateToManyForCreateInput {
   create: [ChatMessageCreateInput!]
   connect: [ChatMessageWhereUniqueInput!]
+}
+
+type ChatConfig {
+  id: ID!
+  name: String
+  notes: String
+  systemPrompt: String
+  openai: JSON
+  context: JSON
+  segments: JSON
+  chats(where: ChatWhereInput! = {}, orderBy: [ChatOrderByInput!]! = [], take: Int, skip: Int! = 0, cursor: ChatWhereUniqueInput): [Chat!]
+  chatsCount(where: ChatWhereInput! = {}): Int
+  createdAt: DateTime
+  updatedAt: DateTime
+}
+
+input ChatConfigWhereUniqueInput {
+  id: ID
+  name: String
+}
+
+input ChatConfigWhereInput {
+  AND: [ChatConfigWhereInput!]
+  OR: [ChatConfigWhereInput!]
+  NOT: [ChatConfigWhereInput!]
+  id: IDFilter
+  name: StringFilter
+  notes: StringFilter
+  systemPrompt: StringFilter
+  chats: ChatManyRelationFilter
+  createdAt: DateTimeNullableFilter
+  updatedAt: DateTimeNullableFilter
+}
+
+input ChatManyRelationFilter {
+  every: ChatWhereInput
+  some: ChatWhereInput
+  none: ChatWhereInput
+}
+
+input ChatConfigOrderByInput {
+  id: OrderDirection
+  name: OrderDirection
+  notes: OrderDirection
+  systemPrompt: OrderDirection
+  createdAt: OrderDirection
+  updatedAt: OrderDirection
+}
+
+input ChatConfigUpdateInput {
+  name: String
+  notes: String
+  systemPrompt: String
+  openai: JSON
+  context: JSON
+  segments: JSON
+  chats: ChatRelateToManyForUpdateInput
+  createdAt: DateTime
+  updatedAt: DateTime
+}
+
+input ChatRelateToManyForUpdateInput {
+  disconnect: [ChatWhereUniqueInput!]
+  set: [ChatWhereUniqueInput!]
+  create: [ChatCreateInput!]
+  connect: [ChatWhereUniqueInput!]
+}
+
+input ChatConfigUpdateArgs {
+  where: ChatConfigWhereUniqueInput!
+  data: ChatConfigUpdateInput!
+}
+
+input ChatConfigCreateInput {
+  name: String
+  notes: String
+  systemPrompt: String
+  openai: JSON
+  context: JSON
+  segments: JSON
+  chats: ChatRelateToManyForCreateInput
+  createdAt: DateTime
+  updatedAt: DateTime
+}
+
+input ChatRelateToManyForCreateInput {
+  create: [ChatCreateInput!]
+  connect: [ChatWhereUniqueInput!]
 }
 
 type ChatMessage {
@@ -763,12 +861,6 @@ input ProjectManyRelationFilter {
   none: ProjectWhereInput
 }
 
-input ChatManyRelationFilter {
-  every: ChatWhereInput
-  some: ChatWhereInput
-  none: ChatWhereInput
-}
-
 input OrganizationOrderByInput {
   id: OrderDirection
   name: OrderDirection
@@ -798,13 +890,6 @@ input ProjectRelateToManyForUpdateInput {
   connect: [ProjectWhereUniqueInput!]
 }
 
-input ChatRelateToManyForUpdateInput {
-  disconnect: [ChatWhereUniqueInput!]
-  set: [ChatWhereUniqueInput!]
-  create: [ChatCreateInput!]
-  connect: [ChatWhereUniqueInput!]
-}
-
 input OrganizationUpdateArgs {
   where: OrganizationWhereUniqueInput!
   data: OrganizationUpdateInput!
@@ -828,11 +913,6 @@ input UserRelateToManyForCreateInput {
 input ProjectRelateToManyForCreateInput {
   create: [ProjectCreateInput!]
   connect: [ProjectWhereUniqueInput!]
-}
-
-input ChatRelateToManyForCreateInput {
-  create: [ChatCreateInput!]
-  connect: [ChatWhereUniqueInput!]
 }
 
 type Project {
@@ -1623,6 +1703,12 @@ type Mutation {
   updateChats(data: [ChatUpdateArgs!]!): [Chat]
   deleteChat(where: ChatWhereUniqueInput!): Chat
   deleteChats(where: [ChatWhereUniqueInput!]!): [Chat]
+  createChatConfig(data: ChatConfigCreateInput!): ChatConfig
+  createChatConfigs(data: [ChatConfigCreateInput!]!): [ChatConfig]
+  updateChatConfig(where: ChatConfigWhereUniqueInput!, data: ChatConfigUpdateInput!): ChatConfig
+  updateChatConfigs(data: [ChatConfigUpdateArgs!]!): [ChatConfig]
+  deleteChatConfig(where: ChatConfigWhereUniqueInput!): ChatConfig
+  deleteChatConfigs(where: [ChatConfigWhereUniqueInput!]!): [ChatConfig]
   createChatMessage(data: ChatMessageCreateInput!): ChatMessage
   createChatMessages(data: [ChatMessageCreateInput!]!): [ChatMessage]
   updateChatMessage(where: ChatMessageWhereUniqueInput!, data: ChatMessageUpdateInput!): ChatMessage
@@ -1686,7 +1772,7 @@ type ChatMessageResult {
 }
 
 type ChatMessageDebugData {
-  config: ChatConfig!
+  config: ChatConfigSnapshot!
   resolvedSystemPrompt: String!
   userMessageWithContext: String!
   history: ChatMessageDebugHistory!
@@ -1696,27 +1782,29 @@ type ChatMessageDebugData {
   timing: ChatMessageDebugTiming!
 }
 
-type ChatConfig {
+type ChatConfigSnapshot {
+  id: ID
   name: String
+  createdAt: String
   systemPrompt: String!
-  openai: ChatConfigOpenAI!
-  context: ChatConfigContext!
-  segments: ChatConfigSegments!
+  openai: ChatConfigSnapshotOpenAI!
+  context: ChatConfigSnapshotContext!
+  segments: ChatConfigSnapshotSegments!
 }
 
-type ChatConfigOpenAI {
+type ChatConfigSnapshotOpenAI {
   model: String!
   temperature: Float!
   maxOutputTokens: Int!
 }
 
-type ChatConfigContext {
+type ChatConfigSnapshotContext {
   maxInputTokens: Int!
   reservedTokens: Int!
   historyTokenBudget: Int!
 }
 
-type ChatConfigSegments {
+type ChatConfigSnapshotSegments {
   tokenBudget: Int!
   maxCount: Int!
 }
@@ -1770,33 +1858,7 @@ input ChatProjectInput {
   chatId: ID
   projectId: ID!
   message: String!
-  systemPrompt: String
-  config: ChatConfigInput
-}
-
-input ChatConfigInput {
-  name: String
-  systemPrompt: String
-  openai: ChatConfigOpenAIInput
-  context: ChatConfigContextInput
-  segments: ChatConfigSegmentsInput
-}
-
-input ChatConfigOpenAIInput {
-  model: String
-  temperature: Float
-  maxOutputTokens: Int
-}
-
-input ChatConfigContextInput {
-  maxInputTokens: Int
-  reservedTokens: Int
-  historyTokenBudget: Int
-}
-
-input ChatConfigSegmentsInput {
-  tokenBudget: Int
-  maxCount: Int
+  chatConfigId: ID
 }
 
 type Query {
@@ -1812,6 +1874,9 @@ type Query {
   chat(where: ChatWhereUniqueInput!): Chat
   chats(where: ChatWhereInput! = {}, orderBy: [ChatOrderByInput!]! = [], take: Int, skip: Int! = 0, cursor: ChatWhereUniqueInput): [Chat!]
   chatsCount(where: ChatWhereInput! = {}): Int
+  chatConfig(where: ChatConfigWhereUniqueInput!): ChatConfig
+  chatConfigs(where: ChatConfigWhereInput! = {}, orderBy: [ChatConfigOrderByInput!]! = [], take: Int, skip: Int! = 0, cursor: ChatConfigWhereUniqueInput): [ChatConfig!]
+  chatConfigsCount(where: ChatConfigWhereInput! = {}): Int
   chatMessage(where: ChatMessageWhereUniqueInput!): ChatMessage
   chatMessages(where: ChatMessageWhereInput! = {}, orderBy: [ChatMessageOrderByInput!]! = [], take: Int, skip: Int! = 0, cursor: ChatMessageWhereUniqueInput): [ChatMessage!]
   chatMessagesCount(where: ChatMessageWhereInput! = {}): Int
@@ -1843,7 +1908,7 @@ type ChatHistoryResult {
   messages: [ChatMessageResult!]!
   systemPrompt: String
   resolvedSystemPrompt: String
-  config: ChatConfig
+  config: ChatConfigSnapshot
 }
 
 type KeystoneMeta {

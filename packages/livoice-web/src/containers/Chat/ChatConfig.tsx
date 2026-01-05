@@ -5,40 +5,50 @@ import { useEffect, useRef, useState } from 'react';
 import { createPortal } from 'react-dom';
 import { useNavigate, useParams } from 'react-router-dom';
 
+import { useCreateChatConfigMutation, useUpdateChatConfigMutation } from '@/gql/generated';
 import { cn } from '@/lib/cn';
 import { toProjectChatNew } from '@/services/linker';
 import { Button } from '@/ui/button';
 import { CONFIG_RANGES, DEFAULT_CHAT_CONFIG, OPENAI_MODELS } from './constants';
-import type { ChatConfigForm, UniqueConfigEntry } from './types';
+import type { ChatConfigEntry, ChatConfigForm } from './types';
 import { useChatContext } from './useChatContext';
 
 type TabId = 'edit' | 'compare';
+type EditMode = 'edit' | 'create';
+
 interface ConfigModalProps {
   open: boolean;
   onClose: () => void;
-  onApply: (config: ChatConfigForm) => void;
-  configs: UniqueConfigEntry[];
-  currentConfig: ChatConfigForm;
+  configs: ChatConfigEntry[];
+  selectedConfigId: string | null;
+  onSelectConfig: (id: string) => void;
+  onRefetch: () => void;
 }
 
 const TABS: { id: TabId; label: string }[] = [
   { id: 'edit', label: 'Edit config' },
   { id: 'compare', label: 'Compare configs' }
 ];
-const DEFAULT_CONFIG_KEY = '__default__';
 
-const formatConfigLabel = (entry: UniqueConfigEntry) => {
-  const configName = entry.config.name?.trim();
+const formatConfigLabel = (entry: ChatConfigEntry) => {
   const date = new Date(entry.createdAt);
   const dateTimeStr = date.toLocaleString();
-  const projectPart = entry.projectName ? ` - ${entry.projectName}` : '';
-  const displayTitle = configName || entry.chatTitle || 'Untitled chat';
-  return `${displayTitle}${projectPart} (${dateTimeStr})`;
+  return `${entry.name} (${dateTimeStr})`;
 };
 
-const resolveConfigByKey = (key: string, configs: UniqueConfigEntry[]): ChatConfigForm => {
-  if (!key || key === DEFAULT_CONFIG_KEY) return DEFAULT_CHAT_CONFIG as ChatConfigForm;
-  return (configs.find(entry => entry.key === key)?.config ?? DEFAULT_CHAT_CONFIG) as ChatConfigForm;
+const configEntryToForm = (entry: ChatConfigEntry): ChatConfigForm => ({
+  name: entry.name,
+  notes: entry.notes,
+  systemPrompt: entry.systemPrompt,
+  openai: entry.openai,
+  context: entry.context,
+  segments: entry.segments
+});
+
+const resolveConfigById = (id: string | null, configs: ChatConfigEntry[]): ChatConfigForm => {
+  if (!id) return DEFAULT_CHAT_CONFIG;
+  const found = configs.find(entry => entry.id === id);
+  return found ? configEntryToForm(found) : DEFAULT_CHAT_CONFIG;
 };
 
 const highlightClass = (isDifferent: boolean) =>
@@ -140,9 +150,7 @@ const ValueRow = ({
 
   return (
     <div className="grid grid-cols-2 gap-0 items-start relative">
-      {/* Visual separator */}
       <div className="absolute left-1/2 top-0 bottom-0 w-px bg-slate-200 -translate-x-px z-10" />
-
       <div className="space-y-1 pr-4">
         <span className="text-xs font-semibold uppercase tracking-wide text-slate-500">{label}</span>
         {renderInput(leftValue, false, false)}
@@ -155,17 +163,24 @@ const ValueRow = ({
   );
 };
 
-function ConfigModalWindow({ open, onClose, onApply, configs, currentConfig }: ConfigModalProps) {
-  const [draftConfig, setDraftConfig] = useState<ChatConfigForm>(currentConfig);
+function ConfigModalWindow({ open, onClose, configs, selectedConfigId, onSelectConfig, onRefetch }: ConfigModalProps) {
+  const [draftConfig, setDraftConfig] = useState<ChatConfigForm>(DEFAULT_CHAT_CONFIG);
   const [activeTab, setActiveTab] = useState<TabId>('edit');
-  const [compareLeftKey, setCompareLeftKey] = useState('');
-  const [compareRightKey, setCompareRightKey] = useState('');
-  const [editBaseKey, setEditBaseKey] = useState('');
+  const [editMode, setEditMode] = useState<EditMode>('edit');
+  const [baseConfigId, setBaseConfigId] = useState<string | null>(null);
+  const [compareLeftId, setCompareLeftId] = useState<string | null>(null);
+  const [compareRightId, setCompareRightId] = useState<string | null>(null);
   const [hasEdited, setHasEdited] = useState(false);
+  const [isSaving, setIsSaving] = useState(false);
+
+  const [createChatConfig] = useCreateChatConfigMutation();
+  const [updateChatConfig] = useUpdateChatConfigMutation();
+
   const diffChangeDisposable = useRef<ReturnType<
     Monaco.editor.IStandaloneCodeEditor['onDidChangeModelContent']
   > | null>(null);
   const keyDownDisposable = useRef<ReturnType<Monaco.editor.IStandaloneCodeEditor['onKeyDown']> | null>(null);
+
   const diffEditorOptions: Monaco.editor.IDiffEditorConstructionOptions = {
     minimap: { enabled: false },
     renderSideBySide: true,
@@ -178,24 +193,28 @@ function ConfigModalWindow({ open, onClose, onApply, configs, currentConfig }: C
     wrappingStrategy: 'advanced'
   };
 
+  // Initialize state when modal opens
   useEffect(() => {
     if (!open) return;
-    setDraftConfig(currentConfig);
+    const firstConfigId = configs[0]?.id ?? null;
+    setBaseConfigId(selectedConfigId ?? firstConfigId);
+    setCompareLeftId(configs[1]?.id ?? firstConfigId);
+    setCompareRightId(selectedConfigId ?? firstConfigId);
     setHasEdited(false);
-  }, [open, currentConfig]);
+    setEditMode('edit');
+  }, [open, configs, selectedConfigId]);
 
+  // Update draft when base config or edit mode changes
   useEffect(() => {
     if (!open) return;
-    if (!configs.length) {
-      setCompareLeftKey('');
-      setCompareRightKey('');
-      setEditBaseKey(DEFAULT_CONFIG_KEY);
-      return;
+    const baseConfig = resolveConfigById(baseConfigId, configs);
+    if (editMode === 'create') {
+      setDraftConfig({ ...baseConfig, name: '', notes: '' });
+    } else {
+      setDraftConfig(baseConfig);
     }
-    setCompareLeftKey(prev => prev || configs[0].key);
-    setCompareRightKey(prev => prev || (configs[1]?.key ?? configs[0].key));
-    setEditBaseKey(prev => prev || configs[0].key);
-  }, [open, configs]);
+    setHasEdited(false);
+  }, [open, baseConfigId, editMode, configs]);
 
   const handleEditableDiffMount = (editor: Monaco.editor.IStandaloneDiffEditor) => {
     diffChangeDisposable.current?.dispose();
@@ -203,7 +222,6 @@ function ConfigModalWindow({ open, onClose, onApply, configs, currentConfig }: C
 
     const modifiedEditor = editor.getModifiedEditor();
 
-    // Force plain-text paste to avoid rich-text errors
     keyDownDisposable.current = modifiedEditor.onKeyDown((event: Monaco.IKeyboardEvent) => {
       const isPaste = (event.metaKey || event.ctrlKey) && event.code === 'KeyV';
       if (!isPaste) return;
@@ -219,16 +237,7 @@ function ConfigModalWindow({ open, onClose, onApply, configs, currentConfig }: C
             range: selection,
             text: sanitized,
             forceMoveMarkers: true
-          })) ??
-          (fallbackRange
-            ? [
-                {
-                  range: fallbackRange,
-                  text: sanitized,
-                  forceMoveMarkers: true
-                }
-              ]
-            : []);
+          })) ?? (fallbackRange ? [{ range: fallbackRange, text: sanitized, forceMoveMarkers: true }] : []);
 
         modifiedEditor.executeEdits('plain-paste', edits as Monaco.editor.IIdentifiedSingleEditOperation[]);
         modifiedEditor.pushUndoStop();
@@ -250,39 +259,27 @@ function ConfigModalWindow({ open, onClose, onApply, configs, currentConfig }: C
     []
   );
 
-  const leftCompareConfig = resolveConfigByKey(compareLeftKey, configs);
-  const rightCompareConfig = resolveConfigByKey(compareRightKey, configs);
-  const editBaseConfig = resolveConfigByKey(editBaseKey, configs);
+  const baseConfig = resolveConfigById(baseConfigId, configs);
+  const leftCompareConfig = resolveConfigById(compareLeftId, configs);
+  const rightCompareConfig = resolveConfigById(compareRightId, configs);
 
   const hasCompareOptions = configs.length > 1;
-  const isEditMode = activeTab === 'edit';
+  const isEditTab = activeTab === 'edit';
+  const isCreateMode = editMode === 'create';
 
-  const leftConfig = isEditMode ? editBaseConfig : leftCompareConfig;
-  const rightConfig = isEditMode ? draftConfig : rightCompareConfig;
+  const leftConfig = isEditTab ? baseConfig : leftCompareConfig;
+  const rightConfig = isEditTab ? draftConfig : rightCompareConfig;
+
   const trimmedName = draftConfig.name?.trim() ?? '';
   const normalizedName = trimmedName.toLowerCase();
   const isNameDuplicate =
-    hasEdited &&
+    isCreateMode && Boolean(normalizedName) && configs.some(({ name }) => name.trim().toLowerCase() === normalizedName);
+  const isNameDuplicateOnEdit =
+    !isCreateMode &&
     Boolean(normalizedName) &&
-    configs.some(({ config }) => config.name?.trim().toLowerCase() === normalizedName);
+    configs.some(({ id, name }) => id !== baseConfigId && name.trim().toLowerCase() === normalizedName);
 
-  useEffect(() => {
-    if (!isEditMode) return;
-    if (hasEdited) return;
-    setDraftConfig(editBaseConfig);
-  }, [isEditMode, editBaseConfig, hasEdited]);
-
-  useEffect(() => {
-    if (activeTab !== 'compare') return;
-    const currentIndex = configs.findIndex(({ key }) => key === editBaseKey);
-    const safeIndex = currentIndex >= 0 ? currentIndex : 0;
-    const leftKey = configs[safeIndex + 1]?.key ?? configs[safeIndex]?.key ?? configs[0]?.key ?? '';
-    const rightKey = editBaseKey || configs[safeIndex]?.key || configs[0]?.key || '';
-    setCompareLeftKey(leftKey);
-    setCompareRightKey(rightKey);
-  }, [activeTab, configs, editBaseKey]);
-
-  if (!open) return null;
+  const canSave = isEditTab && trimmedName && !isNameDuplicate && !isNameDuplicateOnEdit && hasEdited;
 
   const updateDraft = (section: 'openai' | 'context' | 'segments', key: string, value: string | number) => {
     setDraftConfig(prev => ({
@@ -292,10 +289,42 @@ function ConfigModalWindow({ open, onClose, onApply, configs, currentConfig }: C
     setHasEdited(true);
   };
 
-  const updateConfigName = (value: string) => {
-    setDraftConfig(prev => ({ ...prev, name: value }));
+  const updateField = (field: 'name' | 'notes', value: string) => {
+    setDraftConfig(prev => ({ ...prev, [field]: value }));
     setHasEdited(true);
   };
+
+  const handleSave = async () => {
+    if (!canSave) return;
+    setIsSaving(true);
+    try {
+      const data = {
+        name: draftConfig.name,
+        notes: draftConfig.notes,
+        systemPrompt: draftConfig.systemPrompt,
+        openai: draftConfig.openai,
+        context: draftConfig.context,
+        segments: draftConfig.segments
+      };
+
+      if (isCreateMode) {
+        const result = await createChatConfig({ variables: { data } });
+        const newId = result.data?.createChatConfig?.id;
+        onRefetch();
+        if (newId) onSelectConfig(newId);
+      } else if (baseConfigId) {
+        await updateChatConfig({ variables: { id: baseConfigId, data } });
+        onRefetch();
+      }
+      onClose();
+    } catch (error) {
+      console.error('Failed to save config:', error);
+    } finally {
+      setIsSaving(false);
+    }
+  };
+
+  if (!open) return null;
 
   const modal = (
     <div
@@ -326,7 +355,7 @@ function ConfigModalWindow({ open, onClose, onApply, configs, currentConfig }: C
         </div>
 
         <div className="flex-1 space-y-6 overflow-y-auto px-6 py-4" onWheel={event => event.stopPropagation()}>
-          {/* Tabs first */}
+          {/* Tabs */}
           <div className="flex flex-wrap gap-2">
             {TABS.map(tab => (
               <button
@@ -345,100 +374,183 @@ function ConfigModalWindow({ open, onClose, onApply, configs, currentConfig }: C
             ))}
           </div>
 
-          {/* Config selectors */}
-          <div className="grid grid-cols-2 gap-4">
-            {isEditMode ? (
-              <>
-                <label className="space-y-1 text-xs font-semibold uppercase tracking-wide text-slate-600">
-                  <span>Base config (reference)</span>
+          {isEditTab ? (
+            <>
+              {/* Config selector */}
+              <div className="flex items-end gap-3">
+                <label className="flex-1 space-y-1 text-xs font-semibold uppercase tracking-wide text-slate-600">
+                  <span>Select config</span>
                   <select
-                    value={editBaseKey}
-                    onChange={event => setEditBaseKey(event.target.value)}
+                    value={baseConfigId ?? ''}
+                    onChange={event => setBaseConfigId(event.target.value || null)}
                     className="w-full rounded-xl border border-slate-200 bg-white px-4 py-2 text-sm text-slate-700 outline-none focus:border-violet-300 focus:ring-2 focus:ring-violet-100"
                   >
-                    <option value={DEFAULT_CONFIG_KEY}>Default config</option>
-                    {configs.map(entry => (
-                      <option key={entry.key} value={entry.key}>
+                    {!configs.length ? (
+                      <option value="" disabled>
+                        No saved configs yet
+                      </option>
+                    ) : (
+                      configs.map(entry => (
+                        <option key={entry.id} value={entry.id}>
+                          {formatConfigLabel(entry)}
+                        </option>
+                      ))
+                    )}
+                  </select>
+                </label>
+                {!isCreateMode && baseConfigId && (
+                  <Button
+                    onClick={event => {
+                      event.stopPropagation();
+                      onSelectConfig(baseConfigId);
+                      onClose();
+                    }}
+                    type="button"
+                  >
+                    Use this config
+                  </Button>
+                )}
+              </div>
+
+              {/* Mode toggle + Name/Notes */}
+              <div className="grid grid-cols-2 gap-4">
+                {/* Edit/Create mode toggle - Left */}
+                <div className="rounded-2xl border border-slate-200 bg-slate-50 p-4 space-y-3">
+                  <span className="text-xs font-semibold uppercase tracking-wide text-slate-600">Mode</span>
+                  <div className="flex flex-col gap-2">
+                    <label className="flex items-center gap-2 cursor-pointer">
+                      <input
+                        type="radio"
+                        name="editMode"
+                        value="edit"
+                        checked={editMode === 'edit'}
+                        onChange={() => setEditMode('edit')}
+                        className="text-violet-600 focus:ring-violet-500"
+                      />
+                      <span className="text-sm text-slate-700">Edit existing config</span>
+                    </label>
+                    <label className="flex items-center gap-2 cursor-pointer">
+                      <input
+                        type="radio"
+                        name="editMode"
+                        value="create"
+                        checked={editMode === 'create'}
+                        onChange={() => setEditMode('create')}
+                        className="text-violet-600 focus:ring-violet-500"
+                      />
+                      <span className="text-sm text-slate-700">Create new config from selected</span>
+                    </label>
+                  </div>
+                </div>
+
+                {/* Name and Notes fields - Right */}
+                <div className="space-y-3">
+                  <label className="block space-y-1 text-xs font-semibold uppercase tracking-wide text-slate-600">
+                    <span>Config name</span>
+                    <input
+                      type="text"
+                      value={draftConfig.name}
+                      onChange={event => updateField('name', event.target.value)}
+                      placeholder="Enter a name for this configuration"
+                      className="w-full rounded-xl border border-slate-200 bg-white px-4 py-2 text-sm text-slate-700 outline-none focus:border-violet-300 focus:ring-2 focus:ring-violet-100"
+                    />
+                    {!trimmedName && hasEdited && (
+                      <p className="text-[10px] font-medium normal-case text-red-600">Name is required</p>
+                    )}
+                    {(isNameDuplicate || isNameDuplicateOnEdit) && (
+                      <p className="text-[10px] font-medium normal-case text-amber-700">Name is already in use</p>
+                    )}
+                  </label>
+                  <label className="block space-y-1 text-xs font-semibold uppercase tracking-wide text-slate-600">
+                    <span>Notes</span>
+                    <textarea
+                      value={draftConfig.notes}
+                      onChange={event => updateField('notes', event.target.value)}
+                      placeholder="Add notes about this configuration"
+                      rows={6}
+                      className="w-full rounded-xl border border-slate-200 bg-white px-4 py-2 text-sm text-slate-700 outline-none focus:border-violet-300 focus:ring-2 focus:ring-violet-100 resize-none"
+                    />
+                  </label>
+                </div>
+              </div>
+            </>
+          ) : (
+            /* Compare mode selectors */
+            <div className="grid grid-cols-2 gap-4">
+              <label className="space-y-1 text-xs font-semibold uppercase tracking-wide text-slate-600">
+                <span>Left config</span>
+                <select
+                  value={compareLeftId ?? ''}
+                  onChange={event => setCompareLeftId(event.target.value || null)}
+                  className="w-full rounded-xl border border-slate-200 bg-white px-4 py-2 text-sm text-slate-700 outline-none focus:border-violet-300 focus:ring-2 focus:ring-violet-100"
+                >
+                  {!configs.length ? (
+                    <option value="" disabled>
+                      No saved configs yet
+                    </option>
+                  ) : (
+                    configs.map(entry => (
+                      <option key={entry.id} value={entry.id}>
                         {formatConfigLabel(entry)}
                       </option>
-                    ))}
-                  </select>
-                </label>
-                <label className="space-y-1 text-xs font-semibold uppercase tracking-wide text-slate-600">
-                  <span>New Config name</span>
-                  <input
-                    type="text"
-                    value={draftConfig.name ?? ''}
-                    onChange={event => updateConfigName(event.target.value)}
-                    placeholder="Enter a name for this configuration"
-                    className="w-full rounded-xl border border-violet-200 bg-white px-4 py-2 text-sm text-slate-700 outline-none focus:border-violet-300 focus:ring-2 focus:ring-violet-100"
-                    required
-                  />
-                  {!trimmedName ? (
-                    <p className="text-[10px] font-medium normal-case text-violet-600">Name is required</p>
-                  ) : isNameDuplicate ? (
-                    <p className="text-[10px] font-medium normal-case text-amber-700">Name is already in use</p>
-                  ) : null}
-                </label>
-              </>
-            ) : (
-              <>
-                <label className="space-y-1 text-xs font-semibold uppercase tracking-wide text-slate-600">
-                  <span>Left config</span>
-                  <select
-                    value={compareLeftKey}
-                    onChange={event => setCompareLeftKey(event.target.value)}
-                    className="w-full rounded-xl border border-slate-200 bg-white px-4 py-2 text-sm text-slate-700 outline-none focus:border-violet-300 focus:ring-2 focus:ring-violet-100"
-                  >
-                    {!configs.length ? (
-                      <option value="" disabled>
-                        No saved configs yet
+                    ))
+                  )}
+                </select>
+              </label>
+              <label className="space-y-1 text-xs font-semibold uppercase tracking-wide text-slate-600">
+                <span>Right config</span>
+                <select
+                  value={compareRightId ?? ''}
+                  onChange={event => setCompareRightId(event.target.value || null)}
+                  className="w-full rounded-xl border border-slate-200 bg-white px-4 py-2 text-sm text-slate-700 outline-none focus:border-violet-300 focus:ring-2 focus:ring-violet-100"
+                >
+                  {!configs.length ? (
+                    <option value="" disabled>
+                      No saved configs yet
+                    </option>
+                  ) : (
+                    configs.map(entry => (
+                      <option key={entry.id} value={entry.id}>
+                        {formatConfigLabel(entry)}
                       </option>
-                    ) : (
-                      configs.map(entry => (
-                        <option key={entry.key} value={entry.key}>
-                          {formatConfigLabel(entry)}
-                        </option>
-                      ))
-                    )}
-                  </select>
-                </label>
-                <label className="space-y-1 text-xs font-semibold uppercase tracking-wide text-slate-600">
-                  <span>Right config</span>
-                  <select
-                    value={compareRightKey}
-                    onChange={event => setCompareRightKey(event.target.value)}
-                    className="w-full rounded-xl border border-slate-200 bg-white px-4 py-2 text-sm text-slate-700 outline-none focus:border-violet-300 focus:ring-2 focus:ring-violet-100"
-                  >
-                    {!configs.length ? (
-                      <option value="" disabled>
-                        No saved configs yet
-                      </option>
-                    ) : (
-                      configs.map(entry => (
-                        <option key={entry.key} value={entry.key}>
-                          {formatConfigLabel(entry)}
-                        </option>
-                      ))
-                    )}
-                  </select>
-                </label>
-              </>
-            )}
-          </div>
+                    ))
+                  )}
+                </select>
+              </label>
+            </div>
+          )}
+
+          {/* Notes comparison (Compare mode only) */}
+          {!isEditTab && hasCompareOptions && (
+            <section className="space-y-2">
+              <span className="text-sm font-semibold text-slate-700">Notes</span>
+              <div className="rounded-2xl border border-slate-200 bg-slate-50 overflow-hidden">
+                <DiffEditor
+                  key={`notes-compare-${compareLeftId}-${compareRightId}`}
+                  language="plaintext"
+                  original={leftConfig.notes}
+                  modified={rightConfig.notes}
+                  height="150px"
+                  options={{ ...diffEditorOptions, readOnly: true }}
+                />
+              </div>
+            </section>
+          )}
 
           {/* System Prompt - Diff Editor */}
           <section className="space-y-2">
             <div className="grid grid-cols-2 gap-4">
-              <span className="text-sm font-semibold text-slate-700">System Prompt (Base)</span>
               <span className="text-sm font-semibold text-slate-700">
-                System Prompt {isEditMode ? '(Editable)' : '(Right)'}
+                System Prompt {isEditTab ? '(Base)' : '(Left)'}
+              </span>
+              <span className="text-sm font-semibold text-slate-700">
+                System Prompt {isEditTab ? '(Editable)' : '(Right)'}
               </span>
             </div>
             <div className="rounded-2xl border border-slate-200 bg-slate-50 overflow-hidden">
-              {isEditMode ? (
+              {isEditTab ? (
                 <DiffEditor
-                  key={`edit-${editBaseKey}`}
+                  key={`edit-${baseConfigId}-${editMode}`}
                   language="plaintext"
                   original={leftConfig.systemPrompt}
                   modified={draftConfig.systemPrompt}
@@ -448,7 +560,7 @@ function ConfigModalWindow({ open, onClose, onApply, configs, currentConfig }: C
                 />
               ) : hasCompareOptions ? (
                 <DiffEditor
-                  key={`compare-${compareLeftKey}-${compareRightKey}`}
+                  key={`compare-${compareLeftId}-${compareRightId}`}
                   language="plaintext"
                   original={leftConfig.systemPrompt}
                   modified={rightConfig.systemPrompt}
@@ -457,35 +569,38 @@ function ConfigModalWindow({ open, onClose, onApply, configs, currentConfig }: C
                 />
               ) : (
                 <p className="p-4 text-sm text-slate-500">
-                  Gather at least two previous configurations to compare them side by side.
+                  Create at least two configurations to compare them side by side.
                 </p>
               )}
             </div>
-            <div className="text-xs text-slate-500 space-y-1">
+            <div className="text-xs text-slate-500 space-y-2">
               <p className="font-medium">Available placeholders:</p>
-              <ul className="list-disc list-inside space-y-0.5 ml-2">
-                <li>
-                  <code className="bg-slate-100 px-1 rounded text-xs">{'{projectName}'}</code> - Project name
-                </li>
-                <li>
-                  <code className="bg-slate-100 px-1 rounded text-xs">{'{transcriptTitles}'}</code> - Distinct transcript titles in the project
-                </li>
-                <li>
-                  <code className="bg-slate-100 px-1 rounded text-xs">{'{sourceNames}'}</code> - Distinct source names linked to the project
-                </li>
-                <li>
-                  <code className="bg-slate-100 px-1 rounded text-xs">{'{actorsSummary}'}</code> - Top mentioned actors with type and frequency
-                </li>
-                <li>
-                  <code className="bg-slate-100 px-1 rounded text-xs">{'{speakersSummary}'}</code> - Top speaker actors and how often they speak
-                </li>
-                <li>
-                  <code className="bg-slate-100 px-1 rounded text-xs">{'{dateRange}'}</code> - Earliest to latest published transcript date
-                </li>
-                <li>
-                  <code className="bg-slate-100 px-1 rounded text-xs">{'{totalTranscripts}'}</code> - Total transcripts in the project
-                </li>
-              </ul>
+              <div className="flex flex-wrap gap-1.5">
+                <span className="inline-flex items-center gap-1 rounded-lg border border-slate-200 bg-white px-2 py-1">
+                  <code className="bg-slate-100 px-1 rounded text-xs font-mono">{'{projectName}'}</code>
+                  <span className="text-slate-400">Project name</span>
+                </span>
+                <span className="inline-flex items-center gap-1 rounded-lg border border-slate-200 bg-white px-2 py-1">
+                  <code className="bg-slate-100 px-1 rounded text-xs font-mono">{'{transcriptTitles}'}</code>
+                  <span className="text-slate-400">Transcript titles</span>
+                </span>
+                <span className="inline-flex items-center gap-1 rounded-lg border border-slate-200 bg-white px-2 py-1">
+                  <code className="bg-slate-100 px-1 rounded text-xs font-mono">{'{sourceNames}'}</code>
+                  <span className="text-slate-400">Source names</span>
+                </span>
+                <span className="inline-flex items-center gap-1 rounded-lg border border-slate-200 bg-white px-2 py-1">
+                  <code className="bg-slate-100 px-1 rounded text-xs font-mono">{'{actorsSummary}'}</code>
+                  <span className="text-slate-400">Top actors (type and frequency)</span>
+                </span>
+                <span className="inline-flex items-center gap-1 rounded-lg border border-slate-200 bg-white px-2 py-1">
+                  <code className="bg-slate-100 px-1 rounded text-xs font-mono">{'{speakersSummary}'}</code>
+                  <span className="text-slate-400">Top speakers (and frequency)</span>
+                </span>
+                <span className="inline-flex items-center gap-1 rounded-lg border border-slate-200 bg-white px-2 py-1">
+                  <code className="bg-slate-100 px-1 rounded text-xs font-mono">{'{totalTranscripts}'}</code>
+                  <span className="text-slate-400">Total count</span>
+                </span>
+              </div>
             </div>
           </section>
 
@@ -499,7 +614,7 @@ function ConfigModalWindow({ open, onClose, onApply, configs, currentConfig }: C
               label="Model"
               leftValue={leftConfig.openai.model}
               rightValue={rightConfig.openai.model}
-              rightEditable={isEditMode}
+              rightEditable={isEditTab}
               onRightChange={value => updateDraft('openai', 'model', value as string)}
               type="select"
               options={OPENAI_MODELS.map(model => ({ value: model.value, label: model.label }))}
@@ -508,7 +623,7 @@ function ConfigModalWindow({ open, onClose, onApply, configs, currentConfig }: C
               label="Temperature"
               leftValue={leftConfig.openai.temperature}
               rightValue={rightConfig.openai.temperature}
-              rightEditable={isEditMode}
+              rightEditable={isEditTab}
               onRightChange={value => updateDraft('openai', 'temperature', value as number)}
               type="range"
               range={CONFIG_RANGES.temperature}
@@ -517,7 +632,7 @@ function ConfigModalWindow({ open, onClose, onApply, configs, currentConfig }: C
               label="Max Output Tokens"
               leftValue={leftConfig.openai.maxOutputTokens}
               rightValue={rightConfig.openai.maxOutputTokens}
-              rightEditable={isEditMode}
+              rightEditable={isEditTab}
               onRightChange={value => updateDraft('openai', 'maxOutputTokens', value as number)}
               type="number"
               range={CONFIG_RANGES.maxOutputTokens}
@@ -534,7 +649,7 @@ function ConfigModalWindow({ open, onClose, onApply, configs, currentConfig }: C
               label="Max Input Tokens"
               leftValue={leftConfig.context.maxInputTokens}
               rightValue={rightConfig.context.maxInputTokens}
-              rightEditable={isEditMode}
+              rightEditable={isEditTab}
               onRightChange={value => updateDraft('context', 'maxInputTokens', value as number)}
               type="number"
               range={CONFIG_RANGES.maxInputTokens}
@@ -543,7 +658,7 @@ function ConfigModalWindow({ open, onClose, onApply, configs, currentConfig }: C
               label="Reserved Tokens"
               leftValue={leftConfig.context.reservedTokens}
               rightValue={rightConfig.context.reservedTokens}
-              rightEditable={isEditMode}
+              rightEditable={isEditTab}
               onRightChange={value => updateDraft('context', 'reservedTokens', value as number)}
               type="number"
               range={CONFIG_RANGES.reservedTokens}
@@ -552,7 +667,7 @@ function ConfigModalWindow({ open, onClose, onApply, configs, currentConfig }: C
               label="History Token Budget"
               leftValue={leftConfig.context.historyTokenBudget}
               rightValue={rightConfig.context.historyTokenBudget}
-              rightEditable={isEditMode}
+              rightEditable={isEditTab}
               onRightChange={value => updateDraft('context', 'historyTokenBudget', value as number)}
               type="number"
               range={CONFIG_RANGES.historyTokenBudget}
@@ -569,7 +684,7 @@ function ConfigModalWindow({ open, onClose, onApply, configs, currentConfig }: C
               label="Segment Token Budget"
               leftValue={leftConfig.segments.tokenBudget}
               rightValue={rightConfig.segments.tokenBudget}
-              rightEditable={isEditMode}
+              rightEditable={isEditTab}
               onRightChange={value => updateDraft('segments', 'tokenBudget', value as number)}
               type="number"
               range={CONFIG_RANGES.segmentTokenBudget}
@@ -578,7 +693,7 @@ function ConfigModalWindow({ open, onClose, onApply, configs, currentConfig }: C
               label="Max Segments"
               leftValue={leftConfig.segments.maxCount}
               rightValue={rightConfig.segments.maxCount}
-              rightEditable={isEditMode}
+              rightEditable={isEditTab}
               onRightChange={value => updateDraft('segments', 'maxCount', value as number)}
               type="number"
               range={CONFIG_RANGES.maxSegments}
@@ -598,16 +713,9 @@ function ConfigModalWindow({ open, onClose, onApply, configs, currentConfig }: C
             >
               Cancel
             </Button>
-            {isEditMode && (
-              <Button
-                onClick={event => {
-                  event.stopPropagation();
-                  onApply(draftConfig);
-                }}
-                type="button"
-                disabled={!trimmedName || isNameDuplicate}
-              >
-                Apply configuration
+            {isEditTab && (
+              <Button onClick={handleSave} type="button" disabled={!canSave || isSaving}>
+                {isSaving ? 'Saving...' : isCreateMode ? 'Create config' : 'Save changes and use config'}
               </Button>
             )}
           </div>
@@ -622,16 +730,18 @@ function ConfigModalWindow({ open, onClose, onApply, configs, currentConfig }: C
 export default function ChatConfig() {
   const { projectId = '' } = useParams<{ projectId: string }>();
   const navigate = useNavigate();
-  const { chatConfig, setChatConfig, configs } = useChatContext();
+  const { selectedConfigId, setSelectedConfigId, configs, refetchConfigs } = useChatContext();
 
   const handleClose = () => navigate(toProjectChatNew({ projectId }), { replace: true });
 
-  const handleApply = (config: ChatConfigForm) => {
-    setChatConfig(config);
-    navigate(toProjectChatNew({ projectId }), { replace: true });
-  };
-
   return (
-    <ConfigModalWindow open configs={configs} currentConfig={chatConfig} onClose={handleClose} onApply={handleApply} />
+    <ConfigModalWindow
+      open
+      configs={configs}
+      selectedConfigId={selectedConfigId}
+      onSelectConfig={setSelectedConfigId}
+      onRefetch={refetchConfigs}
+      onClose={handleClose}
+    />
   );
 }

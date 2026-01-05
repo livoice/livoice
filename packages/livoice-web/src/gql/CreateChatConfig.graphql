@@ -1,5 +1,5 @@
-query ChatConfigs {
-  chatConfigs(orderBy: { createdAt: desc }) {
+mutation CreateChatConfig($data: ChatConfigCreateInput!) {
+  createChatConfig(data: $data) {
     id
     name
     notes
@@ -11,3 +11,4 @@ query ChatConfigs {
     updatedAt
   }
 }
+

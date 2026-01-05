@@ -1,4 +1,5 @@
 import Chat from './Chat';
+import ChatConfig from './ChatConfig';
 import ChatMessage from './ChatMessage';
 import Organization from './Organization';
 import Project from './Project';
@@ -15,6 +16,7 @@ const lists = {
   ActorMention,
   ActorLink,
   Chat,
+  ChatConfig,
   ChatMessage,
   Organization,
   Project,

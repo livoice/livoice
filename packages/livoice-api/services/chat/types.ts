@@ -47,7 +47,9 @@ export type SegmentReference = {
 };
 
 export type ChatConfig = {
+  id?: string;
   name?: string;
+  createdAt?: string;
   systemPrompt: string;
   openai: {
     model: string;
@@ -138,7 +140,6 @@ export type SystemPromptContext = {
   sourceNames: string[];
   actorsSummary?: string;
   speakersSummary?: string;
-  dateRange?: string;
   totalTranscripts?: number;
 };
 
