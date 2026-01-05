@@ -105,9 +105,7 @@ export const processTranscriptImport = async (transcript: TranscriptWithSource, 
         rawSrt: '',
         importStatus: 'skipped',
         importAt: new Date(),
-        analysisStatus: 'skipped',
-        analysisAt: new Date(),
-        analysisError: 'empty_transcript'
+        importError: 'empty_transcript'
       });
       return;
     }

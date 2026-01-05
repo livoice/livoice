@@ -12,15 +12,15 @@ type PendingSegment = {
 export const fetchPendingSegments = async (limit = 500): Promise<PendingSegment[]> => {
   const rows = await (
     await getPrismaSudo()
-  ).$queryRawUnsafe<{ id: string; text: string; transcriptId: string }[]>(
-    `SELECT ts.id, ts.text, ts.transcript as "transcriptId"
-     FROM "TranscriptSegment" ts
-     INNER JOIN "Transcript" t ON ts.transcript = t.id
-     WHERE ts.embedding IS NULL
-       AND t."importStatus" IN ('completed', 'skipped')
-       AND t."analysisStatus" = 'completed'
-     LIMIT ${Number(limit)}`
-  );
+  ).$queryRaw<{ id: string; text: string; transcriptId: string }[]>`
+    SELECT ts.id, ts.text, ts.transcript as "transcriptId"
+    FROM "TranscriptSegment" ts
+    INNER JOIN "Transcript" t ON ts.transcript = t.id
+    WHERE ts.embedding IS NULL
+      AND t."importStatus" = 'completed'
+      AND t."analysisStatus" = 'completed'
+    LIMIT ${limit}
+  `;
   return rows;
 };
 
@@ -48,15 +48,15 @@ export const batchEmbed = async (segments: PendingSegment[]) => {
 };
 
 export const markCompletedTranscripts = async () =>
-  (await getPrismaSudo()).$executeRawUnsafe(`
+  (await getPrismaSudo()).$executeRaw`
     UPDATE "Transcript"
     SET "embeddingStatus" = 'completed', "embeddingAt" = NOW()
     WHERE "embeddingStatus" IN ('pending', 'processing')
-      AND "importStatus" IN ('completed', 'skipped')
+      AND "importStatus" = 'completed'
       AND "analysisStatus" = 'completed'
       AND NOT EXISTS (
         SELECT 1 FROM "TranscriptSegment"
         WHERE "TranscriptSegment"."transcript" = "Transcript"."id"
           AND "TranscriptSegment"."embedding" IS NULL
       )
-  `);
+  `;

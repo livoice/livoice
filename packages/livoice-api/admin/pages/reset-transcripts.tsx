@@ -140,7 +140,7 @@ function BulkResetButton({ transcripts, onReset }: { transcripts: Transcript[]; 
           fontWeight: 'bold'
         }}
       >
-        {loading ? 'Resetting...' : `Reset & Retry All ${transcripts.length}`}
+        {loading ? 'Resetting...' : `Reset All ${transcripts.length}`}
       </button>
       {error && <span style={{ color: '#dc3545', fontSize: '12px' }}>{error}</span>}
       {success && <span style={{ color: '#28a745', fontSize: '12px' }}>{success}</span>}
@@ -478,6 +478,9 @@ function TranscriptRow({ transcript, onReset }: { transcript: Transcript; onRese
         >
           {transcript.importStatus}
         </span>
+        {transcript.importError && (
+          <div style={{ marginTop: '4px', color: '#dc3545', fontSize: '11px' }}>{transcript.importError}</div>
+        )}
       </td>
       <td style={{ padding: '12px 8px', textAlign: 'center', border: '1px solid #e1e5e9' }}>
         <span
@@ -492,6 +495,9 @@ function TranscriptRow({ transcript, onReset }: { transcript: Transcript; onRese
         >
           {transcript.analysisStatus}
         </span>
+        {transcript.analysisError && (
+          <div style={{ marginTop: '4px', color: '#dc3545', fontSize: '11px' }}>{transcript.analysisError}</div>
+        )}
       </td>
       <td style={{ padding: '12px 8px', textAlign: 'center', border: '1px solid #e1e5e9' }}>
         <span
@@ -506,6 +512,9 @@ function TranscriptRow({ transcript, onReset }: { transcript: Transcript; onRese
         >
           {transcript.embeddingStatus}
         </span>
+        {transcript.embeddingError && (
+          <div style={{ marginTop: '4px', color: '#dc3545', fontSize: '11px' }}>{transcript.embeddingError}</div>
+        )}
       </td>
       <td style={{ padding: '12px 8px', textAlign: 'center', border: '1px solid #e1e5e9' }}>
         {transcript.importAttempts}
@@ -533,7 +542,7 @@ function TranscriptRow({ transcript, onReset }: { transcript: Transcript; onRese
             fontSize: '12px'
           }}
         >
-          {loading ? 'Resetting...' : 'Reset & Retry'}
+          {loading ? 'Resetting...' : 'Reset'}
         </button>
         {error && <div style={{ color: '#dc3545', fontSize: '11px', marginTop: '4px' }}>{error}</div>}
         {success && <div style={{ color: '#28a745', fontSize: '11px', marginTop: '4px' }}>{success}</div>}

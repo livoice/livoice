@@ -37,7 +37,7 @@ export const start = async () => {
     const transcripts = await prisma.transcript.findMany({
       where: {
         analysisStatus: 'pending',
-        importStatus: { in: ['completed', 'skipped'] }
+        importStatus: 'completed'
       },
       orderBy: { createdAt: 'asc' },
       take: freeSlots
