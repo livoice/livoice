@@ -1,7 +1,7 @@
 import { randomBytes } from 'crypto';
 import { promises as fs, readFileSync } from 'fs';
 import { tmpdir } from 'os';
-import { join } from 'path';
+import { basename, join } from 'path';
 
 const PACKAGE_NAME = (() => {
   const pkgJson = readFileSync(join(process.cwd(), 'package.json'), 'utf-8');
@@ -37,6 +37,16 @@ export class TempFile {
       );
 
     return this.contentPromise;
+  }
+
+  public async contentOfSuffix(suffixPattern: string): Promise<string> {
+    const files = await fs.readdir(this.dir);
+    const base = basename(this.path);
+    const match = files.find(f => f.startsWith(base) && f.endsWith(suffixPattern));
+
+    if (!match) throw new Error(`No file matching suffix pattern "${suffixPattern}" in ${this.dir}`);
+
+    return this.content(match.slice(base.length));
   }
 
   private async cleanup() {

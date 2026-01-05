@@ -172,8 +172,8 @@ export const youtubeAdapter: SourceAdapter = {
   },
 
   fetchTranscript: async itemExternalId => {
-    const LANG = 'en';
     const SUB_FORMAT = 'srt';
+    const SUB_LANGS = 'en-en,en.*,en'; // Non Auto-genertated used en-en/en-* format. Accept various English subtitle variants (en, en-en, en-US, etc.)
 
     console.log('[youtubeAdapter] fetchTranscript: itemExternalId=', itemExternalId);
 
@@ -183,7 +183,7 @@ export const youtubeAdapter: SourceAdapter = {
       await youtubeDlExec(toVideoUrl(itemExternalId), {
         ...ytDlpBaseConfig,
         writeAutoSub: true,
-        subLang: LANG,
+        subLangs: SUB_LANGS,
         subFormat: SUB_FORMAT,
         output: tempFile.path,
         jsRuntimes: 'node' as const,
@@ -193,9 +193,10 @@ export const youtubeAdapter: SourceAdapter = {
         jsRuntimes?: string;
         sleepInterval?: number;
         maxSleepInterval?: number;
+        subLangs?: string;
       });
 
-      const strContent = await tempFile.content(`.${LANG}.${SUB_FORMAT}`);
+      const strContent = await tempFile.contentOfSuffix(`.${SUB_FORMAT}`);
       console.log(`[youtubeAdapter] fetchTranscript: downloaded content length=${strContent.length}`);
 
       return strContent;
