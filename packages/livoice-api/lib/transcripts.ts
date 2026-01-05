@@ -148,11 +148,24 @@ export const processTranscriptImport = async (transcript: TranscriptWithSource, 
       return;
     }
 
-    await updateTranscriptStatus(
-      transcript,
-      'failed',
-      error instanceof Error ? error.message : 'Transcript import failed'
-    );
+    const errorMessage = error instanceof Error ? error.message : 'Transcript import failed';
+    const isSubtitleError = errorMessage.includes('Subtitle file not found');
+    const isLastAttempt = (transcript.importAttempts ?? 0) >= MAX_TRANSCRIPT_IMPORT_ATTEMPTS - 1;
+
+    // If this is the last attempt and it's a subtitle-related error, mark as skipped
+    if (isLastAttempt && isSubtitleError) {
+      await updateTranscript(transcript.id, {
+        importStatus: 'skipped',
+        importAt: new Date(),
+        importError: errorMessage
+      });
+      console.log(
+        `[processTranscriptImport] max attempts reached for subtitle error, marking as skipped id=${transcript.id}`
+      );
+      return;
+    }
+
+    await updateTranscriptStatus(transcript, 'failed', errorMessage);
     throw error;
   }
 };

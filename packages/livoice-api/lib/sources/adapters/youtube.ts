@@ -208,9 +208,12 @@ export const youtubeAdapter: SourceAdapter = {
           console.error(`[youtubeAdapter] fetchTranscript: yt-dlp binary not found at ${errorPath}`, error);
           throw new Error(`yt-dlp binary not found. Ensure yt-dlp is installed on the system.`);
         }
-        // Otherwise it's likely a missing subtitle file - expected case
-        console.log(`[youtubeAdapter] fetchTranscript: no subtitles available for ${itemExternalId}, skipping`, error);
-        return '';
+        // Otherwise it's likely a missing subtitle file - could be temporary (YouTube blocking) so throw to retry
+        console.warn(
+          `[youtubeAdapter] fetchTranscript: subtitle file not found for ${itemExternalId}, will retry`,
+          error
+        );
+        throw new Error(`Subtitle file not found for ${itemExternalId}`);
       }
 
       console.error(`[youtubeAdapter] fetchTranscript failed for ${itemExternalId}:`, error);
