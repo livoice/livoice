@@ -70,6 +70,26 @@ export default function ChatMessageDebug() {
     return [...debugData.segments].sort((a, b) => (a.similarityScore ?? 0) - (b.similarityScore ?? 0));
   }, [debugData?.segments]);
 
+  type HistoryBudget = {
+    fixedTokens: number;
+    historyBudget: number;
+    reservedTokens: number;
+    maxContextTokens: number;
+    availableTokens: number;
+  };
+
+  const historyBudgetItems = useMemo(() => {
+    const budget = (debugData?.history as { budget?: HistoryBudget } | null)?.budget;
+    if (!budget) return [];
+    return [
+      { label: 'Fixed tokens', value: budget.fixedTokens },
+      { label: 'History budget', value: budget.historyBudget },
+      { label: 'Reserved tokens', value: budget.reservedTokens },
+      { label: 'Max context tokens', value: budget.maxContextTokens },
+      { label: 'Available tokens', value: budget.availableTokens }
+    ];
+  }, [debugData?.history]);
+
   const insightData = useMemo(() => {
     if (!debugData) return null;
 
@@ -103,27 +123,40 @@ export default function ChatMessageDebug() {
     const historyUtil = historyBudget ? (historyTokens / historyBudget) * 100 : 0;
 
     const status = (value: number, high = 85, warn = 100) => {
-      if (value >= warn) return { badge: 'bg-red-100 text-red-700', label: 'maxed', value };
-      if (value >= high) return { badge: 'bg-amber-100 text-amber-700', label: 'high', value };
-      return { badge: 'bg-emerald-100 text-emerald-700', label: 'ok', value };
+      if (value >= warn) return { badge: 'bg-red-100 text-red-700', label: 'maxed' };
+      if (value >= high) return { badge: 'bg-amber-100 text-amber-700', label: 'high' };
+      return { badge: 'bg-emerald-100 text-emerald-700', label: 'ok' };
     };
 
     return {
-      prompt: { value: promptUtil, detail: `${promptTokens}/${availableContext} prompt tokens`, ...status(promptUtil) },
-      total: { value: totalUtil, detail: `${totalTokens}/${maxInput} total tokens`, ...status(totalUtil) },
+      prompt: {
+        value: promptUtil,
+        detail: `${promptTokens}/${availableContext} prompt tokens`,
+        type: 'percent' as const,
+        ...status(promptUtil)
+      },
+      total: {
+        value: totalUtil,
+        detail: `${totalTokens}/${maxInput} total tokens`,
+        type: 'percent' as const,
+        ...status(totalUtil)
+      },
       segmentsTokens: {
         value: segmentUtil,
         detail: `${segmentTokens}/${segmentBudget} segment tokens`,
+        type: 'percent' as const,
         ...status(segmentUtil)
       },
       segmentsCount: {
         value: segmentsCountUtil,
         detail: `${segmentsUsed}/${segmentsMax} segments used`,
+        type: 'percent' as const,
         ...status(segmentsCountUtil)
       },
       history: {
         value: historyUtil,
         detail: `${historyTokens}/${historyBudget} history tokens`,
+        type: 'percent' as const,
         ...status(historyUtil, 70, 90)
       },
       estimatedCost: {
@@ -351,13 +384,26 @@ export default function ChatMessageDebug() {
           )}
 
           {activeTab === 'context' && (
-            <section className="space-y-3">
-              <div className="flex items-center justify-between text-xs text-slate-500 uppercase tracking-[0.3em]">
+            <section className="space-y-3 max-h-[62vh] overflow-y-auto pr-1" onWheel={event => event.stopPropagation()}>
+              <div className="sticky top-0 z-10 flex items-center justify-between bg-white/95 px-1 py-2 text-xs text-slate-500 uppercase tracking-[0.3em] backdrop-blur">
                 <span>History tokens</span>
                 <span>
                   {debugData.history.tokensUsed} / {debugData.history.tokenBudget}
                 </span>
               </div>
+              {historyBudgetItems.length ? (
+                <div className="grid gap-2 sm:grid-cols-2 md:grid-cols-3 text-xs text-slate-600">
+                  {historyBudgetItems.map(item => (
+                    <div
+                      key={item.label}
+                      className="rounded-xl border border-slate-100 bg-white/80 px-3 py-2 shadow-[0_1px_2px_rgba(15,23,42,0.08)]"
+                    >
+                      <p className="uppercase tracking-[0.2em] text-slate-400">{item.label}</p>
+                      <p className="mt-1 font-semibold text-slate-900">{item.value}</p>
+                    </div>
+                  ))}
+                </div>
+              ) : null}
               {debugData.history.messages.length ? (
                 <div className="space-y-2">
                   {debugData.history.messages.map((historyMessage, index) => (

@@ -52,17 +52,20 @@ export const getOpenAiMessages = ({
   systemPrompt,
   userMessage,
   maxContextTokens = 6000,
-  reservedTokens = 1000
+  reservedTokens = 1000,
+  historyTokenBudget = 4000
 }: {
   history: { role: 'user' | 'assistant'; content: string }[];
   systemPrompt: string;
   userMessage: string;
   maxContextTokens?: number;
   reservedTokens?: number;
+  historyTokenBudget?: number;
 }): OpenAiMessagesResult => {
   const fixedTokens = estimateTokens(systemPrompt) + estimateTokens(userMessage) + reservedTokens;
-  const availableTokens = maxContextTokens - fixedTokens;
-  const { included: includedHistory, currentTokens: historyTokens } = takeMessagesWithinLimit(history, availableTokens);
+  const availableTokens = Math.max(maxContextTokens - fixedTokens, 0);
+  const historyBudget = Math.min(historyTokenBudget, availableTokens);
+  const { included: includedHistory, currentTokens: historyTokens } = takeMessagesWithinLimit(history, historyBudget);
   const historyMessages = includedHistory.map(msg => ({
     ...msg,
     tokens: estimateTokens(msg.content)
@@ -72,6 +75,13 @@ export const getOpenAiMessages = ({
     historyTokens,
     historyCount: includedHistory.length,
     historyMessages,
+    budget: {
+      fixedTokens,
+      maxContextTokens,
+      availableTokens,
+      historyBudget,
+      reservedTokens
+    },
     messages: [
       { role: 'system' as const, content: systemPrompt },
       ...includedHistory,

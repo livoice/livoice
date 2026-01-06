@@ -1,5 +1,5 @@
 import type { Prisma } from '@prisma/client';
-import type { ChatCompletionRequestMessage } from 'openai/resources/chat';
+import type OpenAI from 'openai';
 
 export type SegmentRecord = {
   id: string;
@@ -76,6 +76,13 @@ export type MessageDebugData = {
     tokensUsed: number;
     tokenBudget: number;
     messages: Array<{ role: 'user' | 'assistant'; content: string; tokens: number }>;
+    budget?: {
+      fixedTokens: number;
+      maxContextTokens: number;
+      availableTokens: number;
+      historyBudget: number;
+      reservedTokens: number;
+    };
   };
   segments: Array<{
     id: string;
@@ -143,10 +150,18 @@ export type SystemPromptContext = {
   totalTranscripts?: number;
 };
 
+type ChatCompletionMessage = OpenAI.Chat.Completions.ChatCompletionCreateParams['messages'][number];
+
 export type OpenAiMessagesResult = {
-  messages: ChatCompletionRequestMessage[];
+  messages: ChatCompletionMessage[];
   historyTokens: number;
   historyCount: number;
   historyMessages: Array<{ role: 'user' | 'assistant'; content: string; tokens: number }>;
+  budget: {
+    fixedTokens: number;
+    maxContextTokens: number;
+    availableTokens: number;
+    historyBudget: number;
+    reservedTokens: number;
+  };
 };
-

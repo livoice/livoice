@@ -1,12 +1,13 @@
 import type { KeystoneContext } from '@keystone-6/core/types';
-import type { Session } from '../auth';
+import type { Session } from '../../auth';
 import { chatCompletion } from '../../lib/openai';
-import { fetchSegments, selectSegmentsWithinBudget, mapSegmentReference, buildSegmentDescription } from './segments';
+import { estimateTokens } from '../../lib/tokenUtils';
 import { fetchSegmentActors } from './actors';
 import { fetchChatHistory, getOpenAiMessages } from './history';
+import { buildSegmentDescription, fetchSegments, mapSegmentReference, selectSegmentsWithinBudget } from './segments';
 import { normalizeChatConfig, replaceSystemPromptPlaceholders } from './systemPrompt';
 import { generateChatTitle } from './titleGeneration';
-import type { ChatHistoryItem, ChatConfig, MessageDebugData, SegmentRecord } from './types';
+import type { ChatConfig, ChatHistoryItem, MessageDebugData, SegmentRecord } from './types';
 
 type ProjectWithOrg = {
   id: string;
@@ -96,7 +97,8 @@ export const runChatConversation = async ({
       (chatConfigRecord?.createdAt as string | undefined) ??
       (existingChatRecord?.chatConfig as { createdAt?: string } | null)?.createdAt ??
       undefined,
-    name: chatConfigBase.name ?? chatConfigRecord?.name ?? (existingChatRecord?.configSnapshot as ChatConfig | null)?.name
+    name:
+      chatConfigBase.name ?? chatConfigRecord?.name ?? (existingChatRecord?.configSnapshot as ChatConfig | null)?.name
   };
 
   // Store the chatConfigId for new chats
@@ -171,17 +173,26 @@ export const runChatConversation = async ({
 
   const history = await fetchChatHistory(context, chatId);
 
+  const fixedTokens =
+    estimateTokens(finalSystemPrompt) + estimateTokens(userMessageWithContext) + chatConfig.context.reservedTokens;
+  const effectiveMaxContextTokens = Math.max(
+    chatConfig.context.maxInputTokens,
+    fixedTokens + chatConfig.context.historyTokenBudget
+  );
+
   const {
     messages: openAiMessages,
     historyTokens,
     historyCount,
-    historyMessages
+    historyMessages,
+    budget
   } = getOpenAiMessages({
     history: history.map(item => ({ role: item.role, content: item.content })),
     systemPrompt: finalSystemPrompt,
     userMessage: userMessageWithContext,
-    maxContextTokens: chatConfig.context.maxInputTokens,
-    reservedTokens: chatConfig.context.reservedTokens
+    maxContextTokens: effectiveMaxContextTokens,
+    reservedTokens: chatConfig.context.reservedTokens,
+    historyTokenBudget: chatConfig.context.historyTokenBudget
   });
 
   const startedAt = new Date().toISOString();
@@ -219,7 +230,8 @@ export const runChatConversation = async ({
       messagesIncluded: historyCount,
       tokensUsed: historyTokens,
       tokenBudget: chatConfig.context.historyTokenBudget,
-      messages: historyMessages
+      messages: historyMessages,
+      budget
     },
     segments: segmentsForPrompt.map(mapDebugSegment),
     segmentTokensUsed: segmentsTokensUsed,
@@ -253,4 +265,3 @@ export const runChatConversation = async ({
     references: referenceSegments.map(mapSegmentReference)
   };
 };
-
