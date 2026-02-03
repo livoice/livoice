@@ -82,7 +82,6 @@ const ytDlpBaseConfig = {
   sleepRequests: Math.random() * 2 + 0.5,
   sleepSubtitles: Math.floor(Math.random() * 5) + 1,
   extractorArgs: 'youtube:player_clients=android,ios;player_skip=web',
-  ignoreNoFormatsError: true,
   ...(customBinaryPath && { binaryPath: customBinaryPath })
 };
 
@@ -153,7 +152,9 @@ export const youtubeAdapter: SourceAdapter = {
       const info = (await youtubeDlExec(toVideoUrl(itemExternalId), {
         ...ytDlpBaseConfig,
         dumpSingleJson: true,
-        noWarnings: true
+        noWarnings: true,
+        // @ts-expect-error - ignoreNoFormatsError is not a valid option for youtube-dl-exec
+        ignoreNoFormatsError: true
       })) as YtDlpVideoInfo;
 
       const description = info.description ?? null;
