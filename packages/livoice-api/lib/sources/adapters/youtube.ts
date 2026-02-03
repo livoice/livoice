@@ -82,6 +82,8 @@ const ytDlpBaseConfig = {
   sleepRequests: Math.random() * 2 + 0.5,
   sleepSubtitles: Math.floor(Math.random() * 5) + 1,
   extractorArgs: 'youtube:player_clients=android,ios;player_skip=web',
+  ignoreNoFormatsError: true,
+  checkFormatsIfNoResolution: true,
   ...(customBinaryPath && { binaryPath: customBinaryPath })
 };
 
