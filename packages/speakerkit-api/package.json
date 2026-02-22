@@ -1,0 +1,31 @@
+{
+  "name": "speakerkit-api",
+  "version": "1.0.0",
+  "private": true,
+  "scripts": {
+    "dev": "keystone dev",
+    "start": "NODE_ENV=production keystone start",
+    "build": "NODE_ENV=production keystone build",
+    "prisma:hardreset": "dotenv -e ../../.env -- prisma db push --force-reset",
+    "prisma:migrate:dev": "dotenv -e ../../.env -- prisma migrate dev",
+    "prisma:migrate:deploy": "dotenv -e ../../.env -- prisma migrate deploy"
+  },
+  "dependencies": {
+    "@keystone-6/core": "^6.0.0",
+    "cookie": "^1.0.2",
+    "dotenv": "^16.5.0",
+    "envalid": "^8.0.0",
+    "next-auth": "^4.24.11",
+    "react": "^18.3.1",
+    "react-dom": "^18.3.1"
+  },
+  "devDependencies": {
+    "dotenv-cli": "^11.0.0",
+    "prettier": "^3.5.3",
+    "typescript": "^5.5.0"
+  },
+  "engines": {
+    "node": ">=22.18.0",
+    "npm": ">=10.x"
+  }
+}

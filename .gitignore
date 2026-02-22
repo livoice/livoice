@@ -5,8 +5,8 @@ node_modules
 /node_modules/.bin/
 *.zst
 *.zst.download
-/packages/livoice-api/.keystone/
-/packages/livoice-api/.next/
+.keystone/
+.next/
 .DS_Store
 *.pem
 /packages/livoice-api/stats.html

@@ -6,11 +6,13 @@
     "packages/*"
   ],
   "scripts": {
-    "dev": "concurrently -n web,api,worker -c \"cyan,magenta,green\" \"npm run dev:web\" \"npm run dev:api\" \"npm run dev:worker\"",
+    "dev": "concurrently -n web,api,worker,speakerkit -c \"cyan,magenta,green,yellow\" \"npm run dev:web\" \"npm run dev:api\" \"npm run dev:worker\" \"npm run dev:speakerkit\"",
     "dev:web": "npm run dev --workspace=livoice-web",
     "dev:api": "npm run dev --workspace=livoice-api",
+    "dev:speakerkit": "npm run dev --workspace=speakerkit-api",
     "dev:workers": "npm run dev --workspace=livoice-workers",
     "start:api": "npm run start --workspace=livoice-api",
+    "start:speakerkit": "npm run start --workspace=speakerkit-api",
     "start:workers": "npm run start --workspace=livoice-workers",
     "clean": "rm -rf node_modules packages/*/node_modules packages/*/package-lock.json packages/*/yarn.lock package-lock.json yarn.lock"
   },
