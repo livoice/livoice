@@ -12,6 +12,8 @@ export enum ROUTER_PATHS {
   USERS = '/users',
   USERS_CREATE = '/users/create',
   USERS_EDIT = '/users/:userId',
+  ACTORS = '/actors',
+  ACTOR = '/actors/:actorId',
   DEACTIVATED = '/deactivated',
   SETTINGS_ORG = '/settings/org',
   PROJECTS = '/projects',
@@ -49,6 +51,8 @@ export const toTranscript = ({ sourceId, transcriptId }: { sourceId: string; tra
 export const toUsers = () => asPath(ROUTER_PATHS.USERS);
 export const toUserCreate = () => asPath(ROUTER_PATHS.USERS_CREATE);
 export const toUserEdit = ({ userId }: { userId: string }) => asPath(ROUTER_PATHS.USERS_EDIT, { userId });
+export const toActors = () => asPath(ROUTER_PATHS.ACTORS);
+export const toActor = ({ actorId }: { actorId: string }) => asPath(ROUTER_PATHS.ACTOR, { actorId });
 export const toSettingsOrg = () => asPath(ROUTER_PATHS.SETTINGS_ORG);
 export const toProjects = () => asPath(ROUTER_PATHS.PROJECTS);
 export const toProjectCreate = () => asPath(ROUTER_PATHS.PROJECTS_CREATE);

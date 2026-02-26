@@ -1,0 +1,61 @@
+query ActorDetail($id: ID!) {
+  actor(where: { id: $id }) {
+    id
+    name
+    type
+    description
+    aliases
+    imageUrl
+    mentions(orderBy: { createdAt: desc }) {
+      id
+      mentionType
+      sentiment
+      emotion
+      confidence
+      segment {
+        id
+        text
+        startMs
+        endMs
+      }
+      transcript {
+        id
+        title
+        source {
+          id
+          name
+        }
+      }
+    }
+    relatesTo {
+      id
+      linkType
+      role
+      confidence
+      toActor {
+        id
+        name
+        type
+      }
+    }
+    relatedFrom {
+      id
+      linkType
+      role
+      confidence
+      fromActor {
+        id
+        name
+        type
+      }
+    }
+    speakerTranscripts(orderBy: { createdAt: desc }) {
+      id
+      title
+      source {
+        id
+        name
+      }
+    }
+  }
+}

@@ -1,4 +1,4 @@
-import { ROUTER_PATHS, toDashboard, toProjects, toSettingsOrg, toSources, toUsers } from '@/services/linker';
+import { ROUTER_PATHS, toActors, toDashboard, toProjects, toSettingsOrg, toSources, toUsers } from '@/services/linker';
 
 export type NavSection = 'primary' | 'settings' | 'secondary';
 
@@ -50,6 +50,14 @@ export const NAV_ITEMS: NavItemConfig[] = [
     icon: 'group',
     path: toUsers(),
     routePath: ROUTER_PATHS.USERS,
+    section: 'settings'
+  },
+  {
+    key: 'actors',
+    labelKey: 'sidebar.actors',
+    icon: 'hub',
+    path: toActors(),
+    routePath: ROUTER_PATHS.ACTORS,
     section: 'settings'
   },
   {

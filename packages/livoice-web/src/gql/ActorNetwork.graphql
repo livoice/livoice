@@ -1,0 +1,29 @@
+query ActorNetwork {
+  actors {
+    id
+    name
+    type
+    imageUrl
+    mentionsCount
+    speakerTranscriptsCount
+    speakerTranscripts {
+      id
+    }
+    relatesTo {
+      id
+      toActor {
+        id
+      }
+      linkType
+      confidence
+    }
+    relatedFrom {
+      id
+      fromActor {
+        id
+      }
+      linkType
+      confidence
+    }
+  }
+}

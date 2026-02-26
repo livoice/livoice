@@ -3009,6 +3009,18 @@ export type UserWhereUniqueInput = {
   providerAccountId?: InputMaybe<Scalars['String']['input']>;
 };
 
+export type ActorDetailQueryVariables = Exact<{
+  id: Scalars['ID']['input'];
+}>;
+
+
+export type ActorDetailQuery = { __typename?: 'Query', actor?: { __typename?: 'Actor', id: string, name?: string | null, type?: ActorTypeType | null, description?: string | null, aliases?: any | null, imageUrl?: string | null, mentions?: Array<{ __typename?: 'ActorMention', id: string, mentionType?: ActorMentionMentionTypeType | null, sentiment?: ActorMentionSentimentType | null, emotion?: ActorMentionEmotionType | null, confidence?: number | null, segment?: { __typename?: 'TranscriptSegment', id: string, text?: string | null, startMs?: number | null, endMs?: number | null } | null, transcript?: { __typename?: 'Transcript', id: string, title?: string | null, source?: { __typename?: 'Source', id: string, name?: string | null } | null } | null }> | null, relatesTo?: Array<{ __typename?: 'ActorLink', id: string, linkType?: string | null, role?: string | null, confidence?: number | null, toActor?: { __typename?: 'Actor', id: string, name?: string | null, type?: ActorTypeType | null } | null }> | null, relatedFrom?: Array<{ __typename?: 'ActorLink', id: string, linkType?: string | null, role?: string | null, confidence?: number | null, fromActor?: { __typename?: 'Actor', id: string, name?: string | null, type?: ActorTypeType | null } | null }> | null, speakerTranscripts?: Array<{ __typename?: 'Transcript', id: string, title?: string | null, source?: { __typename?: 'Source', id: string, name?: string | null } | null }> | null } | null };
+
+export type ActorNetworkQueryVariables = Exact<{ [key: string]: never; }>;
+
+
+export type ActorNetworkQuery = { __typename?: 'Query', actors?: Array<{ __typename?: 'Actor', id: string, name?: string | null, type?: ActorTypeType | null, imageUrl?: string | null, mentionsCount?: number | null, speakerTranscriptsCount?: number | null, speakerTranscripts?: Array<{ __typename?: 'Transcript', id: string }> | null, relatesTo?: Array<{ __typename?: 'ActorLink', id: string, linkType?: string | null, confidence?: number | null, toActor?: { __typename?: 'Actor', id: string } | null }> | null, relatedFrom?: Array<{ __typename?: 'ActorLink', id: string, linkType?: string | null, confidence?: number | null, fromActor?: { __typename?: 'Actor', id: string } | null }> | null }> | null };
+
 export type GetAllUsersQueryVariables = Exact<{ [key: string]: never; }>;
 
 
@@ -3205,6 +3217,165 @@ export type UpdateUserMutationVariables = Exact<{
 export type UpdateUserMutation = { __typename?: 'Mutation', updateUser?: { __typename?: 'User', id: string, role?: UserRoleType | null, isActive?: boolean | null } | null };
 
 
+export const ActorDetailDocument = gql`
+    query ActorDetail($id: ID!) {
+  actor(where: {id: $id}) {
+    id
+    name
+    type
+    description
+    aliases
+    imageUrl
+    mentions(orderBy: {createdAt: desc}) {
+      id
+      mentionType
+      sentiment
+      emotion
+      confidence
+      segment {
+        id
+        text
+        startMs
+        endMs
+      }
+      transcript {
+        id
+        title
+        source {
+          id
+          name
+        }
+      }
+    }
+    relatesTo {
+      id
+      linkType
+      role
+      confidence
+      toActor {
+        id
+        name
+        type
+      }
+    }
+    relatedFrom {
+      id
+      linkType
+      role
+      confidence
+      fromActor {
+        id
+        name
+        type
+      }
+    }
+    speakerTranscripts(orderBy: {createdAt: desc}) {
+      id
+      title
+      source {
+        id
+        name
+      }
+    }
+  }
+}
+    `;
+
+/**
+ * __useActorDetailQuery__
+ *
+ * To run a query within a React component, call `useActorDetailQuery` and pass it any options that fit your needs.
+ * When your component renders, `useActorDetailQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * you can use to render your UI.
+ *
+ * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ *
+ * @example
+ * const { data, loading, error } = useActorDetailQuery({
+ *   variables: {
+ *      id: // value for 'id'
+ *   },
+ * });
+ */
+export function useActorDetailQuery(baseOptions: Apollo.QueryHookOptions<ActorDetailQuery, ActorDetailQueryVariables> & ({ variables: ActorDetailQueryVariables; skip?: boolean; } | { skip: boolean; }) ) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useQuery<ActorDetailQuery, ActorDetailQueryVariables>(ActorDetailDocument, options);
+      }
+export function useActorDetailLazyQuery(baseOptions?: Apollo.LazyQueryHookOptions<ActorDetailQuery, ActorDetailQueryVariables>) {
+          const options = {...defaultOptions, ...baseOptions}
+          return Apollo.useLazyQuery<ActorDetailQuery, ActorDetailQueryVariables>(ActorDetailDocument, options);
+        }
+export function useActorDetailSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<ActorDetailQuery, ActorDetailQueryVariables>) {
+          const options = baseOptions === Apollo.skipToken ? baseOptions : {...defaultOptions, ...baseOptions}
+          return Apollo.useSuspenseQuery<ActorDetailQuery, ActorDetailQueryVariables>(ActorDetailDocument, options);
+        }
+export type ActorDetailQueryHookResult = ReturnType<typeof useActorDetailQuery>;
+export type ActorDetailLazyQueryHookResult = ReturnType<typeof useActorDetailLazyQuery>;
+export type ActorDetailSuspenseQueryHookResult = ReturnType<typeof useActorDetailSuspenseQuery>;
+export type ActorDetailQueryResult = Apollo.QueryResult<ActorDetailQuery, ActorDetailQueryVariables>;
+export const ActorNetworkDocument = gql`
+    query ActorNetwork {
+  actors {
+    id
+    name
+    type
+    imageUrl
+    mentionsCount
+    speakerTranscriptsCount
+    speakerTranscripts {
+      id
+    }
+    relatesTo {
+      id
+      toActor {
+        id
+      }
+      linkType
+      confidence
+    }
+    relatedFrom {
+      id
+      fromActor {
+        id
+      }
+      linkType
+      confidence
+    }
+  }
+}
+    `;
+
+/**
+ * __useActorNetworkQuery__
+ *
+ * To run a query within a React component, call `useActorNetworkQuery` and pass it any options that fit your needs.
+ * When your component renders, `useActorNetworkQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * you can use to render your UI.
+ *
+ * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ *
+ * @example
+ * const { data, loading, error } = useActorNetworkQuery({
+ *   variables: {
+ *   },
+ * });
+ */
+export function useActorNetworkQuery(baseOptions?: Apollo.QueryHookOptions<ActorNetworkQuery, ActorNetworkQueryVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useQuery<ActorNetworkQuery, ActorNetworkQueryVariables>(ActorNetworkDocument, options);
+      }
+export function useActorNetworkLazyQuery(baseOptions?: Apollo.LazyQueryHookOptions<ActorNetworkQuery, ActorNetworkQueryVariables>) {
+          const options = {...defaultOptions, ...baseOptions}
+          return Apollo.useLazyQuery<ActorNetworkQuery, ActorNetworkQueryVariables>(ActorNetworkDocument, options);
+        }
+export function useActorNetworkSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<ActorNetworkQuery, ActorNetworkQueryVariables>) {
+          const options = baseOptions === Apollo.skipToken ? baseOptions : {...defaultOptions, ...baseOptions}
+          return Apollo.useSuspenseQuery<ActorNetworkQuery, ActorNetworkQueryVariables>(ActorNetworkDocument, options);
+        }
+export type ActorNetworkQueryHookResult = ReturnType<typeof useActorNetworkQuery>;
+export type ActorNetworkLazyQueryHookResult = ReturnType<typeof useActorNetworkLazyQuery>;
+export type ActorNetworkSuspenseQueryHookResult = ReturnType<typeof useActorNetworkSuspenseQuery>;
+export type ActorNetworkQueryResult = Apollo.QueryResult<ActorNetworkQuery, ActorNetworkQueryVariables>;
 export const GetAllUsersDocument = gql`
     query GetAllUsers {
   users {

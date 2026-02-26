@@ -23,6 +23,7 @@ const ChatMessageDebug = lazy(() => import('@/containers/Chat/ChatMessageDebug')
 const Sources = lazy(() => import('@/containers/Sources/Sources'));
 const SourceUpsert = lazy(() => import('@/containers/Sources/containers/SourceUpsert'));
 const Source = lazy(() => import('@/containers/Sources/Source'));
+const Actors = lazy(() => import('@/containers/Actors/Actors'));
 
 export interface RouteConfig {
   path?: string;
@@ -146,6 +147,22 @@ export const routes: RouteConfig[] = [
             element: <Transcript />
           }
         ]
+      },
+      {
+        path: ROUTER_PATHS.ACTORS,
+        protectedRoute: {
+          permissions: auth => auth.isGod(),
+          onForbiddenRedirectTo: toDashboard()
+        },
+        element: <Actors />
+      },
+      {
+        path: ROUTER_PATHS.ACTOR,
+        protectedRoute: {
+          permissions: auth => auth.isGod(),
+          onForbiddenRedirectTo: toDashboard()
+        },
+        element: <Actors />
       }
     ]
   },
