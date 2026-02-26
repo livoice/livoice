@@ -1,4 +1,4 @@
-export type SourceType = 'youtube_channel' | 'podcast_feed' | 'vimeo_channel';
+export type SourceType = 'youtube_channel' | 'podcast_feed' | 'vimeo_channel' | 'google_drive';
 
 export type SourceItem = {
   externalId: string;
@@ -15,7 +15,11 @@ export type SourceItem = {
 
 export type SourceAdapter = {
   listItems: (sourceExternalId: string) => Promise<SourceItem[]>;
-  fetchTranscript: (itemExternalId: string) => Promise<string>;
+  fetchTranscript: (itemExternalId: string, streamId?: string) => Promise<string>;
   parseSourceUrl: (url: string | undefined | null) => string | null;
   fetchInfo?: (itemExternalId: string) => Promise<Partial<SourceItem>>;
+  startIngest?: (itemExternalId: string) => Promise<{ streamId: string } | null>;
+  checkIngest?: (streamId: string) => Promise<boolean>;
+  startPrepare?: (streamId: string) => Promise<void>;
+  checkPrepare?: (streamId: string) => Promise<boolean>;
 };

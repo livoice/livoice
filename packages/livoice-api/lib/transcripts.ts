@@ -3,6 +3,13 @@ import { getPrismaSudo } from './prisma';
 import type { SourceAdapter } from './sources/types';
 
 export const MAX_TRANSCRIPT_IMPORT_ATTEMPTS = 3;
+const STATUS_PENDING = 'pending' as TranscriptImportStatusType;
+const STATUS_INGESTING = 'ingesting' as TranscriptImportStatusType;
+const STATUS_PREPARING = 'preparing' as TranscriptImportStatusType;
+const STATUS_FETCHING = 'fetching' as TranscriptImportStatusType;
+const STATUS_COMPLETED = 'completed' as TranscriptImportStatusType;
+const STATUS_FAILED = 'failed' as TranscriptImportStatusType;
+const STATUS_SKIPPED = 'skipped' as TranscriptImportStatusType;
 
 export type TranscriptWithSource = Prisma.TranscriptGetPayload<{
   include: { source: true };
@@ -86,24 +93,96 @@ export const fetchPendingTranscript = async (): Promise<TranscriptWithSource | n
   (await getPrismaSudo()).transcript.findFirst({
     where: {
       OR: [
-        { importStatus: 'pending' },
-        { importStatus: 'failed', importAttempts: { lt: MAX_TRANSCRIPT_IMPORT_ATTEMPTS } }
+        { importStatus: STATUS_PENDING },
+        { importStatus: STATUS_INGESTING } as Prisma.TranscriptWhereInput,
+        { importStatus: STATUS_PREPARING } as Prisma.TranscriptWhereInput,
+        { importStatus: STATUS_FETCHING },
+        { importStatus: STATUS_FAILED, importAttempts: { lt: MAX_TRANSCRIPT_IMPORT_ATTEMPTS } }
       ]
     },
     include: { source: true },
     orderBy: { createdAt: 'asc' }
   });
 
+const getTranscriptStreamId = (transcript: TranscriptWithSource) =>
+  (transcript as TranscriptWithSource & { streamId?: string | null }).streamId ?? null;
+
 export const processTranscriptImport = async (transcript: TranscriptWithSource, adapter: SourceAdapter) => {
   const prisma = await getPrismaSudo();
-  await updateTranscriptStatus(transcript, 'fetching');
+  const streamId = getTranscriptStreamId(transcript);
+  const importStatus = (transcript.importStatus as string | undefined) ?? STATUS_PENDING;
+
+  if (importStatus === STATUS_FAILED) {
+    await updateTranscript(transcript.id, {
+      importStatus: streamId ? STATUS_FETCHING : STATUS_PENDING,
+      importError: ''
+    });
+    return;
+  }
+
+  if (importStatus === STATUS_PENDING) {
+    if (!adapter.startIngest) {
+      await updateTranscript(transcript.id, { importStatus: STATUS_FETCHING, importError: '' });
+    } else {
+      const ingestResult = await adapter.startIngest(transcript.externalId);
+      if (!ingestResult?.streamId) {
+        await updateTranscript(transcript.id, { importStatus: STATUS_FETCHING, importError: '' });
+      } else {
+        await updateTranscript(transcript.id, {
+          importStatus: STATUS_INGESTING,
+          importError: '',
+          streamId: ingestResult.streamId
+        } as Prisma.TranscriptUpdateArgs['data']);
+      }
+    }
+    return;
+  }
+
+  if (importStatus === STATUS_INGESTING) {
+    if (!streamId) {
+      await updateTranscriptStatus(transcript, STATUS_FAILED, 'Missing streamId during ingesting');
+      return;
+    }
+
+    const isIngestReady = adapter.checkIngest ? await adapter.checkIngest(streamId) : true;
+    if (!isIngestReady) return;
+
+    if (!adapter.startPrepare || !adapter.checkPrepare) {
+      await updateTranscript(transcript.id, { importStatus: STATUS_FETCHING, importError: '' });
+      return;
+    }
+
+    await adapter.startPrepare(streamId);
+    await updateTranscript(transcript.id, { importStatus: STATUS_PREPARING, importError: '' });
+    return;
+  }
+
+  if (importStatus === STATUS_PREPARING) {
+    if (!streamId) {
+      await updateTranscriptStatus(transcript, STATUS_FAILED, 'Missing streamId during preparing');
+      return;
+    }
+
+    if (!adapter.checkPrepare) {
+      await updateTranscript(transcript.id, { importStatus: STATUS_FETCHING, importError: '' });
+      return;
+    }
+
+    const isPreparationReady = await adapter.checkPrepare(streamId);
+    if (!isPreparationReady) return;
+
+    await updateTranscript(transcript.id, { importStatus: STATUS_FETCHING, importError: '' });
+    return;
+  }
+
+  if (importStatus !== STATUS_FETCHING) return;
 
   try {
-    const rawSrt = (await adapter.fetchTranscript(transcript.externalId)).trim();
+    const rawSrt = (await adapter.fetchTranscript(transcript.externalId, streamId ?? undefined)).trim();
     if (!rawSrt) {
       await updateTranscript(transcript.id, {
         rawSrt: '',
-        importStatus: 'skipped',
+        importStatus: STATUS_SKIPPED,
         importAt: new Date(),
         importError: 'empty_transcript'
       });
@@ -113,7 +192,7 @@ export const processTranscriptImport = async (transcript: TranscriptWithSource, 
     const info = await adapter.fetchInfo?.(transcript.externalId);
     if (!info) {
       await updateTranscript(transcript.id, {
-        importStatus: 'failed',
+        importStatus: STATUS_FAILED,
         importAt: new Date(),
         importError: 'failed to fetch info'
       });
@@ -129,7 +208,7 @@ export const processTranscriptImport = async (transcript: TranscriptWithSource, 
         description: info.description ?? undefined,
         chapters: info.chapters ?? undefined,
         ...(info.publishedAt && { publishedAt: info.publishedAt }),
-        importStatus: 'completed',
+        importStatus: STATUS_COMPLETED,
         importAt: new Date(),
         analysisStatus: 'pending',
         analysisAttempts: 0,
@@ -155,7 +234,7 @@ export const processTranscriptImport = async (transcript: TranscriptWithSource, 
     // If this is the last attempt and it's a subtitle-related error, mark as skipped
     if (isLastAttempt && isSubtitleError) {
       await updateTranscript(transcript.id, {
-        importStatus: 'skipped',
+        importStatus: STATUS_SKIPPED,
         importAt: new Date(),
         importError: errorMessage
       });
@@ -165,7 +244,7 @@ export const processTranscriptImport = async (transcript: TranscriptWithSource, 
       return;
     }
 
-    await updateTranscriptStatus(transcript, 'failed', errorMessage);
+    await updateTranscriptStatus(transcript, STATUS_FAILED, errorMessage);
     throw error;
   }
 };

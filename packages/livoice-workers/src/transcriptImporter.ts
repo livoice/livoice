@@ -21,7 +21,7 @@ export const start = async () => {
     if (!adapter)
       return updateTranscriptStatus(transcript, 'failed', `No adapter for source type ${transcript.source.type}`);
 
-    console.log(`[transcriptImporter] processing transcript ${transcript.id}`);
+    console.log(`[transcriptImporter] processing transcript ${transcript.id}, status=${transcript.importStatus}`);
 
     try {
       await queue.add(() => processTranscriptImport(transcript, adapter));

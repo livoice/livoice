@@ -175,7 +175,10 @@ export const youtubeAdapter: SourceAdapter = {
       return { description: null, category: null, tags: [], chapters: undefined, publishedAt: null };
     }
   },
-
+  startIngest: async () => null,
+  checkIngest: async () => true,
+  startPrepare: async () => undefined,
+  checkPrepare: async () => true,
   fetchTranscript: async itemExternalId => {
     const SUB_FORMAT = 'srt';
     const SUB_LANGS = 'en-en,en.*,en'; // Non Auto-genertated used en-en/en-* format. Accept various English subtitle variants (en, en-en, en-US, etc.)

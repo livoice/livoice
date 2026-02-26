@@ -24,7 +24,10 @@ import {
 } from './resolvers/sourceResolvers';
 
 export type SourceItem = TypeInfo['lists']['Source']['item'];
-const SOURCE_TYPES = [{ label: 'YouTube Channel', value: 'youtube_channel' }] as const;
+const SOURCE_TYPES = [
+  { label: 'YouTube Channel', value: 'youtube_channel' },
+  { label: 'Google Drive Folder', value: 'google_drive' }
+] as const;
 
 const IMPORT_STATUSES = [
   { label: 'Idle', value: 'idle' },

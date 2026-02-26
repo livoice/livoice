@@ -36,6 +36,14 @@ const env = cleanEnv(process.env, {
   // Google Cloud
   GOOGLE_CLIENT_ID: str(),
   GOOGLE_CLIENT_SECRET: str(),
+  GOOGLE_SERVICE_ACCOUNT_KEY: str(),
+
+  // Deepgram
+  DEEPGRAM_API_KEY: str(),
+
+  // Cloudflare Stream
+  CLOUDFLARE_ACCOUNT_ID: str(),
+  CLOUDFLARE_API_TOKEN: str(),
 
   // Cloudinary
   CLOUDINARY_CLOUD_NAME: str(),

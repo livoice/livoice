@@ -11,6 +11,7 @@ export default list({
     sourceUrl: text({ ui: { description: 'Optional source or recording URL' } }),
     notes: text({ ui: { displayMode: 'textarea' } }),
     externalId: text(),
+    streamId: text(),
     publishedAt: timestamp(),
     duration: integer(),
     thumbnailUrl: text(),
@@ -21,6 +22,8 @@ export default list({
       type: 'enum',
       options: [
         { label: 'Pending', value: 'pending' },
+        { label: 'Ingesting', value: 'ingesting' },
+        { label: 'Preparing', value: 'preparing' },
         { label: 'Fetching', value: 'fetching' },
         { label: 'Completed', value: 'completed' },
         { label: 'Failed', value: 'failed' },
