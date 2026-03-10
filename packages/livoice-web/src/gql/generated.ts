@@ -3016,10 +3016,15 @@ export type ActorDetailQueryVariables = Exact<{
 
 export type ActorDetailQuery = { __typename?: 'Query', actor?: { __typename?: 'Actor', id: string, name?: string | null, type?: ActorTypeType | null, description?: string | null, aliases?: any | null, imageUrl?: string | null, mentions?: Array<{ __typename?: 'ActorMention', id: string, mentionType?: ActorMentionMentionTypeType | null, sentiment?: ActorMentionSentimentType | null, emotion?: ActorMentionEmotionType | null, confidence?: number | null, segment?: { __typename?: 'TranscriptSegment', id: string, text?: string | null, startMs?: number | null, endMs?: number | null } | null, transcript?: { __typename?: 'Transcript', id: string, title?: string | null, source?: { __typename?: 'Source', id: string, name?: string | null } | null } | null }> | null, relatesTo?: Array<{ __typename?: 'ActorLink', id: string, linkType?: string | null, role?: string | null, confidence?: number | null, toActor?: { __typename?: 'Actor', id: string, name?: string | null, type?: ActorTypeType | null } | null }> | null, relatedFrom?: Array<{ __typename?: 'ActorLink', id: string, linkType?: string | null, role?: string | null, confidence?: number | null, fromActor?: { __typename?: 'Actor', id: string, name?: string | null, type?: ActorTypeType | null } | null }> | null, speakerTranscripts?: Array<{ __typename?: 'Transcript', id: string, title?: string | null, source?: { __typename?: 'Source', id: string, name?: string | null } | null }> | null } | null };
 
-export type ActorNetworkQueryVariables = Exact<{ [key: string]: never; }>;
+export type ActorNetworkQueryVariables = Exact<{
+  actorWhere?: ActorWhereInput;
+  actorLinkWhere?: ActorLinkWhereInput;
+  actorsTake?: InputMaybe<Scalars['Int']['input']>;
+  linksTake?: InputMaybe<Scalars['Int']['input']>;
+}>;
 
 
-export type ActorNetworkQuery = { __typename?: 'Query', actors?: Array<{ __typename?: 'Actor', id: string, name?: string | null, type?: ActorTypeType | null, imageUrl?: string | null, mentionsCount?: number | null, speakerTranscriptsCount?: number | null, speakerTranscripts?: Array<{ __typename?: 'Transcript', id: string }> | null, relatesTo?: Array<{ __typename?: 'ActorLink', id: string, linkType?: string | null, confidence?: number | null, toActor?: { __typename?: 'Actor', id: string } | null }> | null, relatedFrom?: Array<{ __typename?: 'ActorLink', id: string, linkType?: string | null, confidence?: number | null, fromActor?: { __typename?: 'Actor', id: string } | null }> | null }> | null };
+export type ActorNetworkQuery = { __typename?: 'Query', actors?: Array<{ __typename?: 'Actor', id: string, name?: string | null, type?: ActorTypeType | null, imageUrl?: string | null }> | null, actorLinks?: Array<{ __typename?: 'ActorLink', id: string, linkType?: string | null, confidence?: number | null, fromActor?: { __typename?: 'Actor', id: string } | null, toActor?: { __typename?: 'Actor', id: string } | null }> | null };
 
 export type GetAllUsersQueryVariables = Exact<{ [key: string]: never; }>;
 
@@ -3314,32 +3319,22 @@ export type ActorDetailLazyQueryHookResult = ReturnType<typeof useActorDetailLaz
 export type ActorDetailSuspenseQueryHookResult = ReturnType<typeof useActorDetailSuspenseQuery>;
 export type ActorDetailQueryResult = Apollo.QueryResult<ActorDetailQuery, ActorDetailQueryVariables>;
 export const ActorNetworkDocument = gql`
-    query ActorNetwork {
-  actors {
+    query ActorNetwork($actorWhere: ActorWhereInput! = {}, $actorLinkWhere: ActorLinkWhereInput! = {}, $actorsTake: Int = 500, $linksTake: Int = 3000) {
+  actors(where: $actorWhere, orderBy: {name: asc}, take: $actorsTake) {
     id
     name
     type
     imageUrl
-    mentionsCount
-    speakerTranscriptsCount
-    speakerTranscripts {
+  }
+  actorLinks(where: $actorLinkWhere, orderBy: {createdAt: desc}, take: $linksTake) {
+    id
+    linkType
+    confidence
+    fromActor {
       id
     }
-    relatesTo {
+    toActor {
       id
-      toActor {
-        id
-      }
-      linkType
-      confidence
-    }
-    relatedFrom {
-      id
-      fromActor {
-        id
-      }
-      linkType
-      confidence
     }
   }
 }
@@ -3357,6 +3352,10 @@ export const ActorNetworkDocument = gql`
  * @example
  * const { data, loading, error } = useActorNetworkQuery({
  *   variables: {
+ *      actorWhere: // value for 'actorWhere'
+ *      actorLinkWhere: // value for 'actorLinkWhere'
+ *      actorsTake: // value for 'actorsTake'
+ *      linksTake: // value for 'linksTake'
  *   },
  * });
  */

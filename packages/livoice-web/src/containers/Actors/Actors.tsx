@@ -1,7 +1,7 @@
 import { useEffect, useMemo, useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 
-import { ActorTypeType, useActorNetworkQuery } from '@/gql/generated';
+import { ActorTypeType, QueryMode, type ActorLinkWhereInput, type ActorWhereInput, useActorNetworkQuery } from '@/gql/generated';
 import { toActor, toActors } from '@/services/linker';
 import { Badge, PageHeader, Switch, TextField } from '@/ui';
 import { ActorDetailPanel } from './components/ActorDetailPanel';
@@ -20,14 +20,54 @@ const typeLabels: Record<string, string> = {
 };
 
 export default function Actors() {
+  const ACTORS_TAKE = 500;
+  const LINKS_TAKE = 3000;
+
   const navigate = useNavigate();
   const { actorId = '' } = useParams<{ actorId: string }>();
-  const { data, loading, error } = useActorNetworkQuery();
 
   const [searchTerm, setSearchTerm] = useState('');
+  const [debouncedSearchTerm, setDebouncedSearchTerm] = useState('');
   const [actorTypeFilter, setActorTypeFilter] = useState<string>('all');
   const [hideIsolated, setHideIsolated] = useState(false);
   const [selectedActorId, setSelectedActorId] = useState<string | undefined>(actorId || undefined);
+
+  useEffect(() => {
+    const timeoutId = window.setTimeout(() => setDebouncedSearchTerm(searchTerm.trim()), 350);
+    return () => window.clearTimeout(timeoutId);
+  }, [searchTerm]);
+
+  const actorBaseFilter = useMemo<ActorWhereInput>(() => {
+    const filters: ActorWhereInput[] = [];
+    if (debouncedSearchTerm) {
+      filters.push({
+        OR: [
+          { name: { contains: debouncedSearchTerm, mode: QueryMode.Insensitive } },
+          { description: { contains: debouncedSearchTerm, mode: QueryMode.Insensitive } }
+        ]
+      });
+    }
+    if (actorTypeFilter !== 'all') filters.push({ type: { equals: actorTypeFilter as ActorTypeType } });
+    if (!filters.length) return {};
+    return { AND: filters };
+  }, [actorTypeFilter, debouncedSearchTerm]);
+
+  const actorLinkWhere = useMemo<ActorLinkWhereInput>(() => {
+    const hasActorBaseFilters = Boolean(actorBaseFilter.AND?.length);
+    if (!hasActorBaseFilters) return {};
+    return {
+      OR: [{ fromActor: actorBaseFilter }, { toActor: actorBaseFilter }]
+    };
+  }, [actorBaseFilter]);
+
+  const { data, loading, error } = useActorNetworkQuery({
+    variables: {
+      actorWhere: actorBaseFilter,
+      actorLinkWhere,
+      actorsTake: ACTORS_TAKE,
+      linksTake: LINKS_TAKE
+    }
+  });
 
   useEffect(() => {
     setSelectedActorId(actorId || undefined);
@@ -36,6 +76,10 @@ export default function Actors() {
   const actors = useMemo(
     () => (data?.actors ?? []).filter((actor): actor is NonNullable<typeof actor> => Boolean(actor)),
     [data?.actors]
+  );
+  const actorLinks = useMemo(
+    () => (data?.actorLinks ?? []).filter((actorLink): actorLink is NonNullable<typeof actorLink> => Boolean(actorLink)),
+    [data?.actorLinks]
   );
 
   const actorTypeOptions = useMemo(() => {
@@ -105,16 +149,15 @@ export default function Actors() {
           <div className="flex flex-wrap items-center gap-2 text-xs text-slate-600">
             <Badge variant="outline">Actors: {actors.length}</Badge>
             <Badge variant="outline">
-              Linked actors:{' '}
-              {actors.filter(actor => (actor.relatesTo?.length ?? 0) + (actor.relatedFrom?.length ?? 0)).length}
+              Links: {actorLinks.length}
             </Badge>
-            <Badge variant="outline">
-              Mentioned actors: {actors.filter(actor => (actor.mentionsCount ?? 0) > 0).length}
-            </Badge>
+            <Badge variant="outline">Filter: {actorTypeFilter === 'all' ? 'All types' : (typeLabels[actorTypeFilter] ?? actorTypeFilter)}</Badge>
+            <Badge variant="outline">Query caps: {ACTORS_TAKE} actors / {LINKS_TAKE} links</Badge>
           </div>
 
           <ActorGraph
             actors={actors}
+            actorLinks={actorLinks}
             selectedActorId={selectedActorId}
             actorTypeFilter={actorTypeFilter}
             searchTerm={searchTerm}

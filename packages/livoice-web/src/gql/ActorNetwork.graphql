@@ -1,29 +1,24 @@
-query ActorNetwork {
-  actors {
+query ActorNetwork(
+  $actorWhere: ActorWhereInput! = {}
+  $actorLinkWhere: ActorLinkWhereInput! = {}
+  $actorsTake: Int = 500
+  $linksTake: Int = 3000
+) {
+  actors(where: $actorWhere, orderBy: { name: asc }, take: $actorsTake) {
     id
     name
     type
     imageUrl
-    mentionsCount
-    speakerTranscriptsCount
-    speakerTranscripts {
+  }
+  actorLinks(where: $actorLinkWhere, orderBy: { createdAt: desc }, take: $linksTake) {
+    id
+    linkType
+    confidence
+    fromActor {
       id
     }
-    relatesTo {
+    toActor {
       id
-      toActor {
-        id
-      }
-      linkType
-      confidence
-    }
-    relatedFrom {
-      id
-      fromActor {
-        id
-      }
-      linkType
-      confidence
     }
   }
 }

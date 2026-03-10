@@ -5,14 +5,13 @@ import type { ForceGraphMethods, NodeObject } from 'react-force-graph-2d';
 import type { ActorNetworkQuery } from '@/gql/generated';
 
 type ActorListItem = NonNullable<NonNullable<ActorNetworkQuery['actors']>[number]>;
+type ActorLinkListItem = NonNullable<NonNullable<ActorNetworkQuery['actorLinks']>[number]>;
 
 export interface ActorGraphNode {
   id: string;
   name: string;
   type: string;
   imageUrl?: string | null;
-  mentionsCount: number;
-  speakerTranscriptsCount: number;
   isMatch: boolean;
 }
 
@@ -20,13 +19,14 @@ interface ActorGraphLink {
   id: string;
   source: string;
   target: string;
-  kind: 'link' | 'coappearance';
+  kind: 'link';
   label: string;
   confidence: number;
 }
 
 interface ActorGraphProps {
   actors: ActorListItem[];
+  actorLinks: ActorLinkListItem[];
   selectedActorId?: string;
   actorTypeFilter: string;
   searchTerm: string;
@@ -59,6 +59,7 @@ const toLabel = (value: string) =>
 
 export const ActorGraph = ({
   actors,
+  actorLinks,
   selectedActorId,
   actorTypeFilter,
   searchTerm,
@@ -81,72 +82,16 @@ export const ActorGraph = ({
 
     const actorIdSet = new Set(filteredActors.map(({ id }) => id));
 
-    const relationEdgesMap = new Map<string, ActorGraphLink>();
-    filteredActors.forEach(actor => {
-      (actor.relatesTo ?? []).forEach(link => {
-        const sourceActorId = actor.id;
-        const targetActorId = link?.toActor?.id ?? '';
-        if (!targetActorId || !actorIdSet.has(targetActorId)) return;
-        relationEdgesMap.set(link.id, {
-          id: link.id,
-          source: sourceActorId,
-          target: targetActorId,
-          kind: 'link',
-          label: link.linkType ? toLabel(link.linkType) : 'Connected',
-          confidence: link.confidence ?? 0
-        });
-      });
-
-      (actor.relatedFrom ?? []).forEach(link => {
-        const sourceActorId = link?.fromActor?.id ?? '';
-        const targetActorId = actor.id;
-        if (!sourceActorId || !actorIdSet.has(sourceActorId)) return;
-        relationEdgesMap.set(link.id, {
-          id: link.id,
-          source: sourceActorId,
-          target: targetActorId,
-          kind: 'link',
-          label: link.linkType ? toLabel(link.linkType) : 'Connected',
-          confidence: link.confidence ?? 0
-        });
-      });
-    });
-
-    const speakerActorsByTranscript = new Map<string, Set<string>>();
-    filteredActors.forEach(actor => {
-      (actor.speakerTranscripts ?? []).forEach(transcript => {
-        if (!transcript?.id) return;
-        const speakerActorIds = speakerActorsByTranscript.get(transcript.id) ?? new Set<string>();
-        speakerActorIds.add(actor.id);
-        speakerActorsByTranscript.set(transcript.id, speakerActorIds);
-      });
-    });
-
-    const coAppearanceCounts = new Map<string, number>();
-    speakerActorsByTranscript.forEach(speakerActorIds => {
-      const transcriptActorIds = Array.from(speakerActorIds);
-      transcriptActorIds.forEach((sourceActorId, sourceIndex) => {
-        transcriptActorIds.slice(sourceIndex + 1).forEach(targetActorId => {
-          const pairKey = [sourceActorId, targetActorId].sort().join(':');
-          const currentCount = coAppearanceCounts.get(pairKey) ?? 0;
-          coAppearanceCounts.set(pairKey, currentCount + 1);
-        });
-      });
-    });
-
-    const coAppearanceEdges = Array.from(coAppearanceCounts.entries()).map(([pairKey, count]) => {
-      const [sourceActorId, targetActorId] = pairKey.split(':');
-      return {
-        id: `co:${pairKey}`,
-        source: sourceActorId,
-        target: targetActorId,
-        kind: 'coappearance' as const,
-        label: `Co-speaker (${count} transcripts)`,
-        confidence: count
-      };
-    });
-
-    const links = [...Array.from(relationEdgesMap.values()), ...coAppearanceEdges];
+    const links = actorLinks
+      .map(link => ({
+        id: link.id,
+        source: link?.fromActor?.id ?? '',
+        target: link?.toActor?.id ?? '',
+        kind: 'link' as const,
+        label: link.linkType ? toLabel(link.linkType) : 'Connected',
+        confidence: link.confidence ?? 0
+      }))
+      .filter(({ source, target }) => source && target && actorIdSet.has(source) && actorIdSet.has(target));
 
     const connectedActorIds = new Set(links.flatMap(({ source, target }) => [source, target]));
     const nodes = filteredActors
@@ -159,8 +104,6 @@ export const ActorGraph = ({
         name: actor.name ?? 'Unknown actor',
         type: normalizeActorType(actor.type),
         imageUrl: actor.imageUrl,
-        mentionsCount: actor.mentionsCount ?? 0,
-        speakerTranscriptsCount: actor.speakerTranscriptsCount ?? 0,
         isMatch: normalizedSearchTerm
           ? (actor.name ?? '').toLowerCase().includes(normalizedSearchTerm)
           : false
@@ -171,7 +114,7 @@ export const ActorGraph = ({
       nodes,
       links: links.filter(({ source, target }) => visibleActorIds.has(source) && visibleActorIds.has(target))
     };
-  }, [actors, actorTypeFilter, hideIsolated, normalizedSearchTerm]);
+  }, [actorLinks, actors, actorTypeFilter, hideIsolated, normalizedSearchTerm]);
 
   useEffect(() => {
     if (!containerRef.current) return;
@@ -243,9 +186,8 @@ export const ActorGraph = ({
           );
         }}
         linkLabel={(link: object) => (link as ActorGraphLink).label}
-        linkColor={(link: object) => ((link as ActorGraphLink).kind === 'coappearance' ? '#38bdf8' : '#94a3b8')}
-        linkWidth={(link: object) => ((link as ActorGraphLink).kind === 'coappearance' ? 1 : 1.8)}
-        linkLineDash={(link: object) => ((link as ActorGraphLink).kind === 'coappearance' ? [4, 2] : null)}
+        linkColor="#94a3b8"
+        linkWidth={1.8}
         cooldownTicks={120}
         onNodeClick={node => onActorSelect((node as ActorGraphNode).id)}
       />
